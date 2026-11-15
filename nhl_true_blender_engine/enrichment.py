@@ -59,9 +59,9 @@ def attach(con, snapshot, date, stage):
     if stage in ('WATCH','CONFIRMED'):
         # Independent projected evidence survives into the confirmed research
         # pass with its ORIGINAL label. New confirmed evidence takes precedence.
-        rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC",(date,)).fetchall()
+        rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC, rowid ASC",(date,)).fetchall()
     else:
-        rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN (?, 'OFFICIAL') ORDER BY observed_at ASC",(date,stage)).fetchall()
+        rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN (?, 'OFFICIAL') ORDER BY observed_at ASC, rowid ASC",(date,stage)).fetchall()
     # A goalie profile cannot attach to a starter until the verified starter
     # branch exists. Ordered queries by timestamp alone can silently discard
     # valid earlier scouting whenever the lineup source arrives later.
@@ -69,7 +69,7 @@ def attach(con, snapshot, date, stage):
     rows=sorted(rows,key=lambda row:(0 if row['kind']=='GOALIE_STARTER' else
                    1 if row['kind']=='GOALIE_PROFILE' else 2,
                    {'OFFICIAL':0,'PROJECTED':1,'CONFIRMED':2}.get(row['stage'],0),
-                   row['observed_at']))
+                   row['observed_at'], row['rowid'] if 'rowid' in row.keys() else 0))
     refs=[]
     for row in rows:
         kind=row['kind'];data=json.loads(row['payload'])
