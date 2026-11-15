@@ -1,5 +1,14 @@
 {
+  "anatomicalEvidenceMisrepresented": false,
   "cardSavedByEngine": false,
+  "edgeSourceCoverage": {
+    "allCurrentRosterIdentitiesChecked": 249,
+    "anatomicalClaimCertified": false,
+    "goalieRinkProfiles": 24,
+    "skaterRinkProfiles": 225,
+    "status": "EVIDENCE_COLLECTED",
+    "totalFailed": 0
+  },
   "eligibleSkaterRows": 0,
   "errors": [
     "2026020326 G0 no independently evidenced goalie target",
@@ -11,8 +20,143 @@
   ],
   "g0Complete": 0,
   "g0Directions": 10,
+  "g0RinkOriginResearch": [
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "EDM",
+          "defender": "PHI",
+          "goalieBranches": [
+            {
+              "goalieId": "8478435",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.848485,
+                  "savePctgPercentile": 0.4386,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.861111,
+                  "savePctgPercentile": 0.2105,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 15,
+                  "savePctg": 0.805195,
+                  "savePctgPercentile": 0.4386,
+                  "shotsAgainst": 77
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.9,
+                  "savePctgPercentile": 0.4912,
+                  "shotsAgainst": 30
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478435/now",
+              "starterStatus": "CONFIRMED",
+              "zoneProfileFound": true
+            }
+          ]
+        },
+        {
+          "attacker": "PHI",
+          "defender": "EDM",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020326",
+      "matchup": "EDM@PHI",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "FLA",
+          "defender": "DAL",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "DAL",
+          "defender": "FLA",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020327",
+      "matchup": "FLA@DAL",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "CGY",
+          "defender": "ANA",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "ANA",
+          "defender": "CGY",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020328",
+      "matchup": "CGY@ANA",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "VAN",
+          "defender": "VGK",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "VGK",
+          "defender": "VAN",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020329",
+      "matchup": "VAN@VGK",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "NSH",
+          "defender": "SJS",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "SJS",
+          "defender": "NSH",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020330",
+      "matchup": "NSH@SJS",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    }
+  ],
   "games": 5,
   "gateRows": 10,
+  "lineupSourceCoverage": {
+    "deploymentRecords": 176,
+    "error": null,
+    "goalieReports": 2,
+    "status": "DATED_SOURCE_PARSED"
+  },
   "missingByGate": {
     "G0": 10
   },
@@ -20,5 +164,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T19:04:06+00:00"
+  "updatedUTC": "2026-11-15T19:05:45+00:00"
 }
