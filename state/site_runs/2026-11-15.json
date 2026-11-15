@@ -366,9 +366,33 @@
     "Step8": 18,
     "Step9": 3
   },
+  "officialBoxscoreCoverage": {
+    "appearanceRows": 1450,
+    "attemptedGames": 69,
+    "discrepancies": [],
+    "distinctPlayers": 209,
+    "noSeasonTotalsInvented": true,
+    "source": "https://api-web.nhle.com/v1/gamecenter/",
+    "sourceGames": 69,
+    "status": "OFFICIAL_PBP_AND_BOXSCORE_RECONCILED",
+    "timeLeakagePrevented": true,
+    "verifiedOwnGoalRows": 209
+  },
+  "officialDefenseCoverage": {
+    "coverageAttackSides": 10,
+    "failedSources": [],
+    "peerMedianZoneShares": {
+      "High Slot": 0.10837438423645321,
+      "Low Slot": 0.27049180327868855,
+      "Point": 0.2397003745318352
+    },
+    "sourceType": "OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
+    "targetSides": 10,
+    "zonesAreConservativeDerivedRinkAreas": true
+  },
   "publishedToSite": false,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T19:46:26+00:00"
+  "updatedUTC": "2026-11-15T19:47:09+00:00"
 }
