@@ -33,13 +33,13 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
-      - name: Run both legacy and integrated engine regression suites
+      - name: Download current MoneyPuck season aggregates\n        run: |\n          python scripts/download_moneypuck.py\n      - name: Run both legacy and integrated engine regression suites
         run: |
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
       - name: Run official NHL full-slate evidence audit
         env:
-          REQUESTED_DATE: ${{ inputs.date }}
+          MONEYPUCK_CSV_DIR: ${{ github.workspace }}/data/moneypuck\n          MONEYPUCK_EXPORT_ASOF: ${{ env.MONEYPUCK_EXPORT_ASOF }}\n          REQUESTED_DATE: ${{ inputs.date }}
           REQUESTED_MODE: ${{ inputs.mode }}
         run: |
           python - <<'PY'
