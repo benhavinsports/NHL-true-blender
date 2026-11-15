@@ -128,6 +128,31 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
                     "player_id": pid, "kind": "PLAYER_PRESSURE",
                     "source_url": urls[0], "observed_at": datetime.now(timezone.utc).isoformat(),
                     "payload": payload})
+    # Preserve every official historical goal as a source-linked recipient event.
+    # This is distinct from a speculative release lane or anatomical goalie weakness.
+    for game in snapshot["games"]:
+        for team in (game["away"], game["home"]):
+            roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
+            for player in roster:
+                pid = str(player["id"])
+                own = [e for e in events if e["shooterId"] == pid]
+                if not own:
+                    continue
+                goals = [e for e in own if e["type"] == "goal"]
+                urls = sorted({e["sourceUrl"] for e in own})
+                observed = datetime.now(timezone.utc).isoformat()
+                base = {"slate_date": slate_date, "stage": stage,
+                        "game_id": game["id"], "player_id": pid,
+                        "source_url": urls[0], "observed_at": observed}
+                mapped = [{"goalId": e["gameId"] + ":" + e["eventId"],
+                           "date": e["date"], "sourceUrl": e["sourceUrl"]}
+                          for e in goals]
+                ingest(con, {**base,
+                    "evidence_id": f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",
+                    "kind": "PLAYER_GOAL_EVENTS",
+                    "payload": {"goals": mapped, "scope": "SAMPLED_PRE_SLATE_GAMES_ONLY",
+                                "completeSeason": False}})
+                # Sample counts must never masquerade as season-wide official totals.
     return {"historicalGames": len(ids), "shotEvents": len(events),
             "errors": errors, "goalieIdentityEvents": sum(e["goalieId"] is not None for e in events),
             "anatomicalGoalieWeaknessVerified": False}
