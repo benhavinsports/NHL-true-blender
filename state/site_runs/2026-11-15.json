@@ -41,7 +41,7 @@
       "ownedGoals": 2,
       "player": "Evan Bouchard",
       "playerId": "8480803",
-      "routeLabel": "PRIMARY",
+      "routeLabel": "TRANSFER",
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480803/now"
     },
     {
@@ -175,94 +175,6 @@
       "playerId": "8480028",
       "routeLabel": "PRIMARY",
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480028/now"
-    },
-    {
-      "attackTeam": "VAN",
-      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020196/play-by-play",
-      "deployment": {
-        "EV": "F2",
-        "line": 2,
-        "powerPlayUnit": 1,
-        "sourceType": "SECONDARY_PROJECTED_LINEUP",
-        "status": "PROJECTED"
-      },
-      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
-      "gameId": "2026020329",
-      "gameStartUTC": "2026-11-16T02:00:00Z",
-      "goalieId": "8479394",
-      "goalieObservedZoneStats": {
-        "goalsAgainst": 1,
-        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-        "leagueSavePctgPercentile": 0.3158,
-        "savePctg": 0.9583333333333334,
-        "saves": 23,
-        "shotsAgainst": 24,
-        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now"
-      },
-      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now",
-      "goalieStatus": "EXPECTED",
-      "independentOpponentDefense": {
-        "allOnNetShotsAgainst": 215,
-        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-        "gameCount": 8,
-        "peerMedianShare": 0.08239700374531835,
-        "share": 0.11162790697674418,
-        "shotsAgainst": 24
-      },
-      "matchup": "VAN@VGK",
-      "nonRankingDiagnosticOnly": true,
-      "opponentTeam": "VGK",
-      "ownRouteZone": "L Point",
-      "ownShotsOnGoal": 3,
-      "ownedGoals": 1,
-      "player": "Jonathan Lekkerim\u00e4ki",
-      "playerId": "8483476",
-      "routeLabel": "PRIMARY",
-      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483476/now"
-    },
-    {
-      "attackTeam": "SJS",
-      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020208/play-by-play",
-      "deployment": {
-        "EV": "F2",
-        "line": 2,
-        "powerPlayUnit": 1,
-        "sourceType": "SECONDARY_PROJECTED_LINEUP",
-        "status": "PROJECTED"
-      },
-      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
-      "gameId": "2026020330",
-      "gameStartUTC": "2026-11-16T02:00:00Z",
-      "goalieId": "8477424",
-      "goalieObservedZoneStats": {
-        "goalsAgainst": 1,
-        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-        "leagueSavePctgPercentile": 0.2632,
-        "savePctg": 0.96,
-        "saves": 24,
-        "shotsAgainst": 25,
-        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now"
-      },
-      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
-      "goalieStatus": "EXPECTED",
-      "independentOpponentDefense": {
-        "allOnNetShotsAgainst": 244,
-        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-        "gameCount": 8,
-        "peerMedianShare": 0.06896551724137931,
-        "share": 0.07377049180327869,
-        "shotsAgainst": 18
-      },
-      "matchup": "NSH@SJS",
-      "nonRankingDiagnosticOnly": true,
-      "opponentTeam": "NSH",
-      "ownRouteZone": "R Point",
-      "ownShotsOnGoal": 3,
-      "ownedGoals": 1,
-      "player": "Mason Marchment",
-      "playerId": "8478975",
-      "routeLabel": "PRIMARY",
-      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478975/now"
     }
   ],
   "anatomicalEvidenceMisrepresented": false,
@@ -283,9 +195,10 @@
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 6,
+      "FULL_G0_G18_PASS": 4,
       "G10": 11,
       "G10.5": 51,
+      "G18": 2,
       "G4": 7,
       "G5": 16,
       "G6": 17,
@@ -350,6 +263,20 @@
           "firstNonpassingGate": "G10.5",
           "gameId": "2026020326",
           "playerId": "8476454",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G18": [
+        {
+          "firstNonpassingGate": "G18",
+          "gameId": "2026020329",
+          "playerId": "8483476",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G18",
+          "gameId": "2026020330",
+          "playerId": "8478975",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -769,7 +696,7 @@
     "G15": 23,
     "G16": 88,
     "G17": 88,
-    "G18": 88,
+    "G18": 90,
     "G4": 7,
     "G5": 7,
     "G6": 22,
@@ -820,5 +747,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T21:45:41+00:00"
+  "updatedUTC": "2026-11-15T22:03:47+00:00"
 }
