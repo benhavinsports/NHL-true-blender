@@ -33,6 +33,10 @@ def export_run(con, slate_date, stage, result, root='state'):
         'errors':result.get('errors',[])[:20],
         'cardSavedByEngine':bool(card),
         'publishedToSite':False,
+        'edgeSourceCoverage':result.get('edgeSourceCoverage',{}),
+        'lineupSourceCoverage':result.get('lineupSourceCoverage',{}),
+        'g0RinkOriginResearch':result.get('g0RinkOriginResearch',[]),
+        'anatomicalEvidenceMisrepresented':False,
     }
     if not card:
         _write(status_path,status)
