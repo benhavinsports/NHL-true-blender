@@ -573,9 +573,7 @@
     "totalFailed": 0
   },
   "eligibleSkaterRows": 93,
-  "errors": [
-    "2026020329 G0 attack sides not physically separated by certified goalie weaknesses"
-  ],
+  "errors": [],
   "fingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
@@ -2397,6 +2395,11 @@
     "Step7": 21,
     "Step9": 8
   },
+  "nonselectedGameResearchIsDiagnosticOnly": true,
+  "nonselectedGameResearchNotes": [
+    "2026020329 G0 attack sides not physically separated by certified goalie weaknesses"
+  ],
+  "nonselectedGateAuditIsDiagnosticOnly": true,
   "officialBoxscoreCoverage": {
     "appearanceRows": 1450,
     "attemptedGames": 69,
@@ -2431,7 +2434,19 @@
   "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
   "publishedToSite": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
+  "selectionFunnel": {
+    "allNonselectedRetainGateAudit": true,
+    "lockedCoreRecipients": 3,
+    "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
+    "notQualifiedIncompleteEvidence": 90,
+    "oneSourceSelectedCardPreserved": true,
+    "otherNotSelected": 0,
+    "qualifiedButNotChosen": 1,
+    "sourceEliminated": 21,
+    "surveyedEligibleSkaters": 115
+  },
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T23:20:57+00:00"
+  "survivorOnlyCertification": true,
+  "updatedUTC": "2026-11-15T23:23:54+00:00"
 }
