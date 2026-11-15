@@ -171,47 +171,91 @@ def reconcile_logs(p):
 
 
 def challenger_proof(candidate, challengers, goalie_weak_zones):
-    """Nondominance is not a defeat. If neither shooter defeats each same-zone challenger,
-    keep the direct recipient separation open instead of inventing a weight."""
+    """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
+
+    NHL EDGE independently measures each skater's shots on goal and own goals
+    in each area. Requiring every competitor's separate prior-game goal log
+    would discard a real same-lane threat merely because that player hasn't
+    scored in the sampled last-eight games; the rival's observed season zone
+    data remains valid challenger evidence.
+
+    G10.5 can PASS only on *strict* two-dimensional own-route dominance over
+    every matching target-area challenger. Nondominance remains unresolved.
+    """
     base=player_releases(candidate)
     rows=[]; all_defeated=True
-    if not base: return None, []
+    if not base:
+        return None,[]
     for rival in challengers:
-        if str(rival['id'])==str(candidate['id']):continue
+        if str(rival['id'])==str(candidate['id']):
+            continue
+        wrapper=rival.get('release')
         release=player_releases(rival)
         if not release:
-            rows.append({'challengerId':str(rival['id']),'status':'NO_RELEASE_SOURCE'})
+            rows.append({'challengerId':str(rival['id']),
+                         'status':'NO_RELEASE_SOURCE',
+                         'notExcludedForMissingSampledGameLog':True})
             all_defeated=False
             continue
-        same_zone=release['zone']==base['zone'] and release['zone'] in goalie_weak_zones
-        if not same_zone:
-            rows.append({'challengerId':str(rival['id']),'status':'DIFFERENT_TARGET_LANE',
-                         'releaseZone':release['zone'], 'candidateZone':base['zone']})
-            continue
-        proof=all(receipt(rival.get(k)) for k in ('deployment','gameLog','mappedGoals','officialGoalTotal'))
-        if not proof:
+        if not receipt(wrapper):
+            rows.append({'challengerId':str(rival['id']),
+                         'status':'RELEASE_PROVENANCE_MISSING'})
             all_defeated=False
-            rows.append({'challengerId':str(rival['id']),'status':'COMPARISON_SOURCE_MISSING',
-                         'releaseZone':release['zone']})
             continue
-        # No score, fixed weight or popularity tie breaker. A shooter dominates only
-        # if evidence supports at least one strictly superior physical ownership dimension
-        # while neither comparable dimension is inferior.
-        dominates=(base['attempts']>=release['attempts']
-                 and base['ownedGoals']>=release['ownedGoals']
-                 and (base['attempts']>release['attempts'] or base['ownedGoals']>release['ownedGoals']))
-        defeated_by=(release['attempts']>=base['attempts']
-                 and release['ownedGoals']>=base['ownedGoals']
-                 and (release['attempts']>base['attempts'] or release['ownedGoals']>base['ownedGoals']))
-        if not dominates:all_defeated=False
-        rows.append({'challengerId':str(rival['id']),'status':'DEFEATED' if dominates
-                     else 'RIVAL_DOMINATES' if defeated_by else 'NO_DECISIVE_ROUTE_SEPARATION',
-                     'candidate':{'zone':base['zone'],'attempts':base['attempts'],'ownedGoals':base['ownedGoals']},
-                     'challenger':{'zone':release['zone'],'attempts':release['attempts'],'ownedGoals':release['ownedGoals']},
-                     'sourceUrls':[candidate['release']['sourceUrl'],rival['release']['sourceUrl']],
-                     'rule':'independent two-dimensional direct-route dominance; no weighted points'})
+        # Players can attack multiple areas. A rival's main season scoring
+        # area is NOT evidence they lack a secondary route through this lane.
+        matching=[x for x in release.get('allRoutes',[])
+                  if x.get('zone')==base['zone']]
+        if not matching and release.get('zone')==base['zone']:
+            matching=[{'zone':release['zone'],'sog':release['attempts'],
+                       'ownedGoals':release['ownedGoals']}]
+        if not matching:
+            rows.append({'challengerId':str(rival['id']),
+                         'status':'DIFFERENT_TARGET_LANE',
+                         'candidateZone':base['zone'],
+                         'rivalKnownAreas':[x.get('zone') for x in release.get('allRoutes',[])],
+                         'sourceUrls':[wrapper['sourceUrl']]})
+            continue
+        target=matching[0]
+        opponent_shots=target.get('sog',target.get('attempts'))
+        opponent_goals=target.get('ownedGoals')
+        if (not isinstance(opponent_shots,int) or
+                not isinstance(opponent_goals,int) or
+                opponent_goals<0 or opponent_shots<opponent_goals):
+            rows.append({'challengerId':str(rival['id']),
+                         'status':'INCOMPLETE_OWN_FINISH_DATA',
+                         'sourceUrl':wrapper['sourceUrl']})
+            all_defeated=False
+            continue
+        # Both comparisons operate on the SAME independently observed rink
+        # shot-origin zone and are source-backed goal CREDIT to that skater.
+        dominates=(base['attempts']>=opponent_shots
+                   and base['ownedGoals']>=opponent_goals
+                   and (base['attempts']>opponent_shots
+                        or base['ownedGoals']>opponent_goals))
+        defeated_by=(opponent_shots>=base['attempts']
+                     and opponent_goals>=base['ownedGoals']
+                     and (opponent_shots>base['attempts']
+                          or opponent_goals>base['ownedGoals']))
+        if not dominates:
+            all_defeated=False
+        rows.append({
+            'challengerId':str(rival['id']),
+            'status':'DEFEATED' if dominates else
+                     'RIVAL_DOMINATES' if defeated_by else
+                     'NO_DECISIVE_ROUTE_SEPARATION',
+            'candidate':{'zone':base['zone'],'shotsOnGoal':base['attempts'],
+                         'ownedGoals':base['ownedGoals']},
+            'challenger':{'zone':base['zone'],'shotsOnGoal':opponent_shots,
+                          'ownedGoals':opponent_goals},
+            'sourceUrls':[candidate['release']['sourceUrl'],wrapper['sourceUrl']],
+            'sameLane':True,
+            'rivalEVRole':evidence_data(rival.get('deployment')),
+            'roleReviewIncomplete':not receipt(rival.get('deployment')),
+            'noSeasonTotalInvented':True,
+            'rule':'strict directly owned same-zone NHL EDGE SOG-and-goals dominance; no invented ranking weights',
+        })
     return all_defeated,rows
-
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage):
     d={}; proof=[]; deficient=[]; eliminated=False
