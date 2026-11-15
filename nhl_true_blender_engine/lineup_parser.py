@@ -116,3 +116,29 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
             })
     return {"deploymentRecords": inserted, "unmatched": unmatched,
             "goalieReports": len(parsed["goalies"]), "source": URL}
+
+
+async def fetch_and_ingest_lineups(con,snapshot,date,stage):
+    """Fetch the actual daily lineup artifact every time, including watch refreshes.
+
+    Source status labels remain independent third-party reports, not official
+    club confirmation. The official NHL scheduled games are the only join targets.
+    """
+    import httpx
+    from datetime import datetime,timezone
+    try:
+        async with httpx.AsyncClient(timeout=18,follow_redirects=True,
+                headers={"Accept":"text/markdown","User-Agent":"NHLTrueBlender/1.0"}) as client:
+            response=await client.get(URL)
+            response.raise_for_status()
+            if not response.text:
+                raise ValueError("Empty lineup source")
+            first=response.text.splitlines()[0]
+            if f"games dated {date}" not in first:
+                raise ValueError("Lineup snapshot slate date mismatch: "+first[:120])
+            observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
+            parsed=ingest_lineups(con,snapshot,date,stage,response.text,observed)
+            return {"status":"DATED_SOURCE_PARSED","asOf":observed,**parsed}
+    except (httpx.HTTPError,ValueError,IndexError) as exc:
+        return {"status":"SOURCE_UNAVAILABLE","source":URL,
+                "error":f"{type(exc).__name__}: {exc}"}
