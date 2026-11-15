@@ -14,6 +14,29 @@ class EvidenceAdaptersTest(unittest.TestCase):
     def test_goalie_parser_is_not_team_confirmation(self):
         data=parse_markdown("- Igor Shesterkin (NYR), Unconfirmed")
         self.assertEqual(data["goalies"][0]["status"],"UNCONFIRMED")
+    def test_official_recent_pressure_not_overwritten_by_season_aggregate(self):
+        import sqlite3
+        from nhl_true_blender_engine.storage import open_db
+        from nhl_true_blender_engine.enrichment import ingest, attach
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as d:
+            con=open_db(d+'/test.sqlite')
+            snapshot={'games':[{'id':'100','away':'NYR','home':'BOS',
+                'rosters':{'NYR':{'data':{'players':[{'id':'1','name':'Test Skater'}]}},
+                           'BOS':{'data':{'players':[]}}},'goalies':{},'coverage':{}}]}
+            base={'slate_date':'2026-11-15','stage':'PROJECTED',
+                  'game_id':'100','player_id':'1','kind':'PLAYER_PRESSURE',
+                  'source_url':'https://example.com/source'}
+            ingest(con,{**base,'evidence_id':'official','observed_at':'2026-11-15T10:00:00Z',
+                'payload':{'evidenceType':'OFFICIAL_HISTORICAL_SHOT_EVENTS','recentAppearanceShots':12}})
+            ingest(con,{**base,'evidence_id':'aggregate','observed_at':'2026-11-15T11:00:00Z',
+                'payload':{'evidenceType':'SEASON_AGGREGATE_NOT_RECENT_APPEARANCES',
+                           'historicalShotAttempts':100}})
+            attach(con,snapshot,'2026-11-15','PROJECTED')
+            pressure=snapshot['games'][0]['rosters']['NYR']['data']['players'][0]['pressure']['data']
+            self.assertEqual(pressure['recentAppearanceShots'],12)
+            self.assertEqual(pressure['seasonAggregate']['data']['historicalShotAttempts'],100)
+            con.close()
     def test_scorer_pool_excludes_goalies(self):
         from nhl_true_blender_engine.engine import complete_roster
         game={"away":"NYR","home":"BOS","rosters":{"NYR":{
