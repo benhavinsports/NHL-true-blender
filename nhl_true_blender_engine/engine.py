@@ -149,7 +149,7 @@ def player_releases(p):
 
 
 
-def release_matched_to_g0_target(player,goalie_profile):
+def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
     """After G0 selects an attack side, match each skater's independently
     observed OWN shot-origin routes to that goalie's evidenced weak origins.
 
@@ -170,9 +170,18 @@ def release_matched_to_g0_target(player,goalie_profile):
               and r['sog']>=r['ownedGoals']>=0]
     if not matching:
         return player
-    matching.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
-    top=matching[0]
-    tied=[x for x in matching if
+    # G0 remains first. Among the player's OWN observed shots against G0's
+    # goalie weakness, find a route independently supported by G9's actual
+    # opponent-defense shot-origin concessions. Do not force a mismatch merely
+    # because the skater scored more historical goals from another goalie-weak
+    # area. Every eligible route still requires separately verified G5/G9.
+    defense=(defensive_coverage.get('data') or {}) if receipt(defensive_coverage) else {}
+    green=set(defense.get('greenWeakZones') or [])
+    jointly_sourced=[x for x in matching if x['zone'] in green]
+    considered=jointly_sourced if jointly_sourced else matching
+    considered.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
+    top=considered[0]
+    tied=[x for x in considered if
           (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
     if len(tied)>1:
         # No arbitrary zone tie break. The original independently sourced
@@ -185,6 +194,9 @@ def release_matched_to_g0_target(player,goalie_profile):
         'attempts':top['sog'],
         'ownedGoals':top['ownedGoals'],
         'g0MatchedOwnOriginRoute':True,
+        'g9DefensiveLaneIndependentlyMatched':bool(jointly_sourced),
+        'g9CoverageSourceUrl':defensive_coverage.get('sourceUrl') if jointly_sourced else None,
+        'consideredOwnGoalieWeakRoutes':sorted(x['zone'] for x in matching),
         'originalPrimaryOrigin':base.get('zone'),
         'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
         'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
@@ -707,7 +719,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         all_per_game=[]
         for branch in branches:
             for player in players:
-                scoped=release_matched_to_g0_target(player,branch)
+                scoped=release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
                 result,traces=evaluate_skater(match,team,scoped,players,branch,stage)
                 records+=traces
                 if result['complete']:
