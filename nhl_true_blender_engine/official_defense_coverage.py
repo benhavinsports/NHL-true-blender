@@ -95,7 +95,7 @@ def summarize_concessions(events,game_meta):
         if e.get("sourceUrl"):row["sourceUrls"].add(e["sourceUrl"])
     return by_team
 
-def make_coverage(con,snapshot,date,stage,events,game_meta):
+def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
     # Identify the current slate franchise by its ID on a verified historical
     # scheduled game, not guessed abbreviation strings.
     abbr_to_id={}
@@ -143,6 +143,11 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
                             "reason":"No defensible peer comparison"})
                 continue
             urls=sorted(row["sourceUrls"])
+            # Historically observed defending on-ice players at PBP shot times,
+            # from NHL's own player shift charts; NOT inferred from season TOI.
+            shift_team=(shift_receipts or {}).get("byDefendingTeamId",{}).get(pid,{})
+            observed_shift_events=list(shift_team.get("sampleEvents") or [])
+            shift_sources=sorted(shift_team.get("shiftSourceUrls") or [])
             payload={"attackingTeam":attacker,"defendingTeam":defender,
                 "greenWeakZones":list(green),"redStrongZones":list(red),
                 "zoneConcessions":detail,
@@ -155,6 +160,14 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
                 "comparisonSampleTeams":sum(bool(q) for q in by_team.values()),
                 "trackedGameIds":sorted(row["gameIds"]),
                 "sourceUrls":urls,
+                "shiftByShift":observed_shift_events,
+                "shiftSourceUrls":shift_sources,
+                "shiftChartGameIds":shift_team.get("sourceGameIds",[]),
+                "shiftEventCountByZone":shift_team.get("zoneEvents",{}),
+                "actualDefensiveShiftMatches":shift_team.get("matchedEvents",0),
+                "shiftCoverageProvenance":"OFFICIAL_NHL_SHIFTCHARTS_AND_HISTORICAL_PBP",
+                "historicalShiftsNotTonightDeployment":True,
+                "onIcePlayerPositionsNotAssumed":True,
                 "inferredLaneNotExactNhlEdgePolygon":True,
                 "strengthsAndWeaknessesAreTeamShot_SHARE_NotGoalieSavePct":True,
                 "unobservedAreasNotAssignedGreen":True}
@@ -176,4 +189,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
             "peerMedianZoneShares":comparisons,
             "failedSources":fail[:15],
             "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
-            "zonesAreConservativeDerivedRinkAreas":True}
+            "zonesAreConservativeDerivedRinkAreas":True,
+            "officialShiftChartGames":(shift_receipts or {}).get("chartedGames",0),
+            "historicalDefensiveEventsWithObservedShifts":
+                (shift_receipts or {}).get("matchedDefensiveShotEvents",0)}
