@@ -133,8 +133,8 @@ def analyze(bundle,mode,limit=8):
     'goalie': g['goalie'],
     'starterStatus': g['starterStatus'],
     'shotsObserved': g['shotsObserved'],
-    'shotTypeProfile': g.get('byShotType', {}),
-    'zoneProfile': g.get('byZone', {}),
+    'shotTypeProfile': g.get('shotTypeOutcomes', {}),
+    'zoneProfile': g.get('zoneOutcomes', {}),
     'anatomicalWeakness': 'NOT ESTABLISHED BY OFFICIAL EVENT COORDINATES'
    } for g in profiles],
    'bothAttackDirectionsEvaluated': True,
