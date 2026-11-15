@@ -44,6 +44,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'officialBoxscoreCoverage':result.get('officialBoxscoreCoverage',{}),
         'officialDefenseCoverage':result.get('officialDefenseCoverage',{}),
         'firstNonpassingGateAudit':result.get('firstNonpassingGateAudit',{}),
+        'gateCertification':result.get('gateCertification',{}),
     }
     if not card:
         _write(status_path,status)
@@ -57,14 +58,25 @@ def export_run(con, slate_date, stage, result, root='state'):
     if result.get('g0Directions',0) < result.get('games',0):
         raise PublicationConflict('G0 game scan incomplete')
     required=set(MASTER+OVERLAY)
+    validation_gaps=[]
     for leg in legs:
         game_id, player_id = str(leg['gameId']),str(leg['playerId'])
         rows=con.execute("""SELECT gate, disposition, details FROM gates
                WHERE slate_date=? AND stage=? AND game_id=? AND player_id=?""",
                (slate_date,stage,game_id,player_id)).fetchall()
         trace={x['gate']:x for x in rows}
-        if set(trace)!=required or any(x['disposition']!='PASS' for x in rows):
-            raise PublicationConflict('Incomplete or nonpassing full G0-G18 and overlay: '+game_id+'/'+player_id)
+        if set(trace)!=required:
+            validation_gaps.append({'gameId':game_id,'playerId':player_id,
+                'missingGateRows':sorted(required-set(trace))})
+            continue
+        incomplete={g:x['disposition'] for g,x in trace.items() if x['disposition']!='PASS'}
+        alias=[g for g,x in trace.items() if g in OVERLAY and
+               not (json.loads(x['details']).get('evidence',{})
+                    .get('independentOverlayEvaluation') is True)]
+        if incomplete or alias:
+            validation_gaps.append({'gameId':game_id,'playerId':player_id,
+                'notPassing':incomplete,'copiedOverlayGates':alias})
+            continue
         g0=json.loads(trace['G0']['details'])['evidence']
         if leg.get('opposingGoalieId') and str(g0.get('targetGoalie'))!=str(leg['opposingGoalieId']):
             raise PublicationConflict('G0 starter branch does not match final recipient')
@@ -72,6 +84,26 @@ def export_run(con, slate_date, stage, result, root='state'):
             raise PublicationConflict('Recipient source or game-time field missing')
         if leg['path'] not in ('PRIMARY','TRANSFER','WHO'):
             raise PublicationConflict('Unsupported scorer path label')
+    # A newly missing independent overlay source cannot retroactively
+    # overwrite or erase the previously frozen Core. Keep its immutable
+    # JSON, record the exact current audit failure and do NOT claim that
+    # the new run recertified the original card. No invented PASS/transfer.
+    if validation_gaps:
+        previous=root/'site_cards'/f'{slate_date}.json'
+        retained=previous.exists()
+        status.update({
+            'currentRunFullyCertified':False,
+            'independentOverlaySourceGaps':validation_gaps,
+            'retainedOriginalLockedCard':retained,
+            'publishedToSite':retained,
+            'cardId':card['card_id'] if retained else None,
+            'publicationDecision':'PRESERVED_ORIGINAL_WITH_AUDIT_GAPS' if retained
+                                  else 'NEW_CARD_NOT_PUBLISHED_INCOMPLETE_OVERLAY',
+        })
+        _write(status_path,status)
+        return status
+    status['currentRunFullyCertified']=True
+    status['publicationDecision']='SOURCE_CERTIFIED_AND_PUBLISHED'
     payload={
         'slateDate':slate_date,'cardId':card['card_id'],
         'stage':card['stage'],'status':'G18_SOURCE_VERIFIED',
