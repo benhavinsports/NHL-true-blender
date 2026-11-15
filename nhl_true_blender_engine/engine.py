@@ -452,7 +452,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         msg={'reason':'No official NHL game data provided','stage':stage}
         log_job(con,f'{date}-{stage}',date,stage,'SOURCE_ERROR',msg)
         return {'card':None,'errors':[msg['reason']],'gateRows':0,'scan':[]}
-    scan,errors=g0_full_slate(games,stage)
+    scan,g0_direction_notes=g0_full_slate(games,stage)
+    # Unselected opposing directions are audited, not fatal to the G0-selected side.
+    errors=[]
     records=[];qualified=[];pool_size=0
     # Preserve actual G0 goalie-first direction receipts BEFORE skater traces.
     for entry in scan:
@@ -498,6 +500,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 selected_directions[str(match['id'])]=options[1]
                 continue
         errors.append(f"{match['id']} G0 attack sides not physically separated by certified goalie weaknesses")
+    # A missing target direction is a hard failure only when G0 cannot select
+    # a target for that matchup; the opposite direction is not a second pool.
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
