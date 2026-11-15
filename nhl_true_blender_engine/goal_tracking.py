@@ -47,6 +47,13 @@ async def collect_goal_sprites(client, snapshot, slate_date, out_dir="runs/goal_
                 continue
             url=f"https://wsr.nhle.com/sprites/{season}/{gid}/ev{event}.json"
             try:
+                # Resolve the league-provided replay URL rather than assuming its path.
+                metadata=await client.get(f"ppt-replay/{gid}/{event}")
+                goal=metadata["data"].get("goal") or {}
+                published=goal.get("pptReplayUrl") or metadata["data"].get("pptReplayUrl")
+                if not published or not published.startswith("https://wsr.nhle.com/sprites/"):
+                    raise ValueError("NHL replay metadata lacks a trusted sprite URL")
+                url=published
                 response=await http.get(url)
                 response.raise_for_status()
                 payload=response.json()
