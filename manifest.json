@@ -1,0 +1,12 @@
+{
+  "name": "NHL Blender",
+  "version": "1.5",
+  "purpose": "Automated NHL full-slate evidence analysis, multi-source projected deployment retrieval, and gate audit",
+  "entrypoint": "app.py",
+  "changes": [
+    "conflicting deployment evidence remains unresolved instead of source-order tie-break",
+    "confirmed mode never promotes projected lineup sources to confirmed",
+    "source-level line and PP evidence provenance retained",
+    "general web search fallback is triggered when known sources miss line or PP deployment; search results only count when opened pages contain explicit structured assignments"
+  ]
+}
