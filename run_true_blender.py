@@ -78,6 +78,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
         result['g17CrossSourceReviews']=contradiction_research
         result['officialDefenseCoverage']=historical.get('defensiveCoverage',{})
+        result['historicalShiftCoverage']=historical.get('historicalDefensiveShiftCoverage',{})
         result['derivedRouteCoverage']={k:derived_routes.get(k) for k in (
             'method','goalieProfilesWithMeasuredWeakOrigins','ownSkaterRoutes',
             'unresolvedCount','anatomicalWeaknessCertified','explicitlyInferred')}
@@ -98,6 +99,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "officialSource": snapshot.get("officialSource"),
             "secondarySourceResearch": source_research,
             "historicalShotResearch": historical,
+            "actualDefensiveShiftResearch": historical.get('historicalDefensiveShiftCoverage',{}),
             "officialVenueRestContext": context_research,
             "officialEdgeRinkZoneEvidence": edge_research,
             "edgeDerivedShotOriginMechanisms": derived_routes,
