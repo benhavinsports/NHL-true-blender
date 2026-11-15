@@ -55,5 +55,24 @@ async def run():
             except Exception as exc:
                 print("EDGE_ERROR",kind,pid,type(exc).__name__,str(exc)[:240])
 
+        # Historical NHL Stats shift-chart probe: actual data schema, not
+        # guessed pregame deployment or an anatomical goalie weakness.
+        try:
+            shifts=await client.get(
+                "https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020325",
+                timeout=13)
+            print("SHIFTCHART_STATUS",shifts.status_code)
+            if shifts.status_code==200:
+                body=shifts.json()
+                rows=body.get("data") or []
+                print("SHIFTCHART_COVERAGE",len(rows),"FIELDS",
+                      list(rows[0]) if rows else [])
+                if rows:
+                    print("SHIFTCHART_SAMPLE",json.dumps(rows[0],default=str)[:1600])
+            else:
+                print("SHIFTCHART_UNAVAILABLE",shifts.text[:160])
+        except Exception as exc:
+            print("SHIFTCHART_PROBE_ERROR",type(exc).__name__,str(exc)[:220])
+
 if __name__=="__main__":
     asyncio.run(run())
