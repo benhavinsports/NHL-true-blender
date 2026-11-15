@@ -80,8 +80,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result['lineupSourceCoverage']={k:source_research.get('parsedLineups',{}).get(k)
             for k in ('status','deploymentRecords','goalieReports','error')}
         result['g0RinkOriginResearch']=edge_g0_review
-        # Source-verified Core JSON is produced by the engine, never by the Wix UI.
-        # The scheduled GitHub job commits this immutable transport to state/.
+        # Source-verified Core JSON is produced independently by the engine.
+        # GitHub Actions commits it under state/; GitHub Pages publishes
+        # the authoritative card and run receipt via site/data/latest.json.
         from scripts.publish_site_state import export_run
         site_export = export_run(con, date, stage, result, state_dir)
         summary = {k: v for k, v in result.items() if k != "scan"}
