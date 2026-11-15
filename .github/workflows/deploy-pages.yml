@@ -35,6 +35,25 @@ jobs:
           status_files=sorted((root/'site_runs').glob('????-??-??.json'))
           card_files=sorted((root/'site_cards').glob('????-??-??.json'))
           dates=sorted({p.stem for p in status_files+card_files})
+          # Retain all previous official season history in the repository.
+          # GitHub Pages displays the newest cumulative frozen-grade report;
+          # no ungraded game or synthetic calibration example is published.
+          history_files=sorted((root/'history').glob('????-??.json'))
+          if history_files:
+              history=json.loads(history_files[-1].read_text(encoding='utf-8'))
+              if history.get('source')!='FROZEN_SQLITE_CARDS_PLUS_OFFICIAL_NHL_GOAL_GRADES':
+                  raise ValueError('Refusing unverifiable season history')
+              if history.get('officiallyGradedSlates')!=len(history.get('allOfficialGrades',[])):
+                  raise ValueError('Season summary and official ledger are inconsistent')
+          else:
+              history={'status':'AWAITING_OFFICIAL_GRADED_SLATES',
+                       'officiallyGradedSlates':0,'wins':0,'losses':0,
+                       'legHits':0,'legOpportunities':0,
+                       'monthlyThreeSlateCalibration':{},
+                       'verifiedAutomaticGuardPatches':[],
+                       'allOfficialGrades':[],'noSelectionsOrRetroactiveGradesInvented':True}
+          pathlib.Path('site/data/season-history.json').write_text(
+              json.dumps(history,default=str))
           if dates:
               date=dates[-1]
               status_path=root/'site_runs'/f'{date}.json'
