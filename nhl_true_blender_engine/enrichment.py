@@ -56,7 +56,9 @@ def ingest(con, record):
 
 def attach(con, snapshot, date, stage):
     """Project/confirmed remain independent. Projected does not become confirmed by reuse."""
-    if stage=='WATCH':
+    if stage in ('WATCH','CONFIRMED'):
+        # Independent projected evidence survives into the confirmed research
+        # pass with its ORIGINAL label. New confirmed evidence takes precedence.
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC",(date,)).fetchall()
     else:
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN (?, 'OFFICIAL') ORDER BY observed_at ASC",(date,stage)).fetchall()
@@ -65,7 +67,9 @@ def attach(con, snapshot, date, stage):
     # valid earlier scouting whenever the lineup source arrives later.
     # Process identity first, then the independent profile in the same stage.
     rows=sorted(rows,key=lambda row:(0 if row['kind']=='GOALIE_STARTER' else
-                   1 if row['kind']=='GOALIE_PROFILE' else 2,row['observed_at']))
+                   1 if row['kind']=='GOALIE_PROFILE' else 2,
+                   {'OFFICIAL':0,'PROJECTED':1,'CONFIRMED':2}.get(row['stage'],0),
+                   row['observed_at']))
     refs=[]
     for row in rows:
         kind=row['kind'];data=json.loads(row['payload'])
@@ -81,6 +85,12 @@ def attach(con, snapshot, date, stage):
             prior=next((x for x in existing
                         if x['data'].get('goalieId')==data.get('goalieId')
                         and x['data'].get('status')==data.get('status')),None)
+            if kind=='GOALIE_PROFILE' and prior is None:
+                # The same goalie does not lose an independent vulnerability
+                # report when EXPECTED becomes CONFIRMED. Never change the
+                # starter-status field based on a profile.
+                prior=next((x for x in existing
+                            if x['data'].get('goalieId')==data.get('goalieId')),None)
             if prior is None:
                 if kind=='GOALIE_PROFILE':
                     # Scouting cannot independently establish who is starting.
