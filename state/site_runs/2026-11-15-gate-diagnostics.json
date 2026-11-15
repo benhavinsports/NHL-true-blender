@@ -1,0 +1,1350 @@
+{
+  "slateDate": "2026-11-15",
+  "stage": "CONFIRMED",
+  "playersEvaluated": 115,
+  "firstNonpassingByOriginalGate": {
+    "G9": 50,
+    "G5": 16,
+    "G6": 17,
+    "G4": 7,
+    "G10.5": 20,
+    "G10": 5
+  },
+  "firstExamples": {
+    "G9": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8475218"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8475786"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476454"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477934"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477953"
+      }
+    ],
+    "G5": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479365"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480831"
+      }
+    ],
+    "G6": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480842"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8483455"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8475168"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8476278"
+      }
+    ],
+    "G4": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8477335"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478476"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480840"
+      },
+      {
+        "gameId": "2026020328",
+        "playerId": "8481167"
+      }
+    ],
+    "G10.5": [
+      {
+        "gameId": "2026020327",
+        "playerId": "8473994"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8474102"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478420"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478449"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480027"
+      }
+    ],
+    "G10": [
+      {
+        "gameId": "2026020327",
+        "playerId": "8475794"
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8476889"
+      },
+      {
+        "gameId": "2026020328",
+        "playerId": "8474150"
+      },
+      {
+        "gameId": "2026020328",
+        "playerId": "8483495"
+      },
+      {
+        "gameId": "2026020328",
+        "playerId": "8484154"
+      }
+    ]
+  },
+  "gateDispositionAndCauseCounts": {
+    "G4": {
+      "PASS": 108,
+      "NOT_EXECUTED": 7,
+      "CAUSE:NO_SOURCE_BACKED_SHOOTER_AREA": 7
+    },
+    "G5": {
+      "PASS": 92,
+      "ELIMINATED": 16,
+      "CAUSE:NO_GOALIE_AREA_OVERLAP": 23,
+      "NOT_EXECUTED": 7
+    },
+    "G6": {
+      "PASS": 77,
+      "SKIPPED_AFTER_ELIMINATION": 16,
+      "CAUSE:UNCONFIRMED_LINE": 10,
+      "CAUSE:NO_EV_LINE": 28,
+      "NOT_EXECUTED": 22
+    },
+    "G9": {
+      "NOT_EXECUTED": 52,
+      "CAUSE:NO_MATCHING_GREEN": 64,
+      "SKIPPED_AFTER_ELIMINATION": 16,
+      "CAUSE:RED_AVOID": 21,
+      "PASS": 30,
+      "ELIMINATED": 17
+    },
+    "G10": {
+      "PASS": 40,
+      "SKIPPED_AFTER_ELIMINATION": 33,
+      "CAUSE:NOT_PROVEN": 75,
+      "NOT_EXECUTED": 42
+    },
+    "G10.5": {
+      "NOT_EXECUTED": 81,
+      "CAUSE:RIVAL_DOMINATES": 62,
+      "SKIPPED_AFTER_ELIMINATION": 33,
+      "CAUSE:NO_DECISIVE_ROUTE_SEPARATION": 39,
+      "CAUSE:MISSING_COMPARISON": 8,
+      "CAUSE:NO_RELEASE_SOURCE": 5,
+      "PASS": 1
+    },
+    "G17": {
+      "NOT_EXECUTED": 81,
+      "CAUSE:UNRESOLVED_CONTRADICTION": 107,
+      "SKIPPED_AFTER_ELIMINATION": 33,
+      "CAUSE:NO_REVIEW": 7,
+      "PASS": 1
+    }
+  },
+  "actualBlockedSourceExamples": {
+    "G9": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8475218",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8475786",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476454",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "R Point",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477934",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477953",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478402",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478472",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478854",
+        "disposition": "NOT_EXECUTED",
+        "zone": "L Circle",
+        "green": [
+          "High Slot"
+        ],
+        "red": [
+          "Low Slot",
+          "Point"
+        ],
+        "sourceIds": []
+      }
+    ],
+    "G10.5": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8475218",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 6,
+          "DIFFERENT_TARGET_LANE": 8,
+          "DEFEATED": 10
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8475786",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 9,
+          "DIFFERENT_TARGET_LANE": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 5,
+          "DEFEATED": 2
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480029",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8483455",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478472",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477953",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8486161",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8475218",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478854",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478013",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476454",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 4,
+          "DIFFERENT_TARGET_LANE": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 1,
+          "DEFEATED": 11
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "comparisonCounts": {
+          "DEFEATED": 11,
+          "DIFFERENT_TARGET_LANE": 12,
+          "RIVAL_DOMINATES": 1
+        },
+        "blockedRivals": [
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "comparisonCounts": {
+          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "DEFEATED": 13,
+          "RIVAL_DOMINATES": 4,
+          "DIFFERENT_TARGET_LANE": 3
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480029",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8475786",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477953",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "comparisonCounts": {
+          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "RIVAL_DOMINATES": 10,
+          "DIFFERENT_TARGET_LANE": 3,
+          "DEFEATED": 7
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480029",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8479365",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480842",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8475786",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477406",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478472",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477953",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478854",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477934",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "DIFFERENT_TARGET_LANE": 8,
+          "DEFEATED": 11,
+          "RIVAL_DOMINATES": 1
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8481617",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8480803",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477953",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 9,
+          "DIFFERENT_TARGET_LANE": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 5,
+          "DEFEATED": 2
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480029",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8483455",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8475786",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478472",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8486161",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8475218",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478854",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478013",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 7,
+          "DIFFERENT_TARGET_LANE": 8,
+          "DEFEATED": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 1
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8475218",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478854",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478402",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "NO_DECISIVE_ROUTE_SEPARATION": 2,
+          "DIFFERENT_TARGET_LANE": 8,
+          "DEFEATED": 14
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8480803",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478472",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 9,
+          "DIFFERENT_TARGET_LANE": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 5,
+          "DEFEATED": 2
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480029",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8483455",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8475786",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8477953",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8486161",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8475218",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478854",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478013",
+            "status": "RIVAL_DOMINATES"
+          }
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478854",
+        "disposition": "NOT_EXECUTED",
+        "comparisonCounts": {
+          "RIVAL_DOMINATES": 7,
+          "DIFFERENT_TARGET_LANE": 8,
+          "DEFEATED": 8,
+          "NO_DECISIVE_ROUTE_SEPARATION": 1
+        },
+        "blockedRivals": [
+          {
+            "id": "8482703",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8477934",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478402",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8476454",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8481617",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8480803",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8475218",
+            "status": "RIVAL_DOMINATES"
+          },
+          {
+            "id": "8478013",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+          }
+        ]
+      }
+    ],
+    "G17": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8475218",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8475786",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476454",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477934",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477953",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478402",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478472",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478854",
+        "disposition": "NOT_EXECUTED",
+        "sourceType": "DERIVED_CROSS_SOURCE_G17",
+        "unResolved": true,
+        "review": "UNRESOLVED_CONTRADICTION",
+        "reason": false
+      }
+    ],
+    "G5": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "ELIMINATED",
+        "zone": "R Point",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "ELIMINATED",
+        "zone": "Low Slot",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "ELIMINATED",
+        "zone": "Low Slot",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479365",
+        "disposition": "ELIMINATED",
+        "zone": "Low Slot",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480831",
+        "disposition": "ELIMINATED",
+        "zone": "R Point",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480834",
+        "disposition": "ELIMINATED",
+        "zone": "R Point",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8483512",
+        "disposition": "ELIMINATED",
+        "zone": "Low Slot",
+        "weak": [
+          "L Circle"
+        ]
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8477335",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "weak": [
+          "Center Point",
+          "Low Slot",
+          "R Circle"
+        ]
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478476",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "weak": [
+          "Center Point",
+          "Low Slot",
+          "R Circle"
+        ]
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480840",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "weak": [
+          "Center Point",
+          "Low Slot",
+          "R Circle"
+        ]
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8485468",
+        "disposition": "ELIMINATED",
+        "zone": "L Point",
+        "weak": [
+          "Center Point",
+          "Low Slot",
+          "R Circle"
+        ]
+      }
+    ],
+    "G6": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": {
+          "EV": "D2",
+          "defensePair": 2,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": {
+          "EV": "F3",
+          "line": 3,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013",
+        "disposition": "NOT_EXECUTED",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479365",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": {
+          "EV": "F3",
+          "line": 3,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368",
+        "disposition": "NOT_EXECUTED",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480831",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480834",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": {
+          "EV": "D3",
+          "defensePair": 3,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480842",
+        "disposition": "NOT_EXECUTED",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8483455",
+        "disposition": "NOT_EXECUTED",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8483512",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "deployment": null
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8475168",
+        "disposition": "NOT_EXECUTED",
+        "deployment": null
+      }
+    ],
+    "G10": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478013",
+        "disposition": "NOT_EXECUTED"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478472",
+        "disposition": "NOT_EXECUTED"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478854",
+        "disposition": "NOT_EXECUTED"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479365",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368",
+        "disposition": "NOT_EXECUTED"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480029",
+        "disposition": "NOT_EXECUTED"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480831",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480834",
+        "disposition": "SKIPPED_AFTER_ELIMINATION"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480842",
+        "disposition": "NOT_EXECUTED"
+      }
+    ],
+    "G4": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8477335",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478476",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480840",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020328",
+        "playerId": "8481167",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020329",
+        "playerId": "8480075",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020329",
+        "playerId": "8484901",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      }
+    ]
+  },
+  "diagnosticOnly": true,
+  "noPlayerRankingOrArtificialGatePass": true
+}
