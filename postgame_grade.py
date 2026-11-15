@@ -44,3 +44,13 @@ def grade_slate(date, state_dir="state"):
     else:
         out.write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
+
+if __name__ == "__main__":
+    import argparse
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date")
+    args = parser.parse_args()
+    date = args.date or (datetime.now(ZoneInfo("America/New_York")).date() - timedelta(days=1)).isoformat()
+    print(json.dumps(grade_slate(date), indent=2))
