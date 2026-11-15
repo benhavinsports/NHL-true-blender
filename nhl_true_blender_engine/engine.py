@@ -277,9 +277,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True})
     shots=player.get('pressure')
-    emit('G11',bool(receipt(shots) and evidence_data(shots,'recentAppearanceShots')),
+    emit('G11',bool(receipt(shots) and isinstance(evidence_data(shots,'recentAppearanceShots'),int)),
          {'recentOwnAttempts':evidence_data(shots,'recentAppearanceShots') if shots else None})
-    emit('G12',bool(own and own.get('creditedGoalsVerified') is True),
+    emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)})
     jersey=player.get('jersey')
     # No numerical formula or invented milestone. Qualitative review genuinely executed.
@@ -299,9 +299,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'includesDepthAndDefense':True})
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
-    emit('G17',bool(cdata and cdata.get('goalieStrengthReview') and
-                     cdata.get('lineupDisagreementReview') and
-                     cdata.get('strongestRivalReview')),
+    emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
+                     cdata.get('lineupDisagreementReview') is not None and
+                     cdata.get('strongestRivalReview') is not None),
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True})
     # G18 can only be reached after every previous gate has positive evidence.
@@ -317,7 +317,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         overlay.append(gate_record(game,player['id'],step,disp,
                       {'independentOverlayCheck':check,
                        'archetypeBeforeSelection':release['archetype'] if step=='Step7' and release else None}))
-    route='WHO' if who_ok else 'TRANSFER' if evidence_data(player.get('transferEvidence'),'directRouteDisplaced') else 'PRIMARY'
+    transfer=evidence_data(player.get('transferEvidence'),'directRouteDisplaced') is True
+    route='WHO' if who_ok else 'TRANSFER' if transfer else 'PRIMARY'
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
             'route':route,'pressure':evidence_data(shots),
             'release':release,'challengers':rows},proof+overlay
