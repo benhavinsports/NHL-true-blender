@@ -260,6 +260,25 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
             # instead of erasing the competing player.
             release=wrapper['data']
         if not release:
+            zero=rival.get('zeroShotOriginProof')
+            zdata=evidence_data(zero)
+            if (receipt(zero) and
+                zdata.get('sourceType')=='NHL_EDGE_SKATER_SHOT_ORIGIN_CURRENT_SEASON' and
+                zdata.get('verifiedNoSameLaneOnNetRoute') is True and
+                zdata.get('observedOnNetShotsAcrossAllReportedOrigins')==0 and
+                zdata.get('ownedGoalsAcrossAllReportedOrigins')==0):
+                # All roster teammates were scanned. This official EDGE
+                # season-zero player has NO evidenced direct scoring
+                # shots in the candidate's specific rink lane, not a
+                # phantom comparison rival. Do not claim he cannot score
+                # for the first time tonight or fabricate a G4 route.
+                rows.append({'challengerId':str(rival['id']),
+                             'status':'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE',
+                             'sourceUrls':[zero['sourceUrl']],
+                             'evidenceId':zero.get('evidenceId'),
+                             'noClaimOfFutureScoringImpossibility':True,
+                             'sourceVerifiedZeroShotSeason':True})
+                continue
             rows.append({'challengerId':str(rival['id']),
                          'status':'NO_RELEASE_SOURCE',
                          'notExcludedForMissingSampledGameLog':True})
@@ -560,7 +579,8 @@ def build_verified_replacement(con, existing, legs, selected, date, stage):
         return None
     candidate = item['candidate']
     rows = candidate['challengers']
-    if not rows or any(r['status'] not in ('DEFEATED', 'DIFFERENT_TARGET_LANE') for r in rows):
+    if not rows or any(r['status'] not in ('DEFEATED', 'DIFFERENT_TARGET_LANE',
+                                               'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows):
         return None
     if candidate['dispositions']['G10.5']['disposition'] != 'PASS':
         return None
