@@ -83,9 +83,14 @@ def all_goalie_branches(game, stage):
             d=b['data']
             if d.get('status') not in ('PROJECTED','EXPECTED','CONFIRMED'):
                 continue
-            if stage=='CONFIRMED' and d.get('status')!='CONFIRMED':
-                continue
             branches.append(b)
+        # A confirmed goalie replaces its expected branch, but an unconfirmed
+        # matchup must retain its evidence-labelled EXPECTED/PROJECTED branch.
+        # CONFIRMED describes the run phase, never an invented source status.
+        if stage=='CONFIRMED':
+            confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
+            if confirmed:
+                branches=confirmed
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
         by_team[team]=[b for b in branches if str(b['data'].get('goalieId')) not in superseded]
@@ -250,8 +255,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     dep=player.get('deployment')
     dep_data=evidence_data(dep)
     dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED'))
-    if stage=='CONFIRMED' and dep_data and dep_data.get('status')!='CONFIRMED':dep_ok=False
-    emit('G6',dep_ok,{'deployment':dep_data,'notAllPP1':True},
+    # Keep a sourced projected unit only as projected evidence until the team
+    # actually confirms it; complete runs with mixed evidence remain MIXED.
+    emit('G6',dep_ok,{'deployment':dep_data,'notAllPP1':True,
+          'projectedNotPromoted':bool(dep_data and dep_data.get('status')=='PROJECTED')},
          source_ids=[dep.get('sourceUrl','') if dep else ''])
     emit('G7',bool(rec),{'eventLogReconciled':rec,'multiGoalDateOnce':True,'missedGamesExcluded':True},
          source_ids=[p.get('sourceUrl','') for p in (player.get('gameLog'),player.get('mappedGoals')) if p])
@@ -566,7 +573,13 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 audit=build_verified_replacement(con,existing,legs,chosen,date,stage)
                 if not audit:
                     raise ValueError('Different scorer candidates did not satisfy a verified old-to-new source, prior-player failure, and G10.5/G17 replacement audit; the original card is preserved.')
-            card=save_card(con,date,stage,legs,len(games),audit=audit,now=now)
+            evidence_stage=stage
+            if stage=='CONFIRMED' and any(
+                x['targetGoalie']['data'].get('status')!='CONFIRMED' or
+                (x['candidate']['player'].get('deployment') or {}).get('data',{}).get('status')!='CONFIRMED'
+                for x in chosen):
+                evidence_stage='MIXED'
+            card=save_card(con,date,evidence_stage,legs,len(games),audit=audit,now=now)
         except ValueError as e:errors.append(str(e))
     gaps=defaultdict(int)
     for rec in records:
