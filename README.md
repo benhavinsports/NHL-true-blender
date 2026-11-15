@@ -1,6 +1,20 @@
 # NHL Blender — automated full-slate analysis and audit
 
-## Start the app
+## Live website — GitHub Pages (authoritative)
+
+The production site is **https://benhavinsports.github.io/NHL-true-blender/**.
+It is published by `.github/workflows/deploy-pages.yml` from `site/`.
+The independently scheduled Blender engine runs in GitHub Actions under
+`.github/workflows/nhl-true-blender.yml`, persists its locked G18 card in
+`state/site_cards/YYYY-MM-DD.json`, and saves the source-based run receipt
+in `state/site_runs/YYYY-MM-DD.json`. GitHub Pages packages those results
+as `site/data/latest.json`; the dashboard displays only a verified Core.
+The site is free and static. It does not rely on a visitor opening ChatGPT,
+a paid application server, or a separate website host to trigger analysis.
+A successful GitHub workflow means code executed; it does not by itself
+prove that all scorer gates passed or that a Core 3 was issued.
+
+## Local development app (optional)
 
 - **Windows:** double-click `start_windows.bat`
 - **macOS/Linux:** run `./start_unix.sh`
