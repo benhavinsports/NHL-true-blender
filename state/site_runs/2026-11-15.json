@@ -13,6 +13,141 @@
   "errors": [
     "G18 only 0 fully evidenced games; 3 required"
   ],
+  "firstNonpassingGateAudit": {
+    "allGateRowsPresent": 115,
+    "firstNonpassingGateCounts": {
+      "G10": 5,
+      "G10.5": 20,
+      "G4": 10,
+      "G5": 16,
+      "G6": 16,
+      "G9": 48
+    },
+    "notAScorerRanking": true,
+    "samplesByFirstGate": {
+      "G10": [
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020327",
+          "playerId": "8475794",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020327",
+          "playerId": "8476889",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020328",
+          "playerId": "8474150",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10.5": [
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020327",
+          "playerId": "8473994",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020327",
+          "playerId": "8474102",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020327",
+          "playerId": "8478420",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G4": [
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020326",
+          "playerId": "8479368",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020327",
+          "playerId": "8476278",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020327",
+          "playerId": "8477335",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G5": [
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020326",
+          "playerId": "8476473",
+          "reasonDisposition": "ELIMINATED"
+        },
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020326",
+          "playerId": "8477406",
+          "reasonDisposition": "ELIMINATED"
+        },
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020326",
+          "playerId": "8477450",
+          "reasonDisposition": "ELIMINATED"
+        }
+      ],
+      "G6": [
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020326",
+          "playerId": "8478013",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020326",
+          "playerId": "8480842",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020326",
+          "playerId": "8483455",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G9": [
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020326",
+          "playerId": "8475218",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020326",
+          "playerId": "8475786",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020326",
+          "playerId": "8476454",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ]
+    },
+    "scannedSkaters": 115
+  },
   "g0Complete": 6,
   "g0Directions": 10,
   "g0RinkOriginResearch": [
@@ -392,5 +527,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T19:54:44+00:00"
+  "updatedUTC": "2026-11-15T19:59:05+00:00"
 }
