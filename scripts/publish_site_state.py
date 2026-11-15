@@ -37,6 +37,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         'lineupSourceCoverage':result.get('lineupSourceCoverage',{}),
         'g0RinkOriginResearch':result.get('g0RinkOriginResearch',[]),
         'anatomicalEvidenceMisrepresented':False,
+        'officialBoxscoreCoverage':result.get('officialBoxscoreCoverage',{}),
+        'officialDefenseCoverage':result.get('officialDefenseCoverage',{}),
     }
     if not card:
         _write(status_path,status)
