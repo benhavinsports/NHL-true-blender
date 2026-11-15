@@ -106,7 +106,15 @@ def attach(con, snapshot, date, stage):
                         p['availabilitySource']=wrapper
                 else:
                     fld=KIND_TO_FIELD.get(kind)
-                    if fld:p[fld]=wrapper
+                    if fld:
+                        if kind=='PLAYER_PRESSURE' and p.get(fld):
+                            # Official recent-game event pressure is the gate input.
+                            # Season aggregates enrich it but cannot overwrite it.
+                            current=p[fld]
+                            if current.get('data',{}).get('evidenceType')=='OFFICIAL_HISTORICAL_SHOT_EVENTS':
+                                current['data'].setdefault('seasonAggregate',wrapper)
+                                continue
+                        p[fld]=wrapper
         refs.append(row['evidence_id'])
     snapshot['attachedEvidenceIds']=refs
     return snapshot
