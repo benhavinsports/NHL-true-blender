@@ -352,11 +352,18 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'includesDepthAndDefense':True})
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
+    # Having a review OBJECT is not proof that its conflicts were resolved.
+    # Source-derived cross-checks must explicitly report no unresolved
+    # goalie/role/rival contradiction to pass; never force G17 on placeholder.
+    cross_source_resolved=(cdata.get('sourceType')!='DERIVED_CROSS_SOURCE_G17'
+                            or cdata.get('unresolved') is False) if cdata else False
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
                      cdata.get('lineupDisagreementReview') is not None and
-                     cdata.get('strongestRivalReview') is not None),
+                     cdata.get('strongestRivalReview') is not None and
+                     cross_source_resolved),
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
-          'counterevidence':cdata,'retainsConflictingSources':True})
+          'counterevidence':cdata,'retainsConflictingSources':True,
+          'sourceDerivedReviewResolved':cross_source_resolved})
     # G18 can only be reached after every previous gate has positive evidence.
     passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
     emit('G18',passed,{'candidateEligibleForCrossGameFinal':passed})
