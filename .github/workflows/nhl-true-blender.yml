@@ -30,6 +30,7 @@ on:
       timezone: 'America/New_York'
 permissions:
   contents: write
+  actions: write # workflow_dispatch for the existing GitHub Pages site
 concurrency:
   group: nhl-true-blender-authoritative
   cancel-in-progress: false
@@ -108,6 +109,7 @@ jobs:
           subprocess.run(args,check=True)
           PY
       - name: Persist original canonical G18 state and published site JSON
+        id: persist
         if: always() && steps.engine.outcome == 'success'
         env:
           MONEYPUCK_CSV_DIR: data/moneypuck
@@ -150,7 +152,8 @@ jobs:
               git rebase origin/main
             fi
             if git push origin HEAD:main; then
-              echo "Published canonical state and triggered site deployment ($attempt)"
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              echo "Published canonical state ($attempt); GitHub Pages is dispatched next"
               exit 0
             fi
             echo "Concurrent update during save; rechecking state ($attempt)"
@@ -158,6 +161,15 @@ jobs:
           done
           echo "Cannot reconcile without risking locked Core; refusing overwrite"
           exit 1
+      # GitHub intentionally suppresses push-triggered workflows for commits
+      # made by GITHUB_TOKEN. Explicit workflow_dispatch is the supported way
+      # to publish the refreshed verified run/card JSON to GitHub Pages.
+      - name: Deploy refreshed Core and gate evidence to existing GitHub Pages
+        if: steps.persist.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy-pages.yml --repo "$GITHUB_REPOSITORY" --ref main
       - name: Publish engine execution diagnostics
         if: always()
         run: |
