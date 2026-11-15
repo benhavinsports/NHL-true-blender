@@ -23,6 +23,7 @@ from nhl_true_blender_engine.contradiction_review import review_all_candidates
 from nhl_true_blender_engine.first_gate_audit import first_gate_audit
 from nhl_true_blender_engine.gate_input_diagnostics import explain_live_blockers
 from nhl_true_blender_engine.gate_census import certify_gates
+from nhl_true_blender_engine.dashboard_export import export_dashboard
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -71,6 +72,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result = execute(con, snapshot, date, stage)
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
+        result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)
         diagnostic = explain_live_blockers(con,date,stage)
         diag_path = state / 'site_runs' / f'{date}-gate-diagnostics.json'
         diag_path.parent.mkdir(parents=True, exist_ok=True)
