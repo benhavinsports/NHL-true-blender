@@ -118,7 +118,7 @@
         "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481033/now"
       },
       "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481033/now",
-      "goalieStatus": "EXPECTED",
+      "goalieStatus": "CONFIRMED",
       "independentOpponentDefense": {
         "allOnNetShotsAgainst": 233,
         "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
@@ -316,7 +316,7 @@
         "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481033/now"
       },
       "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481033/now",
-      "goalieStatus": "EXPECTED",
+      "goalieStatus": "CONFIRMED",
       "independentOpponentDefense": {
         "allOnNetShotsAgainst": 233,
         "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
@@ -572,8 +572,10 @@
     "status": "EVIDENCE_COLLECTED",
     "totalFailed": 0
   },
-  "eligibleSkaterRows": 115,
-  "errors": [],
+  "eligibleSkaterRows": 93,
+  "errors": [
+    "2026020329 G0 attack sides not physically separated by certified goalie weaknesses"
+  ],
   "fingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
@@ -859,7 +861,7 @@
                 }
               ],
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481033/now",
-              "starterStatus": "EXPECTED",
+              "starterStatus": "CONFIRMED",
               "zoneProfileFound": true
             }
           ]
@@ -909,7 +911,7 @@
                 }
               ],
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482445/now",
-              "starterStatus": "EXPECTED",
+              "starterStatus": "CONFIRMED",
               "zoneProfileFound": true
             }
           ]
@@ -973,6 +975,49 @@
                 }
               ],
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480947/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            },
+            {
+              "goalieId": "8482447",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 8,
+                  "savePctg": 0.804878,
+                  "savePctgPercentile": 0.2807,
+                  "shotsAgainst": 41
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.948718,
+                  "savePctgPercentile": 0.807,
+                  "shotsAgainst": 39
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 23,
+                  "savePctg": 0.794643,
+                  "savePctgPercentile": 0.2807,
+                  "shotsAgainst": 112
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.941176,
+                  "savePctgPercentile": 0.8421,
+                  "shotsAgainst": 34
+                },
+                {
+                  "area": "R Point",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.96875,
+                  "savePctgPercentile": 0.3158,
+                  "shotsAgainst": 32
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
               "starterStatus": "EXPECTED",
               "zoneProfileFound": true
             }
@@ -1195,6 +1240,7 @@
     },
     "missingMatrixGateRows": {},
     "neverTreatsGateRecordAsAutomaticPass": true,
+    "nonselectedCandidateFailuresAreNotCertificationErrors": true,
     "otherMissingSourceExamples": {
       "G10": [
         {
@@ -2228,11 +2274,13 @@
       }
     },
     "scannedSkaters": 115,
+    "selectedCoreOnlyFullyCertified": true,
     "selectedLegs": [
       {
         "gameId": "2026020327",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
+        "missingProvenanceForPassingGates": [],
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
         "overlayMissingOrNonpassing": [],
@@ -2244,6 +2292,7 @@
         "gameId": "2026020328",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
+        "missingProvenanceForPassingGates": [],
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
         "overlayMissingOrNonpassing": [],
@@ -2255,6 +2304,7 @@
         "gameId": "2026020326",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
+        "missingProvenanceForPassingGates": [],
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
         "overlayMissingOrNonpassing": [],
@@ -2265,6 +2315,18 @@
     ],
     "selectedMasterGatesAllPass": true,
     "selectedOverlayGatesAllPass": true,
+    "selectedSourceAttributionGaps": [],
+    "selectionFunnel": {
+      "allNonselectedRetainGateAudit": true,
+      "lockedCoreRecipients": 3,
+      "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
+      "notQualifiedIncompleteEvidence": 90,
+      "oneSourceSelectedCardPreserved": true,
+      "otherNotSelected": 0,
+      "qualifiedButNotChosen": 1,
+      "sourceEliminated": 21,
+      "surveyedEligibleSkaters": 115
+    },
     "slateDate": "2026-11-15",
     "sourceUnattributedPassingGateCount": 0,
     "sourceUnattributedPassingGateExamples": [],
@@ -2274,7 +2336,7 @@
     "surveyedGoalieDirections": 10,
     "twoDirectionsPerScheduledGameRecorded": true
   },
-  "gateRows": 4150,
+  "gateRows": 3358,
   "historicalShiftCoverage": {
     "attemptedGames": 69,
     "chartedGames": 65,
@@ -2305,34 +2367,34 @@
   "lineupSourceCoverage": {
     "deploymentRecords": 176,
     "error": null,
-    "goalieReports": 10,
+    "goalieReports": 9,
     "status": "DATED_SOURCE_PARSED"
   },
   "missingByGate": {
     "G0": 4,
-    "G10": 34,
-    "G10.5": 105,
+    "G10": 26,
+    "G10.5": 85,
     "G11": 8,
     "G12": 8,
-    "G15": 34,
-    "G16": 105,
-    "G17": 108,
-    "G18": 111,
-    "G4": 7,
-    "G5": 7,
-    "G6": 28,
+    "G15": 26,
+    "G16": 85,
+    "G17": 88,
+    "G18": 89,
+    "G4": 5,
+    "G5": 5,
+    "G6": 22,
     "G7": 8,
-    "G9": 15,
-    "Step10": 23,
-    "Step10.5": 105,
-    "Step11": 3,
-    "Step12": 105,
-    "Step14": 108,
-    "Step3": 14,
+    "G9": 13,
+    "Step10": 21,
+    "Step10.5": 85,
+    "Step11": 2,
+    "Step12": 85,
+    "Step14": 88,
+    "Step3": 12,
     "Step4": 8,
-    "Step5": 7,
-    "Step6": 28,
-    "Step7": 23,
+    "Step5": 5,
+    "Step6": 22,
+    "Step7": 21,
     "Step9": 8
   },
   "officialBoxscoreCoverage": {
@@ -2371,5 +2433,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T23:07:20+00:00"
+  "updatedUTC": "2026-11-15T23:20:57+00:00"
 }
