@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111d"><title>NHL True Blender</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#f0f6ff;background:#08111d}*{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:30px 18px}header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #28384b;padding-bottom:24px}h1{font-size:clamp(28px,6vw,48px);margin:0;letter-spacing:-1.5px}.eyebrow{color:#7facc8;font-weight:700;letter-spacing:.15em;font-size:12px}.muted{color:#9aaec2}.panel{background:#111f2e;border:1px solid #304358;border-radius:18px;padding:22px;margin-top:20px}h2{font-size:20px;margin:0 0 12px}.status{display:inline-block;border:1px solid #59718c;border-radius:40px;padding:8px 13px;color:#c2d9eb;font-size:13px}a{color:#8cceff}.legs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.leg{border:1px solid #39526b;border-radius:12px;padding:16px;background:#172a3e}.path{font-size:12px;color:#9ed6f4;letter-spacing:.12em}.name{font-size:23px;font-weight:750;margin:10px 0}.small{font-size:13px;color:#b5c5d4}button{border:1px solid #55718c;background:#20354a;color:white;padding:10px 14px;border-radius:9px;cursor:pointer}footer{margin-top:28px;color:#9aaec2;font-size:13px}</style></head>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#f0f6ff;background:#08111d}*{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:30px 18px}header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #28384b;padding-bottom:24px}h1{font-size:clamp(28px,6vw,48px);margin:0;letter-spacing:-1.5px}.eyebrow{color:#7facc8;font-weight:700;letter-spacing:.15em;font-size:12px}.muted{color:#9aaec2}.panel{background:#111f2e;border:1px solid #304358;border-radius:18px;padding:22px;margin-top:20px}h2{font-size:20px;margin:0 0 12px}.status{display:inline-block;border:1px solid #59718c;border-radius:40px;padding:8px 13px;color:#c2d9eb;font-size:13px}a{color:#8cceff}.legs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.leg{border:1px solid #39526b;border-radius:12px;padding:16px;background:#172a3e}.path{font-size:12px;color:#9ed6f4;letter-spacing:.12em}.name{font-size:23px;font-weight:750;margin:10px 0}.small{font-size:13px;color:#b5c5d4}.audit-note{font-size:12px;color:#b7dfc8;margin-top:12px;font-weight:600}.audit-details{font-size:12px;color:#adbed1;margin-top:9px}.audit-details summary{cursor:pointer;color:#91cfff}.audit-details p{line-height:1.5}button{border:1px solid #55718c;background:#20354a;color:white;padding:10px 14px;border-radius:9px;cursor:pointer}footer{margin-top:28px;color:#9aaec2;font-size:13px}</style></head>
 <body><main><header><div><div class="eyebrow">NHL • AUTOMATED EVIDENCE ENGINE</div><h1>TRUE BLENDER</h1><div class="muted">One authoritative Core card • Projected → Confirmed</div></div><button onclick="load()">Refresh</button></header>
 <section class="panel"><h2>Core card</h2><div id="status" class="status" role="status">Checking published engine state…</div><p id="detail" class="muted"></p><div id="legs" class="legs"></div></section>
 <section class="panel"><h2>Execution evidence</h2><div id="evidence" class="muted">Waiting for verified output.</div></section>
@@ -29,6 +29,15 @@ evidence.replaceChildren();
 const summary=document.createElement('p');
 summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+(card?' • Selected distinct games: '+new Set((card.current_legs||[]).map(l=>l.gameId)).size:' • No published Core yet');
 evidence.appendChild(summary);
+if(card&&Array.isArray(x.pathAudit)&&x.pathAudit.length){
+  const altered=x.pathAudit.filter(a=>a.auditedPath!==a.originalLockedPath);
+  const p=document.createElement('p');
+  p.textContent='G18 scoring paths are derived from source evidence, not preset slots. '+
+    x.pathAudit.length+' selected recipients audited; '+
+    altered.length+' path difference'+(altered.length===1?'':'s')+
+    ' recorded separately from the frozen original card.';
+  evidence.appendChild(p);
+}
 if(x.errors?.length){
 const heading=document.createElement('h3');heading.textContent='Exact engine failures ('+x.errors.length+')';evidence.appendChild(heading);
 const ul=document.createElement('ul');
@@ -38,7 +47,50 @@ evidence.appendChild(ul);
 if(x.missingByGate&&Object.keys(x.missingByGate).length){
 const p=document.createElement('p');p.textContent=(card?'Unresolved gate evidence among nonselected candidates: ':'Missing gate evidence: ')+Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');evidence.appendChild(p);
 }
-for(const l of card?.current_legs||[]){const d=document.createElement('div');d.className='leg';for(const [cl,t] of [['path',l.path],['name',l.player],['small',l.matchup],['small',l.directRoute]]){const p=document.createElement('div');p.className=cl;p.textContent=t||'';d.appendChild(p)}legs.appendChild(d)}
+const audits=new Map((x.pathAudit||[]).map(a=>[String(a.gameId)+':'+String(a.playerId),a]));
+for(const l of card?.current_legs||[]){
+  const d=document.createElement('div');d.className='leg';
+  const audit=audits.get(String(l.gameId)+':'+String(l.playerId));
+  const evidenced=!!(audit&&audit.sameLockedRecipient&&audit.doesNotReplaceCard
+    &&audit.originalLockedPath===l.path&&['PRIMARY','TRANSFER','WHO'].includes(audit.auditedPath)
+    &&Array.isArray(audit.sourceUrls)&&audit.sourceUrls.length);
+  const currentPath=evidenced?audit.auditedPath:l.path;
+  for(const [cl,t] of [['path',currentPath],['name',l.player],
+                        ['small',l.matchup],['small',l.directRoute]]){
+    const p=document.createElement('div');p.className=cl;p.textContent=t||'';
+    d.appendChild(p);
+  }
+  if(evidenced){
+    const note=document.createElement('div');note.className='audit-note';
+    note.textContent=audit.auditedPath!==l.path
+      ?'Latest G18 path review: '+audit.auditedPath+' • Original frozen label: '+l.path
+      :'G18 path review agrees: '+l.path;
+    d.appendChild(note);
+    const details=document.createElement('details');details.className='audit-details';
+    const summary=document.createElement('summary');summary.textContent='Why this path?';
+    details.appendChild(summary);
+    const why=document.createElement('p');
+    why.textContent=audit.rationale||'Current source review did not provide a route explanation.';
+    details.appendChild(why);
+    if(audit.originalScoringLane&&audit.scoringLane&&audit.originalScoringLane!==audit.scoringLane){
+      const lane=document.createElement('p');lane.textContent=
+        'Original lane: '+audit.originalScoringLane+' • Surviving lane: '+audit.scoringLane;
+      details.appendChild(lane);
+    }
+    const sources=document.createElement('div');
+    sources.textContent='Source receipts: ';
+    for(const [idx,url] of audit.sourceUrls.slice(0,8).entries()){
+      if(typeof url!=='string'||!url.startsWith('https://'))continue;
+      if(idx>0)sources.appendChild(document.createTextNode(' · '));
+      const link=document.createElement('a');link.href=url;link.target='_blank';
+      link.rel='noopener noreferrer';link.textContent=String(idx+1);
+      sources.appendChild(link);
+    }
+    details.appendChild(sources);
+    d.appendChild(details);
+  }
+  legs.appendChild(d);
+}
 }catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.'}
 }load();
 // New GitHub Pages deployments appear without requiring a ChatGPT visit or
