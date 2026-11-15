@@ -29,6 +29,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
     required=set(MASTER+OVERLAY)
     distributions=defaultdict(Counter);missing=Counter()
     overlay_copies=[];source_unattributed=[];duplicates=[]
+    step8_missing=[];missing_gate_evidence=defaultdict(list)
     for key,matrix in skaters.items():
         if set(matrix)!=required:missing.update(required-set(matrix))
         for gate,row in matrix.items():
@@ -40,6 +41,23 @@ def certify_gates(con,date,stage,expected_game_count=None):
                     evidence.get("checkedBeforeG18") is True and
                     evidence.get("masterGateVerdictCopied") is False):
                 overlay_copies.append({"gameId":key[0],"playerId":key[1],"gate":gate})
+            if row["disposition"]=="NOT_EXECUTED":
+                if len(missing_gate_evidence[gate])<8:
+                    missing_gate_evidence[gate].append({"gameId":key[0],
+                        "playerId":key[1],"sourceCount":len(detail.get("sourceIds") or [])})
+            if gate=="Step8" and row["disposition"]!="PASS":
+                match=evidence.get("matchingArea")
+                shift_count=evidence.get("actualMatchingAreaShiftEvents") or 0
+                urls=evidence.get("officialShiftChartSourceCount") or 0
+                reason=("NO_PLAYER_OWN_SCORING_ORIGIN" if not match else
+                        "NO_MATCHED_HISTORICAL_DEFENSIVE_SHIFT_IN_OWN_AREA"
+                        if not shift_count else
+                        "NO_OFFICIAL_SHIFT_CHART_PROVENANCE" if not urls else
+                        "NONPASSING_OTHER")
+                step8_missing.append({"gameId":key[0],"playerId":key[1],
+                    "matchingArea":match,"reason":reason,
+                    "observedShiftEvents":shift_count,
+                    "sourceCount":len(detail.get("sourceIds") or [])})
             if (gate in PROVENANCE_REQUIRED and row["disposition"]=="PASS" and
                     not detail.get("sourceIds")):
                 source_unattributed.append({"gameId":key[0],"playerId":key[1],"gate":gate})
@@ -84,6 +102,9 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "missingMatrixGateRows":dict(missing),
+        "step8MissingDetails":step8_missing,
+        "step8MissingReasons":dict(Counter(x["reason"] for x in step8_missing)),
+        "otherMissingSourceExamples":dict(missing_gate_evidence),
         "copiedOverlayReceipts":overlay_copies[:12],
         "copiedOverlayReceiptCount":len(overlay_copies),
         "sourceUnattributedPassingGateCount":len(source_unattributed),
