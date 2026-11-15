@@ -430,7 +430,15 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         isinstance(who_data.get('mechanism'),str) and who_data['mechanism'].strip() and
         direct['goalieWeakAreaDirectlyMatched'] and
         direct['independentDefenseAreaDirectlyMatched'] and all_gates)
-    if physical_anomaly:
+    # If two different source-supported mechanisms compete, even the path
+    # label must survive contradiction review; there is no WHO-over-TRANSFER
+    # priority or arbitrary fallback ordering.
+    path_contradiction=bool(physical_anomaly and
+        (confirmed_displacement or derived_displacement))
+    if path_contradiction:
+        path=None
+        rationale='Two different sourced physical paths remain unseparated; no preferred label assigned'
+    elif physical_anomaly:
         path='WHO'
         rationale='Sourced independent anomaly scoring mechanism survived G14, goalie route and full gates'
     elif route_direct and (confirmed_displacement or derived_displacement):
@@ -466,6 +474,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'explicitDisplacementSourceValidated':bool(confirmed_displacement),
         'independentTransferDerivedFromG0AndG10_5':derived_displacement,
         'G14IndependentWhoAnomalyVerified':physical_anomaly,
+        'competingWHOandTRANSFERPathsUnseparated':path_contradiction,
         'whoPhysicalMechanism':who_data.get('mechanism') if physical_anomaly else None,
         'sourceUrls':sources,
         'selectionIndependentOfLabel':True,
