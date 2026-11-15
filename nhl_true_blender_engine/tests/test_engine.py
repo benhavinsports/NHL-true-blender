@@ -46,7 +46,7 @@ def game(idx,win=True):
             'sample':'dated 200 shot profile'})
     return {'id':str(5000+idx),'date':DATE,'away':away,'home':home,'startUTC':FUTURE,'gameState':'FUT',
         'goalies':{away:[],home:[goalie('g'+home,home)]},
-        'rosters':{away:evidence({'players':[main,rival]}),home:evidence({'players':[d]})},
+        'rosters':{away:evidence({'players':[main,rival,d]}),home:evidence({'players':[]})},
         'context':evidence({'venue':home,'rest':'one day both teams','travel':'neutral'}),
         'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point']}),
                     home:evidence({'greenWeakZones':['slot'],'redStrongZones':['point']})}}
@@ -67,8 +67,8 @@ def test_full_structural_three_game_run(con):
     assert len(PATCH_IDS)==13
     res=execute(con,snapshot(),DATE,'CONFIRMED')
     assert res['g0Directions']==6 and res['g0Complete']==3
-    assert res['eligibleSkaterRows']==6
-    assert res['gateRows']==6*(len(MASTER)+len(OVERLAY))+6
+    assert res['eligibleSkaterRows']==9
+    assert res['gateRows']==9*(len(MASTER)+len(OVERLAY))+6
     assert res['uniqueGameSurvivors']==3
     assert res['card'] is not None,res['errors']
     legs=res['card']['current_legs']
@@ -76,7 +76,7 @@ def test_full_structural_three_game_run(con):
     assert {x['path'] for x in legs}=={'PRIMARY','WHO'}
     assert len({x['gameId'] for x in legs})==3
     assert con.execute('SELECT COUNT(*) FROM cards').fetchone()[0]==1
-    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==6*(len(MASTER)+len(OVERLAY))+6
+    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==9*(len(MASTER)+len(OVERLAY))+6
     assert 'PATCH-NOV12-G10.5-EXPLICIT-SEPARATION' in con.execute("SELECT details FROM gates WHERE gate='G10.5' AND player_id='1010'").fetchone()[0]
 
 
