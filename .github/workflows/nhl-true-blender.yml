@@ -60,7 +60,6 @@ jobs:
           TRIGGER_CRON: ${{ github.event.schedule }}
           TRIGGER_EVENT: ${{ github.event_name }}
           MONEYPUCK_CSV_DIR: data/moneypuck
-          MONEYPUCK_EXPORT_ASOF: '2026-11-15'
         run: |
           python - <<'PY'
           import datetime
@@ -89,6 +88,9 @@ jobs:
           datetime.date.fromisoformat(date)
           print(f'BLENDER AUTONOMOUS {date} {mode} America/New_York')
           if mode in ('projected','confirmed'):
+              # Aggregates were freshly downloaded by THIS job, not reused from a past slate.
+              if os.environ.get('MONEYPUCK_CSV_DIR'):
+                  os.environ['MONEYPUCK_EXPORT_ASOF'] = date
               args = ['python','run_true_blender.py','--date',date,'--mode',mode]
           else:
               args = ['python','scripts/run_cycle.py','--date',date,'--mode',mode]
