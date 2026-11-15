@@ -62,10 +62,10 @@ def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
                         "highDangerShots":_num(row,"I_F_highDangerShots"),
                         "gamesPlayed":_num(row,"games_played"),
                         "evidenceType":"SEASON_AGGREGATE_NOT_RECENT_APPEARANCES"}),
-                    ("PLAYER_FINISH_CREDIT",{"recipient":_num(row,"I_F_goals")>0,
+                    ("PLAYER_FINISH_CREDIT",{"recipient":None,
                         "ownedGoals":_num(row,"I_F_goals"),
                         "primaryAssists":_num(row,"I_F_primaryAssists"),
-                        "evidenceType":"HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION"})):
+                        "evidenceType":"HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION","recipientUndetermined":True})):
                     ingest(con,{"evidence_id":f"mp-{kind}-{slate_date}-{stage}-{game['id']}-{pid}",
                         "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                         "player_id":pid,"kind":kind,"source_url":"https://moneypuck.com/data.htm",
