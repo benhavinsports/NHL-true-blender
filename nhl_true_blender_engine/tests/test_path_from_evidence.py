@@ -47,6 +47,19 @@ def test_secondary_route_that_defeats_documented_primary_is_a_transfer():
     assert proof["independentTransferDerivedFromG0AndG10_5"] is True
     assert proof["G10_5DisplacedPrimaryEvidence"][0]["displacedDirectPrimaryPlayerId"]=="2002"
 
+def test_competing_source_proven_who_and_transfer_paths_are_not_arbitrarily_labeled():
+    p=skater(2001,"slot",25,4,who=True)
+    p["release"]["data"].update({
+        "originalPrimaryOrigin":"High Slot",
+        "g0MatchedOwnOriginRoute":True})
+    rival=skater(2002,"slot",20,2)
+    path,proof=_decision(player=p,rivals=[rival],who=True)
+    assert path is None
+    assert proof["competingWHOandTRANSFERPathsUnseparated"] is True
+    assert proof["G14IndependentWhoAnomalyVerified"] is True
+    assert proof["independentTransferDerivedFromG0AndG10_5"] is True
+    assert proof["pathQuotaApplied"] is False
+
 def test_an_unproven_secondary_route_gets_no_forced_label():
     p=skater(2001,"slot",25,4)
     p["release"]["data"]["originalPrimaryOrigin"]="High Slot"
