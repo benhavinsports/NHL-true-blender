@@ -943,6 +943,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     scan,g0_direction_notes=g0_full_slate(games,stage)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
     errors=[]
+    # Previously activated, source-validated postgame safeguards apply ONLY
+    # to later slates. Never re-run or revise a frozen original selection.
+    from .postgame_recalibration import active_guards,apply_active_guards
+    validated_patch_guards=active_guards(con,date)
+    postgame_guard_exclusions=[]
     records=[];qualified=[];all_survivor_receipts=[];pool_size=0
     # Preserve actual G0 goalie-first direction receipts BEFORE skater traces.
     for entry in scan:
@@ -1026,6 +1031,12 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             for player in players:
                 scoped=release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
                 result,traces=evaluate_skater(match,team,scoped,players,branch,stage)
+                result,traces,guard_rejections=apply_active_guards(
+                    result,traces,validated_patch_guards)
+                if guard_rejections:
+                    postgame_guard_exclusions.append({
+                        'gameId':str(match['id']),'playerId':str(player['id']),
+                        'rejections':guard_rejections})
                 records+=traces
                 if result['complete']:
                     all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
@@ -1134,6 +1145,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'allG18QualifiedSurvivors':all_survivor_receipts,
             'nonselectedGameResearchNotes':nonselected_game_notes,
             'nonselectedGameResearchNeverReplacesLockedCore':True,
+            'activePostgameGuards':validated_patch_guards,
+            'futureGateGuardRejections':postgame_guard_exclusions,
+            'retroactiveCardMutation':False,
             'errors':errors,'scan':scan}
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
             {k:v for k,v in result.items() if k not in ('card','scan')})
