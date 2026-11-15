@@ -30,6 +30,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
     try:
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
+            historical = await collect_history(client, con, snapshot, date, stage)
         source_research = await collect_secondary(con, snapshot, date, stage)
         try:
             async with httpx.AsyncClient(timeout=18) as http:
@@ -41,7 +42,6 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 source_research["parsedLineups"] = ingest_lineups(con, snapshot, date, stage, response.text, observed)
         except (httpx.HTTPError, ValueError) as exc:
             source_research["lineupParseError"] = str(exc)
-        historical = await collect_history(client, con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         summary = {k: v for k, v in result.items() if k != "scan"}
