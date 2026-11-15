@@ -31,6 +31,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
+      - name: Run engine regression tests
+        run: python -m unittest discover -p 'test*.py' -v
       - name: Run official NHL full-slate evidence audit
         env:
           REQUESTED_DATE: ${{ inputs.date }}
