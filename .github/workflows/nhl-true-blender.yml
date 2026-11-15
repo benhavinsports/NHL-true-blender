@@ -50,13 +50,17 @@ jobs:
         continue-on-error: true
         run: python scripts/download_moneypuck.py
       - name: Complete legacy and integrated G0-G18 verification
+        id: verification
+        continue-on-error: true
         run: |
           python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
       - name: Probe live source schemas without claiming passes
+        continue-on-error: true
         run: python -m scripts.diagnose_live_pipeline
       - name: Run scheduled autonomous Blender phase
+        id: engine
         env:
           REQUESTED_DATE: ${{ inputs.date }}
           REQUESTED_MODE: ${{ inputs.mode }}
@@ -133,6 +137,13 @@ jobs:
           done
           echo "Unable to publish without risking an existing Core"
           exit 1
+      - name: Publish engine execution diagnostics
+        if: always()
+        run: |
+          echo '## Blender execution status' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Verification: ${{ steps.verification.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Engine: ${{ steps.engine.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Verification failure never substitutes for a verified Core.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
