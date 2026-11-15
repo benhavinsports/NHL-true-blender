@@ -14,7 +14,19 @@ const r=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
 if(!r.ok)throw Error('No published engine result yet ('+r.status+')');
 const x=await r.json();const card=x.card;status.textContent=card?'Verified Core '+(card.current_legs||[]).length:'No verified Core published';
 detail.textContent='Slate: '+(x.date||'unknown')+' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
-evidence.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Qualified games: '+(x.uniqueGameSurvivors??'—')+(x.errors?.length?' • Execution errors: '+x.errors.length:'');
+evidence.replaceChildren();
+const summary=document.createElement('p');
+summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+' • Qualified games: '+(x.uniqueGameSurvivors??'—');
+evidence.appendChild(summary);
+if(x.errors?.length){
+const heading=document.createElement('h3');heading.textContent='Exact engine failures ('+x.errors.length+')';evidence.appendChild(heading);
+const ul=document.createElement('ul');
+for(const error of x.errors){const li=document.createElement('li');li.textContent=String(error);li.style.marginBottom='8px';ul.appendChild(li)}
+evidence.appendChild(ul);
+}
+if(x.missingByGate&&Object.keys(x.missingByGate).length){
+const p=document.createElement('p');p.textContent='Missing gate evidence: '+Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');evidence.appendChild(p);
+}
 for(const l of card?.current_legs||[]){const d=document.createElement('div');d.className='leg';for(const [cl,t] of [['path',l.path],['name',l.player],['small',l.matchup],['small',l.directRoute]]){const p=document.createElement('div');p.className=cl;p.textContent=t||'';d.appendChild(p)}legs.appendChild(d)}
 }catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.'}
 }load();
