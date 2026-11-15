@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint
+from .overlay_checks import independent_overlay, STEP_ORDER
 
 MASTER = ([f'G{i}' for i in range(11)] + ['G10.5'] + [f'G{i}' for i in range(11,19)])
 OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] + [f'Step{i}' for i in range(11,15)])
@@ -608,6 +609,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
+    # Run Phase-1 Step0..Step14 as 16 independent source observations BEFORE
+    # G18. Do not copy a master verdict into an overlay record or pretend
+    # a missing shift-by-shift source was independently verified.
+    overlay=independent_overlay(game,attack_team,player,teammates,goalie_profile,
+        release,rec,rows,stage,receipt,evidence_data,gate_record)
     # The path is a RESULT of the physical-source gates, never a preallocated
     # PRIMARY/TRANSFER/WHO slot or an automatic fallback label.
     previous_gates_passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
@@ -620,16 +626,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         'classificationOccursAfterAllSourceGates':True,
         'notPresetOneOfEach':True},
         source_ids=path_proof['sourceUrls'])
-    overlay=[]
-    for step in OVERLAY:
-        check={'Step0':'G0','Step1':'G2','Step2':'G1','Step3':'G5','Step4':'G7',
-               'Step5':'G4','Step6':'G6','Step7':'G4','Step8':'G9','Step9':'G11',
-               'Step10':'G5','Step10.5':'G10.5','Step11':'G14','Step12':'G16',
-               'Step13':'G13','Step14':'G17'}[step]
-        disp=d[check]['disposition']
-        overlay.append(gate_record(game,player['id'],step,disp,
-                      {'independentOverlayCheck':check,
-                       'archetypeBeforeSelection':release['archetype'] if step=='Step7' and release else None}))
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
             'route':route,'pathEvidence':path_proof,
             'pressure':evidence_data(shots),
@@ -642,6 +638,8 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
     errors=[]
     now=now or datetime.now(timezone.utc)
     expected_set=set(MASTER+OVERLAY)
+    if tuple(OVERLAY)!=tuple(STEP_ORDER):
+        errors.append('Phase-1 overlay source order differs from the authoritative mapping')
     for game in games:
         already_started=(game.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
           (game.get('startUTC') and datetime.fromisoformat(game['startUTC'].replace('Z','+00:00'))<=now))
@@ -657,6 +655,17 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
             if actual!=expected_set:
                 missing=sorted(expected_set-actual)
                 errors.append(f"{game['id']} player {pid} missing gate/overlay records {missing}")
+            # A filled row is not proof of a gate's own evidence review.
+            # Each overlay must have its own pre-G18 source observation.
+            for entry in records:
+                if (entry['gameId']!=str(game['id']) or entry['playerId']!=pid
+                    or entry['gate'] not in OVERLAY):
+                    continue
+                ev=entry.get('details',{}).get('evidence',{})
+                if not (ev.get('independentOverlayEvaluation') is True and
+                        ev.get('checkedBeforeG18') is True and
+                        ev.get('masterGateVerdictCopied') is False):
+                    errors.append(f"{game['id']} player {pid} overlay {entry['gate']} is a copied verdict rather than an independent source check")
         count=sum(1 for r in records if r['gameId']==str(game['id']) and r['gate']=='G0'
                   and r['playerId'].startswith('GOALIE_DIRECTION:'))
         if count!=2:errors.append(f"{game['id']} G0 source directions saved {count} not 2")
