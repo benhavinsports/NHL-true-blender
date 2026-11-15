@@ -7,6 +7,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from nhl_true_blender_engine.audit import audit_misses
+from nhl_true_blender_engine.postgame_recalibration import adjudicate_misses,season_history
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
@@ -16,7 +17,7 @@ from scripts.publish_site_state import PublicationConflict, _write
 
 ET = ZoneInfo('America/New_York')
 
-def _publish_official_grade(root,date,grade,audits):
+def _publish_official_grade(root,date,grade,audits,patch_adjudication=None):
     """Attach official final outcome to the SAME saved G18 card.
 
     Grading and missed-gate auditing never change the frozen recipient list,
@@ -45,8 +46,12 @@ def _publish_official_grade(root,date,grade,audits):
         'playerResults':graded,
         'officialSources':grade['official_sources'],
         'missAudits':audits,
-        'patchesApplied':[],
-        'patchStatus':'NO_AUTOMATIC_RULE_MUTATION_WITHOUT_SOURCED_CAUSAL_AUDIT'
+        'patchAdjudication':patch_adjudication or {},
+        'patchesApplied':(patch_adjudication or {}).get('activated',[]),
+        'patchStatus':('SOURCE_VALIDATED_FUTURE_GUARDS_ACTIVATED'
+                       if (patch_adjudication or {}).get('activated')
+                       else 'NO_CAUSALLY_PROVEN_PATCH_TRIGGER'),
+        'patchesFutureSlatesOnly':True
     }
     old=json.loads(prior.get('gradeJson') or '{}')
     if old and (old.get('result')!=outcome
@@ -103,10 +108,23 @@ async def execute_cycle(mode, date, root='state'):
                     status=official.get('status','WAITING_FOR_FINAL')
                 if grade:
                     audits=audit_misses(con,date)
-                    report=_publish_official_grade(root,date,grade,audits)
+                    # A real official grade triggers automatic adjudication,
+                    # not a hand-entered patch or a new Core. A missed goal
+                    # alone NEVER activates a policy.
+                    adjudication=adjudicate_misses(con,date)
+                    season_year=int(date[:4]) if int(date[5:7])>=10 else int(date[:4])-1
+                    history=season_history(con,season_year,date)
+                    _write(root/'history'/f'{history["season"]}.json',history)
+                    report=_publish_official_grade(root,date,grade,audits,adjudication)
                     output={'slateDate':date,'mode':mode,'status':status,
                             'cardId':grade['card_id'],'grade':report,
-                            'missAudits':audits,
+                            'missAudits':audits,'patchAdjudication':adjudication,
+                            'seasonHistory':{
+                                'season':history['season'],
+                                'officiallyGradedSlates':history['officiallyGradedSlates'],
+                                'wins':history['wins'],'losses':history['losses'],
+                                'verifiedAutomaticGuardPatches':history['verifiedAutomaticGuardPatches'],
+                                'historyPath':str(root/'history'/f'{history["season"]}.json')},
                             'originalCardPreserved':True}
                 else:
                     output={'slateDate':date,'mode':mode,'status':status,
