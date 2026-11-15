@@ -33,13 +33,18 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
-      - name: Download current MoneyPuck season aggregates\n        run: |\n          python scripts/download_moneypuck.py\n      - name: Run both legacy and integrated engine regression suites
+      - name: Download current MoneyPuck season aggregates
+        run: |
+          python scripts/download_moneypuck.py
+      - name: Run both legacy and integrated engine regression suites
         run: |
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
       - name: Run official NHL full-slate evidence audit
         env:
-          MONEYPUCK_CSV_DIR: ${{ github.workspace }}/data/moneypuck\n          MONEYPUCK_EXPORT_ASOF: ${{ env.MONEYPUCK_EXPORT_ASOF }}\n          REQUESTED_DATE: ${{ inputs.date }}
+          MONEYPUCK_CSV_DIR: data/moneypuck
+          MONEYPUCK_EXPORT_ASOF: ${{ env.MONEYPUCK_EXPORT_ASOF }}
+          REQUESTED_DATE: ${{ inputs.date }}
           REQUESTED_MODE: ${{ inputs.mode }}
         run: |
           python - <<'PY'
@@ -51,7 +56,8 @@ jobs:
           assert mode in ("projected", "confirmed")
           subprocess.run(["python", "run_true_blender.py", "--date", date, "--mode", mode], check=True)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status.\\n")
+              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status.\
+")
           PY
       - name: Grade previous slate against official NHL boxscores
         if: always()
