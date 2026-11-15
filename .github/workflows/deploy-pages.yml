@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'site/**'
+      - 'index.html'
       - 'runs/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
@@ -43,6 +44,10 @@ jobs:
               output['publishedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
               pathlib.Path('site/data/latest.json').write_text(json.dumps(output,default=str))
           PY
+      - name: Verify dashboard is deployment entry point
+        run: |
+          test -s site/index.html
+          grep -q '<title>NHL True Blender</title>' site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
