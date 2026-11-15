@@ -122,6 +122,25 @@ def analyze(bundle,mode,limit=8):
    elif gid in game_goalie_ids: starter_status='game goalie listed; not marked starter'
    else: starter_status='current roster only; game starter not confirmed'
    ev=hist[team]['events']; goalie_rows.append({'team':team,'goalieId':gid,'goalie':g.get('name',{}).get('default','') if isinstance(g.get('name'),dict) else g.get('name',''),'starterStatus':starter_status,**goalie_hist(ev,gid)})
+ # G0 must establish the goalie attack map for BOTH teams before evaluating skaters.
+ # NHL event coordinates are not proof of glove/blocker/five-hole anatomy.
+ goalie_attack_map = {}
+ for team in (home, away):
+  profiles = [g for g in goalie_rows if g['team'] == team]
+  goalie_attack_map[team] = {
+   'goalies': [{
+    'goalieId': g['goalieId'],
+    'goalie': g['goalie'],
+    'starterStatus': g['starterStatus'],
+    'shotsObserved': g['shotsObserved'],
+    'shotTypeProfile': g.get('byShotType', {}),
+    'zoneProfile': g.get('byZone', {}),
+    'anatomicalWeakness': 'NOT ESTABLISHED BY OFFICIAL EVENT COORDINATES'
+   } for g in profiles],
+   'bothAttackDirectionsEvaluated': True,
+   'anatomicalWeaknessVerified': False,
+   'source': 'official historical shot and goal events'
+  }
  byteam=defaultdict(list)
  for g in goalie_rows:byteam[g['team']].append(g)
  player_rows=[]
@@ -255,7 +274,7 @@ def analyze(bundle,mode,limit=8):
    'numericScoreUsed': False
   }
   p['gateTrace']=[
-   gate('G0','Game identity',status(bool(game.get('gameId'))),[f"gameId={game.get('gameId')}",f"gameType={game.get('gameType') or 'not supplied'}",f"matchup={game.get('awayAbbrev')} @ {game.get('homeAbbrev')}"]),
+   gate('G0','Goalie attack map — both directions','PARTIAL — GOALIE EVENT PROFILES; ANATOMICAL WEAKNESS NOT VERIFIED',[f"gameId={game.get('gameId')}",f"home goalies profiled={len(goalie_attack_map[home]['goalies'])}",f"away goalies profiled={len(goalie_attack_map[away]['goalies'])}",'Glove/blocker/five-hole weaknesses cannot be inferred from NHL shot coordinates.']),
    gate('G1','Environment','PARTIAL — REST / VENUE ONLY',[str(game.get('venue') or 'venue unavailable'),str(team_context.get(p['team'],{}))],'Travel and arena conditions are not measured by the current feed.'),
    gate('G2','Availability / access',status(bool(p.get('playerId'))),[f"roster source={next((q.get('source') for q in ps if q['playerId']==p['playerId']), 'unknown')}"]),
    gate('G3','Opponent goalie vulnerability',status(any(m['shotsObserved']>0 for m in p['opposingGoalieMatches'])),[f"goalie profiles={sum(m['shotsObserved']>0 for m in p['opposingGoalieMatches'])}"]),
@@ -305,7 +324,7 @@ def analyze(bundle,mode,limit=8):
     # This is a comparison of observed dimensions, not an aggregate rank.
     decision='A HAS DISTINCT OBSERVED ADVANTAGES' if advantages_a and not advantages_b else ('B HAS DISTINCT OBSERVED ADVANTAGES' if advantages_b and not advantages_a else ('MIXED EVIDENCE — CARRY BOTH' if advantages_a and advantages_b else 'NO EVIDENCE-BASED SEPARATION'))
     route_comparisons.append({'team':team,'playerA':{'playerId':a['playerId'],'player':a['player'],'dimensions':ad,'distinctAdvantages':advantages_a},'playerB':{'playerId':b['playerId'],'player':b['player'],'dimensions':bd,'distinctAdvantages':advantages_b},'comparison':decision,'numericScoreUsed':False,'note':"Comparisons are descriptive and bounded by available historical event samples; they do not establish tonight's deployment."})
- return {'game':game,'mode':mode,'runUTC':now(),'auditStatus':'ANALYSIS COMPLETE — EVIDENCE PATHS AND PAIRWISE COMPARISONS GENERATED; LIVE DEPLOYMENT STILL SOURCE-DEPENDENT','sourceCoverage':{'candidateSkaters':len(sk),'homeRoster':len(hp),'awayRoster':len(ap),'currentPbpEvents':len(current),'currentDirectMatchups':len(direct_now),'historicalBundles':hist_n,'historicalEvents':hist_events,'retrievalErrors':len(errs),'playersWithObservedAttempts':len(route_candidates),'exactDirectPairsWithEvents':sum(1 for x in route_rows if x['directEvents']>0)},'gates':gates,'teamContext':team_context,'players':player_rows,'goalies':goalie_rows,'directMatchupAudit':route_rows,'routeComparisons':route_comparisons,'routeCandidates':route_candidates,'currentDirectMatchups':direct_now,'deploymentSourceSearch':{team:{'source':x.get('source'),'status':x.get('status'),'joined':x.get('rosterJoinCount',0),'sourceDate':(x.get('sourceMeta') or {}).get('sourceDate'),'lineEvidenceFound':(x.get('sourceMeta') or {}).get('lineEvidenceFound'),'powerPlayEvidenceFound':(x.get('sourceMeta') or {}).get('powerPlayEvidenceFound'),'unmatchedNames':x.get('unmatchedNames',[]),'attempts':x.get('sourceMeta',{}).get('attempts',[])} for team,x in deployment_teams.items()},'dataErrors':errs,'contradictions':contradictions,'historicalByTeam':{t:{'games':[b['game'] for b in x['bundles']],'events':len(x['events'])} for t,x in hist.items()}}
+ return {'game':game,'goalieAttackMap':goalie_attack_map,'mode':mode,'runUTC':now(),'auditStatus':'ANALYSIS COMPLETE — EVIDENCE PATHS AND PAIRWISE COMPARISONS GENERATED; LIVE DEPLOYMENT STILL SOURCE-DEPENDENT','sourceCoverage':{'candidateSkaters':len(sk),'homeRoster':len(hp),'awayRoster':len(ap),'currentPbpEvents':len(current),'currentDirectMatchups':len(direct_now),'historicalBundles':hist_n,'historicalEvents':hist_events,'retrievalErrors':len(errs),'playersWithObservedAttempts':len(route_candidates),'exactDirectPairsWithEvents':sum(1 for x in route_rows if x['directEvents']>0)},'gates':gates,'teamContext':team_context,'players':player_rows,'goalies':goalie_rows,'directMatchupAudit':route_rows,'routeComparisons':route_comparisons,'routeCandidates':route_candidates,'currentDirectMatchups':direct_now,'deploymentSourceSearch':{team:{'source':x.get('source'),'status':x.get('status'),'joined':x.get('rosterJoinCount',0),'sourceDate':(x.get('sourceMeta') or {}).get('sourceDate'),'lineEvidenceFound':(x.get('sourceMeta') or {}).get('lineEvidenceFound'),'powerPlayEvidenceFound':(x.get('sourceMeta') or {}).get('powerPlayEvidenceFound'),'unmatchedNames':x.get('unmatchedNames',[]),'attempts':x.get('sourceMeta',{}).get('attempts',[])} for team,x in deployment_teams.items()},'dataErrors':errs,'contradictions':contradictions,'historicalByTeam':{t:{'games':[b['game'] for b in x['bundles']],'events':len(x['events'])} for t,x in hist.items()}}
 def _blocking_contradictions(report):
     """Only source/data contradictions that invalidate identity or evidence block a lock.
 
