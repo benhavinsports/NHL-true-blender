@@ -28,6 +28,7 @@ def eliminate_player(player):
     decisions = []
     alive = True
     complete = True
+    first_failure = None
     for gate_id in ORDER:
         entry = traces.get(gate_id)
         result = classify(entry.get("status") if entry else None, gate_id)
@@ -35,6 +36,7 @@ def eliminate_player(player):
             result = "SKIPPED_AFTER_ELIMINATION"
         elif result == "ELIMINATED":
             alive = False
+            first_failure = gate_id
         elif result == "EVIDENCE_MISSING":
             complete = False
         decisions.append({
@@ -52,6 +54,7 @@ def eliminate_player(player):
         "survived": alive and complete,
         "eliminated": not alive,
         "complete": complete,
+        "firstFailureGate": first_failure,
     }
 
 def execute_gate_matrix(report):
@@ -67,6 +70,7 @@ def execute_gate_matrix(report):
         "playersEvaluated": len(results),
         "playersEliminated": sum(x["eliminated"] for x in results),
         "playersFullySurvived": sum(x["survived"] for x in results),
-        "playersWithMissingEvidence": sum(not x["complete"] for x in results),
+        "playersWithMissingEvidence": sum(x["survived"] is False and not x["eliminated"] for x in results),
+        "playersEliminatedWithEvidence": sum(x["eliminated"] for x in results),
         "playerResults": results,
     }
