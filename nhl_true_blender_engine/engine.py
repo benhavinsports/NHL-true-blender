@@ -670,7 +670,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     scan,g0_direction_notes=g0_full_slate(games,stage)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
     errors=[]
-    records=[];qualified=[];pool_size=0
+    records=[];qualified=[];all_survivor_receipts=[];pool_size=0
     # Preserve actual G0 goalie-first direction receipts BEFORE skater traces.
     for entry in scan:
         match=next(g for g in games if str(g['id'])==entry['gameId'])
@@ -757,6 +757,31 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 if result['complete']:
                     all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
                                          'candidate':result})
+                    z=result['release']['zone']
+                    gweak=branch['data'].get('weakZones') or {}
+                    defense=match.get('coverage',{}).get(team) or {}
+                    coverage=(defense.get('data') or {}).get('zoneConcessions') or {}
+                    own=result['player']
+                    all_survivor_receipts.append({
+                        'gameId':str(match['id']),
+                        'matchup':match['away']+'@'+match['home'],
+                        'gameStartUTC':match.get('startUTC'),
+                        'attackTeam':team,'opponentTeam':opponent,
+                        'playerId':str(own['id']),'player':own.get('name'),
+                        'routeLabel':result['route'],'ownRouteZone':z,
+                        'ownedGoals':result['release']['ownedGoals'],
+                        'ownShotsOnGoal':result['release']['attempts'],
+                        'routeSource':(own.get('release') or {}).get('sourceUrl'),
+                        'goalieId':branch['data'].get('goalieId'),
+                        'goalieStatus':branch['data'].get('status'),
+                        'goalieSourceUrl':branch['data'].get('goalieProfileSourceUrl'),
+                        'goalieObservedZoneStats':gweak.get(z),
+                        'independentOpponentDefense':coverage.get(z),
+                        'defenseSourceUrl':defense.get('sourceUrl'),
+                        'deployment':(own.get('deployment') or {}).get('data'),
+                        'deploymentSourceUrl':(own.get('deployment') or {}).get('sourceUrl'),
+                        'nonRankingDiagnosticOnly':True,
+                    })
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
@@ -804,7 +829,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     result={'card':card,'date':date,'stage':stage,'games':len(games),
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
             'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
-            'uniqueGameSurvivors':len(qualified),'errors':errors,'scan':scan}
+            'uniqueGameSurvivors':len(qualified),
+            'allG18QualifiedSurvivors':all_survivor_receipts,
+            'errors':errors,'scan':scan}
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
             {k:v for k,v in result.items() if k not in ('card','scan')})
     return result
