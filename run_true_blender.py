@@ -17,6 +17,7 @@ from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
+from nhl_true_blender_engine.scouting_import import ingest_scouting
 import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
@@ -48,7 +49,13 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             source_research['moneypuck'] = import_moneypuck(
                 con, snapshot, date, stage, csv_dir,
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
+        # Starter evidence is attached first; anatomical scouting must never invent a starter.
         attach(con, snapshot, date, stage)
+        scouting_path = os.environ.get('GOALIE_SCOUTING_JSON')
+        if scouting_path:
+            source_research['goalieScouting'] = ingest_scouting(
+                con, snapshot, date, stage, scouting_path)
+            attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         summary = {k: v for k, v in result.items() if k != "scan"}
         summary.update({
