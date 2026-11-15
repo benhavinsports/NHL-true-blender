@@ -70,6 +70,7 @@ async def collect_shift_coverage(game_dates,events,game_meta,concurrency=5):
     # A defender must have genuinely observed players on the ice at the
     # event's exact period clock. Do not infer a shift from total TOI.
     by_defender=defaultdict(lambda:{"zoneEvents":defaultdict(int),
+               "zoneSampleCounts":defaultdict(int),
                "sampleEvents":[],"gameIds":set(),"shiftSourceUrls":set(),
                "matchedEvents":0,"unmatchedEvents":0})
     matched=set()
@@ -110,7 +111,14 @@ async def collect_shift_coverage(game_dates,events,game_meta,concurrency=5):
         zones=list(dict.fromkeys(z for z in (region,detailed) if z))
         for z in zones:
             result["zoneEvents"][z]+=1
-            if len(result["sampleEvents"])<180:
+            # Preserve source-backed defensive shifts for every observed
+            # scoring area, including rare circle/point lanes late in the
+            # pre-slate sample. The old first-180 global cap could discard an
+            # entire real zone despite documented earlier/later PBP events.
+            # Fixed cap of 16 official joined events PER area; no synthetic
+            # event or substitute team/goalie share.
+            if result["zoneSampleCounts"][z]<16:
+                result["zoneSampleCounts"][z]+=1
                 result["sampleEvents"].append({
                     "zone":z,"gameId":game_id,"eventId":event_id,
                     "period":period,"eventClock":e.get("timeInPeriod"),
