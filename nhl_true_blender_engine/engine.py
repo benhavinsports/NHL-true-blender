@@ -496,12 +496,13 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     selection_errors += verify_complete_matrix(games,records,scan,now)
     # Never issue a slate card when any scheduled matchup has already begun.
     # Selection is a pregame operation, not a retroactive pick.
+    # Games already underway are frozen independently. They cannot be newly selected,
+    # but must not prevent selection from remaining future games.
     if any(g.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
            (g.get('startUTC') and
             datetime.fromisoformat(g['startUTC'].replace('Z','+00:00')) <= now)
            for g in games):
-        chosen=[]
-        selection_errors.append('Slate contains started games; preserve any existing frozen card and never issue a retrospective selection')
+        selection_errors.append('Started games are excluded from new selection; existing card identities remain frozen')
     # G0 is not a shortlist. BOTH attack directions of EVERY scheduled matchup
     # must be source-evaluated before any G18 card, even if a skater survived.
     future_games={str(g['id']) for g in games if g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL')
