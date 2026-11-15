@@ -1,0 +1,1 @@
+"""NHL True Blender evidence-first G0–G18 backend."""
