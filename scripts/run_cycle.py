@@ -16,6 +16,47 @@ from scripts.publish_site_state import PublicationConflict, _write
 
 ET = ZoneInfo('America/New_York')
 
+def _publish_official_grade(root,date,grade,audits):
+    """Attach official final outcome to the SAME saved G18 card.
+
+    Grading and missed-gate auditing never change the frozen recipient list,
+    fingerprint, original path, or card revision. No unverified patch is
+    represented as automatically applied.
+    """
+    path=root/'site_cards'/f'{date}.json'
+    if not path.exists():
+        raise PublicationConflict('Officially graded Core has no saved site card')
+    prior=json.loads(path.read_text(encoding='utf-8'))
+    if prior.get('cardId')!=grade['card_id']:
+        raise PublicationConflict('Grade does not belong to the original locked Core')
+    legs=json.loads(prior['legsJson'])
+    graded=grade['legs']
+    original={(str(l['gameId']),str(l['playerId'])) for l in legs}
+    measured={(str(l['gameId']),str(l['playerId'])) for l in graded}
+    if len(graded)!=len(legs) or measured!=original:
+        raise PublicationConflict('Official grade players differ from original frozen card')
+    hits=sum(l['result']=='HIT' for l in graded)
+    outcome='WIN' if hits==len(graded) else 'LOSS'
+    if outcome!=grade['result']:
+        raise PublicationConflict('Official grade hit count disagrees with stored result')
+    report={
+        'cardId':grade['card_id'],'gradedAt':grade.get('graded_at'),
+        'hits':hits,'legs':len(graded),'result':outcome,
+        'playerResults':graded,
+        'officialSources':grade['official_sources'],
+        'missAudits':audits,
+        'patchesApplied':[],
+        'patchStatus':'NO_AUTOMATIC_RULE_MUTATION_WITHOUT_SOURCED_CAUSAL_AUDIT'
+    }
+    old=json.loads(prior.get('gradeJson') or '{}')
+    if old and (old.get('result')!=outcome
+                or old.get('hits')!=hits or old.get('legs')!=len(graded)):
+        raise PublicationConflict('Already published grade conflicts with official frozen record')
+    prior['gradeJson']=json.dumps(report,sort_keys=True)
+    prior['status']='FROZEN_GRADED'
+    _write(path,prior)
+    return report
+
 async def execute_cycle(mode, date, root='state'):
     root=Path(root)
     root.mkdir(parents=True,exist_ok=True)
@@ -39,38 +80,37 @@ async def execute_cycle(mode, date, root='state'):
             card=get_card(con,date)
             if not card:
                 output={'slateDate':date,'mode':mode,'status':'NO_ORIGINAL_CORE_TO_GRADE'}
-            elif card.get('grade'):
-                output={'slateDate':date,'mode':mode,'status':'ALREADY_OFFICIALLY_GRADED',
-                        'cardId':card['card_id'],'grade':card['grade']}
             else:
-                nhl=NHLClient()
-                try:
-                    official=await official_final_grade(nhl,con,date)
-                finally:
-                    await nhl.close()
-                if not official.get('grade'):
-                    output={'slateDate':date,'mode':mode,'status':official.get('status','WAITING_FOR_FINAL')}
+                # Idempotent retries still synchronize the official grade,
+                # audit and frozen site card from the canonical SQLite ledger.
+                grade=None
+                if card.get('grade'):
+                    row=con.execute('SELECT * FROM grades WHERE card_id=?',
+                                    (card['card_id'],)).fetchone()
+                    if not row:
+                        raise PublicationConflict('Card graded but official grade receipt is missing')
+                    grade=dict(row)
+                    grade['legs']=json.loads(row['legs'])
+                    grade['official_sources']=json.loads(row['official_sources'])
+                    status='ALREADY_OFFICIALLY_GRADED'
                 else:
+                    nhl=NHLClient()
+                    try:
+                        official=await official_final_grade(nhl,con,date)
+                    finally:
+                        await nhl.close()
+                    grade=official.get('grade')
+                    status=official.get('status','WAITING_FOR_FINAL')
+                if grade:
                     audits=audit_misses(con,date)
-                    grade=official['grade']
-                    output={'slateDate':date,'mode':mode,'status':'GRADED_OFFICIAL_GOAL_EVENTS',
-                        'cardId':grade['card_id'],'grade':grade,'missAudits':audits}
-                    card_path=root/'site_cards'/f'{date}.json'
-                    if card_path.exists():
-                        prior=json.loads(card_path.read_text(encoding='utf-8'))
-                        if prior.get('cardId')!=grade['card_id']:
-                            raise PublicationConflict('Official grade card ID conflicts with published site card')
-                        if prior.get('gradeJson'):
-                            old=json.loads(prior['gradeJson'])
-                            if old and old.get('result')!=grade['result']:
-                                raise PublicationConflict('Previously verified grade conflict')
-                        prior['gradeJson']=json.dumps({
-                            'hits':sum(x['result']=='HIT' for x in grade['legs']),
-                            'legs':len(grade['legs']),
-                            'result':grade['result'],
-                            'officialSources':grade['official_sources']})
-                        prior['status']='FROZEN_GRADED'
-                        _write(card_path,prior)
+                    report=_publish_official_grade(root,date,grade,audits)
+                    output={'slateDate':date,'mode':mode,'status':status,
+                            'cardId':grade['card_id'],'grade':report,
+                            'missAudits':audits,
+                            'originalCardPreserved':True}
+                else:
+                    output={'slateDate':date,'mode':mode,'status':status,
+                            'originalCardPreserved':True}
         else:
             raise ValueError('run_cycle expects watch or grade')
         _write(root/'site_runs'/f'{date}-{mode}.json',output)
