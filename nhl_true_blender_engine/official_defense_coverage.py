@@ -9,6 +9,8 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import datetime,timezone
 from statistics import median
+import hashlib
+import json
 from .enrichment import ingest
 
 BIN_SPEC="NHL_RINK_COORDINATE_APPROXIMATION_V1"
@@ -157,8 +159,14 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
                 "strengthsAndWeaknessesAreTeamShot_SHARE_NotGoalieSavePct":True,
                 "unobservedAreasNotAssignedGreen":True}
             if urls:
+                # The 8-game evidence window and the labelled area inference
+                # can change between confirmed refreshes. Each distinct
+                # measured payload is a NEW immutable proof, never an update
+                # to the previously saved G9 source claim.
+                version=hashlib.sha256(json.dumps(payload,sort_keys=True,
+                    separators=(",",":")).encode()).hexdigest()[:16]
                 ingest(con,{
-                    "evidence_id":f"nhl-team-coverage-{date}-{stage}-{game['id']}-{attacker}",
+                    "evidence_id":f"nhl-team-coverage-{date}-{stage}-{game['id']}-{attacker}-{version}",
                     "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                     "kind":"TEAM_COVERAGE","source_url":urls[0],
                     "observed_at":now,"payload":payload})
