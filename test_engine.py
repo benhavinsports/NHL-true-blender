@@ -10,6 +10,33 @@ class BlenderTests(unittest.TestCase):
         self.assertFalse(report['validationSummary']['finalPlayerPathsCertified'])
         self.assertIn('G15 finisher protection comparison', report['validationSummary']['requiredUnresolvedAreas'])
 
+    def test_three_game_slate_never_returns_partial_core(self):
+        bundles = [
+            {'game': {'gameId': i, 'gameState': 'FUT', 'homeAbbrev': 'HOM',
+                      'awayAbbrev': 'AWY', 'gameDate': '2026-11-15'},
+             'boxscore': {}, 'landing': {}, 'plays': {}, 'errors': []}
+            for i in (1, 2, 3)
+        ]
+        def empty_report(bundle, mode, history):
+            return {'game': bundle['game'], 'players': [], 'dataErrors': [],
+                    'gates': [], 'sourceCoverage': {}}
+        with patch('engine.analyze', side_effect=empty_report):
+            result = run_slate(bundles, 'projected', 8)
+        self.assertEqual(result['coreOutput']['core'], [])
+        self.assertFalse(result['validationSummary']['finalPlayerPathsCertified'])
+
+    def test_single_game_slate_never_returns_partial_core(self):
+        bundle = {'game': {'gameId': 1, 'gameState': 'FUT', 'homeAbbrev': 'HOM',
+                           'awayAbbrev': 'AWY', 'gameDate': '2026-11-15'},
+                  'boxscore': {}, 'landing': {}, 'plays': {}, 'errors': []}
+        with patch('engine.analyze', return_value={
+            'game': bundle['game'], 'players': [], 'dataErrors': [],
+            'gates': [], 'sourceCoverage': {}
+        }):
+            result = run_slate([bundle], 'confirmed', 8)
+        self.assertEqual(result['coreOutput']['core'], [])
+        self.assertFalse(result['validationSummary']['finalPlayerPathsCertified'])
+
     def test_gate_order_is_complete_and_sequential(self):
         self.assertEqual([x[0] for x in GATES], ['G0','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G10.5','G11','G12','G13','G14','G15','G16','G17','G18'])
 
