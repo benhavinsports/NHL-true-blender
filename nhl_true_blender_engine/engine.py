@@ -282,8 +282,18 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          source_ids=[game.get('context',{}).get('sourceUrl','')])
     roster=game.get('rosters',{}).get(attack_team)
     eligibility=player.get('availability','UNVERIFIED')
-    emit('G2',bool(receipt(roster)) and eligibility in ('DRESSED','CONFIRMED','PROJECTED_ACTIVE'),
-         {'fullPoolSize':len(teammates),'availability':eligibility,'position':position},
+    # G2 surveys the WHOLE official current roster, not merely a lineup
+    # publication's top lines. "UNVERIFIED" is roster eligibility to be
+    # researched, NOT a confirmed dressed status or confirmed deployment.
+    roster_eligible=(receipt(roster) and eligibility in
+        ('DRESSED','CONFIRMED','PROJECTED_ACTIVE','UNVERIFIED'))
+    emit('G2',bool(roster_eligible),
+         {'fullPoolSize':len(teammates),'availability':eligibility,
+          'officialCurrentRosterSource':roster.get('sourceUrl') if receipt(roster) else None,
+          'position':position,
+          'currentRosterNotEquivalentToDressed':True,
+          'confirmedDressed':eligibility in ('DRESSED','CONFIRMED'),
+          'lineupStillRequiresIndependentG6':True},
          eliminate=eligibility in ('OUT','SCRATCHED','INJURED'))
     emit('G3',bool(weak) and goalie_profile['data'].get('counterevidence') is not None,
          {'goalieSample':goalie_profile['data'].get('sample'),
