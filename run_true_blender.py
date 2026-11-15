@@ -61,7 +61,12 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 con, snapshot, date, stage, scouting_path)
             attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        # Source-verified Core JSON is produced by the engine, never by the Wix UI.
+        # The scheduled GitHub job commits this immutable transport to state/.
+        from scripts.publish_site_state import export_run
+        site_export = export_run(con, date, stage, result, state_dir)
         summary = {k: v for k, v in result.items() if k != "scan"}
+        summary['sitePublication'] = site_export
         summary.update({
             "officialSource": snapshot.get("officialSource"),
             "secondarySourceResearch": source_research,
