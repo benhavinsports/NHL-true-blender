@@ -56,6 +56,12 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             attach(con, snapshot, date, stage)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        result['edgeSourceCoverage']={k:edge_research.get(k) for k in (
+            'status','allCurrentRosterIdentitiesChecked','goalieRinkProfiles',
+            'skaterRinkProfiles','totalFailed','anatomicalClaimCertified')}
+        result['lineupSourceCoverage']={k:source_research.get('parsedLineups',{}).get(k)
+            for k in ('status','deploymentRecords','goalieReports','error')}
+        result['g0RinkOriginResearch']=edge_g0_review
         # Source-verified Core JSON is produced by the engine, never by the Wix UI.
         # The scheduled GitHub job commits this immutable transport to state/.
         from scripts.publish_site_state import export_run
@@ -85,6 +91,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "g0Directions": result["g0Directions"],
             "missingByGate": result["missingByGate"],
             "corePublished": bool(result.get("card")),
+            "edgeCollectedSkaters":edge_research.get("skaterRinkProfiles",0),
+            "edgeCollectedGoalies":edge_research.get("goalieRinkProfiles",0),
+            "lineupEvidence":source_research.get("parsedLineups",{}),
             "errors": result["errors"][:10],
         }, indent=2))
         return summary
