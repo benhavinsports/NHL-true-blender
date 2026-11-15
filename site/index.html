@@ -29,16 +29,25 @@ detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'
   ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
 evidence.replaceChildren();
 const summary=document.createElement('p');
-summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+(card?' • Selected distinct games: '+new Set((card.current_legs||[]).map(l=>l.gameId)).size:' • No published Core yet');
+const funnel=x.selectionFunnel||x.gateCertification?.selectionFunnel||{};
+const selectedCount=card?.current_legs?.length||0;
+const distinctGames=new Set((card?.current_legs||[]).map(l=>l.gameId)).size;
+summary.textContent='Games reviewed: '+(x.games??'—')+
+  ' • Eligible skaters evaluated: '+(funnel.surveyedEligibleSkaters??x.eligibleSkaterRows??'—')+
+  ' • Core survivors: '+selectedCount+
+  (card?' • Different games: '+distinctGames:' • No certified card yet');
 evidence.appendChild(summary);
 const gateAudit=x.gateCertification||{};
 if(gateAudit.scannedSkaters!=null){
   const report=document.createElement('p');
   const overlays=gateAudit.allOverlayStepsWereIndependentlyChecked===true?'independently evaluated':'not independently certified';
-  report.textContent='Execution audit: '+(gateAudit.scannedSkaters||0)+
-    ' skaters • '+(gateAudit.gateSpecification?.masterCount||20)+
-    ' master gates • '+(gateAudit.gateSpecification?.overlayCount||16)+
-    ' overlay steps ('+overlays+'). The number of gate records is not the number of gate passes.';
+  const survivorCertified=x.survivorOnlyCertification===true||
+    gateAudit.selectedCoreOnlyFullyCertified===true;
+  report.textContent=card?('Core 3 certification: '+(survivorCertified?'PASS':'REQUIRES EVIDENCE')+
+    ' • 20 master gates and 16 independent overlay checks per selected leg'+
+    ' • Selected-leg source gaps: '+(gateAudit.selectedSourceAttributionGaps?.length??'—')) :
+    ('Selection coverage: '+(gateAudit.scannedSkaters||0)+
+    ' skaters reviewed against the full G0–G18 and overlay matrix.');
   evidence.appendChild(report);
   const missing=gateAudit.selectedLegs?.flatMap(l=>(l.overlayMissingOrNonpassing||[]).map(v=>
     l.player+': '+v.gate+' '+v.status))||[];
@@ -68,15 +77,33 @@ if(card&&Array.isArray(x.pathAudit)&&x.pathAudit.length){
     ' recorded separately from the frozen original card.';
   evidence.appendChild(p);
 }
-if(x.errors?.length){
-const heading=document.createElement('h3');heading.textContent='Exact engine failures ('+x.errors.length+')';evidence.appendChild(heading);
-const ul=document.createElement('ul');
-for(const error of x.errors){const li=document.createElement('li');li.textContent=String(error);li.style.marginBottom='8px';ul.appendChild(li)}
-evidence.appendChild(ul);
-}
+// Nonselected players' failed or incomplete gates are EXPECTED outcomes
+// of the selection funnel. Keep their audit available, but never promote
+// those failures into a warning about the three certified recipients.
+const rejectedDetails=document.createElement('details');
+rejectedDetails.className='audit-details';
+const rejectedHeading=document.createElement('summary');
+rejectedHeading.textContent='Full-pool elimination and source audit (optional)';
+rejectedDetails.appendChild(rejectedHeading);
+const outcome=document.createElement('p');
+outcome.textContent='Full-pool outcomes: '+(funnel.sourceEliminated??'—')+
+  ' explicitly eliminated by a gate • '+(funnel.notQualifiedIncompleteEvidence??'—')+
+  ' not qualified due to insufficient evidence • '+(funnel.qualifiedButNotChosen??'—')+
+  ' qualified but not selected at G18 • '+(funnel.otherNotSelected??'—')+
+  ' other nonselected. Nonselected gate failures do not invalidate certified survivors.';
+rejectedDetails.appendChild(outcome);
 if(x.missingByGate&&Object.keys(x.missingByGate).length){
-const p=document.createElement('p');p.textContent=(card?'Unresolved gate evidence among nonselected candidates: ':'Missing gate evidence: ')+Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');evidence.appendChild(p);
+  const p=document.createElement('p');
+  p.textContent='Nonselected gate-level missing-source ledger (for auditing only): '+
+    Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');
+  rejectedDetails.appendChild(p);
 }
+if(x.errors?.length){
+  const heading=document.createElement('p');
+  heading.textContent='Execution notes ('+x.errors.length+'): '+x.errors.map(String).join(' • ');
+  rejectedDetails.appendChild(heading);
+}
+evidence.appendChild(rejectedDetails);
 const audits=new Map((x.pathAudit||[]).map(a=>[String(a.gameId)+':'+String(a.playerId),a]));
 for(const l of card?.current_legs||[]){
   const d=document.createElement('div');d.className='leg';
