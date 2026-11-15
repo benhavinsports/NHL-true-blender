@@ -523,11 +523,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'currentRosterNotEquivalentToDressed':True,
           'confirmedDressed':eligibility in ('DRESSED','CONFIRMED'),
           'lineupStillRequiresIndependentG6':True},
-         eliminate=eligibility in ('OUT','SCRATCHED','INJURED'))
+         eliminate=eligibility in ('OUT','SCRATCHED','INJURED'),
+         source_ids=[roster['sourceUrl']] if receipt(roster) else [])
     emit('G3',bool(weak) and goalie_profile['data'].get('counterevidence') is not None,
          {'goalieSample':goalie_profile['data'].get('sample'),
           'goalieWeakZones':weak,'counterevidence':goalie_profile['data'].get('counterevidence')},
-         source_ids=[goalie_profile['sourceUrl']])
+         source_ids=list(filter(None,[goalie_profile['sourceUrl'],
+             goalie_profile['data'].get('goalieProfileSourceUrl')])))
     emit('G4',bool(release), {'archetype':release.get('archetype') if release else None,
          'ownRelease':release},source_ids=[player.get('release',{}).get('sourceUrl','')])
     overlap=bool(release and release['zone'] in weak)
@@ -562,7 +564,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     ownership=player.get('finishOwnership');own=evidence_data(ownership)
     emit('G10',bool(own and own.get('recipient') is True),
          {'goalCreditOwned':own,'notAssistOrFeeder':True},
-         eliminate=bool(own and own.get('recipient') is False))
+         eliminate=bool(own and own.get('recipient') is False),
+         source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     wins,rows=challenger_proof(player,rivals,weak)
@@ -575,25 +578,43 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     recent_shots=evidence_data(shots,'recentAppearanceShots')
     pressure_valid=isinstance(recent_shots,int) and recent_shots>=0 or (isinstance(recent_shots,list) and bool(recent_shots) and all(isinstance(x,int) and x>=0 for x in recent_shots))
     emit('G11',bool(receipt(shots) and pressure_valid),
-         {'recentOwnAttempts':evidence_data(shots,'recentAppearanceShots') if shots else None})
+         {'recentOwnAttempts':evidence_data(shots,'recentAppearanceShots') if shots else None},
+         source_ids=[shots['sourceUrl']] if receipt(shots) else [])
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
-         {'ownership':own,'officialGoalsReconciled':bool(rec)})
+         {'ownership':own,'officialGoalsReconciled':bool(rec)},
+         source_ids=sorted(set(x['sourceUrl'] for x in (
+             ownership,player.get('gameLog'),player.get('mappedGoals'),
+             player.get('officialGoalTotal')) if receipt(x))))
     jersey=player.get('jersey')
-    # No numerical formula or invented milestone. Qualitative review genuinely executed.
     milestone=player.get('milestone')
-    g13={'date':game.get('date'),'jersey':jersey,
-         'milestone':evidence_data(milestone) if receipt(milestone) else 'No verified milestone',
-         'formula':'none; qualitative only','nonblocking':True}
-    emit('G13',True,g13)
+    birth=player.get('birthDate') or player.get('birthdate')
+    date_value=game.get('date')
+    jersey_digits=''.join(ch for ch in str(jersey or '') if ch.isdigit())
+    date_digits=''.join(ch for ch in str(date_value or '') if ch.isdigit())
+    name=player.get('name')
+    # Genuine qualitative name/date/jersey/birth and milestone review,
+    # with no formula requirement or fabricated milestone/weights.
+    g13={'date':date_value,'name':name,'jersey':jersey,'birthDate':birth,
+         'jerseyDateSharedDigits':sorted(set(jersey_digits)&set(date_digits)),
+         'verifiedMilestone':evidence_data(milestone) if receipt(milestone) else None,
+         'milestoneSourcePresent':receipt(milestone),
+         'birthDateAvailable':bool(birth),
+         'qualitativeNameDateReview':bool(name and date_value),
+         'formula':'none; qualitative only','nonblockingNoInventedWeights':True}
+    emit('G13',bool(name and date_value),g13,
+         source_ids=[milestone['sourceUrl']] if receipt(milestone) else [])
     who=player.get('whoAnomaly');who_ok=bool(receipt(who) and
         evidence_data(who,'directIndependentRoute') is True and overlap)
     emit('G14',True,{'whoAnomalyPhysicallySupported':who_ok,
                     'noForcedWho':True,'whoDetails':evidence_data(who) if who_ok else None})
     emit('G15',bool(own and own.get('recipient') is True),
-         {'independentFinish':True if own and own.get('recipient') is True else None})
+         {'independentFinish':True if own and own.get('recipient') is True else None},
+         source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
     emit('G16',wins is True and len(rows)==len(rivals),
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
-          'includesDepthAndDefense':True})
+          'includesDepthAndDefense':True},
+         source_ids=sorted(set(url for row in rows for url in row.get('sourceUrls',[])
+             if isinstance(url,str) and url.startswith('https://'))))
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
