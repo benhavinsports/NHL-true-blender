@@ -127,7 +127,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
     profile with no source-backed weak origin areas is not assigned any weakness.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
-    goalies=0;skaters=0;unresolved=[];goalie_routes={}
+    goalies=0;skaters=0;ambiguous=0;unresolved=[];goalie_routes={}
     for g in snapshot.get("games",[]):
         id=str(g["id"])
         goalie_routes[id]={}
@@ -183,10 +183,18 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                 pid=str(p["id"])
                 source=_record(con,date,stage,id,pid,"NHL_EDGE_SKATER_RINK_ORIGIN")
                 route=skater_owned_routes(source)
-                if not route or not route.get("canDeterminePrimary"):
+                if not route:
                     unresolved.append({"gameId":id,"skaterId":pid,
-                        "reason":"No uniquely evidenced dominant own rink shot-origin route"})
+                        "reason":"No measured own shots in official NHL EDGE record"})
                     continue
+                # A tied global primary area is not permission to drop all
+                # the skater's measured secondary routes. G0 will first
+                # determine the goalie target; G4 may then match one real
+                # own zone without guessing which season area was primary.
+                if not route.get("canDeterminePrimary"):
+                    ambiguous+=1
+                else:
+                    skaters+=1
                 route_digest=hashlib.sha256(json.dumps(route,sort_keys=True,
                     separators=(",",":")).encode()).hexdigest()[:14]
                 ingest(con,{
@@ -194,10 +202,10 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                     "slate_date":date,"stage":stage,"game_id":id,"player_id":pid,
                     "kind":"PLAYER_RELEASE","source_url":source["sourceUrl"],
                     "observed_at":now,"payload":route})
-                skaters+=1
     return {
         "method":ORIGIN_METHOD,"goalieProfilesWithMeasuredWeakOrigins":goalies,
-        "ownSkaterRoutes":skaters,"starterBranches":goalie_routes,
+        "ownSkaterRoutes":skaters,"ambiguousMultiRouteSkatersKept":ambiguous,
+        "starterBranches":goalie_routes,
         "unresolvedCount":len(unresolved),"unresolvedExamples":unresolved[:40],
         "anatomicalWeaknessCertified":False,
         "explicitlyInferred":True,
