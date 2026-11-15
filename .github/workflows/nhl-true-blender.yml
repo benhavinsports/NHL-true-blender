@@ -1,5 +1,7 @@
 name: NHL Blender — scheduled evidence runs
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       date:
