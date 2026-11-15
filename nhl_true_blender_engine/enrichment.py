@@ -5,6 +5,7 @@ are raw source evidence and the engine alone handles candidate elimination.
 """
 import json
 from .storage import record_evidence
+from .goalie_zones import validate_goal_zone_evidence
 
 KINDS = {
  'GOALIE_PROFILE','GOALIE_STARTER','PLAYER_STATUS','PLAYER_RELEASE',
@@ -26,6 +27,12 @@ KIND_TO_FIELD={
 def ingest(con, record):
     if record.get('kind') not in KINDS:
         raise ValueError('Unsupported evidence kind: '+str(record.get('kind')))
+    if record['kind']=='GOALIE_PROFILE':
+        data=record.get('payload',{})
+        if data.get('weakZones'):
+            validated=validate_goal_zone_evidence(data.get('goalMouthEvidence'))
+            if not validated['anatomicalClaimCertified']:
+                raise ValueError('G0/G3/G5 weakZones require independently certified goal-mouth baseline and contradiction review')
     if record['kind'] in ('GOALIE_PROFILE','GOALIE_STARTER'):
         if not record['payload'].get('team') or not record.get('game_id'):
             raise ValueError('Goalie source must declare game and owning team')
