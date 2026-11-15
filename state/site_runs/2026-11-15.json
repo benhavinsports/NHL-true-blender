@@ -561,8 +561,9 @@
   ],
   "anatomicalEvidenceMisrepresented": false,
   "cardId": "NHL-2026-11-15-CANONICAL",
+  "cardPath": "state/site_cards/2026-11-15.json",
   "cardSavedByEngine": true,
-  "currentRunFullyCertified": false,
+  "currentRunFullyCertified": true,
   "edgeSourceCoverage": {
     "allCurrentRosterIdentitiesChecked": 249,
     "anatomicalClaimCertified": false,
@@ -573,6 +574,7 @@
   },
   "eligibleSkaterRows": 115,
   "errors": [],
+  "fingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
@@ -1067,7 +1069,7 @@
     "copiedOverlayReceiptCount": 0,
     "copiedOverlayReceipts": [],
     "doesNotSelectChangeOrRegradeCard": true,
-    "fullIndependentCardCertification": false,
+    "fullIndependentCardCertification": true,
     "gateRows": 4150,
     "gateSpecification": {
       "masterCount": 20,
@@ -1262,7 +1264,8 @@
         "PASS": 92
       },
       "Step8": {
-        "NOT_EXECUTED": 115
+        "NOT_EXECUTED": 14,
+        "PASS": 101
       },
       "Step9": {
         "NOT_EXECUTED": 8,
@@ -1275,14 +1278,9 @@
         "gameId": "2026020327",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
-        "overlayAllPass": false,
+        "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [
-          {
-            "gate": "Step8",
-            "status": "NOT_EXECUTED"
-          }
-        ],
+        "overlayMissingOrNonpassing": [],
         "player": "Jason Robertson",
         "playerId": "8480027",
         "savedPath": "PRIMARY"
@@ -1291,14 +1289,9 @@
         "gameId": "2026020328",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
-        "overlayAllPass": false,
+        "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [
-          {
-            "gate": "Step8",
-            "status": "NOT_EXECUTED"
-          }
-        ],
+        "overlayMissingOrNonpassing": [],
         "player": "Morgan Frost",
         "playerId": "8480028",
         "savedPath": "PRIMARY"
@@ -1307,21 +1300,16 @@
         "gameId": "2026020326",
         "masterAllPass": true,
         "masterMissingOrNonpassing": [],
-        "overlayAllPass": false,
+        "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [
-          {
-            "gate": "Step8",
-            "status": "NOT_EXECUTED"
-          }
-        ],
+        "overlayMissingOrNonpassing": [],
         "player": "Evan Bouchard",
         "playerId": "8480803",
         "savedPath": "PRIMARY"
       }
     ],
     "selectedMasterGatesAllPass": true,
-    "selectedOverlayGatesAllPass": false,
+    "selectedOverlayGatesAllPass": true,
     "slateDate": "2026-11-15",
     "sourceUnattributedPassingGateCount": 0,
     "sourceUnattributedPassingGateExamples": [],
@@ -1330,32 +1318,33 @@
     "twoDirectionsPerScheduledGameRecorded": true
   },
   "gateRows": 4150,
-  "independentOverlaySourceGaps": [
-    {
-      "copiedOverlayGates": [],
-      "gameId": "2026020327",
-      "notPassing": {
-        "Step8": "NOT_EXECUTED"
+  "historicalShiftCoverage": {
+    "attemptedGames": 69,
+    "chartedGames": 65,
+    "doesNotConfirmTonightLines": true,
+    "doesNotProveGloveBlockerOrFiveHole": true,
+    "matchedDefensiveShotEvents": 2996,
+    "sampledOfficialIntervals": 48750,
+    "sourceFailures": [
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020193"
       },
-      "playerId": "8480027"
-    },
-    {
-      "copiedOverlayGates": [],
-      "gameId": "2026020328",
-      "notPassing": {
-        "Step8": "NOT_EXECUTED"
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020199"
       },
-      "playerId": "8480028"
-    },
-    {
-      "copiedOverlayGates": [],
-      "gameId": "2026020326",
-      "notPassing": {
-        "Step8": "NOT_EXECUTED"
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020197"
       },
-      "playerId": "8480803"
-    }
-  ],
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020196"
+      }
+    ],
+    "sourceScope": "HISTORICAL_OFFICIAL_NHL_SHIFT_INTERVALS_AND_PLAY_BY_PLAY"
+  },
   "lineupSourceCoverage": {
     "deploymentRecords": 176,
     "error": null,
@@ -1387,7 +1376,7 @@
     "Step5": 7,
     "Step6": 28,
     "Step7": 23,
-    "Step8": 115,
+    "Step8": 14,
     "Step9": 8
   },
   "officialBoxscoreCoverage": {
@@ -1405,6 +1394,8 @@
   "officialDefenseCoverage": {
     "coverageAttackSides": 10,
     "failedSources": [],
+    "historicalDefensiveEventsWithObservedShifts": 2996,
+    "officialShiftChartGames": 65,
     "peerMedianZoneShares": {
       "Center Point": 0.08374384236453201,
       "High Slot": 0.10837438423645321,
@@ -1419,11 +1410,10 @@
     "targetSides": 10,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "PRESERVED_ORIGINAL_WITH_AUDIT_GAPS",
+  "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
   "publishedToSite": true,
-  "retainedOriginalLockedCard": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T22:50:28+00:00"
+  "updatedUTC": "2026-11-15T22:54:07+00:00"
 }
