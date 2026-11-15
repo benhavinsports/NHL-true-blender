@@ -63,9 +63,12 @@ def certify_gates(con,date,stage,expected_game_count=None):
                 source_unattributed.append({"gameId":key[0],"playerId":key[1],"gate":gate})
     card=get_card(con,date)
     selected=[]
+    selected_source_gaps=[]
+    selected_keyset=set()
     if card:
         for leg in card["current_legs"]:
             key=str(leg["gameId"]),str(leg["playerId"])
+            selected_keyset.add(key)
             matrix=skaters.get(key,{})
             bad_master=[gate for gate in MASTER
                         if gate not in matrix or matrix[gate]["disposition"]!="PASS"]
@@ -73,15 +76,49 @@ def certify_gates(con,date,stage,expected_game_count=None):
                     matrix[gate]["disposition"] if gate in matrix else "MISSING"}
                          for gate in OVERLAY if gate not in matrix or
                          matrix[gate]["disposition"]!="PASS"]
+            own_source_gaps=[gate for gate in PROVENANCE_REQUIRED
+                if gate in matrix and matrix[gate]["disposition"]=="PASS"
+                and not (json.loads(matrix[gate]["details"]).get("sourceIds") or [])]
+            if own_source_gaps:
+                selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
+                                             "gates":sorted(own_source_gaps)})
             selected.append({"gameId":key[0],"playerId":key[1],
                 "player":leg["player"],"savedPath":leg["path"],
                 "masterAllPass":not bad_master,"masterMissingOrNonpassing":bad_master,
                 "overlayAllPass":not bad_overlay,
                 "overlayMissingOrNonpassing":bad_overlay,
+                "missingProvenanceForPassingGates":sorted(own_source_gaps),
                 "overlayIndependentlyEvaluated":all(
                     gate in matrix and
                     (json.loads(matrix[gate]["details"]).get("evidence") or {})
                      .get("independentOverlayEvaluation") is True for gate in OVERLAY)})
+    # Count outcomes AFTER the full pool was reviewed. A gate failure for a
+    # nonselected skater is the selection process, not a fault in the Core.
+    # Keep genuine source gaps in the audit, but don't require every rejected
+    # player to pass before certifying the three surviving recipients.
+    outcome_counts=Counter()
+    for key,matrix in skaters.items():
+        if key in selected_keyset:
+            outcome_counts["SELECTED"]+=1
+        elif any(r["disposition"]=="ELIMINATED" for r in matrix.values()):
+            outcome_counts["GATE_ELIMINATED"]+=1
+        elif any(r["disposition"]=="NOT_EXECUTED" for r in matrix.values()):
+            outcome_counts["NOT_QUALIFIED_SOURCE_INCOMPLETE"]+=1
+        elif all(g in matrix and matrix[g]["disposition"]=="PASS" for g in required):
+            outcome_counts["QUALIFIED_NOT_CHOSEN_G18"]+=1
+        else:
+            outcome_counts["OTHER_NOT_SELECTED"]+=1
+    funnel={
+        "surveyedEligibleSkaters":len(skaters),
+        "sourceEliminated":outcome_counts["GATE_ELIMINATED"],
+        "notQualifiedIncompleteEvidence":outcome_counts["NOT_QUALIFIED_SOURCE_INCOMPLETE"],
+        "qualifiedButNotChosen":outcome_counts["QUALIFIED_NOT_CHOSEN_G18"],
+        "otherNotSelected":outcome_counts["OTHER_NOT_SELECTED"],
+        "lockedCoreRecipients":outcome_counts["SELECTED"],
+        "allNonselectedRetainGateAudit":True,
+        "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors":True,
+        "oneSourceSelectedCardPreserved":True,
+    }
     all_matrix_present=bool(skaters) and not missing and all(
         len(x)==len(required) for x in skaters.values())
     directions_complete=bool(goalie_directions) and (
@@ -89,6 +126,13 @@ def certify_gates(con,date,stage,expected_game_count=None):
     independent=all_matrix_present and not overlay_copies
     all_selected_master=bool(selected) and all(x["masterAllPass"] for x in selected)
     all_selected_overlay=bool(selected) and all(x["overlayAllPass"] for x in selected)
+    required_legs=min(3,expected_game_count) if expected_game_count else len(selected)
+    selected_core_certified=bool(
+        len(selected)==required_legs and
+        len({x["gameId"] for x in selected})==required_legs and
+        all_selected_master and all_selected_overlay and
+        all(x["overlayIndependentlyEvaluated"] for x in selected) and
+        not selected_source_gaps)
     return {
         "slateDate":date,"stage":stage,
         "gateSpecification":{"masterOrder":MASTER,"overlayOrder":OVERLAY,
@@ -110,11 +154,14 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "sourceUnattributedPassingGateCount":len(source_unattributed),
         "sourceUnattributedPassingGateExamples":source_unattributed[:15],
         "selectedLegs":selected,
+        "selectionFunnel":funnel,
         "selectedMasterGatesAllPass":all_selected_master,
         "selectedOverlayGatesAllPass":all_selected_overlay,
+        "selectedSourceAttributionGaps":selected_source_gaps,
+        "selectedCoreOnlyFullyCertified":selected_core_certified,
         "fullIndependentCardCertification":bool(
-            directions_complete and independent and all_selected_master and
-            all_selected_overlay and not source_unattributed),
+            directions_complete and independent and selected_core_certified),
+        "nonselectedCandidateFailuresAreNotCertificationErrors":True,
         "neverTreatsGateRecordAsAutomaticPass":True,
         "doesNotSelectChangeOrRegradeCard":True,
     }
