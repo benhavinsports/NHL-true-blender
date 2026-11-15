@@ -4,7 +4,7 @@
 <body><main><header><div><div class="eyebrow">NHL • AUTOMATED EVIDENCE ENGINE</div><h1>TRUE BLENDER</h1><div class="muted">One authoritative Core card • Projected → Confirmed</div></div><button onclick="load()">Refresh</button></header>
 <section class="panel"><h2>Core card</h2><div id="status" class="status" role="status">Checking published engine state…</div><p id="detail" class="muted"></p><div id="legs" class="legs"></div></section>
 <section class="panel"><h2>Execution evidence</h2><div id="evidence" class="muted">Waiting for verified output.</div></section>
-<footer>Only gate-verified cards are displayed. No fabricated selections or replacement cards. The static website displays the output of scheduled GitHub Actions; it does not run Python in your browser.</footer></main>
+<footer>Only source-backed cards are saved; a frozen original may remain displayed while a newer overlay audit reports missing evidence. No fabricated selections or automatic replacements. This free GitHub Pages site displays the output of scheduled GitHub Actions.</footer></main>
 <script>
 async function load(){
 const status=document.getElementById('status'),detail=document.getElementById('detail'),legs=document.getElementById('legs'),evidence=document.getElementById('evidence');
@@ -21,7 +21,9 @@ const fields=Object.fromEntries(parts.map(p=>[p.type,p.value]));
 const todayET=fields.year+'-'+fields.month+'-'+fields.day;
 const latestIsToday=x.date===todayET;
 const card=latestIsToday&&x.verified===true?x.card:null;
-status.textContent=card?'Verified '+(x.stage||'SOURCE-BASED')+' Core '+(card.current_legs||[]).length:
+const auditPending=x.currentRunFullyCertified===false;
+status.textContent=card?(auditPending?'Locked Core '+(card.current_legs||[]).length+' • Independent overlay evidence pending':
+  'Verified '+(x.stage||'SOURCE-BASED')+' Core '+(card.current_legs||[]).length):
   latestIsToday?'No verified Core published for today':'Waiting for today’s automated Blender run';
 detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'unknown')+
   ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
@@ -29,6 +31,25 @@ evidence.replaceChildren();
 const summary=document.createElement('p');
 summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+(card?' • Selected distinct games: '+new Set((card.current_legs||[]).map(l=>l.gameId)).size:' • No published Core yet');
 evidence.appendChild(summary);
+const gateAudit=x.gateCertification||{};
+if(gateAudit.scannedSkaters!=null){
+  const report=document.createElement('p');
+  const overlays=gateAudit.allOverlayStepsWereIndependentlyChecked===true?'independently evaluated':'not independently certified';
+  report.textContent='Execution audit: '+(gateAudit.scannedSkaters||0)+
+    ' skaters • '+(gateAudit.gateSpecification?.masterCount||20)+
+    ' master gates • '+(gateAudit.gateSpecification?.overlayCount||16)+
+    ' overlay steps ('+overlays+'). The number of gate records is not the number of gate passes.';
+  evidence.appendChild(report);
+  const missing=gateAudit.selectedLegs?.flatMap(l=>(l.overlayMissingOrNonpassing||[]).map(v=>
+    l.player+': '+v.gate+' '+v.status))||[];
+  if(missing.length){
+    const row=document.createElement('p');
+    row.textContent='Selected-leg overlay evidence still missing: '+missing.slice(0,12).join(' • ')+
+      (missing.length>12?' • and '+(missing.length-12)+' more':'')+
+      '. Original frozen Core retained; no gate has been artificially passed.';
+    evidence.appendChild(row);
+  }
+}
 if(card&&Array.isArray(x.pathAudit)&&x.pathAudit.length){
   const altered=x.pathAudit.filter(a=>a.auditedPath!==a.originalLockedPath);
   const p=document.createElement('p');
