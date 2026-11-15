@@ -54,7 +54,7 @@ jobs:
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
       - name: Probe live source schemas without claiming passes
-        run: python scripts/diagnose_live_pipeline.py
+        run: python -m scripts.diagnose_live_pipeline
       - name: Run scheduled autonomous Blender phase
         env:
           REQUESTED_DATE: ${{ inputs.date }}
@@ -95,7 +95,7 @@ jobs:
                   os.environ['MONEYPUCK_EXPORT_ASOF'] = date
               args = ['python','run_true_blender.py','--date',date,'--mode',mode]
           else:
-              args = ['python','scripts/run_cycle.py','--date',date,'--mode',mode]
+              args = ['python','-m','scripts.run_cycle','--date',date,'--mode',mode]
           subprocess.run(args,check=True)
           PY
       - name: Persist original canonical G18 state and published site JSON
