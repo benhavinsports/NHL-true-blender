@@ -1,0 +1,37 @@
+name: Blender end-to-end verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nhl_true_blender_engine/**'
+      - 'run_true_blender.py'
+      - '.github/workflows/blender-verification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install engine and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+      - name: Compile all engine and runner modules
+        run: python -m compileall -q nhl_true_blender_engine run_true_blender.py postgame_grade.py postgame_audit.py
+      - name: G0-first G1-G18 and overlay integration regression
+        run: python -m pytest -q nhl_true_blender_engine/tests --junitxml=integration-results.xml
+      - name: Verify complete synthetic card and postgame grading
+        run: python -m pytest -q nhl_true_blender_engine/tests/test_end_to_end_contract.py
+      - name: Publish verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-verification-${{ github.sha }}
+          path: integration-results.xml
+          if-no-files-found: warn
