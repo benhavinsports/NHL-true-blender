@@ -3,10 +3,11 @@
   "stage": "CONFIRMED",
   "playersEvaluated": 115,
   "firstNonpassingByOriginalGate": {
-    "G10.5": 57,
+    "G10.5": 55,
     "G5": 16,
     "G6": 17,
     "G4": 7,
+    "FULL_PASS": 2,
     "G10": 11,
     "G9": 7
   },
@@ -99,6 +100,16 @@
         "playerId": "8481167"
       }
     ],
+    "FULL_PASS": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8480803"
+      },
+      {
+        "gameId": "2026020330",
+        "playerId": "8478975"
+      }
+    ],
     "G10": [
       {
         "gameId": "2026020327",
@@ -178,18 +189,20 @@
       "NOT_EXECUTED": 23
     },
     "G10.5": {
-      "NOT_EXECUTED": 94,
-      "CAUSE:RIVAL_DOMINATES": 55,
+      "NOT_EXECUTED": 92,
+      "CAUSE:RIVAL_DOMINATES": 85,
       "SKIPPED_AFTER_ELIMINATION": 21,
-      "CAUSE:NO_DECISIVE_ROUTE_SEPARATION": 47,
       "CAUSE:MISSING_COMPARISON": 8,
-      "CAUSE:NO_RELEASE_SOURCE": 5
+      "PASS": 2,
+      "CAUSE:NO_RELEASE_SOURCE": 8,
+      "CAUSE:NO_DECISIVE_ROUTE_SEPARATION": 12
     },
     "G17": {
-      "NOT_EXECUTED": 94,
-      "CAUSE:UNRESOLVED_CONTRADICTION": 108,
+      "NOT_EXECUTED": 92,
+      "CAUSE:UNRESOLVED_CONTRADICTION": 106,
       "SKIPPED_AFTER_ELIMINATION": 21,
-      "CAUSE:NO_REVIEW": 7
+      "CAUSE:NO_REVIEW": 7,
+      "PASS": 2
     }
   },
   "actualBlockedSourceExamples": {
@@ -306,17 +319,12 @@
         "comparisonCounts": {
           "RIVAL_DOMINATES": 4,
           "DIFFERENT_TARGET_LANE": 8,
-          "NO_DECISIVE_ROUTE_SEPARATION": 1,
-          "DEFEATED": 11
+          "DEFEATED": 12
         },
         "blockedRivals": [
           {
             "id": "8482703",
             "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477934",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
           },
           {
             "id": "8478402",
@@ -353,27 +361,14 @@
         "playerId": "8477406",
         "disposition": "SKIPPED_AFTER_ELIMINATION",
         "comparisonCounts": {
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
-          "DEFEATED": 13,
+          "DEFEATED": 17,
           "RIVAL_DOMINATES": 4,
           "DIFFERENT_TARGET_LANE": 3
         },
         "blockedRivals": [
           {
-            "id": "8482703",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
             "id": "8477934",
             "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480029",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
-            "id": "8475786",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
           },
           {
             "id": "8477953",
@@ -382,10 +377,6 @@
           {
             "id": "8478402",
             "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476454",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
           },
           {
             "id": "8481617",
@@ -398,16 +389,12 @@
         "playerId": "8477450",
         "disposition": "SKIPPED_AFTER_ELIMINATION",
         "comparisonCounts": {
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "DEFEATED": 9,
           "RIVAL_DOMINATES": 10,
-          "DIFFERENT_TARGET_LANE": 3,
-          "DEFEATED": 7
+          "NO_DECISIVE_ROUTE_SEPARATION": 2,
+          "DIFFERENT_TARGET_LANE": 3
         },
         "blockedRivals": [
-          {
-            "id": "8482703",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
           {
             "id": "8477934",
             "status": "RIVAL_DOMINATES"
@@ -422,10 +409,6 @@
           },
           {
             "id": "8480842",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
-            "id": "8475786",
             "status": "NO_DECISIVE_ROUTE_SEPARATION"
           },
           {
@@ -467,15 +450,14 @@
         "playerId": "8477934",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "RIVAL_DOMINATES": 5,
           "DIFFERENT_TARGET_LANE": 8,
-          "DEFEATED": 11,
-          "RIVAL_DOMINATES": 1
+          "DEFEATED": 11
         },
         "blockedRivals": [
           {
             "id": "8482703",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           },
           {
             "id": "8478402",
@@ -483,15 +465,15 @@
           },
           {
             "id": "8476454",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           },
           {
             "id": "8481617",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           },
           {
             "id": "8480803",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           }
         ]
       },
@@ -614,18 +596,18 @@
         "playerId": "8478402",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "NO_DECISIVE_ROUTE_SEPARATION": 2,
+          "RIVAL_DOMINATES": 2,
           "DIFFERENT_TARGET_LANE": 8,
           "DEFEATED": 14
         },
         "blockedRivals": [
           {
             "id": "8482703",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           },
           {
             "id": "8480803",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            "status": "RIVAL_DOMINATES"
           }
         ]
       },

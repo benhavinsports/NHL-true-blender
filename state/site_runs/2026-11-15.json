@@ -11,13 +11,14 @@
   },
   "eligibleSkaterRows": 115,
   "errors": [
-    "G18 only 0 fully evidenced games; 3 required"
+    "G18 only 2 fully evidenced games; 3 required"
   ],
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
+      "FULL_G0_G18_PASS": 2,
       "G10": 11,
-      "G10.5": 57,
+      "G10.5": 55,
       "G4": 7,
       "G5": 16,
       "G6": 17,
@@ -25,6 +26,20 @@
     },
     "notAScorerRanking": true,
     "samplesByFirstGate": {
+      "FULL_G0_G18_PASS": [
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020326",
+          "playerId": "8480803",
+          "reasonDisposition": "PASS"
+        },
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020330",
+          "playerId": "8478975",
+          "reasonDisposition": "PASS"
+        }
+      ],
       "G10": [
         {
           "firstNonpassingGate": "G10",
@@ -475,22 +490,22 @@
   "missingByGate": {
     "G0": 4,
     "G10": 23,
-    "G10.5": 94,
+    "G10.5": 92,
     "G11": 5,
     "G12": 5,
     "G15": 23,
-    "G16": 94,
-    "G17": 94,
-    "G18": 94,
+    "G16": 92,
+    "G17": 92,
+    "G18": 92,
     "G4": 7,
     "G5": 7,
     "G6": 22,
     "G7": 5,
     "G9": 12,
     "Step10": 7,
-    "Step10.5": 94,
-    "Step12": 94,
-    "Step14": 94,
+    "Step10.5": 92,
+    "Step12": 92,
+    "Step14": 92,
     "Step3": 7,
     "Step4": 5,
     "Step5": 7,
@@ -532,5 +547,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T21:30:25+00:00"
+  "updatedUTC": "2026-11-15T21:31:27+00:00"
 }
