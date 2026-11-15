@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from nhl_true_blender_engine.audit import audit_misses
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
+from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
 from nhl_true_blender_engine.sources import NHLClient, official_slate, collect_watch, official_final_grade
 from nhl_true_blender_engine.storage import open_db, get_card
 from scripts.publish_site_state import PublicationConflict, _write
@@ -29,10 +30,11 @@ async def execute_cycle(mode, date, root='state'):
             if not slate.get('games'):
                 return {'date':date,'mode':mode,'status':'NO_SCHEDULE'}
             await collect_secondary(con,slate,date,'CONFIRMED')
-            attach(con,slate,date,'CONFIRMED')
+            lineup=await fetch_and_ingest_lineups(con,slate,date,'CONFIRMED')
+            attach(con,slate,date,'WATCH')
             watch=await collect_watch(None,con,date,slate)
             output={'slateDate':date,'mode':mode,'status':'PREGAME_CHANGE_WATCH',
-                    'gameCount':len(slate['games']),**watch}
+                    'gameCount':len(slate['games']),'lineupSource':lineup,**watch}
         elif mode=='grade':
             card=get_card(con,date)
             if not card:
