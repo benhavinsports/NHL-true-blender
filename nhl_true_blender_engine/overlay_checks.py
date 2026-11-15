@@ -152,7 +152,8 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'officialShiftChartSourceCount':len(shift_urls),
           'historicalShiftsNotTonightLineupConfirmation':True,
           'independentShotOriginConcessionsAvailable':bool(cov.get('zoneConcessions')),
-          'cannotInferSpecificLaneFromTeamShiftSample':not bool(area_shifts)},
+          'cannotInferSpecificLaneFromTeamShiftSample':not bool(area_shifts),
+          'cannotInferShiftMatchupsFromShotOrigins':not bool(area_shifts)},
          sorted(set(src(coverage)+shift_urls)))
     recent=pres.get('recentAppearanceShots')
     good_shots=(isinstance(recent,int) and recent>=0 or
