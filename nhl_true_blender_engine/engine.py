@@ -347,6 +347,134 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
         })
     return all_defeated,rows
 
+def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage,
+                            dispositions, challenger_rows, who_supported):
+    """Determine PRIMARY / TRANSFER / WHO from positive gate evidence only.
+
+    This runs AFTER G0, direct route, goal recipient, G10.5 and G17 decisions.
+    Never fill a label quota; never label the lack of WHO/TRANSFER as PRIMARY.
+    Requiring direct evidence for each named path prevents the old automatic
+    'else PRIMARY' behavior.
+    """
+    own=evidence_data(player.get('finishOwnership')) or {}
+    goalie_data=evidence_data(goalie_profile) or {}
+    cover=evidence_data(coverage) or {}
+    zone=(release or {}).get('zone')
+    all_gates=all(dispositions.get(g,{}).get('disposition')=='PASS'
+                  for g in ('G0','G3','G4','G5','G6','G7','G9',
+                            'G10','G10.5','G12','G15','G16','G17'))
+    direct={
+        'G0ThruG17SourcePass':all_gates,
+        'independentOwnScoringSource':receipt(player.get('release')),
+        'observedOwnedGoalsInSelectedLane':bool(release and
+            type(release.get('ownedGoals'))==int and release['ownedGoals']>0),
+        'goalieWeakAreaDirectlyMatched':bool(zone and zone in (goalie_data.get('weakZones') or {})),
+        'independentDefenseAreaDirectlyMatched':bool(zone and zone in
+            (cover.get('greenWeakZones') or [])),
+        'actualGoalRecipientNotFeeder':bool(own.get('recipient') is True and
+            own.get('creditedGoalsVerified') is True),
+        'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
+            and dispositions.get('G16',{}).get('disposition')=='PASS'),
+        'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
+        'verifiedEVAccess':receipt(player.get('deployment')),
+    }
+    route_direct=all(direct.values())
+    original=(release or {}).get('originalPrimaryOrigin')
+    changed_lane=bool(original and original!=zone)
+    primary_source_lane=not changed_lane and not (release or {}).get('primaryWasTiedBeforeG0',False)
+    approved_rivals=[]
+    defeated={str(x.get('challengerId')):x for x in challenger_rows
+              if x.get('status')=='DEFEATED' and x.get('sameLane')}
+    for rival in teammates:
+        rid=str(rival.get('id'))
+        proof=defeated.get(rid)
+        if not proof:
+            continue
+        rival_primary=player_releases(rival)
+        if not rival_primary or rival_primary.get('zone')!=zone:
+            continue
+        if not receipt(rival.get('release')):
+            continue
+        rival_direct=proof.get('challenger') or {}
+        base_direct=proof.get('candidate') or {}
+        if (rival_primary.get('ownedGoals',0)>0 and
+            type(rival_direct.get('ownedGoals'))==int and
+            type(base_direct.get('ownedGoals'))==int and
+            (base_direct['ownedGoals'],base_direct.get('shotsOnGoal',0))>
+            (rival_direct['ownedGoals'],rival_direct.get('shotsOnGoal',0))):
+            approved_rivals.append({
+                'displacedDirectPrimaryPlayerId':rid,
+                'sameLane':zone,
+                'directGoalCreditCandidate':base_direct['ownedGoals'],
+                'directGoalCreditPrior':rival_direct['ownedGoals'],
+                'rivalOriginalPrimaryOrigin':rival_primary['zone'],
+                'sourceUrls':sorted(set(filter(None,proof.get('sourceUrls',[])))),
+                'G10_5Verdict':proof['status'],
+            })
+    # A source can separately verify the prior primary losing the same route;
+    # a naked Boolean without a sourced G10.5 defeated rival is insufficient.
+    transfer=player.get('transferEvidence')
+    tdata=evidence_data(transfer) or {}
+    supplied_displaced=(str(tdata.get('displacedPlayerId')) if
+                        tdata.get('displacedPlayerId') is not None else None)
+    confirmed_displacement=(receipt(transfer) and
+        tdata.get('directRouteDisplaced') is True and
+        tdata.get('routeZone')==zone and
+        any(x['displacedDirectPrimaryPlayerId']==supplied_displaced
+            for x in approved_rivals))
+    derived_displacement=bool(changed_lane and approved_rivals)
+    who=player.get('whoAnomaly')
+    who_data=evidence_data(who) or {}
+    physical_anomaly=bool(who_supported and receipt(who) and
+        who_data.get('directIndependentRoute') is True and
+        isinstance(who_data.get('mechanism'),str) and who_data['mechanism'].strip() and
+        direct['goalieWeakAreaDirectlyMatched'] and
+        direct['independentDefenseAreaDirectlyMatched'] and all_gates)
+    if physical_anomaly:
+        path='WHO'
+        rationale='Sourced independent anomaly scoring mechanism survived G14, goalie route and full gates'
+    elif route_direct and (confirmed_displacement or derived_displacement):
+        path='TRANSFER'
+        rationale='Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5'
+    elif route_direct and primary_source_lane and not tdata.get('directRouteDisplaced'):
+        path='PRIMARY'
+        rationale='Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger'
+    else:
+        path=None
+        rationale='No independently sufficient evidence to certify PRIMARY, TRANSFER or WHO for this route'
+    sources=sorted({x for x in (
+        (player.get('release') or {}).get('sourceUrl'),
+        (player.get('finishOwnership') or {}).get('sourceUrl'),
+        (player.get('deployment') or {}).get('sourceUrl'),
+        (goalie_profile or {}).get('sourceUrl'),
+        goalie_data.get('goalieProfileSourceUrl'),
+        (coverage or {}).get('sourceUrl'),
+        (player.get('contradictions') or {}).get('sourceUrl'),
+        (who or {}).get('sourceUrl') if path=='WHO' else None,
+        (transfer or {}).get('sourceUrl') if confirmed_displacement else None,
+    ) if isinstance(x,str) and x.startswith('https://')})
+    sources=sorted(set(sources).union(
+        x for rival in approved_rivals for x in rival['sourceUrls']))
+    return path,{
+        'path':path,'rationale':rationale,
+        'scoringLane':zone,
+        'originalScoringLane':original,
+        'laneChangedAfterGoalieFirstG0':changed_lane,
+        'primaryOriginIsSourceDistinct':primary_source_lane,
+        'positiveDirectGateEvidence':direct,
+        'G10_5DisplacedPrimaryEvidence':approved_rivals,
+        'explicitDisplacementSourceValidated':bool(confirmed_displacement),
+        'independentTransferDerivedFromG0AndG10_5':derived_displacement,
+        'G14IndependentWhoAnomalyVerified':physical_anomaly,
+        'whoPhysicalMechanism':who_data.get('mechanism') if physical_anomaly else None,
+        'sourceUrls':sources,
+        'selectionIndependentOfLabel':True,
+        'pathQuotaApplied':False,
+        'fallbackToPrimary':False,
+        'unknownIsNotAPath':True,
+    }
+
+
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage):
     d={}; proof=[]; deficient=[]; eliminated=False
     weak=goalie_profile['data'].get('weakZones',{})
@@ -471,9 +599,18 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
-    # G18 can only be reached after every previous gate has positive evidence.
-    passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
-    emit('G18',passed,{'candidateEligibleForCrossGameFinal':passed})
+    # The path is a RESULT of the physical-source gates, never a preallocated
+    # PRIMARY/TRANSFER/WHO slot or an automatic fallback label.
+    previous_gates_passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
+    route,path_proof=adjudicate_scoring_path(player,teammates,release,
+        goalie_profile,coverage,d,rows,who_ok)
+    passed=previous_gates_passed and route is not None
+    emit('G18',passed,{
+        'candidateEligibleForCrossGameFinal':passed,
+        'pathClassificationEvidence':path_proof,
+        'classificationOccursAfterAllSourceGates':True,
+        'notPresetOneOfEach':True},
+        source_ids=path_proof['sourceUrls'])
     overlay=[]
     for step in OVERLAY:
         check={'Step0':'G0','Step1':'G2','Step2':'G1','Step3':'G5','Step4':'G7',
@@ -484,10 +621,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         overlay.append(gate_record(game,player['id'],step,disp,
                       {'independentOverlayCheck':check,
                        'archetypeBeforeSelection':release['archetype'] if step=='Step7' and release else None}))
-    transfer=evidence_data(player.get('transferEvidence'),'directRouteDisplaced') is True
-    route='WHO' if who_ok else 'TRANSFER' if transfer else 'PRIMARY'
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
-            'route':route,'pressure':evidence_data(shots),
+            'route':route,'pathEvidence':path_proof,
+            'pressure':evidence_data(shots),
             'release':release,'challengers':rows},proof+overlay
 
 
