@@ -103,6 +103,11 @@ jobs:
                   'gateRows':status.get('gateRows'),
                   'eligibleSkaterRows':status.get('eligibleSkaterRows'),
                   'missingByGate':status.get('missingByGate',{}),
+                  'gateCertification':status.get('gateCertification',{}),
+                  'currentRunFullyCertified':status.get('currentRunFullyCertified'),
+                  'publicationDecision':status.get('publicationDecision'),
+                  'retainedOriginalLockedCard':status.get('retainedOriginalLockedCard',False),
+                  'independentOverlaySourceGaps':status.get('independentOverlaySourceGaps',[]),
                   'errors':status.get('errors',[]),
                   'card':{'cardId':card['cardId'],'current_legs':legs,
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
