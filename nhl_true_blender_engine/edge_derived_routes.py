@@ -127,7 +127,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
     profile with no source-backed weak origin areas is not assigned any weakness.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
-    goalies=0;skaters=0;ambiguous=0;season_goal_owners=0;unresolved=[];goalie_routes={}
+    goalies=0;skaters=0;ambiguous=0;season_goal_owners=0;zero_shot_owners=0;unresolved=[];goalie_routes={}
     for g in snapshot.get("games",[]):
         id=str(g["id"])
         goalie_routes[id]={}
@@ -184,8 +184,41 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                 source=_record(con,date,stage,id,pid,"NHL_EDGE_SKATER_RINK_ORIGIN")
                 route=skater_owned_routes(source)
                 if not route:
-                    unresolved.append({"gameId":id,"skaterId":pid,
-                        "reason":"No measured own shots in official NHL EDGE record"})
+                    # Preserve a positive fact from a genuinely complete
+                    # NHL EDGE current-season shot-location source: every
+                    # reported location has 0 on-net shots AND 0 credited
+                    # goals. Such a skater has no observed *direct same-lane*
+                    # scoring route to defeat another recipient at G10.5.
+                    # This does NOT assert the skater cannot score tonight,
+                    # and it never gives that skater a fabricated G4 route.
+                    areas=(source or {}).get("data",{}).get("rinkZoneRows",[])
+                    observed_zero=bool(areas) and all(
+                        type(z.get("sog")) is int and z["sog"]==0 and
+                        type(z.get("goals")) is int and z["goals"]==0
+                        for z in areas)
+                    if observed_zero:
+                        zero_payload={
+                            "sourceType":"NHL_EDGE_SKATER_SHOT_ORIGIN_CURRENT_SEASON",
+                            "allReportedShotOriginsChecked":len(areas),
+                            "observedOnNetShotsAcrossAllReportedOrigins":0,
+                            "ownedGoalsAcrossAllReportedOrigins":0,
+                            "verifiedNoSameLaneOnNetRoute":True,
+                            "cannotInferFutureGoal":True,
+                            "doesNotQualifyForG4Release":True,
+                            "notAnAnatomicalClaim":True
+                        }
+                        zero_digest=hashlib.sha256(json.dumps(zero_payload,
+                            sort_keys=True,separators=(",",":")).encode()).hexdigest()[:14]
+                        ingest(con,{
+                            "evidence_id":f"edge-zero-shot-route-{date}-{stage}-{id}-{pid}-{zero_digest}",
+                            "slate_date":date,"stage":stage,"game_id":id,
+                            "player_id":pid,"kind":"PLAYER_ZERO_ON_NET_ROUTE",
+                            "source_url":source["sourceUrl"],
+                            "observed_at":now,"payload":zero_payload})
+                        zero_shot_owners+=1
+                    else:
+                        unresolved.append({"gameId":id,"skaterId":pid,
+                            "reason":"No uniquely attributable own shot-origin source; insufficient for G10.5 dismissal"})
                     continue
                 # A tied global primary area is not permission to drop all
                 # the skater's measured secondary routes. G0 will first
@@ -234,6 +267,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
         "method":ORIGIN_METHOD,"goalieProfilesWithMeasuredWeakOrigins":goalies,
         "ownSkaterRoutes":skaters,"ambiguousMultiRouteSkatersKept":ambiguous,
         "sourceBackedSkaterOwnGoalCredits":season_goal_owners,
+        "sourceVerifiedZeroShotRivalProfiles":zero_shot_owners,
         "starterBranches":goalie_routes,
         "unresolvedCount":len(unresolved),"unresolvedExamples":unresolved[:40],
         "anatomicalWeaknessCertified":False,
