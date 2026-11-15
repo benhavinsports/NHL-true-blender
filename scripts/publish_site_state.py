@@ -43,6 +43,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'anatomicalEvidenceMisrepresented':False,
         'officialBoxscoreCoverage':result.get('officialBoxscoreCoverage',{}),
         'officialDefenseCoverage':result.get('officialDefenseCoverage',{}),
+        'historicalShiftCoverage':result.get('historicalShiftCoverage',{}),
         'firstNonpassingGateAudit':result.get('firstNonpassingGateAudit',{}),
         'gateCertification':result.get('gateCertification',{}),
     }
