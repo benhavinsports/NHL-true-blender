@@ -104,6 +104,7 @@ jobs:
                   'eligibleSkaterRows':status.get('eligibleSkaterRows'),
                   'missingByGate':status.get('missingByGate',{}),
                   'gateCertification':status.get('gateCertification',{}),
+                  'historicalShiftCoverage':status.get('historicalShiftCoverage',{}),
                   'currentRunFullyCertified':status.get('currentRunFullyCertified'),
                   'publicationDecision':status.get('publicationDecision'),
                   'retainedOriginalLockedCard':status.get('retainedOriginalLockedCard',False),
