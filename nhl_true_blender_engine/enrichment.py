@@ -76,14 +76,18 @@ def attach(con, snapshot, date, stage):
                         if x['data'].get('goalieId')==data.get('goalieId')
                         and x['data'].get('status')==data.get('status')),None)
             if prior is None:
+                if kind=='GOALIE_PROFILE':
+                    # Scouting cannot independently establish who is starting.
+                    continue
                 existing.append(wrapper)
             elif kind=='GOALIE_PROFILE':
-                # A goalie starter and goalie scouting record share identity/status.
-                # Preserve starter provenance while attaching source-proven weaknesses.
+                # Profile has its own provenance; keep starter source separate.
+                # Only a real source-linked profile may provide weakness claims.
                 prior['data'].update({k:v for k,v in data.items()
                     if k not in ('goalieId','team','status')})
                 prior['data']['goalieProfileSourceUrl']=wrapper['sourceUrl']
                 prior['data']['goalieProfileObservedAt']=wrapper['observedAt']
+                prior['data']['goalieProfileEvidenceId']=wrapper['evidenceId']
         elif kind=='MATCH_CONTEXT':g['context']=wrapper
         elif kind=='TEAM_COVERAGE':
             if data.get('attackingTeam') in (g['home'],g['away']):
