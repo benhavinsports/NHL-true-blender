@@ -121,7 +121,20 @@ def attach(con, snapshot, date, stage):
         elif kind=='MATCH_CONTEXT':g['context']=wrapper
         elif kind=='TEAM_COVERAGE':
             if data.get('attackingTeam') in (g['home'],g['away']):
-                g['coverage'][data['attackingTeam']]=wrapper
+                attack=data['attackingTeam']
+                current=g['coverage'].get(attack)
+                is_official=(data.get('comparison')==
+                    'RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN')
+                current_official=(current and current['data'].get('comparison')==
+                    'RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN')
+                # Independently mapped actual recent NHL allowed shots outrank
+                # a MoneyPuck season danger-share aggregate for G9 lane proof.
+                if current_official and not is_official:
+                    current['data'].setdefault('seasonDangerSupplement',wrapper)
+                    continue
+                if is_official and current and not current_official:
+                    wrapper['data'].setdefault('seasonDangerSupplement',current)
+                g['coverage'][attack]=wrapper
         elif kind.startswith('PLAYER_'):
             pid=str(row['player_id'])
             for team in (g['away'],g['home']):
@@ -138,10 +151,19 @@ def attach(con, snapshot, date, stage):
                     fld=KIND_TO_FIELD.get(kind)
                     if fld:
                         if kind=='PLAYER_PRESSURE' and p.get(fld):
-                            # Official recent-game event pressure is the gate input.
-                            # Season aggregates enrich it but cannot overwrite it.
+                            # Favor actual dated appearance shots (list includes
+                            # real zero-shot games) over a pooled historical shot
+                            # total or MoneyPuck season aggregate.
                             current=p[fld]
-                            if current.get('data',{}).get('evidenceType')=='OFFICIAL_HISTORICAL_SHOT_EVENTS':
+                            old_shots=current.get('data',{}).get('recentAppearanceShots')
+                            new_shots=data.get('recentAppearanceShots')
+                            if isinstance(old_shots,list) and not isinstance(new_shots,list):
+                                current['data'].setdefault('shotSampleSupplement',wrapper)
+                                continue
+                            if (current.get('data',{}).get('evidenceType')==
+                                'OFFICIAL_HISTORICAL_SHOT_EVENTS'
+                                and data.get('evidenceType')==
+                                    'SEASON_AGGREGATE_NOT_RECENT_APPEARANCES'):
                                 current['data'].setdefault('seasonAggregate',wrapper)
                                 continue
                         p[fld]=wrapper
