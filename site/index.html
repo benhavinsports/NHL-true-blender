@@ -3,11 +3,12 @@
 :root{font-family:system-ui,-apple-system,sans-serif;color:#f0f6ff;background:#08111d}*{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:30px 18px}header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #28384b;padding-bottom:24px}h1{font-size:clamp(28px,6vw,48px);margin:0;letter-spacing:-1.5px}.eyebrow{color:#7facc8;font-weight:700;letter-spacing:.15em;font-size:12px}.muted{color:#9aaec2}.panel{background:#111f2e;border:1px solid #304358;border-radius:18px;padding:22px;margin-top:20px}h2{font-size:20px;margin:0 0 12px}.status{display:inline-block;border:1px solid #59718c;border-radius:40px;padding:8px 13px;color:#c2d9eb;font-size:13px}a{color:#8cceff}.legs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.leg{border:1px solid #39526b;border-radius:12px;padding:16px;background:#172a3e}.path{font-size:12px;color:#9ed6f4;letter-spacing:.12em}.name{font-size:23px;font-weight:750;margin:10px 0}.small{font-size:13px;color:#b5c5d4}.audit-note{font-size:12px;color:#b7dfc8;margin-top:12px;font-weight:600}.audit-details{font-size:12px;color:#adbed1;margin-top:9px}.audit-details summary{cursor:pointer;color:#91cfff}.audit-details p{line-height:1.5}button{border:1px solid #55718c;background:#20354a;color:white;padding:10px 14px;border-radius:9px;cursor:pointer}footer{margin-top:28px;color:#9aaec2;font-size:13px}</style></head>
 <body><main><header><div><div class="eyebrow">NHL • AUTOMATED EVIDENCE ENGINE</div><h1>TRUE BLENDER</h1><div class="muted">One authoritative Core card • Projected → Confirmed</div></div><button onclick="load()">Refresh</button></header>
 <section class="panel"><h2>Core card</h2><div id="status" class="status" role="status">Checking published engine state…</div><p id="detail" class="muted"></p><div id="legs" class="legs"></div></section>
+<section class="panel"><h2>Official postgame grade</h2><div id="grade" class="muted">Waiting for official final games.</div></section>
 <section class="panel"><h2>Execution evidence</h2><div id="evidence" class="muted">Waiting for verified output.</div></section>
 <footer>Only source-backed cards are saved; a frozen original may remain displayed while a newer overlay audit reports missing evidence. No fabricated selections or automatic replacements. This free GitHub Pages site displays the output of scheduled GitHub Actions.</footer></main>
 <script>
 async function load(){
-const status=document.getElementById('status'),detail=document.getElementById('detail'),legs=document.getElementById('legs'),evidence=document.getElementById('evidence');
+const status=document.getElementById('status'),detail=document.getElementById('detail'),legs=document.getElementById('legs'),evidence=document.getElementById('evidence'),gradeBox=document.getElementById('grade');
 status.textContent='Checking published engine state…';legs.replaceChildren();
 try{
 const r=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
@@ -27,6 +28,48 @@ status.textContent=card?(auditPending?'Locked Core '+(card.current_legs||[]).len
   latestIsToday?'No verified Core published for today':'Waiting for today’s automated Blender run';
 detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'unknown')+
   ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
+// Official postgame grading is attached to the SAME immutable Core ID.
+gradeBox.replaceChildren();
+if(card&&x.postgameGrade){
+  const g=x.postgameGrade;
+  if(g.cardId===card.cardId&&g.legs===(card.current_legs||[]).length&&
+     g.result===((g.hits===g.legs)?'WIN':'LOSS')){
+    const header=document.createElement('p');
+    header.className='name';
+    header.textContent=g.result+' • '+g.hits+'/'+g.legs+' official goal scorers';
+    gradeBox.appendChild(header);
+    for(const l of g.playerResults||[]){
+      const line=document.createElement('p');
+      line.textContent=l.player+': '+l.goals+' credited goal'+(l.goals===1?'':'s')+
+        ' • '+l.result;
+      gradeBox.appendChild(line);
+    }
+    const audit=document.createElement('p');
+    audit.textContent=(g.missAudits?.length||0)+' missed-recipient audits saved. '+
+      'Unverified rule changes are not automatically applied. '+
+      'Original Core identity and revision remain frozen.';
+    gradeBox.appendChild(audit);
+    if(Array.isArray(g.officialSources)&&g.officialSources.length){
+      const sources=document.createElement('details');
+      const summary=document.createElement('summary');
+      summary.textContent='Official NHL scoring evidence';
+      sources.appendChild(summary);
+      for(const url of g.officialSources){
+        if(typeof url!=='string'||!url.startsWith('https://'))continue;
+        const link=document.createElement('p'),a=document.createElement('a');
+        a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+        a.textContent=url;link.appendChild(a);sources.appendChild(link);
+      }
+      gradeBox.appendChild(sources);
+    }
+  }else{
+    gradeBox.textContent='Official grade and saved Core did not match; no result is being claimed.';
+  }
+}else if(card){
+  gradeBox.textContent='Original Core locked. Official grading begins only after every game on the slate is final.';
+}else{
+  gradeBox.textContent='Awaiting the current slate’s authoritative Core.';
+}
 evidence.replaceChildren();
 const summary=document.createElement('p');
 const funnel=x.selectionFunnel||x.gateCertification?.selectionFunnel||{};
@@ -154,7 +197,7 @@ for(const l of card?.current_legs||[]){
   }
   legs.appendChild(d);
 }
-}catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.'}
+}catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.';gradeBox.textContent='Official grading data unavailable.'}
 }load();
 // New GitHub Pages deployments appear without requiring a ChatGPT visit or
 // a manual refresh. Update again when the user returns to this browser tab.
