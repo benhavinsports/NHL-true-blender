@@ -479,7 +479,14 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             branches=all_goalie_branches(match,stage).get(opponent,[])
             if not branches:
                 errors.append(f"{match['id']} goalie branch missing for {opponent} {stage}")
-                continue
+                # Still run every gate for every eligible skater, recording the
+                # absent goalie evidence rather than silently omitting their rows.
+                branch={'sourceUrl':'https://api-web.nhle.com/v1/',
+                        'observedAt':now.isoformat(),
+                        'data':{'goalieId':None,'status':'UNVERIFIED',
+                                'weakZones':{},'strengthZones':{},
+                                'sample':None,'counterevidence':None}}
+                branches=[branch]
             for branch in branches:
                 for player in players:
                     result, traces = evaluate_skater(match,team,player,players,branch,stage)
