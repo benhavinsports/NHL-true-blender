@@ -16,6 +16,7 @@ Neither inference is a prediction of certainty or a scouting claim about net ana
 """
 from __future__ import annotations
 import json
+import hashlib
 from datetime import datetime, timezone
 from .enrichment import ingest
 from .engine import all_goalie_branches
@@ -168,8 +169,10 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                          "claim":"observed weaker goalie save percentage from a rink-area origin",
                          "notClaim":"goal-mouth shot placement, glove, blocker, five-hole"},
                 }
+                digest=hashlib.sha256(json.dumps(payload,sort_keys=True,
+                    separators=(",",":")).encode()).hexdigest()[:14]
                 ingest(con,{
-                    "evidence_id":f"edge-derived-goalie-{date}-{stage}-{id}-{pid}",
+                    "evidence_id":f"edge-derived-goalie-{date}-{stage}-{id}-{pid}-{digest}",
                     "slate_date":date,"stage":stage,"game_id":id,
                     "kind":"GOALIE_PROFILE","source_url":source["sourceUrl"],
                     "observed_at":now,"payload":payload})
@@ -184,8 +187,10 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                     unresolved.append({"gameId":id,"skaterId":pid,
                         "reason":"No uniquely evidenced dominant own rink shot-origin route"})
                     continue
+                route_digest=hashlib.sha256(json.dumps(route,sort_keys=True,
+                    separators=(",",":")).encode()).hexdigest()[:14]
                 ingest(con,{
-                    "evidence_id":f"edge-derived-release-{date}-{stage}-{id}-{pid}",
+                    "evidence_id":f"edge-derived-release-{date}-{stage}-{id}-{pid}-{route_digest}",
                     "slate_date":date,"stage":stage,"game_id":id,"player_id":pid,
                     "kind":"PLAYER_RELEASE","source_url":source["sourceUrl"],
                     "observed_at":now,"payload":route})
