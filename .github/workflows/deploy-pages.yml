@@ -44,6 +44,57 @@ jobs:
               if card and not (card.get('verified') is True and card.get('status')=='G18_SOURCE_VERIFIED'):
                   raise ValueError('Refusing unverified Core card')
               legs=json.loads(card['legsJson']) if card else []
+              # The immutable published card stores the original labels.
+              # A newer G18 source audit may establish a different path for
+              # the SAME selected player without authorizing a replacement.
+              # Publish that evidence as a separate view, NEVER modify legs,
+              # fingerprint, cardId, revision or the frozen original label.
+              audited=[]
+              if card and status.get('slateDate')==date:
+                  by_recipient={
+                      (str(row.get('gameId')),str(row.get('playerId'))):row
+                      for row in status.get('allG18QualifiedSurvivors',[])
+                      if isinstance(row,dict)
+                  }
+                  for leg in legs:
+                      record=by_recipient.get((
+                          str(leg.get('gameId')),str(leg.get('playerId'))))
+                      if not record:
+                          continue
+                      proof=record.get('pathClassificationEvidence') or {}
+                      path=record.get('routeLabel')
+                      if (path not in ('PRIMARY','TRANSFER','WHO')
+                          or proof.get('path')!=path
+                          or proof.get('selectionIndependentOfLabel') is not True
+                          or proof.get('pathQuotaApplied') is not False
+                          or (proof.get('positiveDirectGateEvidence') or {}).get(
+                              'G0ThruG17SourcePass') is not True
+                          or not proof.get('sourceUrls')):
+                          continue
+                      # The pregame watch freezes each leg at puck drop.
+                      # Do not revise a label using a post-puck source run.
+                      started=leg.get('startUTC')
+                      observed=status.get('updatedUTC')
+                      if started and observed:
+                          if (datetime.datetime.fromisoformat(
+                                  observed.replace('Z','+00:00')) >=
+                              datetime.datetime.fromisoformat(
+                                  started.replace('Z','+00:00'))):
+                              continue
+                      audited.append({
+                          'gameId':str(leg['gameId']),
+                          'playerId':str(leg['playerId']),
+                          'player':leg['player'],
+                          'originalLockedPath':leg['path'],
+                          'auditedPath':path,
+                          'rationale':proof.get('rationale'),
+                          'originalScoringLane':proof.get('originalScoringLane'),
+                          'scoringLane':proof.get('scoringLane'),
+                          'sourceUrls':proof['sourceUrls'],
+                          'reviewedAtUTC':observed,
+                          'sameLockedRecipient':True,
+                          'doesNotReplaceCard':True,
+                      })
               payload={
                   'date':date,'stage':card.get('stage') if card else status.get('stage'),
                   'publishedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -57,6 +108,8 @@ jobs:
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
                           if card else None,
                   'verified':bool(card),
+                  'pathAudit':audited,
+                  'pathAuditIsSeparateFromOriginalFrozenCard':True,
               }
               pathlib.Path('site/data/latest.json').write_text(json.dumps(payload,default=str))
           else:
