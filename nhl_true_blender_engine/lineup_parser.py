@@ -20,7 +20,13 @@ def parse_markdown(text):
     section = None
     for line in text.splitlines():
         line = line.strip()
-        if line.startswith("### "):
+        if line.startswith("## "):
+            # Starting goalies belong to EACH matchup. Forget the preceding
+            # team's Injuries section; otherwise every later goalie line is
+            # accidentally stored as an injury instead of being parsed.
+            team = None
+            section = None
+        elif line.startswith("### "):
             team = line[4:].strip()
             teams.setdefault(team, {"lines": [], "pairs": [], "pp": {}, "injuries": []})
             section = None
