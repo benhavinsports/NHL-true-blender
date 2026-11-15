@@ -17,6 +17,7 @@ from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
+from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -47,7 +48,10 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             source_research['moneypuck'] = import_moneypuck(
                 con, snapshot, date, stage, csv_dir,
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
-        # Starter evidence is attached first; anatomical scouting must never invent a starter.
+        # Starters and projected lines are attached before independently
+        # measured EDGE comparisons; a skater is never picked before full G0.
+        attach(con, snapshot, date, stage)
+        derived_routes = derive_nhl_edge_attacks(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
         scouting_path = os.environ.get('GOALIE_SCOUTING_JSON')
         if scouting_path:
@@ -57,6 +61,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         initial_watch = await collect_watch(None, con, date, snapshot)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        result['derivedRouteCoverage']={k:derived_routes.get(k) for k in (
+            'method','goalieProfilesWithMeasuredWeakOrigins','ownSkaterRoutes',
+            'unresolvedCount','anatomicalWeaknessCertified','explicitlyInferred')}
         result['edgeSourceCoverage']={k:edge_research.get(k) for k in (
             'status','allCurrentRosterIdentitiesChecked','goalieRinkProfiles',
             'skaterRinkProfiles','totalFailed','anatomicalClaimCertified')}
@@ -74,6 +81,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "secondarySourceResearch": source_research,
             "historicalShotResearch": historical,
             "officialEdgeRinkZoneEvidence": edge_research,
+            "edgeDerivedShotOriginMechanisms": derived_routes,
             "g0RinkAreaGoalieComparison": edge_g0_review,
             "automaticPregameWatch": initial_watch,
             "historicalGoalTracking": goal_tracking,
