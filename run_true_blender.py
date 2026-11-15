@@ -63,6 +63,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         initial_watch = await collect_watch(None, con, date, snapshot)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
+        result['officialDefenseCoverage']=historical.get('defensiveCoverage',{})
         result['derivedRouteCoverage']={k:derived_routes.get(k) for k in (
             'method','goalieProfilesWithMeasuredWeakOrigins','ownSkaterRoutes',
             'unresolvedCount','anatomicalWeaknessCertified','explicitlyInferred')}
