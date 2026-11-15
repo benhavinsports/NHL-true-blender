@@ -127,7 +127,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
     profile with no source-backed weak origin areas is not assigned any weakness.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
-    goalies=0;skaters=0;ambiguous=0;unresolved=[];goalie_routes={}
+    goalies=0;skaters=0;ambiguous=0;season_goal_owners=0;unresolved=[];goalie_routes={}
     for g in snapshot.get("games",[]):
         id=str(g["id"])
         goalie_routes[id]={}
@@ -195,6 +195,34 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                     ambiguous+=1
                 else:
                     skaters+=1
+                # The existing sampled-eight-game boxscore receipt only proves
+                # goals inside THAT sample. A player's earlier official
+                # NHL EDGE season goals remain direct OWN scoring evidence,
+                # not assists, even when the recent sample contains zero.
+                # Never turn zero or missing season goals into a positive.
+                own_season_goals=sum(x['ownedGoals'] for x in route.get('allRoutes',[])
+                    if isinstance(x.get('ownedGoals'),int) and x['ownedGoals']>=0)
+                if own_season_goals>0:
+                    credit={
+                        "recipient":True,
+                        "creditedGoalsVerified":True,
+                        "ownedSeasonGoalsFromNhlEdgeShotOrigins":own_season_goals,
+                        "independentHistoricallyScored":True,
+                        "notClaimOfTonightGoalCredit":True,
+                        "verifiedSourceType":"NHL_EDGE_SKATER_GOAL_LOCATION_DETAIL",
+                        "scope":"CURRENT_SEASON_GOALS_FROM_MEASURED_AREAS",
+                        "notEightGameSample":True,
+                        "goalMouthPlacementNotVerified":True,
+                    }
+                    credit_hash=hashlib.sha256(json.dumps(credit,sort_keys=True,
+                        separators=(",",":")).encode()).hexdigest()[:14]
+                    ingest(con,{
+                        "evidence_id":f"edge-own-goals-{date}-{stage}-{id}-{pid}-{credit_hash}",
+                        "slate_date":date,"stage":stage,"game_id":id,
+                        "player_id":pid,"kind":"PLAYER_FINISH_CREDIT",
+                        "source_url":source["sourceUrl"],
+                        "observed_at":now,"payload":credit})
+                    season_goal_owners+=1
                 route_digest=hashlib.sha256(json.dumps(route,sort_keys=True,
                     separators=(",",":")).encode()).hexdigest()[:14]
                 ingest(con,{
@@ -205,6 +233,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
     return {
         "method":ORIGIN_METHOD,"goalieProfilesWithMeasuredWeakOrigins":goalies,
         "ownSkaterRoutes":skaters,"ambiguousMultiRouteSkatersKept":ambiguous,
+        "sourceBackedSkaterOwnGoalCredits":season_goal_owners,
         "starterBranches":goalie_routes,
         "unresolvedCount":len(unresolved),"unresolvedExamples":unresolved[:40],
         "anatomicalWeaknessCertified":False,
