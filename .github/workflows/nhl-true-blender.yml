@@ -110,7 +110,25 @@ jobs:
           git add -- state/
           git diff --cached --quiet && exit 0
           git commit -m "Save audited authoritative NHL Blender run output"
-          git push origin HEAD:main
+          # Source code may be committed while the engine is running. Merge it
+          # without discarding our verified card; never force-push or overwrite
+          # another runner's newer canonical state.
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            if ! git diff --quiet "$GITHUB_SHA" origin/main -- state/; then
+              echo "Concurrent authoritative state change; refusing to overwrite the newer Core"
+              exit 1
+            fi
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "Published canonical state after safe fast-forward ($attempt)"
+              exit 0
+            fi
+            echo "Code commit race; rechecking remote state ($attempt)"
+            sleep 2
+          done
+          echo "Unable to publish without risking an existing Core"
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
