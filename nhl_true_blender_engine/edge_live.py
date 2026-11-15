@@ -131,18 +131,18 @@ def review_g0_goalie_origins(con,snapshot,date,stage):
     A league-median percentile is descriptive: no scored/weighted side selection.
     """
     import json
+    from .engine import all_goalie_branches
     output=[]
     for game in snapshot.get("games",[]):
         directions=[]
+        # Use the SAME goalie-branch adjudication as G0. Expected branches
+        # remain explicitly expected when no confirmed starter exists.
+        eligible_by_team=all_goalie_branches(game,stage)
         for attacker,defender in ((game["away"],game["home"]),(game["home"],game["away"])):
-            branches=game.get("goalies",{}).get(defender,[])
+            branches=eligible_by_team.get(defender,[])
             branch_rows=[]
             for branch in branches:
                 data=branch.get("data") or {}
-                if data.get("status") not in ("PROJECTED","EXPECTED","CONFIRMED"):
-                    continue
-                if stage=="CONFIRMED" and data.get("status")!="CONFIRMED":
-                    continue
                 gid=str(data.get("goalieId") or "")
                 source=con.execute("""SELECT payload,source_url,observed_at FROM evidence
                     WHERE slate_date=? AND stage=? AND game_id=? AND player_id=?
