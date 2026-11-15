@@ -29,7 +29,7 @@ def ingest(con, record):
         raise ValueError('Unsupported evidence kind: '+str(record.get('kind')))
     if record['kind']=='GOALIE_PROFILE':
         data=record.get('payload',{})
-        if data.get('weakZones'):
+        if data.get('goalMouthEvidence') is not None:
             validated=validate_goal_zone_evidence(data.get('goalMouthEvidence'))
             if not validated['anatomicalClaimCertified']:
                 raise ValueError('G0/G3/G5 weakZones require independently certified goal-mouth baseline and contradiction review')
