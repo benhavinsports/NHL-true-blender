@@ -659,3 +659,45 @@ boot().catch(e=>{
  $("core-cards").replaceChildren(el("div","notice warning",
    "The published data could not be read. "+e.message));
 });
+
+// An autonomous run can publish while this tab is open. Refresh ONLY after
+// the authoritative feed changes; preserve the user's selected slate/card
+// and never re-run scorer selection from client-side code.
+let latestPublishedSignature=null;
+async function pollPublishedResults(){
+ if(document.hidden||!state.selectedDate)return;
+ const fresh=await Promise.allSettled([
+   json("./data/latest.json"),
+   json("./data/cards-archive.json"),
+   json("./data/season-history.json")
+ ]);
+ if(fresh[0].status!=="fulfilled"||fresh[1].status!=="fulfilled")return;
+ const next=fresh[0].value;
+ const archived=(fresh[1].value.cards||[]).filter(x=>
+   x.verified===true&&Array.isArray(x.current_legs));
+ const season=fresh[2].status==="fulfilled"?fresh[2].value:state.season;
+ const fingerprint=JSON.stringify({
+   publishedAt:next.publishedAt,cardId:next.card?.cardId,
+   stage:next.stage,grade:next.postgameGrade?.result,
+   archive:archived.map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
+   seasonSize:season?.officiallyGradedSlates,
+   patchCount:season?.verifiedAutomaticGuardPatches?.length,
+ });
+ if(latestPublishedSignature===null){
+   latestPublishedSignature=fingerprint;
+   return;
+ }
+ if(fingerprint===latestPublishedSignature)return;
+ latestPublishedSignature=fingerprint;
+ state.latest=next;state.archive=archived;state.season=season;
+ // Keep the user's open archive date and selected recipient when possible.
+ const days=unique([next.date,...archived.map(x=>x.date)]);
+ if(!days.includes(state.selectedDate))
+   state.selectedDate=days[0]||null;
+ renderAll();
+ if(state.selectedDate)await loadEvidence(state.selectedDate);
+}
+setInterval(()=>{pollPublishedResults().catch(()=>{});},120000);
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden)pollPublishedResults().catch(()=>{});
+});
