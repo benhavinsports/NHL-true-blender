@@ -19,6 +19,7 @@ from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.official_context import collect_context
+from nhl_true_blender_engine.contradiction_review import review_all_candidates
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -62,8 +63,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             attach(con, snapshot, date, stage)
         initial_watch = await collect_watch(None, con, date, snapshot)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
+        contradiction_research = review_all_candidates(con, snapshot, date, stage)
+        attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
+        result['g17CrossSourceReviews']=contradiction_research
         result['officialDefenseCoverage']=historical.get('defensiveCoverage',{})
         result['derivedRouteCoverage']={k:derived_routes.get(k) for k in (
             'method','goalieProfilesWithMeasuredWeakOrigins','ownSkaterRoutes',
@@ -88,6 +92,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "officialEdgeRinkZoneEvidence": edge_research,
             "edgeDerivedShotOriginMechanisms": derived_routes,
             "g0RinkAreaGoalieComparison": edge_g0_review,
+            "sourceLinkedG17ContradictionReviews": contradiction_research,
             "automaticPregameWatch": initial_watch,
             "historicalGoalTracking": goal_tracking,
             "collectionErrors": snapshot.get("collectionErrors", []),
