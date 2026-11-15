@@ -16,6 +16,23 @@ class PublicationTests(unittest.TestCase):
             ]}
         }
 
+    def test_missing_or_unpassed_gate_cannot_publish(self):
+        with tempfile.TemporaryDirectory() as d:
+            report = self.report()
+            report["coreOutput"]["core"][0]["gateTrace"] = [
+                x for x in report["coreOutput"]["core"][0]["gateTrace"]
+                if x["gate"] != "G10.5"
+            ]
+            with self.assertRaisesRegex(ValueError, "missing gate"):
+                publish_verified_core(report, d)
+            self.assertEqual(list(Path(d).glob("authoritative*")), [])
+        with tempfile.TemporaryDirectory() as d:
+            report = self.report()
+            report["coreOutput"]["core"][0]["gateTrace"][0]["status"] = "UNRESOLVED"
+            with self.assertRaisesRegex(ValueError, "unpassed gate"):
+                publish_verified_core(report, d)
+            self.assertEqual(list(Path(d).glob("authoritative*")), [])
+
     def test_uncertified_does_not_publish(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertFalse(publish_verified_core(self.report(certified=False), d)["published"])
