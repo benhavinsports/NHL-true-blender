@@ -52,6 +52,9 @@ jobs:
       - name: Grade previous slate against official NHL boxscores
         if: always()
         run: python postgame_grade.py
+      - name: Audit every officially graded missed leg
+        if: always()
+        run: python postgame_audit.py
       - name: Persist authoritative Core across runs
         run: |
           if [ -z "$(git status --porcelain -- state/)" ]; then
