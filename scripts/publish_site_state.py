@@ -46,6 +46,9 @@ def export_run(con, slate_date, stage, result, root='state'):
         'historicalShiftCoverage':result.get('historicalShiftCoverage',{}),
         'firstNonpassingGateAudit':result.get('firstNonpassingGateAudit',{}),
         'gateCertification':result.get('gateCertification',{}),
+        'selectionFunnel':(result.get('gateCertification') or {}).get('selectionFunnel',{}),
+        'survivorOnlyCertification':(result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified'),
+        'nonselectedGateAuditIsDiagnosticOnly':True,
     }
     if not card:
         _write(status_path,status)
@@ -85,6 +88,17 @@ def export_run(con, slate_date, stage, result, root='state'):
             raise PublicationConflict('Recipient source or game-time field missing')
         if leg['path'] not in ('PRIMARY','TRANSFER','WHO'):
             raise PublicationConflict('Unsupported scorer path label')
+    # Selected-recipient certification is the publication requirement:
+    # nonselected players are allowed to fail or lack scorer evidence.
+    # If the independent census exists, do not publish a new card when its
+    # selected recipients have not all been genuinely verified.
+    source_census=result.get('gateCertification') or {}
+    if source_census and source_census.get('selectedCoreOnlyFullyCertified') is not True:
+        validation_gaps.append({
+            'reason':'SELECTED_CORE_INDEPENDENT_SOURCE_CERTIFICATION_FAILED',
+            'selectedLegSourceGaps':source_census.get('selectedSourceAttributionGaps',[]),
+            'selectedLegReviews':source_census.get('selectedLegs',[]),
+        })
     # A newly missing independent overlay source cannot retroactively
     # overwrite or erase the previously frozen Core. Keep its immutable
     # JSON, record the exact current audit failure and do NOT claim that
