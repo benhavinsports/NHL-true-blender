@@ -26,7 +26,7 @@ def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
     observed = datetime.now(timezone.utc).isoformat()
     imported = {"PLAYER_PRESSURE":0,"PLAYER_FINISH_CREDIT":0,
                 "TEAM_COVERAGE":0,"GOALIE_STATISTICS":0}
-    goalies = {(str(r["playerId"]),r["team"]):r for r in data["goalies"]
+    seasons={str(r.get("season")) for rows in data.values() for r in rows}\n    expected_season=str(int(slate_date[:4]) if int(slate_date[5:7])>=9 else int(slate_date[:4])-1)\n    if seasons!={expected_season}:\n        raise ValueError(f"MoneyPuck season mismatch: {seasons}; expected {expected_season}")\n    goalies = {(str(r["playerId"]),r["team"]):r for r in data["goalies"]
                if r["situation"]=="all"}
     skaters = {str(r["playerId"]):r for r in data["skaters"]
                if r["situation"]=="all"}
