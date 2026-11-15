@@ -1,5 +1,8 @@
-"""Export an independently source-verified Core for the existing free Wix Headless site.
-The published JSON is only a transport, never a scorer-picking shortcut.
+"""Export independently source-verified Core and run JSON for GitHub Pages.
+
+GitHub Actions commits state/site_cards and state/site_runs. The separate
+Deploy Pages workflow packages their authoritative result in
+site/data/latest.json. This transport never picks or substitutes scorers.
 """
 import json
 from datetime import datetime, timezone
