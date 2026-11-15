@@ -11,7 +11,6 @@ from collections import defaultdict
 from datetime import datetime, timezone
 import json
 
-from .engine import MASTER, OVERLAY
 from .storage import encode, get_card, stamp, transaction
 
 GUARD_POLICIES = {
@@ -23,7 +22,6 @@ GUARD_STATUSES = {
     "DEFEATED", "DIFFERENT_TARGET_LANE",
     "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
 }
-ORDER = MASTER + OVERLAY
 OFFICIAL = "https://api-web.nhle.com/v1/"
 
 def setup(con):
