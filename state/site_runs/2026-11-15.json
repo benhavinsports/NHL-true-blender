@@ -561,8 +561,8 @@
   ],
   "anatomicalEvidenceMisrepresented": false,
   "cardId": "NHL-2026-11-15-CANONICAL",
-  "cardPath": "state/site_cards/2026-11-15.json",
   "cardSavedByEngine": true,
+  "currentRunFullyCertified": false,
   "edgeSourceCoverage": {
     "allCurrentRosterIdentitiesChecked": 249,
     "anatomicalClaimCertified": false,
@@ -573,7 +573,6 @@
   },
   "eligibleSkaterRows": 115,
   "errors": [],
-  "fingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
@@ -1062,7 +1061,301 @@
     }
   ],
   "games": 5,
+  "gateCertification": {
+    "allOverlayStepsWereIndependentlyChecked": true,
+    "allSkatersHaveEachGateRecord": true,
+    "copiedOverlayReceiptCount": 0,
+    "copiedOverlayReceipts": [],
+    "doesNotSelectChangeOrRegradeCard": true,
+    "fullIndependentCardCertification": false,
+    "gateRows": 4150,
+    "gateSpecification": {
+      "masterCount": 20,
+      "masterOrder": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlayCount": 16,
+      "overlayOrder": [
+        "Step0",
+        "Step1",
+        "Step2",
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step8",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step13",
+        "Step14"
+      ]
+    },
+    "goalieDirectionsWithPass": 6,
+    "masterGateDispositions": {
+      "G0": {
+        "PASS": 115
+      },
+      "G1": {
+        "PASS": 115
+      },
+      "G10": {
+        "NOT_EXECUTED": 23,
+        "PASS": 71,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G10.5": {
+        "NOT_EXECUTED": 88,
+        "PASS": 6,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G11": {
+        "NOT_EXECUTED": 5,
+        "PASS": 89,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G12": {
+        "NOT_EXECUTED": 5,
+        "PASS": 89,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G13": {
+        "PASS": 94,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G14": {
+        "PASS": 94,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G15": {
+        "NOT_EXECUTED": 23,
+        "PASS": 71,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G16": {
+        "NOT_EXECUTED": 88,
+        "PASS": 6,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G17": {
+        "NOT_EXECUTED": 88,
+        "PASS": 6,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G18": {
+        "NOT_EXECUTED": 90,
+        "PASS": 4,
+        "SKIPPED_AFTER_ELIMINATION": 21
+      },
+      "G2": {
+        "PASS": 115
+      },
+      "G3": {
+        "PASS": 115
+      },
+      "G4": {
+        "NOT_EXECUTED": 7,
+        "PASS": 108
+      },
+      "G5": {
+        "ELIMINATED": 16,
+        "NOT_EXECUTED": 7,
+        "PASS": 92
+      },
+      "G6": {
+        "NOT_EXECUTED": 22,
+        "PASS": 77,
+        "SKIPPED_AFTER_ELIMINATION": 16
+      },
+      "G7": {
+        "NOT_EXECUTED": 5,
+        "PASS": 94,
+        "SKIPPED_AFTER_ELIMINATION": 16
+      },
+      "G8": {
+        "PASS": 99,
+        "SKIPPED_AFTER_ELIMINATION": 16
+      },
+      "G9": {
+        "ELIMINATED": 5,
+        "NOT_EXECUTED": 12,
+        "PASS": 82,
+        "SKIPPED_AFTER_ELIMINATION": 16
+      }
+    },
+    "missingMatrixGateRows": {},
+    "neverTreatsGateRecordAsAutomaticPass": true,
+    "overlayGateDispositions": {
+      "Step0": {
+        "PASS": 115
+      },
+      "Step1": {
+        "PASS": 115
+      },
+      "Step10": {
+        "NOT_EXECUTED": 23,
+        "PASS": 92
+      },
+      "Step10.5": {
+        "NOT_EXECUTED": 105,
+        "PASS": 10
+      },
+      "Step11": {
+        "NOT_EXECUTED": 3,
+        "PASS": 112
+      },
+      "Step12": {
+        "NOT_EXECUTED": 105,
+        "PASS": 10
+      },
+      "Step13": {
+        "PASS": 115
+      },
+      "Step14": {
+        "NOT_EXECUTED": 108,
+        "PASS": 7
+      },
+      "Step2": {
+        "PASS": 115
+      },
+      "Step3": {
+        "ELIMINATED": 14,
+        "NOT_EXECUTED": 14,
+        "PASS": 87
+      },
+      "Step4": {
+        "NOT_EXECUTED": 8,
+        "PASS": 107
+      },
+      "Step5": {
+        "NOT_EXECUTED": 7,
+        "PASS": 108
+      },
+      "Step6": {
+        "NOT_EXECUTED": 28,
+        "PASS": 87
+      },
+      "Step7": {
+        "NOT_EXECUTED": 23,
+        "PASS": 92
+      },
+      "Step8": {
+        "NOT_EXECUTED": 115
+      },
+      "Step9": {
+        "NOT_EXECUTED": 8,
+        "PASS": 107
+      }
+    },
+    "scannedSkaters": 115,
+    "selectedLegs": [
+      {
+        "gameId": "2026020327",
+        "masterAllPass": true,
+        "masterMissingOrNonpassing": [],
+        "overlayAllPass": false,
+        "overlayIndependentlyEvaluated": true,
+        "overlayMissingOrNonpassing": [
+          {
+            "gate": "Step8",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "player": "Jason Robertson",
+        "playerId": "8480027",
+        "savedPath": "PRIMARY"
+      },
+      {
+        "gameId": "2026020328",
+        "masterAllPass": true,
+        "masterMissingOrNonpassing": [],
+        "overlayAllPass": false,
+        "overlayIndependentlyEvaluated": true,
+        "overlayMissingOrNonpassing": [
+          {
+            "gate": "Step8",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "player": "Morgan Frost",
+        "playerId": "8480028",
+        "savedPath": "PRIMARY"
+      },
+      {
+        "gameId": "2026020326",
+        "masterAllPass": true,
+        "masterMissingOrNonpassing": [],
+        "overlayAllPass": false,
+        "overlayIndependentlyEvaluated": true,
+        "overlayMissingOrNonpassing": [
+          {
+            "gate": "Step8",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "player": "Evan Bouchard",
+        "playerId": "8480803",
+        "savedPath": "PRIMARY"
+      }
+    ],
+    "selectedMasterGatesAllPass": true,
+    "selectedOverlayGatesAllPass": false,
+    "slateDate": "2026-11-15",
+    "sourceUnattributedPassingGateCount": 0,
+    "sourceUnattributedPassingGateExamples": [],
+    "stage": "CONFIRMED",
+    "surveyedGoalieDirections": 10,
+    "twoDirectionsPerScheduledGameRecorded": true
+  },
   "gateRows": 4150,
+  "independentOverlaySourceGaps": [
+    {
+      "copiedOverlayGates": [],
+      "gameId": "2026020327",
+      "notPassing": {
+        "Step8": "NOT_EXECUTED"
+      },
+      "playerId": "8480027"
+    },
+    {
+      "copiedOverlayGates": [],
+      "gameId": "2026020328",
+      "notPassing": {
+        "Step8": "NOT_EXECUTED"
+      },
+      "playerId": "8480028"
+    },
+    {
+      "copiedOverlayGates": [],
+      "gameId": "2026020326",
+      "notPassing": {
+        "Step8": "NOT_EXECUTED"
+      },
+      "playerId": "8480803"
+    }
+  ],
   "lineupSourceCoverage": {
     "deploymentRecords": 176,
     "error": null,
@@ -1084,17 +1377,18 @@
     "G6": 22,
     "G7": 5,
     "G9": 12,
-    "Step10": 7,
-    "Step10.5": 88,
-    "Step12": 88,
-    "Step14": 88,
-    "Step3": 7,
-    "Step4": 5,
+    "Step10": 23,
+    "Step10.5": 105,
+    "Step11": 3,
+    "Step12": 105,
+    "Step14": 108,
+    "Step3": 14,
+    "Step4": 8,
     "Step5": 7,
-    "Step6": 22,
-    "Step7": 7,
-    "Step8": 12,
-    "Step9": 5
+    "Step6": 28,
+    "Step7": 23,
+    "Step8": 115,
+    "Step9": 8
   },
   "officialBoxscoreCoverage": {
     "appearanceRows": 1450,
@@ -1125,9 +1419,11 @@
     "targetSides": 10,
     "zonesAreConservativeDerivedRinkAreas": true
   },
+  "publicationDecision": "PRESERVED_ORIGINAL_WITH_AUDIT_GAPS",
   "publishedToSite": true,
+  "retainedOriginalLockedCard": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T22:36:54+00:00"
+  "updatedUTC": "2026-11-15T22:42:51+00:00"
 }
