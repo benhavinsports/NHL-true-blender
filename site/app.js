@@ -435,6 +435,32 @@ function renderMatchups(){
      part.appendChild(el("div","","Current roster: "+number(roster.rosterPlayers)+
        " skaters · "+Object.entries(roster.availabilityReports||{}).map(([k,v])=>k+" "+v).join(" / ")));
      const rosterLink=link(roster.sourceUrl,"Roster source");if(rosterLink)part.appendChild(rosterLink);
+     part.appendChild(el("div","","Recent-form logs with dated pressure data: "+
+       number(roster.recentFormEvidenceCount)+" roster players"));
+     if(roster.unavailablePlayers?.length){
+       part.appendChild(el("div","","Reported availability: "+
+         roster.unavailablePlayers.map(p=>p.name+" ("+p.status+")").join(", ")));
+     }
+     if(roster.deploymentEvidence?.length){
+       const lines=el("details","source-details");
+       lines.appendChild(el("summary","","View "+roster.deploymentEvidence.length+
+         " separately sourced EV / PP / PK assignments"));
+       const list=el("div","match-data");
+       for(const d of roster.deploymentEvidence){
+         const row=el("div","match-team");
+         row.appendChild(el("strong","",d.name||"Player "+d.playerId));
+         row.appendChild(el("div","",[
+           "EV "+(d.EV||"not reported"),
+           "PP "+(d.PP||"not reported"),
+           "PK "+(d.PK||"not reported"),
+           d.status||"status not reported"
+         ].join(" · ")));
+         const src=link(d.sourceUrl,"Lineup and PP unit source");
+         if(src)row.appendChild(src);
+         list.appendChild(row);
+       }
+       lines.appendChild(list);part.appendChild(lines);
+     }else part.appendChild(el("div","","No independently sourced line or PP assignments in this export."));
      const c=game.defenseByAttackingTeam?.[team]||{};
      part.appendChild(el("div","","Opponent coverage green zones: "+
          (c.greenWeakZones?.join(", ")||"not reported")));
@@ -513,7 +539,6 @@ function renderSeason(){
  host.appendChild(el("div","notice",patches.length?
    "Source-validated future-only gate guards: "+patches.join(", "):
    "No verified gate-contradiction patches have been activated. Misses alone cannot activate a correction."));
- const a=link("./data/season-history.json",""); // relative URLs are handled separately
  const raw=el("a","small","Read official season history");
  raw.href="./data/season-history.json";raw.rel="noopener noreferrer";raw.target="_blank";
  host.appendChild(raw);
