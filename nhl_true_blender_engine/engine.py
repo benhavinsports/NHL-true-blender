@@ -565,6 +565,56 @@ def build_verified_replacement(con, existing, legs, selected, date, stage):
     }
 
 
+
+def compare_g0_same_origin(direction_a, direction_b):
+    """Source-backed same-lane goalie comparison when weak-zone names tie.
+
+    Both opposing goalies have a measured weak area. If one goalie is
+    consistently worse in EVERY shared area on BOTH observed goals allowed
+    per on-net shot and the NHL's independent league save-percentile ranking,
+    that attack direction wins. Never choose based on skaters, fame, odds,
+    assumed goal-mouth anatomy, or a fabricated multi-factor weight.
+    Return None on disagreement, noncomparable areas, or multiple starters.
+    """
+    a=direction_a.get('targetGoalies') or []
+    b=direction_b.get('targetGoalies') or []
+    if len(a)!=1 or len(b)!=1:
+        return None
+    weak_a=a[0].get('weakZones') or {}
+    weak_b=b[0].get('weakZones') or {}
+    shared=set(weak_a) & set(weak_b)
+    if not shared or set(weak_a)!=set(weak_b):
+        return None
+    winner=None
+    for zone in sorted(shared):
+        x=weak_a.get(zone) or {}
+        y=weak_b.get(zone) or {}
+        fields=('shotsAgainst','goalsAgainst','leagueSavePctgPercentile')
+        if any(k not in x or k not in y for k in fields):
+            return None
+        na,nb=x['shotsAgainst'],y['shotsAgainst']
+        ga,gb=x['goalsAgainst'],y['goalsAgainst']
+        pa,pb=x['leagueSavePctgPercentile'],y['leagueSavePctgPercentile']
+        if any(type(v) not in (int,float) for v in (na,nb,ga,gb,pa,pb)):
+            return None
+        if na<20 or nb<20 or not (0<=ga<=na and 0<=gb<=nb and 0<=pa<=1 and 0<=pb<=1):
+            return None
+        # Using fractions avoids floating-point rounding when comparing
+        # observed goal rates from different sample sizes.
+        higher_goals_a=ga*nb>gb*na
+        higher_goals_b=gb*na>ga*nb
+        if pa<pb and higher_goals_a:
+            orientation='a'
+        elif pb<pa and higher_goals_b:
+            orientation='b'
+        else:
+            return None
+        if winner is not None and winner!=orientation:
+            return None
+        winner=orientation
+    return direction_a if winner=='a' else direction_b if winner=='b' else None
+
+
 def execute(con, snapshot, date, stage='PROJECTED', now=None):
     now=now or datetime.now(timezone.utc)
     if stage not in ('PROJECTED','CONFIRMED'):raise ValueError('Stage is projected or confirmed')
@@ -620,6 +670,14 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             if right>left:
                 selected_directions[str(match['id'])]=options[1]
                 continue
+        # Source-based comparison covers the important case where both
+        # goalies are weak from the SAME area (set equality). More exposed
+        # goalie must be worse by BOTH empirical goal rate and published
+        # league save-percentile; otherwise keep G0 unresolved.
+        comparative=compare_g0_same_origin(options[0],options[1])
+        if comparative is not None:
+            selected_directions[str(match['id'])]=comparative
+            continue
         errors.append(f"{match['id']} G0 attack sides not physically separated by certified goalie weaknesses")
     # A missing target direction is a hard failure only when G0 cannot select
     # a target for that matchup; the opposite direction is not a second pool.
