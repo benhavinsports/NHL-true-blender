@@ -60,6 +60,12 @@ def attach(con, snapshot, date, stage):
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC",(date,)).fetchall()
     else:
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN (?, 'OFFICIAL') ORDER BY observed_at ASC",(date,stage)).fetchall()
+    # A goalie profile cannot attach to a starter until the verified starter
+    # branch exists. Ordered queries by timestamp alone can silently discard
+    # valid earlier scouting whenever the lineup source arrives later.
+    # Process identity first, then the independent profile in the same stage.
+    rows=sorted(rows,key=lambda row:(0 if row['kind']=='GOALIE_STARTER' else
+                   1 if row['kind']=='GOALIE_PROFILE' else 2,row['observed_at']))
     refs=[]
     for row in rows:
         kind=row['kind'];data=json.loads(row['payload'])
