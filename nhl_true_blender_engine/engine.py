@@ -459,41 +459,53 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
              'independentGoalieBranches':entry['targetGoalies'],
              'goalieBeforeSkaters':True},
             [x['sourceUrl'] for x in entry['targetGoalies']]))
+    # G0 is the selection boundary: select attack directions first, then
+    # evaluate ONLY their eligible skaters through G1-G18 and the overlay.
+    # Never synthesize an opposing goalie branch to bypass G0.
+    directions_by_game=defaultdict(list)
+    for direction in scan:
+        if direction['goalieProfileEvidenced']:
+            directions_by_game[direction['gameId']].append(direction)
+    selected_directions={}
+    for match in games:
+        options=directions_by_game[str(match['id'])]
+        if len(options)==1:
+            selected_directions[str(match['id'])]=options[0]
+        elif len(options)>1:
+            errors.append(f"{match['id']} G0 has competing attack directions; no source-backed direction adjudication")
+        else:
+            errors.append(f"{match['id']} G0 selected no evidenced attack direction")
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
         if is_started:
             errors.append(f"{match['id']} puck-drop passed; excludes new selection, never rewrites frozen card")
             continue
-        teams=(match['away'],match['home'])
+        direction=selected_directions.get(str(match['id']))
+        if direction is None:
+            continue
+        team=direction['attacker']
+        opponent=direction['defender']
+        players=complete_roster(match,team)
+        pool_size+=len(players)
+        if not players:
+            errors.append(f"{match['id']} G2 complete roster missing for G0-selected attack side {team}")
+            continue
+        for p in players:
+            if not p.get('release'):
+                p['archetypeEvidence']='NOT_ACQUIRED'
+        branches=all_goalie_branches(match,stage).get(opponent,[])
+        if not branches:
+            errors.append(f"{match['id']} G0-selected opposing goalie branch missing for {opponent}")
+            continue
         all_per_game=[]
-        for team in teams:
-            players=complete_roster(match,team)
-            pool_size+=len(players)
-            if not players:errors.append(f"{match['id']} G2 complete roster missing for {team}")
-            for p in players:
-                if not p.get('release'):
-                    # Strict Step7 before final selection, but do not invent an archetype.
-                    p['archetypeEvidence']='NOT_ACQUIRED'
-            opponent=teams[1] if team==teams[0] else teams[0]
-            branches=all_goalie_branches(match,stage).get(opponent,[])
-            if not branches:
-                errors.append(f"{match['id']} goalie branch missing for {opponent} {stage}")
-                # Still run every gate for every eligible skater, recording the
-                # absent goalie evidence rather than silently omitting their rows.
-                branch={'sourceUrl':'https://api-web.nhle.com/v1/',
-                        'observedAt':now.isoformat(),
-                        'data':{'goalieId':None,'status':'UNVERIFIED',
-                                'weakZones':{},'strengthZones':{},
-                                'sample':None,'counterevidence':None}}
-                branches=[branch]
-            for branch in branches:
-                for player in players:
-                    result, traces = evaluate_skater(match,team,player,players,branch,stage)
-                    records += traces
-                    if result['complete']:
-                        all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
-                                             'candidate':result})
+        for branch in branches:
+            for player in players:
+                result,traces=evaluate_skater(match,team,player,players,branch,stage)
+                records+=traces
+                if result['complete']:
+                    all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
+                                         'candidate':result})
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
