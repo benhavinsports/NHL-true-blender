@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from nhl_true_blender_engine.sources import NHLClient, official_slate
+from nhl_true_blender_engine.sources import NHLClient, official_slate, collect_watch
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
@@ -54,6 +54,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             source_research['goalieScouting'] = ingest_scouting(
                 con, snapshot, date, stage, scouting_path)
             attach(con, snapshot, date, stage)
+        initial_watch = await collect_watch(None, con, date, snapshot)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         result['edgeSourceCoverage']={k:edge_research.get(k) for k in (
@@ -74,6 +75,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "historicalShotResearch": historical,
             "officialEdgeRinkZoneEvidence": edge_research,
             "g0RinkAreaGoalieComparison": edge_g0_review,
+            "automaticPregameWatch": initial_watch,
             "historicalGoalTracking": goal_tracking,
             "collectionErrors": snapshot.get("collectionErrors", []),
             "masterGateOrder": MASTER,
