@@ -50,11 +50,29 @@ def _game_summary(game):
         rosterInfo={"rosterPlayers":len(players),
             "sourceUrl":(roster or {}).get("sourceUrl"),
             "observedAt":(roster or {}).get("observedAt"),
-            "availabilityReports":{}}
+            "availabilityReports":{},
+            "unavailablePlayers":[],
+            "deploymentEvidence":[],
+            "recentFormEvidenceCount":0}
         for player in players:
             status=player.get("availability")
             if status:
                 rosterInfo["availabilityReports"][status]=rosterInfo["availabilityReports"].get(status,0)+1
+            if status in ("OUT","SCRATCHED","INJURED","IR","LTIR","DAY_TO_DAY"):
+                rosterInfo["unavailablePlayers"].append({
+                    "name":player.get("name"),"status":status})
+            deployment=player.get("deployment")
+            dep=(deployment or {}).get("data") or {}
+            if dep and (dep.get("EV") or dep.get("PP") or dep.get("PK")):
+                rosterInfo["deploymentEvidence"].append({
+                    "playerId":str(player.get("id")),
+                    "name":player.get("name"),
+                    "EV":dep.get("EV"),"PP":dep.get("PP"),"PK":dep.get("PK"),
+                    "status":dep.get("status"),
+                    "sourceUrl":(deployment or {}).get("sourceUrl"),
+                    "observedAt":(deployment or {}).get("observedAt")})
+            if player.get("gameLog") and player.get("pressure"):
+                rosterInfo["recentFormEvidenceCount"]+=1
         rosters[str(team)]=rosterInfo
         area=(game.get("coverage") or {}).get(team)
         d=(area or {}).get("data") or {}
