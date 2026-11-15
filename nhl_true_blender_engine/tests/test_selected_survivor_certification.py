@@ -70,3 +70,29 @@ def test_missing_selected_gate_is_real_failure_not_overridden_by_other_losses(tm
     assert status["publishedToSite"] is False
     assert status["publicationDecision"]=="NEW_CARD_NOT_PUBLISHED_INCOMPLETE_OVERLAY"
     con.close()
+
+
+def test_post_puck_run_does_not_unpublish_frozen_verified_core(tmp_path):
+    con=open_db(str(tmp_path/"postpuck.sqlite"))
+    slate=with_shift_proofs()
+    original=execute(con,slate,DATE,"CONFIRMED")
+    original["gateCertification"]=certify_gates(con,DATE,"CONFIRMED",3)
+    root=tmp_path/"state"
+    first=export_run(con,DATE,"CONFIRMED",original,root)
+    assert first["publishedToSite"] is True
+    card_file=root/"site_cards"/(DATE+".json")
+    before=card_file.read_bytes()
+    # Later run cannot issue a NEW card because the matches have started.
+    # The still-saved card is not a new selection or automatically changed.
+    postpuck={"card":None,"games":3,"g0Directions":6,"gateRows":original["gateRows"],
+              "eligibleSkaterRows":original["eligibleSkaterRows"],
+              "gateCertification":certify_gates(con,DATE,"CONFIRMED",3),
+              "errors":[]}
+    saved=export_run(con,DATE,"CONFIRMED",postpuck,root)
+    assert card_file.read_bytes()==before
+    assert saved["cardId"]==first["cardId"]
+    assert saved["publishedToSite"] is True
+    assert saved["retainedOriginalLockedCard"] is True
+    assert saved["currentRunFullyCertified"] is True
+    assert saved["publicationDecision"]=="PRESERVED_FROZEN_CORE_NO_NEW_SELECTION"
+    con.close()
