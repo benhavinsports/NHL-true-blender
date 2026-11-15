@@ -506,7 +506,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
         if is_started:
-            errors.append(f"{match['id']} puck-drop passed; excludes new selection, never rewrites frozen card")
+            # Not eligible for new selection; frozen cards remain in storage.
             continue
         direction=selected_directions.get(str(match['id']))
         if direction is None:
