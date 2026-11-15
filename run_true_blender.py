@@ -34,7 +34,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
             historical = await collect_history(client, con, snapshot, date, stage)
-            goal_tracking = await collect_goal_sprites(client, snapshot, date)
+            goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
+            if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
+                goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
         source_research = await collect_secondary(con, snapshot, date, stage)
         try:
             async with httpx.AsyncClient(timeout=18) as http:
@@ -47,7 +49,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         except (httpx.HTTPError, ValueError) as exc:
             source_research["lineupParseError"] = str(exc)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
-        if csv_dir:
+        if csv_dir and Path(csv_dir, 'skaters.csv').exists():
             source_research['moneypuck'] = import_moneypuck(
                 con, snapshot, date, stage, csv_dir,
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
