@@ -180,11 +180,13 @@ def release_matched_to_g0_target(player,goalie_profile):
         return player
     observed=dict(base)
     observed.update({
+        'archetype':base.get('archetype') or 'OBSERVED_OWN_SHOT_ORIGIN',
         'zone':top['zone'],
         'attempts':top['sog'],
         'ownedGoals':top['ownedGoals'],
         'g0MatchedOwnOriginRoute':True,
-        'originalPrimaryOrigin':base['zone'],
+        'originalPrimaryOrigin':base.get('zone'),
+        'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
         'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
         'anatomicalPlacementCertified':False,
         'noPreG0SkaterPreference':True
@@ -237,6 +239,11 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
             continue
         wrapper=rival.get('release')
         release=player_releases(rival)
+        if not release and receipt(wrapper) and isinstance(wrapper['data'].get('allRoutes'),list):
+            # A tied season top area is still a valid measured SAME-LANE
+            # challenger. Use the observed route in candidate's exact zone
+            # instead of erasing the competing player.
+            release=wrapper['data']
         if not release:
             rows.append({'challengerId':str(rival['id']),
                          'status':'NO_RELEASE_SOURCE',
