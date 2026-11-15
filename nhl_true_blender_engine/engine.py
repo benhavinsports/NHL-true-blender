@@ -239,8 +239,11 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
     scored in the sampled last-eight games; the rival's observed season zone
     data remains valid challenger evidence.
 
-    G10.5 can PASS only on *strict* two-dimensional own-route dominance over
-    every matching target-area challenger. Nondominance remains unresolved.
+    G10.5 compares DIRECT credited goals from the exact same target area
+    before shot volume (which is supporting pressure, not a scored goal).
+    This is categorical, source-linked separation with NO ranking weights;
+    equal own-goal counts are compared on observed SOG, and equal results
+    remain unresolved. All teammates and alternative routes remain audited.
     """
     base=player_releases(candidate)
     rows=[]; all_defeated=True
@@ -292,16 +295,16 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
                          'sourceUrl':wrapper['sourceUrl']})
             all_defeated=False
             continue
-        # Both comparisons operate on the SAME independently observed rink
-        # shot-origin zone and are source-backed goal CREDIT to that skater.
-        dominates=(base['attempts']>=opponent_shots
-                   and base['ownedGoals']>=opponent_goals
-                   and (base['attempts']>opponent_shots
-                        or base['ownedGoals']>opponent_goals))
-        defeated_by=(opponent_shots>=base['attempts']
-                     and opponent_goals>=base['ownedGoals']
-                     and (opponent_shots>base['attempts']
-                          or opponent_goals>base['ownedGoals']))
+        # G10.5 is DIRECT RECIPIENT separation, not a requirement for a
+        # scorer to lead every teammate in BOTH shots and goals. A skater
+        # with 7 actual goals on this lane is not disproved by a teammate
+        # with 6 actual goals and more harmless on-net shots.
+        # Compare OWN credited goals first; use SOG only if the OWN goal
+        # counts are equal. No fame/PP status/odds or numeric weights.
+        candidate_direct=(base['ownedGoals'],base['attempts'])
+        rival_direct=(opponent_goals,opponent_shots)
+        dominates=candidate_direct>rival_direct
+        defeated_by=rival_direct>candidate_direct
         if not dominates:
             all_defeated=False
         rows.append({
@@ -318,7 +321,9 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
             'rivalEVRole':evidence_data(rival.get('deployment')),
             'roleReviewIncomplete':not receipt(rival.get('deployment')),
             'noSeasonTotalInvented':True,
-            'rule':'strict directly owned same-zone NHL EDGE SOG-and-goals dominance; no invented ranking weights',
+            'comparisonPriority':['ownedGoalsFromSameShotOrigin','onNetShotPressureOnlyWhenGoalsEqual'],
+            'noFameOddsOrPPShortcut':True,
+            'rule':'direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights',
         })
     return all_defeated,rows
 
