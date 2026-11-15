@@ -20,6 +20,7 @@ from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_ori
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.official_context import collect_context
 from nhl_true_blender_engine.contradiction_review import review_all_candidates
+from nhl_true_blender_engine.first_gate_audit import first_gate_audit
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -66,6 +67,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         contradiction_research = review_all_candidates(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
         result['g17CrossSourceReviews']=contradiction_research
         result['officialDefenseCoverage']=historical.get('defensiveCoverage',{})
