@@ -1,0 +1,51 @@
+name: Deploy NHL True Blender site to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'runs/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare verified run data
+        shell: bash
+        run: |
+          mkdir -p site/data
+          python - <<'PY'
+          import json, pathlib, datetime
+          paths=sorted(pathlib.Path('runs').glob('true_blender_*.json'))
+          records=[]
+          for p in paths:
+              try:
+                  d=json.loads(p.read_text())
+                  if d.get('date') and d.get('stage'):
+                      records.append(d)
+              except (OSError,ValueError): pass
+          if records:
+              records.sort(key=lambda d:(d['date'], d.get('stage')=='CONFIRMED'))
+              d=records[-1]
+              output={k:d.get(k) for k in ('date','stage','games','g0Directions','g0Complete','gateRows','uniqueGameSurvivors','errors','card')}
+              output['publishedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+              pathlib.Path('site/data/latest.json').write_text(json.dumps(output,default=str))
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
