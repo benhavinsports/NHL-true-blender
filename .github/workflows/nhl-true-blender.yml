@@ -53,6 +53,8 @@ jobs:
           python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
+      - name: Probe live source schemas without claiming passes
+        run: python scripts/diagnose_live_pipeline.py
       - name: Run scheduled autonomous Blender phase
         env:
           REQUESTED_DATE: ${{ inputs.date }}
