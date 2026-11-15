@@ -17,7 +17,7 @@ on:
     - cron: '15 13 * * *'
     - cron: '15 21 * * *'
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: nhl-blender-slate
   cancel-in-progress: false
@@ -49,6 +49,18 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
               summary.write(f"Evidence audit: {date} / {mode}. This is NOT a verified Core 3 scorer-selection result.\\n")
           PY
+      - name: Persist authoritative Core across runs
+        run: |
+          if [ -z "$(git status --porcelain -- state/)" ]; then
+            echo "No new verified Core state to persist"
+            exit 0
+          fi
+          git config user.name "nhl-blender-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- state/
+          git diff --cached --quiet && exit 0
+          git commit -m "Persist verified NHL Blender authoritative Core"
+          git push origin HEAD:main
       - uses: actions/upload-artifact@v4
         if: always()
         with:
