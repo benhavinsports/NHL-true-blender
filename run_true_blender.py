@@ -16,6 +16,7 @@ from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
+from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
@@ -42,6 +43,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 source_research["parsedLineups"] = ingest_lineups(con, snapshot, date, stage, response.text, observed)
         except (httpx.HTTPError, ValueError) as exc:
             source_research["lineupParseError"] = str(exc)
+        csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
+        if csv_dir:
+            source_research['moneypuck'] = import_moneypuck(
+                con, snapshot, date, stage, csv_dir,
+                os.environ.get('MONEYPUCK_EXPORT_ASOF'))
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         summary = {k: v for k, v in result.items() if k != "scan"}
