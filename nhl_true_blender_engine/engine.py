@@ -277,7 +277,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True})
     shots=player.get('pressure')
-    emit('G11',bool(receipt(shots) and isinstance(evidence_data(shots,'recentAppearanceShots'),int)),
+    recent_shots=evidence_data(shots,'recentAppearanceShots')
+    pressure_valid=isinstance(recent_shots,int) and recent_shots>=0 or (isinstance(recent_shots,list) and bool(recent_shots) and all(isinstance(x,int) and x>=0 for x in recent_shots))
+    emit('G11',bool(receipt(shots) and pressure_valid),
          {'recentOwnAttempts':evidence_data(shots,'recentAppearanceShots') if shots else None})
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)})
