@@ -460,22 +460,41 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
              'independentGoalieBranches':entry['targetGoalies'],
              'goalieBeforeSkaters':True},
             [x['sourceUrl'] for x in entry['targetGoalies']]))
-    # G0 is the selection boundary: select attack directions first, then
-    # evaluate ONLY their eligible skaters through G1-G18 and the overlay.
-    # Never synthesize an opposing goalie branch to bypass G0.
-    directions_by_game=defaultdict(list)
-    for direction in scan:
-        if direction['goalieProfileEvidenced']:
-            directions_by_game[direction['gameId']].append(direction)
+    # G0 adjudicates the target goalie and attack side BEFORE the skater pool.
+    # Independent zone evidence must distinguish directions; no popularity,
+    # market, arbitrary weights, or alphabetic tiebreaks.
     selected_directions={}
     for match in games:
-        options=directions_by_game[str(match['id'])]
+        options=[x for x in scan if x['gameId']==str(match['id'])
+                 and x['goalieProfileEvidenced']]
+        if not options:
+            errors.append(f"{match['id']} G0 no independently evidenced goalie target")
+            continue
         if len(options)==1:
             selected_directions[str(match['id'])]=options[0]
-        elif len(options)>1:
-            errors.append(f"{match['id']} G0 has competing attack directions; no source-backed direction adjudication")
-        else:
-            errors.append(f"{match['id']} G0 selected no evidenced attack direction")
+            continue
+        if len(options)!=2:
+            errors.append(f"{match['id']} G0 conflicting target goalie branches")
+            continue
+        def weakness_vector(direction):
+            profiles=direction['targetGoalies']
+            if len(profiles)!=1:
+                return None
+            zones=profiles[0]['weakZones']
+            if not isinstance(zones,dict) or not zones:
+                return None
+            # G0 compares independently certified goalie weakness zones,
+            # never skater fame, player picks, or unverified shot coordinates.
+            return set(zones)
+        left,right=(weakness_vector(x) for x in options)
+        if left is not None and right is not None and left!=right:
+            if left>right:
+                selected_directions[str(match['id'])]=options[0]
+                continue
+            if right>left:
+                selected_directions[str(match['id'])]=options[1]
+                continue
+        errors.append(f"{match['id']} G0 attack sides not physically separated by certified goalie weaknesses")
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
