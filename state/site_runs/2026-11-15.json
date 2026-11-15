@@ -16,52 +16,52 @@
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
-      "G10": 5,
-      "G10.5": 20,
+      "G10": 22,
+      "G10.5": 46,
       "G4": 7,
       "G5": 16,
       "G6": 17,
-      "G9": 50
+      "G9": 7
     },
     "notAScorerRanking": true,
     "samplesByFirstGate": {
       "G10": [
         {
           "firstNonpassingGate": "G10",
-          "gameId": "2026020327",
-          "playerId": "8475794",
+          "gameId": "2026020326",
+          "playerId": "8478472",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G10",
-          "gameId": "2026020327",
-          "playerId": "8476889",
+          "gameId": "2026020326",
+          "playerId": "8478854",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G10",
-          "gameId": "2026020328",
-          "playerId": "8474150",
+          "gameId": "2026020326",
+          "playerId": "8480029",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
       "G10.5": [
         {
           "firstNonpassingGate": "G10.5",
-          "gameId": "2026020327",
-          "playerId": "8473994",
+          "gameId": "2026020326",
+          "playerId": "8475218",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G10.5",
-          "gameId": "2026020327",
-          "playerId": "8474102",
+          "gameId": "2026020326",
+          "playerId": "8475786",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G10.5",
-          "gameId": "2026020327",
-          "playerId": "8478420",
+          "gameId": "2026020326",
+          "playerId": "8476454",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -128,21 +128,21 @@
       "G9": [
         {
           "firstNonpassingGate": "G9",
-          "gameId": "2026020326",
-          "playerId": "8475218",
-          "reasonDisposition": "NOT_EXECUTED"
+          "gameId": "2026020329",
+          "playerId": "8478498",
+          "reasonDisposition": "ELIMINATED"
         },
         {
           "firstNonpassingGate": "G9",
-          "gameId": "2026020326",
-          "playerId": "8475786",
-          "reasonDisposition": "NOT_EXECUTED"
+          "gameId": "2026020329",
+          "playerId": "8480078",
+          "reasonDisposition": "ELIMINATED"
         },
         {
           "firstNonpassingGate": "G9",
-          "gameId": "2026020326",
-          "playerId": "8476454",
-          "reasonDisposition": "NOT_EXECUTED"
+          "gameId": "2026020329",
+          "playerId": "8481032",
+          "reasonDisposition": "ELIMINATED"
         }
       ]
     },
@@ -474,29 +474,29 @@
   },
   "missingByGate": {
     "G0": 4,
-    "G10": 42,
-    "G10.5": 81,
+    "G10": 45,
+    "G10.5": 94,
     "G11": 5,
     "G12": 5,
-    "G15": 42,
-    "G16": 81,
-    "G17": 81,
-    "G18": 82,
+    "G15": 45,
+    "G16": 94,
+    "G17": 94,
+    "G18": 94,
     "G4": 7,
     "G5": 7,
     "G6": 22,
     "G7": 5,
-    "G9": 52,
+    "G9": 12,
     "Step10": 7,
-    "Step10.5": 81,
-    "Step12": 81,
-    "Step14": 81,
+    "Step10.5": 94,
+    "Step12": 94,
+    "Step14": 94,
     "Step3": 7,
     "Step4": 5,
     "Step5": 7,
     "Step6": 22,
     "Step7": 7,
-    "Step8": 52,
+    "Step8": 12,
     "Step9": 5
   },
   "officialBoxscoreCoverage": {
@@ -515,9 +515,14 @@
     "coverageAttackSides": 10,
     "failedSources": [],
     "peerMedianZoneShares": {
+      "Center Point": 0.08374384236453201,
       "High Slot": 0.10837438423645321,
+      "L Circle": 0.11057692307692307,
+      "L Point": 0.08239700374531835,
       "Low Slot": 0.27049180327868855,
-      "Point": 0.2397003745318352
+      "Point": 0.2397003745318352,
+      "R Circle": 0.09852216748768473,
+      "R Point": 0.06896551724137931
     },
     "sourceType": "OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
     "targetSides": 10,
@@ -527,5 +532,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T21:18:00+00:00"
+  "updatedUTC": "2026-11-15T21:25:03+00:00"
 }

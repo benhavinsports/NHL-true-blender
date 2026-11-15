@@ -3,15 +3,15 @@
   "stage": "CONFIRMED",
   "playersEvaluated": 115,
   "firstNonpassingByOriginalGate": {
-    "G9": 50,
+    "G10.5": 46,
     "G5": 16,
     "G6": 17,
+    "G10": 22,
     "G4": 7,
-    "G10.5": 20,
-    "G10": 5
+    "G9": 7
   },
   "firstExamples": {
-    "G9": [
+    "G10.5": [
       {
         "gameId": "2026020326",
         "playerId": "8475218"
@@ -77,6 +77,28 @@
         "playerId": "8476278"
       }
     ],
+    "G10": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8478472"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8478854"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480029"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8482166"
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8486161"
+      }
+    ],
     "G4": [
       {
         "gameId": "2026020326",
@@ -99,48 +121,26 @@
         "playerId": "8481167"
       }
     ],
-    "G10.5": [
+    "G9": [
       {
-        "gameId": "2026020327",
-        "playerId": "8473994"
+        "gameId": "2026020329",
+        "playerId": "8478498"
       },
       {
-        "gameId": "2026020327",
-        "playerId": "8474102"
+        "gameId": "2026020329",
+        "playerId": "8480078"
       },
       {
-        "gameId": "2026020327",
-        "playerId": "8478420"
+        "gameId": "2026020329",
+        "playerId": "8481032"
       },
       {
-        "gameId": "2026020327",
-        "playerId": "8478449"
+        "gameId": "2026020330",
+        "playerId": "8477498"
       },
       {
-        "gameId": "2026020327",
-        "playerId": "8480027"
-      }
-    ],
-    "G10": [
-      {
-        "gameId": "2026020327",
-        "playerId": "8475794"
-      },
-      {
-        "gameId": "2026020327",
-        "playerId": "8476889"
-      },
-      {
-        "gameId": "2026020328",
-        "playerId": "8474150"
-      },
-      {
-        "gameId": "2026020328",
-        "playerId": "8483495"
-      },
-      {
-        "gameId": "2026020328",
-        "playerId": "8484154"
+        "gameId": "2026020330",
+        "playerId": "8482859"
       }
     ]
   },
@@ -164,207 +164,35 @@
       "NOT_EXECUTED": 22
     },
     "G9": {
-      "NOT_EXECUTED": 52,
-      "CAUSE:NO_MATCHING_GREEN": 64,
+      "PASS": 82,
       "SKIPPED_AFTER_ELIMINATION": 16,
-      "CAUSE:RED_AVOID": 21,
-      "PASS": 30,
-      "ELIMINATED": 17
+      "CAUSE:RED_AVOID": 14,
+      "NOT_EXECUTED": 12,
+      "CAUSE:NO_MATCHING_GREEN": 19,
+      "ELIMINATED": 5
     },
     "G10": {
-      "PASS": 40,
-      "SKIPPED_AFTER_ELIMINATION": 33,
-      "CAUSE:NOT_PROVEN": 75,
-      "NOT_EXECUTED": 42
+      "PASS": 49,
+      "SKIPPED_AFTER_ELIMINATION": 21,
+      "CAUSE:NOT_PROVEN": 66,
+      "NOT_EXECUTED": 45
     },
     "G10.5": {
-      "NOT_EXECUTED": 81,
-      "CAUSE:RIVAL_DOMINATES": 62,
-      "SKIPPED_AFTER_ELIMINATION": 33,
-      "CAUSE:NO_DECISIVE_ROUTE_SEPARATION": 39,
+      "NOT_EXECUTED": 94,
+      "CAUSE:RIVAL_DOMINATES": 55,
+      "SKIPPED_AFTER_ELIMINATION": 21,
+      "CAUSE:NO_DECISIVE_ROUTE_SEPARATION": 47,
       "CAUSE:MISSING_COMPARISON": 8,
-      "CAUSE:NO_RELEASE_SOURCE": 5,
-      "PASS": 1
+      "CAUSE:NO_RELEASE_SOURCE": 5
     },
     "G17": {
-      "NOT_EXECUTED": 81,
-      "CAUSE:UNRESOLVED_CONTRADICTION": 107,
-      "SKIPPED_AFTER_ELIMINATION": 33,
-      "CAUSE:NO_REVIEW": 7,
-      "PASS": 1
+      "NOT_EXECUTED": 94,
+      "CAUSE:UNRESOLVED_CONTRADICTION": 108,
+      "SKIPPED_AFTER_ELIMINATION": 21,
+      "CAUSE:NO_REVIEW": 7
     }
   },
   "actualBlockedSourceExamples": {
-    "G9": [
-      {
-        "gameId": "2026020326",
-        "playerId": "8475218",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8475786",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8476454",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8476473",
-        "disposition": "SKIPPED_AFTER_ELIMINATION",
-        "zone": "R Point",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8477406",
-        "disposition": "SKIPPED_AFTER_ELIMINATION",
-        "zone": "Low Slot",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8477450",
-        "disposition": "SKIPPED_AFTER_ELIMINATION",
-        "zone": "Low Slot",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8477934",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8477953",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8478013",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8478402",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8478472",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      },
-      {
-        "gameId": "2026020326",
-        "playerId": "8478854",
-        "disposition": "NOT_EXECUTED",
-        "zone": "L Circle",
-        "green": [
-          "High Slot"
-        ],
-        "red": [
-          "Low Slot",
-          "Point"
-        ],
-        "sourceIds": []
-      }
-    ],
     "G10.5": [
       {
         "gameId": "2026020326",
@@ -1134,9 +962,9 @@
       },
       {
         "gameId": "2026020327",
-        "playerId": "8485468",
+        "playerId": "8480878",
         "disposition": "ELIMINATED",
-        "zone": "L Point",
+        "zone": "R Point",
         "weak": [
           "Center Point",
           "Low Slot",
@@ -1236,6 +1064,236 @@
         "playerId": "8475168",
         "disposition": "NOT_EXECUTED",
         "deployment": null
+      }
+    ],
+    "G9": [
+      {
+        "gameId": "2026020326",
+        "playerId": "8476473",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "R Point",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477406",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8477450",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479365",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8479368",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480831",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "R Point",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8480834",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "R Point",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020326",
+        "playerId": "8483512",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "Low Slot",
+        "green": [
+          "High Slot",
+          "L Circle",
+          "L Point"
+        ],
+        "red": [
+          "Low Slot",
+          "Point",
+          "R Circle",
+          "R Point",
+          "Center Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8477335",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "green": [
+          "Low Slot",
+          "Point",
+          "R Point",
+          "Center Point"
+        ],
+        "red": [
+          "High Slot",
+          "L Circle",
+          "R Circle",
+          "L Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8478476",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "green": [
+          "Low Slot",
+          "Point",
+          "R Point",
+          "Center Point"
+        ],
+        "red": [
+          "High Slot",
+          "L Circle",
+          "R Circle",
+          "L Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480840",
+        "disposition": "NOT_EXECUTED",
+        "zone": null,
+        "green": [
+          "Low Slot",
+          "Point",
+          "R Point",
+          "Center Point"
+        ],
+        "red": [
+          "High Slot",
+          "L Circle",
+          "R Circle",
+          "L Point"
+        ],
+        "sourceIds": []
+      },
+      {
+        "gameId": "2026020327",
+        "playerId": "8480878",
+        "disposition": "SKIPPED_AFTER_ELIMINATION",
+        "zone": "R Point",
+        "green": [
+          "Low Slot",
+          "Point",
+          "R Point",
+          "Center Point"
+        ],
+        "red": [
+          "High Slot",
+          "L Circle",
+          "R Circle",
+          "L Point"
+        ],
+        "sourceIds": []
       }
     ],
     "G10": [
