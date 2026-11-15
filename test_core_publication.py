@@ -11,7 +11,7 @@ class PublicationTests(unittest.TestCase):
             "gameCount": 3,
             "validationSummary": {"finalPlayerPathsCertified": certified},
             "coreOutput": {"status": "CORE 3", "core": [
-                {"gameId": i, "playerId": i + 1, "gateTrace": [{"gate": "G18", "status": "PASS"}]}
+                {"gameId": i, "playerId": i + 1, "gateTrace": [{"gate": g, "status": "PASS"} for g in ([f"G{j}" for j in range(19)] + ["G10.5"])]}
                 for i in ids
             ]}
         }
