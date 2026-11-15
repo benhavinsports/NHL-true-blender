@@ -39,6 +39,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'anatomicalEvidenceMisrepresented':False,
         'officialBoxscoreCoverage':result.get('officialBoxscoreCoverage',{}),
         'officialDefenseCoverage':result.get('officialDefenseCoverage',{}),
+        'firstNonpassingGateAudit':result.get('firstNonpassingGateAudit',{}),
     }
     if not card:
         _write(status_path,status)
