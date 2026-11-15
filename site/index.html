@@ -98,9 +98,15 @@ if(x.missingByGate&&Object.keys(x.missingByGate).length){
     Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');
   rejectedDetails.appendChild(p);
 }
+if(x.nonselectedGameResearchNotes?.length){
+  const note=document.createElement('p');
+  note.textContent='Excluded matchup research (not Core engine errors): '+
+    x.nonselectedGameResearchNotes.map(String).join(' • ');
+  rejectedDetails.appendChild(note);
+}
 if(x.errors?.length){
   const heading=document.createElement('p');
-  heading.textContent='Execution notes ('+x.errors.length+'): '+x.errors.map(String).join(' • ');
+  heading.textContent='Actual execution problems ('+x.errors.length+'): '+x.errors.map(String).join(' • ');
   rejectedDetails.appendChild(heading);
 }
 evidence.appendChild(rejectedDetails);
