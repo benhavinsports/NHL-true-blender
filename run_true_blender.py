@@ -14,6 +14,9 @@ from zoneinfo import ZoneInfo
 from nhl_true_blender_engine.sources import NHLClient, official_slate
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
+from nhl_true_blender_engine.lineup_parser import ingest_lineups
+import httpx
+from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
 
@@ -27,6 +30,16 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
         source_research = await collect_secondary(con, snapshot, date, stage)
+        try:
+            async with httpx.AsyncClient(timeout=18) as http:
+                response = await http.get("https://www.betweenthelineshockey.com/tonight.md")
+                response.raise_for_status()
+                if f"games dated {date}" not in response.text.splitlines()[0]:
+                    raise ValueError("Lineup source slate date mismatch")
+                observed = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                source_research["parsedLineups"] = ingest_lineups(con, snapshot, date, stage, response.text, observed)
+        except (httpx.HTTPError, ValueError) as exc:
+            source_research["lineupParseError"] = str(exc)
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         summary = {k: v for k, v in result.items() if k != "scan"}
