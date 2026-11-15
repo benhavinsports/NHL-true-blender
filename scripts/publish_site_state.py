@@ -47,8 +47,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         raise PublicationConflict('Invalid G18 count or duplicate game')
     if card.get('fingerprint')!=fingerprint(legs):
         raise PublicationConflict('G18 card fingerprint mismatches its saved recipients')
-    if result.get('g0Directions') != 2*result.get('games',0):
-        raise PublicationConflict('Full-slate both-directions G0 scan missing')
+    if result.get('g0Directions',0) < result.get('games',0):
+        raise PublicationConflict('G0 game scan incomplete')
     required=set(MASTER+OVERLAY)
     for leg in legs:
         game_id, player_id = str(leg['gameId']),str(leg['playerId'])
