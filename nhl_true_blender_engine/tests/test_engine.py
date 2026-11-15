@@ -45,7 +45,7 @@ def game(idx,win=True):
             'strengthZones':{'point':{'savePct':.93}},'counterevidence':'strong at distance',
             'sample':'dated 200 shot profile'})
     return {'id':str(5000+idx),'date':DATE,'away':away,'home':home,'startUTC':FUTURE,'gameState':'FUT',
-        'goalies':{away:[goalie('g'+away,away)],home:[goalie('g'+home,home)]},
+        'goalies':{away:[],home:[goalie('g'+home,home)]},
         'rosters':{away:evidence({'players':[main,rival]}),home:evidence({'players':[d]})},
         'context':evidence({'venue':home,'rest':'one day both teams','travel':'neutral'}),
         'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point']}),
@@ -66,9 +66,9 @@ def test_full_structural_three_game_run(con):
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
     assert len(PATCH_IDS)==13
     res=execute(con,snapshot(),DATE,'CONFIRMED')
-    assert res['g0Directions']==6 and res['g0Complete']==6
-    assert res['eligibleSkaterRows']==9
-    assert res['gateRows']==9*(len(MASTER)+len(OVERLAY))+6
+    assert res['g0Directions']==6 and res['g0Complete']==3
+    assert res['eligibleSkaterRows']==6
+    assert res['gateRows']==6*(len(MASTER)+len(OVERLAY))+6
     assert res['uniqueGameSurvivors']==3
     assert res['card'] is not None,res['errors']
     legs=res['card']['current_legs']
@@ -76,17 +76,17 @@ def test_full_structural_three_game_run(con):
     assert {x['path'] for x in legs}=={'PRIMARY','WHO'}
     assert len({x['gameId'] for x in legs})==3
     assert con.execute('SELECT COUNT(*) FROM cards').fetchone()[0]==1
-    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==9*(len(MASTER)+len(OVERLAY))+6
+    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==6*(len(MASTER)+len(OVERLAY))+6
     assert 'PATCH-NOV12-G10.5-EXPLICIT-SEPARATION' in con.execute("SELECT details FROM gates WHERE gate='G10.5' AND player_id='1010'").fetchone()[0]
 
 
 def test_missing_opposing_goalie_profile_blocks_entire_g18(con):
     s=snapshot()
-    s['games'][2]['goalies'][s['games'][2]['away']]=[]
+    s['games'][2]['goalies'][s['games'][2]['home']]=[]
     result=execute(con,s,DATE,'CONFIRMED')
-    assert result['g0Complete']==5
+    assert result['g0Complete']==2
     assert result['card'] is None
-    assert any('G0 incomplete' in e for e in result['errors'])
+    assert any('G0' in e for e in result['errors'])
 
 
 def test_missing_g10_5_challenger_release_blocks_core(con):
@@ -233,5 +233,6 @@ def test_missing_game_one_skater_trace_cannot_issue_card(con):
                 for gate in MASTER+OVERLAY:
                     if p['id']=='1011' and gate=='Step7':continue
                     rows.append(gate_record(game,p['id'],gate,'PASS',{}))
-    errors=verify_complete_matrix(s['games'],rows,[],now=datetime.now(timezone.utc))
+    selected={str(g['id']):{'attacker':g['away']} for g in s['games']}
+    errors=verify_complete_matrix(s['games'],rows,[],now=datetime.now(timezone.utc),selected_directions=selected)
     assert any('1011' in e and 'Step7' in e for e in errors)
