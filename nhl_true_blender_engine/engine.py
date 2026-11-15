@@ -147,6 +147,52 @@ def player_releases(p):
     return data
 
 
+
+
+def release_matched_to_g0_target(player,goalie_profile):
+    """After G0 selects an attack side, match each skater's independently
+    observed OWN shot-origin routes to that goalie's evidenced weak origins.
+
+    Neither G0 nor the original release source is edited; no famous-player
+    shortcut. A different goalie branch gets its own independent comparison.
+    """
+    wrapper=player.get('release')
+    if not receipt(wrapper):
+        return player
+    base=wrapper['data']
+    routes=base.get('allRoutes')
+    weak=goalie_profile.get('data',{}).get('weakZones') or {}
+    if not isinstance(routes,list) or not routes or not weak:
+        return player
+    matching=[r for r in routes if r.get('zone') in weak
+              and isinstance(r.get('sog'),int)
+              and isinstance(r.get('ownedGoals'),int)
+              and r['sog']>=r['ownedGoals']>=0]
+    if not matching:
+        return player
+    matching.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
+    top=matching[0]
+    tied=[x for x in matching if
+          (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
+    if len(tied)>1:
+        # No arbitrary zone tie break. The original independently sourced
+        # release remains the candidate until another gate separates lanes.
+        return player
+    observed=dict(base)
+    observed.update({
+        'zone':top['zone'],
+        'attempts':top['sog'],
+        'ownedGoals':top['ownedGoals'],
+        'g0MatchedOwnOriginRoute':True,
+        'originalPrimaryOrigin':base['zone'],
+        'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
+        'anatomicalPlacementCertified':False,
+        'noPreG0SkaterPreference':True
+    })
+    result=dict(player)
+    result['release']={**wrapper,'data':observed}
+    return result
+
 def reconcile_logs(p):
     """Aggregate only actual appearances and official dated goal events; no missed game zeros."""
     logs=p.get('gameLog'); events=p.get('mappedGoals'); total=p.get('officialGoalTotal')
@@ -596,7 +642,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         all_per_game=[]
         for branch in branches:
             for player in players:
-                result,traces=evaluate_skater(match,team,player,players,branch,stage)
+                scoped=release_matched_to_g0_target(player,branch)
+                result,traces=evaluate_skater(match,team,scoped,players,branch,stage)
                 records+=traces
                 if result['complete']:
                     all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
