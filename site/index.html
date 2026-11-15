@@ -12,8 +12,19 @@ status.textContent='Checking published engine state…';legs.replaceChildren();
 try{
 const r=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
 if(!r.ok)throw Error('No published engine result yet ('+r.status+')');
-const x=await r.json();const card=x.card;status.textContent=card?'Verified Core '+(card.current_legs||[]).length:'No verified Core published';
-detail.textContent='Slate: '+(x.date||'unknown')+' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
+const x=await r.json();
+// The card is date-specific and evidence-locked. Never display yesterday's
+// Core as today's merely because it is the most recent JSON on Pages.
+const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
+  year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+const fields=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+const todayET=fields.year+'-'+fields.month+'-'+fields.day;
+const latestIsToday=x.date===todayET;
+const card=latestIsToday&&x.verified===true?x.card:null;
+status.textContent=card?'Verified Core '+(card.current_legs||[]).length:
+  latestIsToday?'No verified Core published for today':'Waiting for today’s automated Blender run';
+detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'unknown')+
+  ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
 evidence.replaceChildren();
 const summary=document.createElement('p');
 summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+' • Qualified games: '+(x.uniqueGameSurvivors??'—');
@@ -30,4 +41,8 @@ const p=document.createElement('p');p.textContent='Missing gate evidence: '+Obje
 for(const l of card?.current_legs||[]){const d=document.createElement('div');d.className='leg';for(const [cl,t] of [['path',l.path],['name',l.player],['small',l.matchup],['small',l.directRoute]]){const p=document.createElement('div');p.className=cl;p.textContent=t||'';d.appendChild(p)}legs.appendChild(d)}
 }catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.'}
 }load();
+// New GitHub Pages deployments appear without requiring a ChatGPT visit or
+// a manual refresh. Update again when the user returns to this browser tab.
+setInterval(()=>{if(!document.hidden)load();},120000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
 </script></body></html>
