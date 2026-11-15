@@ -1,84 +1,115 @@
-name: NHL Blender — scheduled evidence runs
+name: NHL True Blender - independent scheduled engine
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'run_true_blender.py'
+      - 'nhl_true_blender_engine/**'
+      - 'scripts/**'
+      - '.github/workflows/nhl-true-blender.yml'
   workflow_dispatch:
     inputs:
       date:
-        description: "Optional slate date (YYYY-MM-DD); default is today in New York"
+        description: 'Optional slate YYYY-MM-DD; blank uses current Eastern date'
         required: false
         type: string
       mode:
-        description: "Projected or confirmed pass"
-        required: false
+        description: 'Engine phase'
         type: choice
-        options:
-          - projected
-          - confirmed
+        required: false
+        options: [projected, confirmed, watch, grade]
   schedule:
-    - cron: '15 13 * * *'
-    - cron: '15 21 * * *'
+    - cron: '15 8 * * *'
+      timezone: 'America/New_York'
+    - cron: '15 15,18 * * *'
+      timezone: 'America/New_York'
+    - cron: '38 7-23 * * *'
+      timezone: 'America/New_York'
+    - cron: '30 0-6,21-23 * * *'
+      timezone: 'America/New_York'
 permissions:
   contents: write
 concurrency:
-  group: nhl-blender-slate
+  group: nhl-true-blender-authoritative
   cancel-in-progress: false
 jobs:
   evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
+      - name: Install original engine and integration dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
       - name: Download current MoneyPuck season aggregates
         continue-on-error: true
+        run: python scripts/download_moneypuck.py
+      - name: Complete legacy and integrated G0-G18 verification
         run: |
-          python scripts/download_moneypuck.py
-      - name: Run both legacy and integrated engine regression suites
-        run: |
+          python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
-      - name: Run official NHL full-slate evidence audit
+      - name: Run scheduled autonomous Blender phase
         env:
-          MONEYPUCK_CSV_DIR: data/moneypuck
-          MONEYPUCK_EXPORT_ASOF: ${{ env.MONEYPUCK_EXPORT_ASOF }}
           REQUESTED_DATE: ${{ inputs.date }}
           REQUESTED_MODE: ${{ inputs.mode }}
+          TRIGGER_CRON: ${{ github.event.schedule }}
+          TRIGGER_EVENT: ${{ github.event_name }}
+          MONEYPUCK_CSV_DIR: data/moneypuck
+          MONEYPUCK_EXPORT_ASOF: '2026-11-15'
         run: |
           python - <<'PY'
-          import datetime, os, subprocess, zoneinfo
-          now = datetime.datetime.now(zoneinfo.ZoneInfo("America/New_York"))
-          date = os.getenv("REQUESTED_DATE") or now.date().isoformat()
-          mode = os.getenv("REQUESTED_MODE") or ("projected" if now.hour < 14 else "confirmed")
+          import datetime
+          import os
+          import subprocess
+          from zoneinfo import ZoneInfo
+
+          now = datetime.datetime.now(ZoneInfo('America/New_York'))
+          cron = os.environ.get('TRIGGER_CRON') or ''
+          mode = os.environ.get('REQUESTED_MODE') or ''
+          if not mode:
+              if cron.startswith('15 8 '):
+                  mode = 'projected'
+              elif cron.startswith('15 15,18 '):
+                  mode = 'confirmed'
+              elif cron.startswith('38 '):
+                  mode = 'watch'
+              elif cron.startswith('30 '):
+                  mode = 'grade'
+              else:
+                  mode = 'projected' if now.hour < 14 else ('confirmed' if now.hour < 19 else 'watch')
+          date = os.environ.get('REQUESTED_DATE') or (
+              (now - datetime.timedelta(days=1)).date().isoformat()
+              if mode == 'grade' and now.hour < 8 else now.date().isoformat()
+          )
           datetime.date.fromisoformat(date)
-          assert mode in ("projected", "confirmed")
-          subprocess.run(["python", "run_true_blender.py", "--date", date, "--mode", mode], check=True)
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status." + chr(10))
+          print(f'BLENDER AUTONOMOUS {date} {mode} America/New_York')
+          if mode in ('projected','confirmed'):
+              args = ['python','run_true_blender.py','--date',date,'--mode',mode]
+          else:
+              args = ['python','scripts/run_cycle.py','--date',date,'--mode',mode]
+          subprocess.run(args,check=True)
           PY
-      - name: Grade previous slate against official NHL boxscores
-        if: always()
-        run: python postgame_grade.py
-      - name: Audit every officially graded missed leg
-        if: always()
-        run: python postgame_audit.py
-      - name: Persist authoritative Core across runs
+      - name: Persist original canonical G18 state and published site JSON
         if: always()
         run: |
           if [ -z "$(git status --porcelain -- state/)" ]; then
-            echo "No new verified Core state to persist"
+            echo "No new state, grade, or verified card JSON"
             exit 0
           fi
           git config user.name "nhl-blender-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- state/
           git diff --cached --quiet && exit 0
-          git commit -m "Persist verified NHL Blender authoritative Core"
+          git commit -m "Save audited authoritative NHL Blender run output"
           git push origin HEAD:main
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: blender-evidence-${{ github.run_id }}
+          name: true-blender-evidence-${{ github.run_id }}
           path: runs/
-          if-no-files-found: warn
+          if-no-files-found: ignore
