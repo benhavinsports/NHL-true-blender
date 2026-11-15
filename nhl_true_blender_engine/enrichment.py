@@ -150,6 +150,26 @@ def attach(con, snapshot, date, stage):
                 else:
                     fld=KIND_TO_FIELD.get(kind)
                     if fld:
+                        if kind=='PLAYER_FINISH_CREDIT' and p.get(fld):
+                            previous=p[fld]
+                            prior=previous.get('data',{})
+                            # Two different evidence windows are not two
+                            # conflicting goal claims. Preserve a verified
+                            # positive recent PBP/boxscore credit, and let a
+                            # positive NHL EDGE season credit establish OWN
+                            # goals when the recent eight-game sample was 0.
+                            if prior.get('recipient') is True and data.get('recipient') is not True:
+                                previous['data'].setdefault('alternateSample',wrapper)
+                                continue
+                            if (prior.get('recipient') is True and
+                                data.get('recipient') is True and
+                                prior.get('scope')=='SAMPLED_RECENT_TEAM_GAMES_ONLY' and
+                                data.get('scope')=='CURRENT_SEASON_GOALS_FROM_MEASURED_AREAS'):
+                                previous['data'].setdefault('seasonGoalSupplement',wrapper)
+                                continue
+                            if (data.get('recipient') is True and
+                                prior.get('recipient') is not True):
+                                wrapper['data'].setdefault('recentGameLogSupplement',previous)
                         if kind=='PLAYER_PRESSURE' and p.get(fld):
                             # Favor actual dated appearance shots (list includes
                             # real zero-shot games) over a pooled historical shot
