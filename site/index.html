@@ -21,13 +21,13 @@ const fields=Object.fromEntries(parts.map(p=>[p.type,p.value]));
 const todayET=fields.year+'-'+fields.month+'-'+fields.day;
 const latestIsToday=x.date===todayET;
 const card=latestIsToday&&x.verified===true?x.card:null;
-status.textContent=card?'Verified Core '+(card.current_legs||[]).length:
+status.textContent=card?'Verified '+(x.stage||'SOURCE-BASED')+' Core '+(card.current_legs||[]).length:
   latestIsToday?'No verified Core published for today':'Waiting for today’s automated Blender run';
 detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'unknown')+
   ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
 evidence.replaceChildren();
 const summary=document.createElement('p');
-summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+' • Qualified games: '+(x.uniqueGameSurvivors??'—');
+summary.textContent='Games: '+(x.games??'—')+' • G0 directions: '+(x.g0Directions??'—')+' • Gate records: '+(x.gateRows??'—')+' • Eligible skaters: '+(x.eligibleSkaterRows??'—')+(card?' • Selected distinct games: '+new Set((card.current_legs||[]).map(l=>l.gameId)).size:' • No published Core yet');
 evidence.appendChild(summary);
 if(x.errors?.length){
 const heading=document.createElement('h3');heading.textContent='Exact engine failures ('+x.errors.length+')';evidence.appendChild(heading);
@@ -36,7 +36,7 @@ for(const error of x.errors){const li=document.createElement('li');li.textConten
 evidence.appendChild(ul);
 }
 if(x.missingByGate&&Object.keys(x.missingByGate).length){
-const p=document.createElement('p');p.textContent='Missing gate evidence: '+Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');evidence.appendChild(p);
+const p=document.createElement('p');p.textContent=(card?'Unresolved gate evidence among nonselected candidates: ':'Missing gate evidence: ')+Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');evidence.appendChild(p);
 }
 for(const l of card?.current_legs||[]){const d=document.createElement('div');d.className='leg';for(const [cl,t] of [['path',l.path],['name',l.player],['small',l.matchup],['small',l.directRoute]]){const p=document.createElement('div');p.className=cl;p.textContent=t||'';d.appendChild(p)}legs.appendChild(d)}
 }catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.'}
