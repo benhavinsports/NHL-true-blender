@@ -50,6 +50,15 @@ if(gateAudit.scannedSkaters!=null){
     evidence.appendChild(row);
   }
 }
+if(x.historicalShiftCoverage&&x.historicalShiftCoverage.chartedGames!=null){
+  const shiftNote=document.createElement('p');
+  const shifts=x.historicalShiftCoverage;
+  shiftNote.textContent='Step 8 source check: '+shifts.chartedGames+'/'+
+    (shifts.attemptedGames||0)+' historical NHL shift charts • '+
+    (shifts.matchedDefensiveShotEvents||0)+
+    ' on-net shot events matched to actually observed defending players. Historical shifts do not confirm tonight’s lines.';
+  evidence.appendChild(shiftNote);
+}
 if(card&&Array.isArray(x.pathAudit)&&x.pathAudit.length){
   const altered=x.pathAudit.filter(a=>a.auditedPath!==a.originalLockedPath);
   const p=document.createElement('p');
