@@ -53,6 +53,24 @@ def export_run(con, slate_date, stage, result, root='state'):
         'nonselectedGateAuditIsDiagnosticOnly':True,
     }
     if not card:
+        # Post-puck freeze is intentional: the selection engine may no longer
+        # issue a new card even though today's ORIGINAL locked card is saved.
+        # Do not erase or mark that frozen Core unpublished. Keep the prior
+        # artifact unchanged, and distinguish an audit from a new selection.
+        prior=root/'site_cards'/f'{slate_date}.json'
+        if prior.exists():
+            locked=json.loads(prior.read_text(encoding='utf-8'))
+            status.update({
+                'cardId':locked.get('cardId'),
+                'publishedToSite':True,
+                'retainedOriginalLockedCard':True,
+                'currentRunFullyCertified':bool(
+                    (result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified')),
+                'publicationDecision':'PRESERVED_FROZEN_CORE_NO_NEW_SELECTION',
+            })
+        else:
+            status['publicationDecision']='NO_ELIGIBLE_G18_CARD'
+            status['currentRunFullyCertified']=False
         _write(status_path,status)
         return status
     legs = card.get('current_legs') or []
