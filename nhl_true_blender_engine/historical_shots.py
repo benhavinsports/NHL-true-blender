@@ -7,6 +7,7 @@ import hashlib
 import json
 from datetime import date, datetime, timezone
 from .enrichment import ingest
+from .official_boxscore_history import collect_sampled_boxes
 
 SHOT_TYPES = {"goal", "shot-on-goal", "missed-shot", "blocked-shot"}
 ON_NET = {"goal", "shot-on-goal"}
@@ -107,6 +108,7 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
             errors.append({"gameId": game_id, "error": err})
         else:
             events.extend(rows)
+    boxscore_receipts=await collect_sampled_boxes(client,con,snapshot,slate_date,stage,ids,events)
     for game in snapshot["games"]:
         for team in (game["away"], game["home"]):
             roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
@@ -155,4 +157,5 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
                 # Sample counts must never masquerade as season-wide official totals.
     return {"historicalGames": len(ids), "shotEvents": len(events),
             "errors": errors, "goalieIdentityEvents": sum(e["goalieId"] is not None for e in events),
-            "anatomicalGoalieWeaknessVerified": False}
+            "anatomicalGoalieWeaknessVerified": False,
+            "boxscoreGoalLogReconciliation": boxscore_receipts}
