@@ -8,6 +8,7 @@ on:
       - 'runs/**'
       - 'state/site_cards/**'
       - 'state/site_runs/**'
+      - 'state/site_gates/**'
       - 'state/history/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
@@ -37,6 +38,56 @@ jobs:
           status_files=sorted((root/'site_runs').glob('????-??-??.json'))
           card_files=sorted((root/'site_cards').glob('????-??-??.json'))
           dates=sorted({p.stem for p in status_files+card_files})
+          # Browse every preserved authoritative card without calling ChatGPT.
+          # Evidence drilldowns are exported ONLY from saved selected-player
+          # pre-puck gate receipts; a mismatch never falls back to invented PASS.
+          archive=[]
+          slate_dir=pathlib.Path('site/data/slates')
+          slate_dir.mkdir(parents=True,exist_ok=True)
+          for saved_path in card_files:
+              saved=json.loads(saved_path.read_text(encoding='utf-8'))
+              if not (saved.get('verified') is True and saved.get('status')
+                      in ('G18_SOURCE_VERIFIED','FROZEN_GRADED')):
+                  continue
+              saved_legs=json.loads(saved.get('legsJson','[]'))
+              if not isinstance(saved_legs,list) or not saved_legs:
+                  continue
+              saved_date=saved_path.stem
+              grade=json.loads(saved.get('gradeJson') or '{}')
+              entry={
+                  'date':saved_date,'cardId':saved.get('cardId'),
+                  'fingerprint':saved.get('fingerprint'),
+                  'revision':saved.get('revision'),
+                  'stage':saved.get('stage'),
+                  'cardStatus':saved.get('status'),
+                  'current_legs':saved_legs,
+                  'grade':grade or None,
+                  'verified':True,
+              }
+              raw_gates=root/'site_gates'/f'{saved_date}.json'
+              if raw_gates.exists():
+                  matrix=json.loads(raw_gates.read_text(encoding='utf-8'))
+                  saved_keys={(str(l.get('gameId')),str(l.get('playerId')))
+                              for l in saved_legs}
+                  matrix_keys={(str(l.get('gameId')),str(l.get('playerId')))
+                               for l in matrix.get('legs',[])}
+                  if (matrix.get('cardId')==entry['cardId'] and
+                      matrix.get('fingerprint')==entry['fingerprint'] and
+                      saved_keys==matrix_keys):
+                      (slate_dir/f'{saved_date}.json').write_text(json.dumps(
+                          matrix,default=str))
+                      entry['hasGateEvidence']=True
+                  else:
+                      entry['hasGateEvidence']=False
+                      entry['gateEvidenceError']='Card ID, fingerprint or selected recipients do not match saved evidence'
+              else:
+                  entry['hasGateEvidence']=False
+              archive.append(entry)
+          archive.sort(key=lambda row:row['date'],reverse=True)
+          pathlib.Path('site/data/cards-archive.json').write_text(
+              json.dumps({'cards':archive,'singleAuthoritativeCardPerSlate':True},
+                         default=str))
+
           # Retain all previous official season history in the repository.
           # GitHub Pages displays the newest cumulative frozen-grade report;
           # no ungraded game or synthetic calibration example is published.
