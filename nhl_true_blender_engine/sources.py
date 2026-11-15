@@ -82,8 +82,12 @@ def roster_as_evidence(payload, team):
                        'jersey':p.get('sweaterNumber'),'position':p.get('positionCode') or ('D' if group=='defensemen' else ''),
                        'availability':'UNVERIFIED',
                        'note':'Official current roster; not dressed/EV/PP confirmation.'})
+    goalies=[]
+    for p in r.get('goalies',[]):
+        first=p.get('firstName',{}).get('default',''); last=p.get('lastName',{}).get('default','')
+        goalies.append({'id':str(p['id']),'name':(first+' '+last).strip()})
     return {'sourceUrl':payload['url'],'observedAt':payload['observedAt'],
-            'data':{'team':team,'players':ps,'sourceType':'OFFICIAL_CURRENT_ROSTER_NOT_DRESSED'}}
+            'data':{'team':team,'players':ps,'goalies':goalies,'sourceType':'OFFICIAL_CURRENT_ROSTER_NOT_DRESSED'}}
 
 
 async def official_slate(client, date, con=None):
