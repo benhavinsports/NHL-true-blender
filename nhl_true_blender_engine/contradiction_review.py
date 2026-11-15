@@ -5,6 +5,8 @@ missing same-lane or lineup evidence remains explicitly unresolved.
 """
 from __future__ import annotations
 from datetime import datetime,timezone
+import hashlib
+import json
 from .engine import all_goalie_branches,challenger_proof,player_releases,release_matched_to_g0_target,receipt,evidence_data
 from .enrichment import ingest
 
@@ -93,14 +95,18 @@ def review_all_candidates(con,snapshot,date,stage):
                     b["goalieWeakProfileUrl"] or b["starterSourceUrl"] for b in opposing]
                 if p.get("deployment"):
                     sources.append(p["deployment"]["sourceUrl"])
+                payload={**contradiction,"sourceUrls":sorted(set(sources))}
+                # Source observations and lineup state may change pre-puck.
+                # A fresh reviewed fact is a NEW immutable receipt, never an
+                # overwrite of a previous source-linked audit.
+                digest=hashlib.sha256(json.dumps(
+                    payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()[:16]
                 ingest(con,{
-                    "evidence_id":f"nhl-contradictions-{date}-{stage}-{game['id']}-{p['id']}",
+                    "evidence_id":f"nhl-contradictions-{date}-{stage}-{game['id']}-{p['id']}-{digest}",
                     "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                     "player_id":str(p["id"]),"kind":"PLAYER_CONTRADICTIONS",
                     "source_url":p["release"]["sourceUrl"],
-                    "observed_at":now,"payload":{
-                        **contradiction,
-                        "sourceUrls":sorted(set(sources))}})
+                    "observed_at":now,"payload":payload})
                 created+=1
                 if source_unresolved:
                     unresolved+=1
