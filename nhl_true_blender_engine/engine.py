@@ -486,19 +486,26 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
 
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage):
-    d={}; proof=[]; deficient=[]; eliminated=False
+    d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
     weak=goalie_profile['data'].get('weakZones',{})
     strong=goalie_profile['data'].get('strengthZones',{})
     release=player_releases(player)
     rec=reconcile_logs(player)
     position=player.get('position')
     def emit(g, ok, detail, eliminate=False, source_ids=()):
-        nonlocal eliminated
+        nonlocal eliminated,first_elimination_gate
+        # Every candidate gets an ACTUAL G0-G18 source check. A previous
+        # elimination is permanent, but it does NOT excuse skipping later
+        # evidence checks or silently calling them completed.
         disp,content=verdict(ok,detail,eliminate)
-        if eliminated:
-            disp='SKIPPED_AFTER_ELIMINATION'
-        elif disp=='ELIMINATED':eliminated=True
-        elif disp=='NOT_EXECUTED':deficient.append(g)
+        if first_elimination_gate:
+            content={**content,'alreadyEliminatedAtGate':first_elimination_gate,
+                     'laterPositiveEvidenceCannotReinstate':True}
+        if disp=='ELIMINATED':
+            eliminated=True
+            if first_elimination_gate is None:first_elimination_gate=g
+        elif disp=='NOT_EXECUTED':
+            deficient.append(g)
         d[g]={'disposition':disp,'details':content}
         proof.append(gate_record(game,player['id'],g,disp,content,list(source_ids)))
     emit('G0',bool(weak) and bool(goalie_profile['data'].get('sample')),
