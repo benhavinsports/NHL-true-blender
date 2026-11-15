@@ -30,9 +30,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt
-      - name: Run engine regression tests
-        run: python -m unittest discover -p 'test*.py' -v
+      - run: pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
+      - name: Run both legacy and integrated engine regression suites
+        run: |
+          python -m unittest discover -p 'test*.py' -v
+          python -m pytest -q nhl_true_blender_engine/tests
       - name: Run official NHL full-slate evidence audit
         env:
           REQUESTED_DATE: ${{ inputs.date }}
@@ -45,9 +47,9 @@ jobs:
           mode = os.getenv("REQUESTED_MODE") or ("projected" if now.hour < 14 else "confirmed")
           datetime.date.fromisoformat(date)
           assert mode in ("projected", "confirmed")
-          subprocess.run(["python", "run_daily.py", "--date", date, "--mode", mode, "--out", "runs"], check=True)
+          subprocess.run(["python", "run_true_blender.py", "--date", date, "--mode", mode], check=True)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write(f"Evidence audit: {date} / {mode}. This is NOT a verified Core 3 scorer-selection result.\\n")
+              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status.\\n")
           PY
       - name: Grade previous slate against official NHL boxscores
         if: always()
