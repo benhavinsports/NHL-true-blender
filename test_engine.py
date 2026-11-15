@@ -11,7 +11,7 @@ class BlenderTests(unittest.TestCase):
         self.assertIn('G15 finisher protection comparison', report['validationSummary']['requiredUnresolvedAreas'])
 
     def test_gate_order_is_complete_and_sequential(self):
-        self.assertEqual([x[0] for x in GATES], ['G0','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G10.5','G11','G12','G14','G15','G16','G17','G18'])
+        self.assertEqual([x[0] for x in GATES], ['G0','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G10.5','G11','G12','G13','G14','G15','G16','G17','G18'])
 
     def test_direct_match_uses_both_exact_ids(self):
         rows = [
