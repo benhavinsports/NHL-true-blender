@@ -5,6 +5,7 @@ on:
     paths:
       - 'nhl_true_blender_engine/**'
       - 'run_true_blender.py'
+      - 'site/**'
       - '.github/workflows/blender-verification.yml'
   workflow_dispatch:
 permissions:
@@ -24,6 +25,38 @@ jobs:
           pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
       - name: Compile all engine and runner modules
         run: python -m compileall -q nhl_true_blender_engine run_true_blender.py postgame_grade.py postgame_audit.py
+      - name: Validate accessible browser dashboard and JavaScript syntax
+        run: |
+          node --check site/app.js
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          class AuditHTML(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids=set()
+                  self.styles=set()
+                  self.scripts=set()
+              def handle_starttag(self, tag, attrs):
+                  props=dict(attrs)
+                  if props.get('id'):
+                      assert props['id'] not in self.ids, 'Duplicate dashboard ID: '+props['id']
+                      self.ids.add(props['id'])
+                  if tag=='link' and props.get('rel')=='stylesheet':
+                      self.styles.add(props.get('href'))
+                  if tag=='script' and props.get('src'):
+                      self.scripts.add(props['src'])
+          parser=AuditHTML()
+          parser.feed(Path('site/index.html').read_text())
+          required={'refresh','slate-select','core-cards','leg-detail',
+                    'matchup-list','grade-summary','season-summary',
+                    'system-summary','hero-phase','slate-notice','stat-gates'}
+          assert required<=parser.ids, sorted(required-parser.ids)
+          assert './styles.css' in parser.styles
+          assert './app.js' in parser.scripts
+          assert Path('site/app.js').is_file() and Path('site/styles.css').is_file()
+          print('Frontend passed syntax, unique IDs, evidence drilldown and asset linkage')
+          PY
       - name: G0-first G1-G18 and overlay integration regression
         run: python -m pytest -q nhl_true_blender_engine/tests --junitxml=integration-results.xml
       - name: Verify complete synthetic card and postgame grading
