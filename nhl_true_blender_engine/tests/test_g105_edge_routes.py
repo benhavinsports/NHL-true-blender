@@ -27,6 +27,31 @@ def test_no_unjustified_transfer_if_challenger_has_more_owned_goals():
     rival=p(2,"Low Slot",16,7)
     yes,rows=challenger_proof(favorite,[rival],{"Low Slot":{}})
     assert yes is False
+    assert rows[0]["status"]=="RIVAL_DOMINATES"
+
+def test_actual_direct_own_goals_outweigh_more_shots_that_are_not_goals():
+    favorite=p(1,"Low Slot",22,7)
+    rival=p(2,"Low Slot",41,6)
+    yes,rows=challenger_proof(favorite,[rival],{"Low Slot":{}})
+    assert yes is True
+    assert rows[0]["status"]=="DEFEATED"
+    assert rows[0]["comparisonPriority"][0]=="ownedGoalsFromSameShotOrigin"
+
+def test_equal_owned_goals_separated_only_by_real_shot_pressure():
+    favorite=p(1,"Low Slot",35,5)
+    rival=p(2,"Low Slot",19,5)
+    yes,rows=challenger_proof(favorite,[rival],{"Low Slot":{}})
+    assert yes is True
+    assert rows[0]["status"]=="DEFEATED"
+    yes2,rows2=challenger_proof(rival,[favorite],{"Low Slot":{}})
+    assert yes2 is False
+    assert rows2[0]["status"]=="RIVAL_DOMINATES"
+
+def test_identical_direct_owned_goal_and_shot_records_cannot_be_guessed_apart():
+    favorite=p(1,"Low Slot",35,5)
+    rival=p(2,"Low Slot",35,5)
+    yes,rows=challenger_proof(favorite,[rival],{"Low Slot":{}})
+    assert yes is False
     assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
 
 def test_missing_rival_release_is_not_a_false_victory():
