@@ -93,6 +93,10 @@ jobs:
               if mode == 'grade' and now.hour < 8 else now.date().isoformat()
           )
           datetime.date.fromisoformat(date)
+          # Carry exact execution phase/date into state-race reconciliation.
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              env.write(f'BLENDER_EXECUTED_DATE={date}\n')
+              env.write(f'BLENDER_EXECUTED_MODE={mode}\n')
           print(f'BLENDER AUTONOMOUS {date} {mode} America/New_York')
           if mode in ('projected','confirmed'):
               # Aggregates were freshly downloaded by THIS job, not reused from a past slate.
@@ -104,8 +108,11 @@ jobs:
           subprocess.run(args,check=True)
           PY
       - name: Persist original canonical G18 state and published site JSON
-        if: always()
+        if: always() && steps.engine.outcome == 'success'
+        env:
+          MONEYPUCK_CSV_DIR: data/moneypuck
         run: |
+          set -euo pipefail
           if [ -z "$(git status --porcelain -- state/)" ]; then
             echo "No new state, grade, or verified card JSON"
             exit 0
@@ -115,27 +122,41 @@ jobs:
           git add -- state/
           git diff --cached --quiet && exit 0
           git commit -m "Save audited authoritative NHL Blender run output"
-          # Source code may be committed while the engine is running. Merge it
-          # without discarding our verified card; never force-push or overwrite
-          # another runner's newer canonical state.
-          for attempt in 1 2 3 4; do
+          # A newer authoritative state can arrive while this run fetches NHL
+          # sources. Instead of silently losing the receipt, rerun the SAME
+          # phase on the latest saved state. Never force-push or replace cards.
+          for attempt in 1 2 3; do
             git fetch origin main
             if ! git diff --quiet "$GITHUB_SHA" origin/main -- state/; then
-              echo "Concurrent state writer already saved newer data; retaining it and skipping this stale upload"
-              if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-                echo "Independent run completed, but a newer authoritative state superseded this attempt. No Core was replaced." >> "$GITHUB_STEP_SUMMARY"
+              echo "Newer canonical state; safely replaying this exact phase on its ledger"
+              git reset --hard origin/main
+              if [ -z "${BLENDER_EXECUTED_DATE:-}" ] || [ -z "${BLENDER_EXECUTED_MODE:-}" ]; then
+                echo "Original phase/date missing; preserving saved Core"
+                exit 1
               fi
-              exit 0
+              export MONEYPUCK_EXPORT_ASOF="$BLENDER_EXECUTED_DATE"
+              if [ "$BLENDER_EXECUTED_MODE" = "projected" ] || [ "$BLENDER_EXECUTED_MODE" = "confirmed" ]; then
+                python run_true_blender.py --date "$BLENDER_EXECUTED_DATE" --mode "$BLENDER_EXECUTED_MODE"
+              else
+                python -m scripts.run_cycle --date "$BLENDER_EXECUTED_DATE" --mode "$BLENDER_EXECUTED_MODE"
+              fi
+              git add -- state/
+              if git diff --cached --quiet; then
+                echo "Canonical state already reflects this phase"
+                exit 0
+              fi
+              git commit -m "Reconcile NHL Blender with freshest authoritative ledger"
+            else
+              git rebase origin/main
             fi
-            git rebase origin/main
             if git push origin HEAD:main; then
-              echo "Published canonical state after safe fast-forward ($attempt)"
+              echo "Published canonical state and triggered site deployment ($attempt)"
               exit 0
             fi
-            echo "Code commit race; rechecking remote state ($attempt)"
+            echo "Concurrent update during save; rechecking state ($attempt)"
             sleep 2
           done
-          echo "Unable to publish without risking an existing Core"
+          echo "Cannot reconcile without risking locked Core; refusing overwrite"
           exit 1
       - name: Publish engine execution diagnostics
         if: always()
