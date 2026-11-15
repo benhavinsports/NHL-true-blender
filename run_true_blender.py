@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 from nhl_true_blender_engine.sources import NHLClient, official_slate
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
-from nhl_true_blender_engine.lineup_parser import ingest_lineups
+from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
@@ -40,16 +40,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
         source_research = await collect_secondary(con, snapshot, date, stage)
-        try:
-            async with httpx.AsyncClient(timeout=18) as http:
-                response = await http.get("https://www.betweenthelineshockey.com/tonight.md")
-                response.raise_for_status()
-                if f"games dated {date}" not in response.text.splitlines()[0]:
-                    raise ValueError("Lineup source slate date mismatch")
-                observed = datetime.now(timezone.utc).isoformat(timespec="seconds")
-                source_research["parsedLineups"] = ingest_lineups(con, snapshot, date, stage, response.text, observed)
-        except (httpx.HTTPError, ValueError) as exc:
-            source_research["lineupParseError"] = str(exc)
+        source_research['parsedLineups']=await fetch_and_ingest_lineups(
+            con,snapshot,date,stage)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
         if csv_dir and Path(csv_dir, 'skaters.csv').exists():
             source_research['moneypuck'] = import_moneypuck(
