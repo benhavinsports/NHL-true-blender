@@ -5,5 +5,5 @@ from engine import run_slate
 from core_publication import publish_verified_core
 p=argparse.ArgumentParser();p.add_argument('--date',default=datetime.datetime.now(datetime.timezone.utc).date().isoformat());p.add_argument('--mode',choices=['projected','confirmed'],default='projected');p.add_argument('--history',type=int,default=8);p.add_argument('--out',default='runs');a=p.parse_args()
 games=get_schedule(a.date);bundles=[enrich_deployment(get_bundle(g),a.mode) for g in games];report=run_slate(bundles,a.mode,a.history);report['slateDate']=a.date
-out=Path(a.out);out.mkdir(parents=True,exist_ok=True);path=out/f'nhl_blender_{a.date}_{a.mode}.json';path.write_text(json.dumps(report,indent=2),encoding='utf-8');publication=publish_verified_core(report,out)
+out=Path(a.out);out.mkdir(parents=True,exist_ok=True);path=out/f'nhl_blender_{a.date}_{a.mode}.json';path.write_text(json.dumps(report,indent=2),encoding='utf-8');publication=publish_verified_core(report,'state')
 print(f'{path} | games={len(games)} | run={report["runId"]} | publication={publication}')
