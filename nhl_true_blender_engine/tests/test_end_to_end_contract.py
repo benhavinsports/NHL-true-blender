@@ -1,0 +1,79 @@
+"""Executable integrated contract: G0 direction -> full skater gates -> one card -> official grade.
+Synthetic evidence tests the algorithm; it does NOT certify live data availability.
+"""
+from datetime import datetime, timedelta, timezone
+from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
+from nhl_true_blender_engine.storage import open_db, get_card, grade_frozen_card
+
+SRC = "https://example.org/synthetic-contract-evidence"
+DATE = (datetime.now(timezone.utc) + timedelta(days=15)).date().isoformat()
+START = (datetime.now(timezone.utc) + timedelta(days=15)).isoformat()
+
+def ev(data):
+    return {"sourceUrl": SRC, "observedAt": "2026-11-15T12:00:00Z", "data": data}
+
+def player(pid, attempts, goals):
+    return {
+        "id": str(pid), "name": "Test "+str(pid), "position": "C",
+        "availability": "CONFIRMED", "jersey": 18,
+        "release": ev({"archetype": "wrist", "zone": "slot", "attempts": attempts, "ownedGoals": goals}),
+        "deployment": ev({"EV": "EV2", "PP": "PP2", "status": "CONFIRMED"}),
+        "gameLog": ev({"appearances": [{"date": "2026-11-01", "shots": attempts}]}),
+        "mappedGoals": ev({"goals": [{"goalId": str(pid)+":"+str(i), "date": "2026-11-01", "sourceUrl": SRC} for i in range(goals)]}),
+        "officialGoalTotal": ev({"goals": goals}),
+        "finishOwnership": ev({"recipient": True, "creditedGoalsVerified": True}),
+        "pressure": ev({"recentAppearanceShots": attempts}),
+        "contradictions": ev({"goalieStrengthReview": "checked", "lineupDisagreementReview": "checked", "strongestRivalReview": "checked"})
+    }
+
+def fixture(n=3):
+    games=[]
+    for i in range(n):
+        away,home="A"+str(i),"H"+str(i)
+        # Only home goalie is evidenced as a G0 target: selects AWAY attack.
+        goalie=ev({"goalieId": "GH"+str(i), "team": home, "status": "CONFIRMED",
+                   "weakZones": {"slot": {"sample": 200}},
+                   "strengthZones": {"point": {"sample": 200}},
+                   "sample": {"shots": 200}, "counterevidence": {"reviewed": True}})
+        games.append({
+            "id": str(9000+i), "date": DATE, "away": away, "home": home,
+            "startUTC": START, "gameState": "FUT",
+            "goalies": {away: [], home: [goalie]},
+            "rosters": {away: ev({"players": [player(100+i*10, 30, 3), player(101+i*10, 10, 1)]}),
+                        home: ev({"players": [player(102+i*10, 1, 0)]})},
+            "context": ev({"venue": home, "rest": "verified"}),
+            "coverage": {away: ev({"greenWeakZones": ["slot"], "redStrongZones": ["point"]})}
+        })
+    return {"games": games}
+
+def test_full_g0_to_g18_card_and_postgame_grade(tmp_path):
+    con=open_db(str(tmp_path/"integrated.sqlite"))
+    try:
+        result=execute(con,fixture(),DATE,"CONFIRMED")
+        assert result["card"] is not None, result["errors"]
+        assert result["g0Directions"] == 6
+        assert result["eligibleSkaterRows"] == 6
+        assert result["gateRows"] == 6*(len(MASTER)+len(OVERLAY))+6
+        legs=result["card"]["current_legs"]
+        assert len(legs)==3 and len({x["gameId"] for x in legs})==3
+        assert {x["playerId"] for x in legs}=={"100","110","120"}
+        assert all(x["path"]=="PRIMARY" for x in legs)
+        assert get_card(con,DATE)["revision"]==1
+        again=execute(con,fixture(),DATE,"CONFIRMED")
+        assert again["card"]["revision"]==1
+        counts={(x["gameId"],x["playerId"]):1 for x in legs}
+        grade=grade_frozen_card(con,DATE,counts,[SRC],True)
+        assert grade["result"]=="WIN"
+    finally:
+        con.close()
+
+def test_no_card_without_g0_attack_side(tmp_path):
+    con=open_db(str(tmp_path/"missing.sqlite"))
+    try:
+        data=fixture()
+        data["games"][0]["goalies"]["H0"]=[]
+        result=execute(con,data,DATE,"CONFIRMED")
+        assert result["card"] is None
+        assert get_card(con,DATE) is None
+    finally:
+        con.close()
