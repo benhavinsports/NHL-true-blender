@@ -49,6 +49,9 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
               summary.write(f"Evidence audit: {date} / {mode}. This is NOT a verified Core 3 scorer-selection result.\\n")
           PY
+      - name: Grade previous slate against official NHL boxscores
+        if: always()
+        run: python postgame_grade.py
       - name: Persist authoritative Core across runs
         run: |
           if [ -z "$(git status --porcelain -- state/)" ]; then
