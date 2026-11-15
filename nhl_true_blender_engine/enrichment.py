@@ -72,9 +72,18 @@ def attach(con, snapshot, date, stage):
             if team not in (g['away'],g['home']):continue
             # Keep all probable/confirmed goalie branches rather than overwriting them.
             existing=g['goalies'].setdefault(team,[])
-            if not any(x['data'].get('goalieId')==data.get('goalieId') and
-                       x['data'].get('status')==data.get('status') for x in existing):
+            prior=next((x for x in existing
+                        if x['data'].get('goalieId')==data.get('goalieId')
+                        and x['data'].get('status')==data.get('status')),None)
+            if prior is None:
                 existing.append(wrapper)
+            elif kind=='GOALIE_PROFILE':
+                # A goalie starter and goalie scouting record share identity/status.
+                # Preserve starter provenance while attaching source-proven weaknesses.
+                prior['data'].update({k:v for k,v in data.items()
+                    if k not in ('goalieId','team','status')})
+                prior['data']['goalieProfileSourceUrl']=wrapper['sourceUrl']
+                prior['data']['goalieProfileObservedAt']=wrapper['observedAt']
         elif kind=='MATCH_CONTEXT':g['context']=wrapper
         elif kind=='TEAM_COVERAGE':
             if data.get('attackingTeam') in (g['home'],g['away']):
