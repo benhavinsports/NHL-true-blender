@@ -1,7 +1,5 @@
 name: NHL Blender — scheduled evidence runs
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       date:
@@ -66,6 +64,7 @@ jobs:
         if: always()
         run: python postgame_audit.py
       - name: Persist authoritative Core across runs
+        if: always()
         run: |
           if [ -z "$(git status --porcelain -- state/)" ]; then
             echo "No new verified Core state to persist"
