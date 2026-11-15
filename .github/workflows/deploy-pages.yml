@@ -113,6 +113,7 @@ jobs:
                   'retainedOriginalLockedCard':status.get('retainedOriginalLockedCard',False),
                   'independentOverlaySourceGaps':status.get('independentOverlaySourceGaps',[]),
                   'errors':status.get('errors',[]),
+                  'nonselectedGameResearchNotes':status.get('nonselectedGameResearchNotes',[]),
                   'card':{'cardId':card['cardId'],'current_legs':legs,
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
                           if card else None,
