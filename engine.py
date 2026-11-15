@@ -429,20 +429,23 @@ def run_slate(bundles, mode, history_limit=8):
     if len(unique_locks) == 3 and not ambiguous_game_ids:
         core = unique_locks
         core_status = 'CORE 3 — THREE DISTINCT G18-LOCKED GAMES'
-    elif len(unique_locks) == 2 and not ambiguous_game_ids:
+    elif len(unique_locks) == 2 and len(games) == 2 and not ambiguous_game_ids:
         core = unique_locks
-        core_status = 'CORE 2 — TWO DISTINCT G18-LOCKED GAMES'
+        core_status = 'CORE 2 — TWO-GAME SLATE WITH DISTINCT G18 LOCKS'
+    elif len(unique_locks) == 2:
+        core = []
+        core_status = 'NO VALID CORE — THREE-PLUS-GAME SLATE REQUIRES THREE DISTINCT G18 LOCKS'
     elif len(unique_locks) > 3:
         core = []
         core_status = 'CORE SELECTION UNRESOLVED — MORE THAN THREE VALID GAME LOCKS; NO ARBITRARY TRUNCATION'
     elif len(unique_locks) == 1:
-        core = unique_locks
+        core = []
         core_status = 'NO VALID CORE — ONLY ONE G18-LOCKED SURVIVOR'
     else:
         core = unique_locks
         core_status = 'NO VALID CORE — ZERO G18-LOCKED SURVIVORS'
 
-    certified = len(core) in (2, 3) and not ambiguous_game_ids
+    certified = ((len(core) == 3 and len(games) >= 3) or (len(core) == 2 and len(games) == 2)) and not ambiguous_game_ids
     unresolved = sum(1 for r in games for p in r.get('players', [])
                      if not str(p.get('pathDisposition', '')).upper().startswith('LOCKED'))
     return {
