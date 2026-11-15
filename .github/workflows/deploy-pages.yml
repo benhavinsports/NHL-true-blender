@@ -41,9 +41,30 @@ jobs:
               card_path=root/'site_cards'/f'{date}.json'
               status=json.loads(status_path.read_text()) if status_path.exists() else {}
               card=json.loads(card_path.read_text()) if card_path.exists() else None
-              if card and not (card.get('verified') is True and card.get('status')=='G18_SOURCE_VERIFIED'):
+              # A postgame official grade updates the SAME locked Core,
+              # never creates a replacement selection. Keep both states
+              # publishable while rejecting fabricated grade assertions.
+              if card and not (card.get('verified') is True and
+                  card.get('status') in ('G18_SOURCE_VERIFIED','FROZEN_GRADED')):
                   raise ValueError('Refusing unverified Core card')
               legs=json.loads(card['legsJson']) if card else []
+              grade_report=None
+              if card and card.get('gradeJson'):
+                  grade_report=json.loads(card['gradeJson'])
+                  if grade_report:
+                      count=grade_report.get('legs')
+                      hits=grade_report.get('hits')
+                      result=grade_report.get('result')
+                      sources=grade_report.get('officialSources') or []
+                      if (count!=len(legs) or type(hits) is not int
+                          or not 0<=hits<=count or
+                          result!=('WIN' if hits==count else 'LOSS')
+                          or not sources or not all(
+                            isinstance(u,str) and u.startswith('https://')
+                            for u in sources)):
+                          raise ValueError('Invalid frozen Core official grade evidence')
+              if card and card.get('status')=='FROZEN_GRADED' and not grade_report:
+                  raise ValueError('Frozen graded card missing official evidence')
               # The immutable published card stores the original labels.
               # A newer G18 source audit may establish a different path for
               # the SAME selected player without authorizing a replacement.
@@ -118,6 +139,9 @@ jobs:
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
                           if card else None,
                   'verified':bool(card),
+                  'postgameGrade':grade_report,
+                  'postgameGradeStatus':('OFFICIALLY_GRADED' if grade_report
+                     else 'AWAITING_ALL_GAMES_FINAL' if card else 'NO_LOCKED_CARD'),
                   'pathAudit':audited,
                   'pathAuditIsSeparateFromOriginalFrozenCard':True,
               }
