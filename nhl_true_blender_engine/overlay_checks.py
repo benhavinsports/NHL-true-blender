@@ -110,13 +110,28 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     emit('Step7',bool(own_mechanism and zone_match),tag,
          src(raw_release,goalie))
     shifts=cov.get('shiftByShift') or cov.get('defensiveShiftEvents')
-    # Team-level conceded shot shares cannot be mislabelled shift-by-shift tracking.
-    emit('Step8',bool(receipt(coverage) and isinstance(shifts,list) and shifts),
+    # A raw team danger-share cannot pass a SHIFTS gate. A real defensive
+    # player group must be observed during a historical shot FROM THIS
+    # player's scoring area, joined by official NHL period clock.
+    area_shifts=[e for e in shifts if e.get('zone')==zone
+                 and isinstance(e.get('defendingOnIcePlayerIds'),list)
+                 and 3<=len(e['defendingOnIcePlayerIds'])<=7
+                 and e.get('officialShiftChartUrl') and e.get('officialPlayByPlayUrl')
+                 ] if isinstance(shifts,list) else []
+    shift_urls=[url for url in (cov.get('shiftSourceUrls') or [])
+                if isinstance(url,str) and url.startswith('https://')]
+    emit('Step8',bool(receipt(coverage) and area_shifts and shift_urls),
          {'sourceDefensiveGreenZones':cov.get('greenWeakZones'),
-          'sourceDefensiveRedZones':red,'actualShiftByShiftObserved':bool(shifts),
-          'shiftCount':len(shifts) if isinstance(shifts,list) else None,
+          'sourceDefensiveRedZones':red,
+          'actualShiftByShiftObserved':bool(area_shifts),
+          'actualMatchingAreaShiftEvents':len(area_shifts),
+          'matchingArea':zone,
+          'observedOnIceSamples':area_shifts[:5],
+          'officialShiftChartSourceCount':len(shift_urls),
+          'historicalShiftsNotTonightLineupConfirmation':True,
           'independentShotOriginConcessionsAvailable':bool(cov.get('zoneConcessions')),
-          'cannotInferShiftMatchupsFromShotOrigins':True},src(coverage))
+          'cannotInferShiftMatchupsFromShotOrigins':not bool(area_shifts)},
+         sorted(set(src(coverage)+shift_urls)))
     recent=pres.get('recentAppearanceShots')
     good_shots=(isinstance(recent,int) and recent>=0 or
                 isinstance(recent,list) and bool(recent) and
