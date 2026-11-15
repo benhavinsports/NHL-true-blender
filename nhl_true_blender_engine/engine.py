@@ -324,7 +324,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
 
 
 
-def verify_complete_matrix(games, records, scan, now=None):
+def verify_complete_matrix(games, records, scan, now=None, selected_directions=None):
     """Patch: 2026-11-05 complete every eligible player and overlay before G18."""
     errors=[]
     now=now or datetime.now(timezone.utc)
@@ -333,9 +333,10 @@ def verify_complete_matrix(games, records, scan, now=None):
         already_started=(game.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
           (game.get('startUTC') and datetime.fromisoformat(game['startUTC'].replace('Z','+00:00'))<=now))
         if already_started:continue
-        active_roster=[]
-        for team in (game['away'],game['home']):
-            active_roster.extend(complete_roster(game,team))
+        direction=(selected_directions or {}).get(str(game['id']))
+        if not direction:
+            continue  # G0 did not authorize this matchup for skater gates
+        active_roster=complete_roster(game,direction['attacker'])
         for person in active_roster:
             pid=str(person['id'])
             actual={r['gate'] for r in records
@@ -512,7 +513,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G18 {len(all_per_game)} unseparated game survivors; cannot take multiple")
     save_gates(con,date,stage,records)
     chosen,selection_errors=cross_game_winners(qualified,len(games))
-    selection_errors += verify_complete_matrix(games,records,scan,now)
+    selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
     # Never issue a slate card when any scheduled matchup has already begun.
     # Selection is a pregame operation, not a retroactive pick.
     # Games already underway are frozen independently. They cannot be newly selected,
@@ -522,13 +523,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             datetime.fromisoformat(g['startUTC'].replace('Z','+00:00')) <= now)
            for g in games):
         selection_errors.append('Started games are excluded from new selection; existing card identities remain frozen')
-    # G0 is not a shortlist. BOTH attack directions of EVERY scheduled matchup
-    # must be source-evaluated before any G18 card, even if a skater survived.
-    future_games={str(g['id']) for g in games if g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL')
-                  and g.get('startUTC') and datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now}
-    if any(x['gameId'] in future_games and not x['goalieProfileEvidenced'] for x in scan):
-        chosen=[]
-        selection_errors.append('G0 incomplete across scheduled goalie-attack directions')
+    # G0 surveys both directions; the losing direction does not have to
+    # pass G0 or the skater matrix. Only selected attack directions advance.
     errors+=selection_errors
     card=None
     if chosen and not selection_errors:
