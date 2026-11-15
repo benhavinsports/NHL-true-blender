@@ -82,6 +82,20 @@ def attach(con, snapshot, date, stage):
             if team not in (g['away'],g['home']):continue
             # Keep all probable/confirmed goalie branches rather than overwriting them.
             existing=g['goalies'].setdefault(team,[])
+            if kind=='GOALIE_PROFILE':
+                # An independent goalie-specific profile belongs to the SAME
+                # goalie ID in every valid projected/confirmed starter branch.
+                # Preserve each branch's original status and source proof.
+                matched=[x for x in existing
+                         if x['data'].get('goalieId')==data.get('goalieId')]
+                for prior in matched:
+                    prior['data'].update({k:v for k,v in data.items()
+                        if k not in ('goalieId','team','status')})
+                    prior['data']['goalieProfileSourceUrl']=wrapper['sourceUrl']
+                    prior['data']['goalieProfileObservedAt']=wrapper['observedAt']
+                    prior['data']['goalieProfileEvidenceId']=wrapper['evidenceId']
+                if matched:refs.append(row['evidence_id'])
+                continue
             prior=next((x for x in existing
                         if x['data'].get('goalieId')==data.get('goalieId')
                         and x['data'].get('status')==data.get('status')),None)
