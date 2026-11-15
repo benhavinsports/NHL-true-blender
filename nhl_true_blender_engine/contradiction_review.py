@@ -5,7 +5,7 @@ missing same-lane or lineup evidence remains explicitly unresolved.
 """
 from __future__ import annotations
 from datetime import datetime,timezone
-from .engine import all_goalie_branches,challenger_proof,player_releases,receipt,evidence_data
+from .engine import all_goalie_branches,challenger_proof,player_releases,release_matched_to_g0_target,receipt,evidence_data
 from .enrichment import ingest
 
 SCOPE="DERIVED_CROSS_SOURCE_G17"
@@ -20,8 +20,11 @@ def review_all_candidates(con,snapshot,date,stage):
             teammates=roster.get("players",[])
             branches=all_goalie_branches(game,stage).get(defender,[])
             for p in teammates:
-                own=player_releases(p)
-                if not own or not receipt(p.get("release")):
+                # G17 must review the SAME player-owned route that G5 will
+                # evaluate after the goalie-first G0 decision.
+                scoped=release_matched_to_g0_target(p,branches[0]) if len(branches)==1 else p
+                own=player_releases(scoped)
+                if not own or not receipt(scoped.get("release")):
                     continue
                 dep=evidence_data(p.get("deployment"))
                 opposing=[]
@@ -42,7 +45,7 @@ def review_all_candidates(con,snapshot,date,stage):
                         "observedStrengthAreaNames":sorted(strong),
                     })
                 usable=[b for b in opposing if b["physicalOriginMatch"]]
-                rival_ok,rows=challenger_proof(p,
+                rival_ok,rows=challenger_proof(scoped,
                     [x for x in teammates if str(x["id"])!=str(p["id"]) and
                      x.get("availability") not in ("OUT","SCRATCHED","INJURED")],
                     branches[0]["data"].get("weakZones",{}) if len(branches)==1 else {})
@@ -79,7 +82,7 @@ def review_all_candidates(con,snapshot,date,stage):
                         "rivalResults":rows,
                     },
                     "currentRinkOrigin":own["zone"],
-                    "ownReleaseSource":p["release"]["sourceUrl"],
+                    "ownReleaseSource":scoped["release"]["sourceUrl"],
                     "outcome":status,
                     "unresolved":source_unresolved,
                     "scope":"observed shot origins, NOT anatomical goal-mouth coordinates",
