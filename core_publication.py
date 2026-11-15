@@ -21,6 +21,22 @@ def publish_verified_core(report, directory="runs"):
         raise ValueError("Core 3 requires at least three games")
     if any(not p.get("playerId") or not p.get("gateTrace") for p in core):
         raise ValueError("Every Core player needs identity and gate evidence")
+    required = [f"G{i}" for i in range(19)]
+    required.insert(11, "G10.5")
+    for player in core:
+        trace = player["gateTrace"]
+        by_gate = {entry.get("gate"): entry for entry in trace}
+        missing = [g for g in required if g not in by_gate]
+        if missing:
+            raise ValueError(f"Core player missing gate evidence: {missing}")
+        for gate_id in required:
+            entry = by_gate[gate_id]
+            state = str(entry.get("status", "")).upper()
+            if not (("PASS" in state or "LOCKED" in state) and
+                    not any(x in state for x in ("UNRESOLVED", "NOT VALIDATED", "REVIEW REQUIRED", "PENDING"))):
+                if gate_id == "G13" and "QUALITATIVE REVIEW" in state:
+                    continue
+                raise ValueError(f"Core player has unpassed gate {gate_id}: {state}")
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     target = out / f"authoritative_core_{slate_date}.json"
