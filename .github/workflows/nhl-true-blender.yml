@@ -1,13 +1,28 @@
-name: NHL Blender scheduled runs
+name: NHL Blender — scheduled evidence runs
 on:
   workflow_dispatch:
+    inputs:
+      date:
+        description: "Optional slate date (YYYY-MM-DD); default is today in New York"
+        required: false
+        type: string
+      mode:
+        description: "Projected or confirmed pass"
+        required: false
+        type: choice
+        options:
+          - projected
+          - confirmed
   schedule:
     - cron: '15 13 * * *'
     - cron: '15 21 * * *'
 permissions:
   contents: read
+concurrency:
+  group: nhl-blender-slate
+  cancel-in-progress: false
 jobs:
-  run:
+  evidence:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -16,16 +31,25 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
-      - name: Run full slate audit
+      - name: Run official NHL full-slate evidence audit
+        env:
+          REQUESTED_DATE: ${{ inputs.date }}
+          REQUESTED_MODE: ${{ inputs.mode }}
         run: |
           python - <<'PY'
-          import datetime,subprocess,zoneinfo
-          now=datetime.datetime.now(zoneinfo.ZoneInfo("America/New_York"))
-          mode="projected" if now.hour<14 else "confirmed"
-          subprocess.run(["python","run_daily.py","--date",now.date().isoformat(),"--mode",mode],check=True)
+          import datetime, os, subprocess, zoneinfo
+          now = datetime.datetime.now(zoneinfo.ZoneInfo("America/New_York"))
+          date = os.getenv("REQUESTED_DATE") or now.date().isoformat()
+          mode = os.getenv("REQUESTED_MODE") or ("projected" if now.hour < 14 else "confirmed")
+          datetime.date.fromisoformat(date)
+          assert mode in ("projected", "confirmed")
+          subprocess.run(["python", "run_daily.py", "--date", date, "--mode", mode, "--out", "runs"], check=True)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"Evidence audit: {date} / {mode}. This is NOT a verified Core 3 scorer-selection result.\\n")
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: blender-run-${{ github.run_id }}
+          name: blender-evidence-${{ github.run_id }}
           path: runs/
+          if-no-files-found: warn
