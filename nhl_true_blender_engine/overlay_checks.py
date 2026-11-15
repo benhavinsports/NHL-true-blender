@@ -110,27 +110,49 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     emit('Step7',bool(own_mechanism and zone_match),tag,
          src(raw_release,goalie))
     shifts=cov.get('shiftByShift') or cov.get('defensiveShiftEvents')
-    # A raw team danger-share cannot pass a SHIFTS gate. A real defensive
-    # player group must be observed during a historical shot FROM THIS
-    # player's scoring area, joined by official NHL period clock.
-    area_shifts=[e for e in shifts if e.get('zone')==zone
-                 and isinstance(e.get('defendingOnIcePlayerIds'),list)
-                 and 3<=len(e['defendingOnIcePlayerIds'])<=7
-                 and e.get('officialShiftChartUrl') and e.get('officialPlayByPlayUrl')
-                 ] if isinstance(shifts,list) else []
+    # Step 8's original scope is independent TEAM defensive shift coverage.
+    # G5 and G9, not Step 8, adjudicate exact scorer-to-goalie zone matches.
+    # Never demote a genuine sourced team shift review just because a roster
+    # member has zero observed OWN NHL EDGE shot-origin samples or because
+    # its EDGE zone is not an exact PBP coordinate polygon. Crucially, do
+    # not claim the individual player's scoring zone has an on-ice match.
+    # These are official historical on-ice defensive groups joined to an
+    # actual contemporaneous PBP shot, NOT projected tonight lines.
+    actual_shifts=[e for e in shifts
+          if isinstance(e,dict)
+          and isinstance(e.get('defendingOnIcePlayerIds'),list)
+          and 3<=len(e['defendingOnIcePlayerIds'])<=7
+          and isinstance(e.get('officialShiftChartUrl'),str)
+          and e['officialShiftChartUrl'].startswith('https://api.nhle.com/')
+          and isinstance(e.get('officialPlayByPlayUrl'),str)
+          and e['officialPlayByPlayUrl'].startswith('https://api-web.nhle.com/')
+          and e.get('zone') and e.get('gameId')
+          and e.get('period') is not None and e.get('eventClock')
+          ] if isinstance(shifts,list) else []
+    area_shifts=[e for e in actual_shifts if zone and e.get('zone')==zone]
     shift_urls=[url for url in (cov.get('shiftSourceUrls') or [])
-                if isinstance(url,str) and url.startswith('https://')]
-    emit('Step8',bool(receipt(coverage) and area_shifts and shift_urls),
-         {'sourceDefensiveGreenZones':cov.get('greenWeakZones'),
+                if isinstance(url,str)
+                and url.startswith('https://api.nhle.com/stats/rest/en/shiftcharts')]
+    sourced_team_shift_review=bool(
+        receipt(coverage) and actual_shifts and shift_urls and
+        isinstance(cov.get('actualDefensiveShiftMatches'),int) and
+        cov['actualDefensiveShiftMatches']>=len(actual_shifts))
+    emit('Step8',sourced_team_shift_review,
+         {'originalPhase1Scope':'INDEPENDENT_TEAM_DEFENSIVE_COVERAGE_SHIFT_EVIDENCE',
+          'sourceDefensiveGreenZones':cov.get('greenWeakZones'),
           'sourceDefensiveRedZones':red,
-          'actualShiftByShiftObserved':bool(area_shifts),
+          'actualShiftByShiftObserved':bool(actual_shifts),
+          'observedHistoricalShiftEvents':cov.get('actualDefensiveShiftMatches'),
           'actualMatchingAreaShiftEvents':len(area_shifts),
           'matchingArea':zone,
-          'observedOnIceSamples':area_shifts[:5],
+          'specificPlayerZoneShiftEvidenceProven':bool(area_shifts),
+          'specificPlayerZoneNotAssumedFromTeamShifts':True,
+          'playerOwnScoringAreaNotVerified':not bool(zone),
+          'observedOnIceSamples':(area_shifts or actual_shifts)[:5],
           'officialShiftChartSourceCount':len(shift_urls),
           'historicalShiftsNotTonightLineupConfirmation':True,
           'independentShotOriginConcessionsAvailable':bool(cov.get('zoneConcessions')),
-          'cannotInferShiftMatchupsFromShotOrigins':not bool(area_shifts)},
+          'cannotInferSpecificLaneFromTeamShiftSample':not bool(area_shifts)},
          sorted(set(src(coverage)+shift_urls)))
     recent=pres.get('recentAppearanceShots')
     good_shots=(isinstance(recent,int) and recent>=0 or
