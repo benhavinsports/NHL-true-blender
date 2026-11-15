@@ -8,6 +8,7 @@ import json
 from datetime import date, datetime, timezone
 from .enrichment import ingest
 from .official_boxscore_history import collect_sampled_boxes
+from .official_defense_coverage import make_coverage
 
 SHOT_TYPES = {"goal", "shot-on-goal", "missed-shot", "blocked-shot"}
 ON_NET = {"goal", "shot-on-goal"}
@@ -35,6 +36,8 @@ def extract_events(raw, game_id, played_date):
             "type": typ, "shotType": details.get("shotType"),
             "x": details.get("xCoord"), "y": details.get("yCoord"),
             "zone": details.get("zoneCode"),
+            "ownerTeamId": str(details["eventOwnerTeamId"])
+                            if details.get("eventOwnerTeamId") is not None else None,
             "sourceUrl": raw["url"]
         })
     return shots
@@ -88,12 +91,21 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
             return team, [], str(exc)
     responses = await asyncio.gather(*(team_games(t) for t in teams))
     ids = {}
+    game_meta = {}
     for team, games, err in responses:
         if err:
             errors.append({"team": team, "error": err})
         for g in games:
             if g.get("id"):
-                ids[str(g["id"])] = g.get("gameDate")
+                gid=str(g["id"])
+                ids[gid] = g.get("gameDate")
+                away=g.get("awayTeam") or {}
+                home=g.get("homeTeam") or {}
+                game_meta[gid]={
+                    "homeTeamId":str(home["id"]) if home.get("id") is not None else None,
+                    "awayTeamId":str(away["id"]) if away.get("id") is not None else None,
+                    "homeAbbrev":home.get("abbrev"),
+                    "awayAbbrev":away.get("abbrev")}
     async def one(game_id, played):
         async with sem:
             try:
@@ -109,6 +121,7 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
         else:
             events.extend(rows)
     boxscore_receipts=await collect_sampled_boxes(client,con,snapshot,slate_date,stage,ids,events)
+    coverage_receipts=make_coverage(con,snapshot,slate_date,stage,events,game_meta)
     for game in snapshot["games"]:
         for team in (game["away"], game["home"]):
             roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
@@ -158,4 +171,5 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
     return {"historicalGames": len(ids), "shotEvents": len(events),
             "errors": errors, "goalieIdentityEvents": sum(e["goalieId"] is not None for e in events),
             "anatomicalGoalieWeaknessVerified": False,
-            "boxscoreGoalLogReconciliation": boxscore_receipts}
+            "boxscoreGoalLogReconciliation": boxscore_receipts,
+            "defensiveCoverage":coverage_receipts}
