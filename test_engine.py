@@ -194,6 +194,10 @@ class BlenderTests(unittest.TestCase):
         }}
         with patch('engine.get_history', return_value=([], [])):
             report = analyze({'game': game, 'boxscore': box, 'landing': {}, 'plays': {}, 'errors': []}, 'projected', 8)
+        self.assertEqual(set(report['goalieAttackMap']), {'HOM', 'AWY'})
+        self.assertTrue(all(v['bothAttackDirectionsEvaluated'] for v in report['goalieAttackMap'].values()))
+        self.assertTrue(all(not v['anatomicalWeaknessVerified'] for v in report['goalieAttackMap'].values()))
+        self.assertEqual(report['players'][0]['gateTrace'][0]['gate'], 'G0')
         self.assertEqual(len(report['players']), 3)
         self.assertEqual([x['gate'] for x in report['gates']], [x[0] for x in GATES])
         self.assertEqual(report['sourceCoverage']['candidateSkaters'], 3)
