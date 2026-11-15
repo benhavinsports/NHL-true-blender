@@ -16,7 +16,7 @@ from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
-from nhl_true_blender_engine.edge_live import collect_edge
+from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -62,6 +62,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             source_research['goalieScouting'] = ingest_scouting(
                 con, snapshot, date, stage, scouting_path)
             attach(con, snapshot, date, stage)
+        edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         # Source-verified Core JSON is produced by the engine, never by the Wix UI.
         # The scheduled GitHub job commits this immutable transport to state/.
@@ -74,6 +75,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "secondarySourceResearch": source_research,
             "historicalShotResearch": historical,
             "officialEdgeRinkZoneEvidence": edge_research,
+            "g0RinkAreaGoalieComparison": edge_g0_review,
             "historicalGoalTracking": goal_tracking,
             "collectionErrors": snapshot.get("collectionErrors", []),
             "masterGateOrder": MASTER,
