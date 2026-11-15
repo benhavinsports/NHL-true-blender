@@ -65,10 +65,10 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
             assignments = {}
             for i, names in enumerate(team["lines"], 1):
                 for name in names:
-                    assignments.setdefault(name, {})["line"] = i
+                    assignments.setdefault(name, {}).update({"line": i, "EV": f"F{i}"})
             for i, names in enumerate(team["pairs"], 1):
                 for name in names:
-                    assignments.setdefault(name, {})["defensePair"] = i
+                    assignments.setdefault(name, {}).update({"defensePair": i, "EV": f"D{i}"})
             for unit, names in team["pp"].items():
                 for name in names:
                     assignments.setdefault(name, {})["powerPlayUnit"] = int(unit)
@@ -87,6 +87,11 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
                     "payload": {**data, "status": "PROJECTED",
                                 "sourceType": "SECONDARY_PROJECTED_LINEUP"}
                 })
+                ingest(con, {"evidence_id": f"btl-status-{date}-{stage}-{game['id']}-{p['id']}-{observed_at}",
+                    "slate_date":date,"stage":stage,"game_id":game["id"],
+                    "player_id":p["id"],"kind":"PLAYER_STATUS","source_url":URL,
+                    "observed_at":observed_at,
+                    "payload":{"status":"PROJECTED_ACTIVE","sourceType":"SECONDARY_PROJECTED_LINEUP"}})
                 inserted += 1
         for goalie in parsed["goalies"]:
             if goalie["team"] not in (game["home"], game["away"]):
