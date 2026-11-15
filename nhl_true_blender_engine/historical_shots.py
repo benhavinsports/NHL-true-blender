@@ -9,6 +9,7 @@ from datetime import date, datetime, timezone
 from .enrichment import ingest
 from .official_boxscore_history import collect_sampled_boxes
 from .official_defense_coverage import make_coverage
+from .shift_coverage import collect_shift_coverage
 
 SHOT_TYPES = {"goal", "shot-on-goal", "missed-shot", "blocked-shot"}
 ON_NET = {"goal", "shot-on-goal"}
@@ -34,6 +35,8 @@ def extract_events(raw, game_id, played_date):
             "shooterId": str(shooter),
             "goalieId": str(details["goalieInNetId"]) if details.get("goalieInNetId") else None,
             "type": typ, "shotType": details.get("shotType"),
+            "period":(event.get("periodDescriptor") or {}).get("number"),
+            "timeInPeriod":event.get("timeInPeriod"),
             "x": details.get("xCoord"), "y": details.get("yCoord"),
             "zone": details.get("zoneCode"),
             "ownerTeamId": str(details["eventOwnerTeamId"])
@@ -121,7 +124,8 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
         else:
             events.extend(rows)
     boxscore_receipts=await collect_sampled_boxes(client,con,snapshot,slate_date,stage,ids,events)
-    coverage_receipts=make_coverage(con,snapshot,slate_date,stage,events,game_meta)
+    shift_receipts=await collect_shift_coverage(ids,events,game_meta)
+    coverage_receipts=make_coverage(con,snapshot,slate_date,stage,events,game_meta,shift_receipts)
     for game in snapshot["games"]:
         for team in (game["away"], game["home"]):
             roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
@@ -172,4 +176,6 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
             "errors": errors, "goalieIdentityEvents": sum(e["goalieId"] is not None for e in events),
             "anatomicalGoalieWeaknessVerified": False,
             "boxscoreGoalLogReconciliation": boxscore_receipts,
-            "defensiveCoverage":coverage_receipts}
+            "defensiveCoverage":coverage_receipts,
+            "historicalDefensiveShiftCoverage":{
+                k:v for k,v in shift_receipts.items() if k!='byDefendingTeamId'}}
