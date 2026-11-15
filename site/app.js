@@ -627,6 +627,15 @@ function chooseDate(date){
  url.searchParams.set("slate",date);
  window.history.replaceState(null,"",url);
 }
+function publishedSignature(latest,archived,season){
+ return JSON.stringify({
+   publishedAt:latest?.publishedAt,cardId:latest?.card?.cardId,
+   stage:latest?.stage,grade:latest?.postgameGrade?.result,
+   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
+   seasonSize:season?.officiallyGradedSlates,
+   patchCount:season?.verifiedAutomaticGuardPatches?.length,
+ });
+}
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
  $("slate-select").addEventListener("change",e=>chooseDate(e.target.value));
@@ -653,6 +662,7 @@ async function boot(){
  state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
  renderAll();
  await loadEvidence(state.selectedDate);
+ latestPublishedSignature=publishedSignature(state.latest,state.archive,state.season);
 }
 boot().catch(e=>{
  setText("hero-phase","DASHBOARD SOURCE ERROR");
@@ -676,13 +686,7 @@ async function pollPublishedResults(){
  const archived=(fresh[1].value.cards||[]).filter(x=>
    x.verified===true&&Array.isArray(x.current_legs));
  const season=fresh[2].status==="fulfilled"?fresh[2].value:state.season;
- const fingerprint=JSON.stringify({
-   publishedAt:next.publishedAt,cardId:next.card?.cardId,
-   stage:next.stage,grade:next.postgameGrade?.result,
-   archive:archived.map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
-   seasonSize:season?.officiallyGradedSlates,
-   patchCount:season?.verifiedAutomaticGuardPatches?.length,
- });
+ const fingerprint=publishedSignature(next,archived,season);
  if(latestPublishedSignature===null){
    latestPublishedSignature=fingerprint;
    return;
