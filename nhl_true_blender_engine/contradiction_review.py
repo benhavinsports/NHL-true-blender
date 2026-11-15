@@ -24,7 +24,7 @@ def review_all_candidates(con,snapshot,date,stage):
             for p in teammates:
                 # G17 must review the SAME player-owned route that G5 will
                 # evaluate after the goalie-first G0 decision.
-                scoped=release_matched_to_g0_target(p,branches[0]) if len(branches)==1 else p
+                scoped=release_matched_to_g0_target(p,branches[0],game.get('coverage',{}).get(attacker)) if len(branches)==1 else p
                 own=player_releases(scoped)
                 if not own or not receipt(scoped.get("release")):
                     continue
