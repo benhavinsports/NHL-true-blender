@@ -30,6 +30,7 @@ def publish_verified_core(report, directory="runs"):
         old = [(str(p["gameId"]), str(p["playerId"])) for p in existing.get("core", [])]
         if ids != old:
             return {"published": False, "reason": "Different existing Core; gate-changing replacement audit required", "path": str(target)}
+        return {"published": False, "reason": "Identical authoritative Core already saved; no replacement", "path": str(target)}
     payload = {"slateDate": slate_date, "mode": report.get("mode"),
                "runId": report.get("runId"), "core": core,
                "status": core_output.get("status"), "validated": True}
