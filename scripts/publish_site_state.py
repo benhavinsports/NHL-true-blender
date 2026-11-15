@@ -34,6 +34,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         'gateRows':result.get('gateRows',0),
         'missingByGate':result.get('missingByGate',{}),
         'errors':result.get('errors',[])[:20],
+        'nonselectedGameResearchNotes':result.get('nonselectedGameResearchNotes',[]),
+        'nonselectedGameResearchIsDiagnosticOnly':True,
         'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors',[]),
         'cardSavedByEngine':bool(card),
         'publishedToSite':False,
