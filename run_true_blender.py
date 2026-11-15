@@ -16,6 +16,7 @@ from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
+from nhl_true_blender_engine.edge_live import collect_edge
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
@@ -34,6 +35,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
             historical = await collect_history(client, con, snapshot, date, stage)
+            edge_research = await collect_edge(client, con, snapshot, date, stage)
             goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
@@ -71,6 +73,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "officialSource": snapshot.get("officialSource"),
             "secondarySourceResearch": source_research,
             "historicalShotResearch": historical,
+            "officialEdgeRinkZoneEvidence": edge_research,
             "historicalGoalTracking": goal_tracking,
             "collectionErrors": snapshot.get("collectionErrors", []),
             "masterGateOrder": MASTER,
