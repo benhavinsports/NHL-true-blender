@@ -34,6 +34,7 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
       - name: Download current MoneyPuck season aggregates
+        continue-on-error: true
         run: |
           python scripts/download_moneypuck.py
       - name: Run both legacy and integrated engine regression suites
@@ -56,8 +57,7 @@ jobs:
           assert mode in ("projected", "confirmed")
           subprocess.run(["python", "run_true_blender.py", "--date", date, "--mode", mode], check=True)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status.\
-")
+              summary.write(f"Integrated G0-G18 selection execution: {date} / {mode}. Check run artifact for verified card status." + chr(10))
           PY
       - name: Grade previous slate against official NHL boxscores
         if: always()
