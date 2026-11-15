@@ -21,8 +21,11 @@ async def execute_cycle(mode, date, root='state'):
     con=open_db(str(root/'true_blender.sqlite'))
     try:
         if mode=='watch':
-            async with NHLClient() as nhl:
+            nhl=NHLClient()
+            try:
                 slate=await official_slate(nhl,date,con)
+            finally:
+                await nhl.close()
             if not slate.get('games'):
                 return {'date':date,'mode':mode,'status':'NO_SCHEDULE'}
             await collect_secondary(con,slate,date,'CONFIRMED')
@@ -38,8 +41,11 @@ async def execute_cycle(mode, date, root='state'):
                 output={'slateDate':date,'mode':mode,'status':'ALREADY_OFFICIALLY_GRADED',
                         'cardId':card['card_id'],'grade':card['grade']}
             else:
-                async with NHLClient() as nhl:
+                nhl=NHLClient()
+                try:
                     official=await official_final_grade(nhl,con,date)
+                finally:
+                    await nhl.close()
                 if not official.get('grade'):
                     output={'slateDate':date,'mode':mode,'status':official.get('status','WAITING_FOR_FINAL')}
                 else:
