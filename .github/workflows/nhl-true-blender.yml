@@ -22,7 +22,7 @@ on:
   schedule:
     - cron: '15 8 * * *'
       timezone: 'America/New_York'
-    - cron: '15 15,18 * * *'
+    - cron: '15 11,13,15,18 * * *'
       timezone: 'America/New_York'
     - cron: '38 7-23 * * *'
       timezone: 'America/New_York'
@@ -76,14 +76,14 @@ jobs:
           if not mode:
               if cron.startswith('15 8 '):
                   mode = 'projected'
-              elif cron.startswith('15 15,18 '):
+              elif cron.startswith('15 11,13,15,18 '):
                   mode = 'confirmed'
               elif cron.startswith('38 '):
                   mode = 'watch'
               elif cron.startswith('30 '):
                   mode = 'grade'
               else:
-                  mode = 'projected' if now.hour < 14 else ('confirmed' if now.hour < 19 else 'watch')
+                  mode = 'projected' if now.hour < 11 else ('confirmed' if now.hour < 19 else 'watch')
           date = os.environ.get('REQUESTED_DATE') or (
               (now - datetime.timedelta(days=1)).date().isoformat()
               if mode == 'grade' and now.hour < 8 else now.date().isoformat()
