@@ -6,6 +6,7 @@ are raw source evidence and the engine alone handles candidate elimination.
 import json
 from .storage import record_evidence
 from .goalie_zones import validate_goal_zone_evidence
+from .goalie_baselines import compare_goalie_to_baseline
 
 KINDS = {
  'GOALIE_PROFILE','GOALIE_STARTER','PLAYER_STATUS','PLAYER_RELEASE',
@@ -30,9 +31,21 @@ def ingest(con, record):
     if record['kind']=='GOALIE_PROFILE':
         data=record.get('payload',{})
         if data.get('goalMouthEvidence') is not None:
-            validated=validate_goal_zone_evidence(data.get('goalMouthEvidence'))
-            if not validated['anatomicalClaimCertified']:
-                raise ValueError('G0/G3/G5 weakZones require independently certified goal-mouth baseline and contradiction review')
+            if data.get('baselineGoalMouthEvidence') is None:
+                raise ValueError('G0/G3/G5 goal-mouth evidence requires a pooled baseline')
+            comparison=compare_goalie_to_baseline(
+                data['goalMouthEvidence'],data['baselineGoalMouthEvidence'])
+            declared=set(data.get('weakZones',{}))
+            proven=set(comparison['weakZones'])
+            if declared and not declared.issubset(proven):
+                raise ValueError('Declared weakness is not separated from historical baseline')
+            data['goalMouthBaselineReview']=comparison
+            data['weakZones']={zone:comparison['zones'][zone] for zone in proven}
+            data['strengthZones']={zone:comparison['zones'][zone] for zone in comparison['strengthZones']}
+            data['sample']=comparison['goalieSample']
+            data['counterevidence']={'baseline':comparison['baselineSample'],
+                                     'unseparatedZones':[z for z,v in comparison['zones'].items()
+                                         if v['status']!='EVIDENCED_RELATIVE_WEAKNESS']}
     if record['kind'] in ('GOALIE_PROFILE','GOALIE_STARTER'):
         if not record['payload'].get('team') or not record.get('game_id'):
             raise ValueError('Goalie source must declare game and owning team')
