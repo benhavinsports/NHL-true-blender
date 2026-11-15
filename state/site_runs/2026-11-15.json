@@ -11,14 +11,15 @@
   },
   "eligibleSkaterRows": 115,
   "errors": [
-    "G18 only 2 fully evidenced games; 3 required"
+    "2026020327 G18 2 unseparated game survivors; cannot take multiple",
+    "G18 4 nondominated game recipients for 3 slots; no supported tiebreak"
   ],
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 115,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 2,
+      "FULL_G0_G18_PASS": 6,
       "G10": 11,
-      "G10.5": 55,
+      "G10.5": 51,
       "G4": 7,
       "G5": 16,
       "G6": 17,
@@ -35,8 +36,14 @@
         },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020330",
-          "playerId": "8478975",
+          "gameId": "2026020327",
+          "playerId": "8480027",
+          "reasonDisposition": "PASS"
+        },
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020327",
+          "playerId": "8481581",
           "reasonDisposition": "PASS"
         }
       ],
@@ -490,22 +497,22 @@
   "missingByGate": {
     "G0": 4,
     "G10": 23,
-    "G10.5": 92,
+    "G10.5": 88,
     "G11": 5,
     "G12": 5,
     "G15": 23,
-    "G16": 92,
-    "G17": 92,
-    "G18": 92,
+    "G16": 88,
+    "G17": 88,
+    "G18": 88,
     "G4": 7,
     "G5": 7,
     "G6": 22,
     "G7": 5,
     "G9": 12,
     "Step10": 7,
-    "Step10.5": 92,
-    "Step12": 92,
-    "Step14": 92,
+    "Step10.5": 88,
+    "Step12": 88,
+    "Step14": 88,
     "Step3": 7,
     "Step4": 5,
     "Step5": 7,
@@ -547,5 +554,5 @@
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "slateDate": "2026-11-15",
   "stage": "CONFIRMED",
-  "updatedUTC": "2026-11-15T21:37:04+00:00"
+  "updatedUTC": "2026-11-15T21:38:31+00:00"
 }
