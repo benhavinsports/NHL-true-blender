@@ -540,15 +540,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     save_gates(con,date,stage,records)
     chosen,selection_errors=cross_game_winners(qualified,len(games))
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
-    # Never issue a slate card when any scheduled matchup has already begun.
-    # Selection is a pregame operation, not a retroactive pick.
-    # Games already underway are frozen independently. They cannot be newly selected,
-    # but must not prevent selection from remaining future games.
-    if any(g.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
-           (g.get('startUTC') and
-            datetime.fromisoformat(g['startUTC'].replace('Z','+00:00')) <= now)
-           for g in games):
-        selection_errors.append('Started games are excluded from new selection; existing card identities remain frozen')
+    # A game that has already started cannot be newly picked. Such a game is
+    # excluded from the candidate pool above, but does not veto later games.
     # G0 surveys both directions; the losing direction does not have to
     # pass G0 or the skater matrix. Only selected attack directions advance.
     errors+=selection_errors
