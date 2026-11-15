@@ -1,246 +1,126 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111d"><title>NHL True Blender</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#f0f6ff;background:#08111d}*{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:30px 18px}header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #28384b;padding-bottom:24px}h1{font-size:clamp(28px,6vw,48px);margin:0;letter-spacing:-1.5px}.eyebrow{color:#7facc8;font-weight:700;letter-spacing:.15em;font-size:12px}.muted{color:#9aaec2}.panel{background:#111f2e;border:1px solid #304358;border-radius:18px;padding:22px;margin-top:20px}h2{font-size:20px;margin:0 0 12px}.status{display:inline-block;border:1px solid #59718c;border-radius:40px;padding:8px 13px;color:#c2d9eb;font-size:13px}a{color:#8cceff}.legs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.leg{border:1px solid #39526b;border-radius:12px;padding:16px;background:#172a3e}.path{font-size:12px;color:#9ed6f4;letter-spacing:.12em}.name{font-size:23px;font-weight:750;margin:10px 0}.small{font-size:13px;color:#b5c5d4}.audit-note{font-size:12px;color:#b7dfc8;margin-top:12px;font-weight:600}.audit-details{font-size:12px;color:#adbed1;margin-top:9px}.audit-details summary{cursor:pointer;color:#91cfff}.audit-details p{line-height:1.5}button{border:1px solid #55718c;background:#20354a;color:white;padding:10px 14px;border-radius:9px;cursor:pointer}footer{margin-top:28px;color:#9aaec2;font-size:13px}</style></head>
-<body><main><header><div><div class="eyebrow">NHL • AUTOMATED EVIDENCE ENGINE</div><h1>TRUE BLENDER</h1><div class="muted">One authoritative Core card • Projected → Confirmed</div></div><button onclick="load()">Refresh</button></header>
-<section class="panel"><h2>Core card</h2><div id="status" class="status" role="status">Checking published engine state…</div><p id="detail" class="muted"></p><div id="legs" class="legs"></div></section>
-<section class="panel"><h2>Official postgame grade</h2><div id="grade" class="muted">Waiting for official final games.</div></section>
-<section class="panel"><h2>Season recalibration & verified patches</h2><div id="season" class="muted">Checking official grade history…</div></section>
-<section class="panel"><h2>Execution evidence</h2><div id="evidence" class="muted">Waiting for verified output.</div></section>
-<footer>Only source-backed cards are saved; a frozen original may remain displayed while a newer overlay audit reports missing evidence. No fabricated selections or automatic replacements. This free GitHub Pages site displays the output of scheduled GitHub Actions.</footer></main>
-<script>
-async function load(){
-const status=document.getElementById('status'),detail=document.getElementById('detail'),legs=document.getElementById('legs'),evidence=document.getElementById('evidence'),gradeBox=document.getElementById('grade'),seasonBox=document.getElementById('season');
-status.textContent='Checking published engine state…';legs.replaceChildren();
-try{
-const r=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
-if(!r.ok)throw Error('No published engine result yet ('+r.status+')');
-const x=await r.json();
-// The card is date-specific and evidence-locked. Never display yesterday's
-// Core as today's merely because it is the most recent JSON on Pages.
-const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
-  year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-const fields=Object.fromEntries(parts.map(p=>[p.type,p.value]));
-const todayET=fields.year+'-'+fields.month+'-'+fields.day;
-const latestIsToday=x.date===todayET;
-const card=latestIsToday&&x.verified===true?x.card:null;
-const auditPending=x.currentRunFullyCertified===false;
-status.textContent=card?(auditPending?'Locked Core '+(card.current_legs||[]).length+' • Independent overlay evidence pending':
-  'Verified '+(x.stage||'SOURCE-BASED')+' Core '+(card.current_legs||[]).length):
-  latestIsToday?'No verified Core published for today':'Waiting for today’s automated Blender run';
-detail.textContent='Today (ET): '+todayET+' • Latest saved slate: '+(x.date||'unknown')+
-  ' • Pass: '+(x.stage||'unknown')+' • Published: '+(x.publishedAt||'unknown');
-// Season history is independently sourced from previously OFFICIALLY GRADED
-// frozen cards. It never reselects games or invents a historical calibration.
-seasonBox.replaceChildren();
-try{
-  const sr=await fetch('./data/season-history.json?ts='+Date.now(),{cache:'no-store'});
-  if(!sr.ok)throw Error('Season history not published yet');
-  const h=await sr.json();
-  if(!h.officiallyGradedSlates){
-    seasonBox.textContent='No officially finalized Core grades yet. History begins automatically after official scoring is verified.';
-  }else{
-    const totals=document.createElement('p');totals.className='name';
-    totals.textContent='Season '+h.season+': '+h.wins+' WIN / '+h.losses+
-      ' LOSS • '+h.legHits+'/'+h.legOpportunities+' individual goal hits';
-    seasonBox.appendChild(totals);
-    const policy=document.createElement('p');policy.className='small';
-    policy.textContent='Monthly recalibration samples: up to 3 real graded slates (first, middle, last). '+
-      'Only official frozen-card outcomes are counted.';
-    seasonBox.appendChild(policy);
-    for(const [month,record] of Object.entries(h.monthlyThreeSlateCalibration||{})){
-      const p=document.createElement('p');
-      p.textContent=month+': '+record.gradedSlatesAvailable+' graded slates • '+
-        record.wins+' wins / '+record.losses+' losses • '+record.sampleCount+
-        ' replay-calibration sample'+(record.sampleCount===1?'':'s');
-      seasonBox.appendChild(p);
-    }
-    const patch=document.createElement('p');
-    const activated=h.verifiedAutomaticGuardPatches||[];
-    patch.textContent='Verified, source-triggered future gate guards: '+
-      (activated.length?activated.join(', '):'None activated; misses alone never change rules.');
-    seasonBox.appendChild(patch);
-    const history=document.createElement('a');
-    history.href='./data/season-history.json';history.target='_blank';
-    history.rel='noopener noreferrer';
-    history.textContent='View source-verified season ledger';
-    seasonBox.appendChild(history);
-  }
-}catch(err){
-  seasonBox.textContent='No published official season recalibration ledger yet.';
-}
-// Official postgame grading is attached to the SAME immutable Core ID.
-gradeBox.replaceChildren();
-if(card&&x.postgameGrade){
-  const g=x.postgameGrade;
-  if(g.cardId===card.cardId&&g.legs===(card.current_legs||[]).length&&
-     g.result===((g.hits===g.legs)?'WIN':'LOSS')){
-    const header=document.createElement('p');
-    header.className='name';
-    header.textContent=g.result+' • '+g.hits+'/'+g.legs+' official goal scorers';
-    gradeBox.appendChild(header);
-    for(const l of g.playerResults||[]){
-      const line=document.createElement('p');
-      line.textContent=l.player+': '+l.goals+' credited goal'+(l.goals===1?'':'s')+
-        ' • '+l.result;
-      gradeBox.appendChild(line);
-    }
-    const audit=document.createElement('p');
-    audit.textContent=(g.missAudits?.length||0)+' missed-recipient audits saved. '+
-      'Unverified rule changes are not automatically applied. '+
-      'Original Core identity and revision remain frozen.';
-    gradeBox.appendChild(audit);
-    if(Array.isArray(g.officialSources)&&g.officialSources.length){
-      const sources=document.createElement('details');
-      const summary=document.createElement('summary');
-      summary.textContent='Official NHL scoring evidence';
-      sources.appendChild(summary);
-      for(const url of g.officialSources){
-        if(typeof url!=='string'||!url.startsWith('https://'))continue;
-        const link=document.createElement('p'),a=document.createElement('a');
-        a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-        a.textContent=url;link.appendChild(a);sources.appendChild(link);
-      }
-      gradeBox.appendChild(sources);
-    }
-  }else{
-    gradeBox.textContent='Official grade and saved Core did not match; no result is being claimed.';
-  }
-}else if(card){
-  gradeBox.textContent='Original Core locked. Official grading begins only after every game on the slate is final.';
-}else{
-  gradeBox.textContent='Awaiting the current slate’s authoritative Core.';
-}
-evidence.replaceChildren();
-const summary=document.createElement('p');
-const funnel=x.selectionFunnel||x.gateCertification?.selectionFunnel||{};
-const selectedCount=card?.current_legs?.length||0;
-const distinctGames=new Set((card?.current_legs||[]).map(l=>l.gameId)).size;
-summary.textContent='Games reviewed: '+(x.games??'—')+
-  ' • Eligible skaters evaluated: '+(funnel.surveyedEligibleSkaters??x.eligibleSkaterRows??'—')+
-  ' • Core survivors: '+selectedCount+
-  (card?' • Different games: '+distinctGames:' • No certified card yet');
-evidence.appendChild(summary);
-const gateAudit=x.gateCertification||{};
-if(gateAudit.scannedSkaters!=null){
-  const report=document.createElement('p');
-  const overlays=gateAudit.allOverlayStepsWereIndependentlyChecked===true?'independently evaluated':'not independently certified';
-  const survivorCertified=x.survivorOnlyCertification===true||
-    gateAudit.selectedCoreOnlyFullyCertified===true;
-  report.textContent=card?('Core 3 certification: '+(survivorCertified?'PASS':'REQUIRES EVIDENCE')+
-    ' • 20 master gates and 16 independent overlay checks per selected leg'+
-    ' • Selected-leg source gaps: '+(gateAudit.selectedSourceAttributionGaps?.length??'—')) :
-    ('Selection coverage: '+(gateAudit.scannedSkaters||0)+
-    ' skaters reviewed against the full G0–G18 and overlay matrix.');
-  evidence.appendChild(report);
-  const missing=gateAudit.selectedLegs?.flatMap(l=>(l.overlayMissingOrNonpassing||[]).map(v=>
-    l.player+': '+v.gate+' '+v.status))||[];
-  if(missing.length){
-    const row=document.createElement('p');
-    row.textContent='Selected-leg overlay evidence still missing: '+missing.slice(0,12).join(' • ')+
-      (missing.length>12?' • and '+(missing.length-12)+' more':'')+
-      '. Original frozen Core retained; no gate has been artificially passed.';
-    evidence.appendChild(row);
-  }
-}
-if(x.historicalShiftCoverage&&x.historicalShiftCoverage.chartedGames!=null){
-  const shiftNote=document.createElement('p');
-  const shifts=x.historicalShiftCoverage;
-  shiftNote.textContent='Step 8 source check: '+shifts.chartedGames+'/'+
-    (shifts.attemptedGames||0)+' historical NHL shift charts • '+
-    (shifts.matchedDefensiveShotEvents||0)+
-    ' on-net shot events matched to actually observed defending players. Historical shifts do not confirm tonight’s lines.';
-  evidence.appendChild(shiftNote);
-}
-if(card&&Array.isArray(x.pathAudit)&&x.pathAudit.length){
-  const altered=x.pathAudit.filter(a=>a.auditedPath!==a.originalLockedPath);
-  const p=document.createElement('p');
-  p.textContent='G18 scoring paths are derived from source evidence, not preset slots. '+
-    x.pathAudit.length+' selected recipients audited; '+
-    altered.length+' path difference'+(altered.length===1?'':'s')+
-    ' recorded separately from the frozen original card.';
-  evidence.appendChild(p);
-}
-// Nonselected players' failed or incomplete gates are EXPECTED outcomes
-// of the selection funnel. Keep their audit available, but never promote
-// those failures into a warning about the three certified recipients.
-const rejectedDetails=document.createElement('details');
-rejectedDetails.className='audit-details';
-const rejectedHeading=document.createElement('summary');
-rejectedHeading.textContent='Full-pool elimination and source audit (optional)';
-rejectedDetails.appendChild(rejectedHeading);
-const outcome=document.createElement('p');
-outcome.textContent='Full-pool outcomes: '+(funnel.sourceEliminated??'—')+
-  ' explicitly eliminated by a gate • '+(funnel.notQualifiedIncompleteEvidence??'—')+
-  ' not qualified due to insufficient evidence • '+(funnel.qualifiedButNotChosen??'—')+
-  ' qualified but not selected at G18 • '+(funnel.otherNotSelected??'—')+
-  ' other nonselected. Nonselected gate failures do not invalidate certified survivors.';
-rejectedDetails.appendChild(outcome);
-if(x.missingByGate&&Object.keys(x.missingByGate).length){
-  const p=document.createElement('p');
-  p.textContent='Nonselected gate-level missing-source ledger (for auditing only): '+
-    Object.entries(x.missingByGate).map(([k,v])=>k+' ('+v+')').join(', ');
-  rejectedDetails.appendChild(p);
-}
-if(x.nonselectedGameResearchNotes?.length){
-  const note=document.createElement('p');
-  note.textContent='Excluded matchup research (not Core engine errors): '+
-    x.nonselectedGameResearchNotes.map(String).join(' • ');
-  rejectedDetails.appendChild(note);
-}
-if(x.errors?.length){
-  const heading=document.createElement('p');
-  heading.textContent='Actual execution problems ('+x.errors.length+'): '+x.errors.map(String).join(' • ');
-  rejectedDetails.appendChild(heading);
-}
-evidence.appendChild(rejectedDetails);
-const audits=new Map((x.pathAudit||[]).map(a=>[String(a.gameId)+':'+String(a.playerId),a]));
-for(const l of card?.current_legs||[]){
-  const d=document.createElement('div');d.className='leg';
-  const audit=audits.get(String(l.gameId)+':'+String(l.playerId));
-  const evidenced=!!(audit&&audit.sameLockedRecipient&&audit.doesNotReplaceCard
-    &&audit.originalLockedPath===l.path&&['PRIMARY','TRANSFER','WHO'].includes(audit.auditedPath)
-    &&Array.isArray(audit.sourceUrls)&&audit.sourceUrls.length);
-  const currentPath=evidenced?audit.auditedPath:l.path;
-  for(const [cl,t] of [['path',currentPath],['name',l.player],
-                        ['small',l.matchup],['small',l.directRoute]]){
-    const p=document.createElement('div');p.className=cl;p.textContent=t||'';
-    d.appendChild(p);
-  }
-  if(evidenced){
-    const note=document.createElement('div');note.className='audit-note';
-    note.textContent=audit.auditedPath!==l.path
-      ?'Latest G18 path review: '+audit.auditedPath+' • Original frozen label: '+l.path
-      :'G18 path review agrees: '+l.path;
-    d.appendChild(note);
-    const details=document.createElement('details');details.className='audit-details';
-    const summary=document.createElement('summary');summary.textContent='Why this path?';
-    details.appendChild(summary);
-    const why=document.createElement('p');
-    why.textContent=audit.rationale||'Current source review did not provide a route explanation.';
-    details.appendChild(why);
-    if(audit.originalScoringLane&&audit.scoringLane&&audit.originalScoringLane!==audit.scoringLane){
-      const lane=document.createElement('p');lane.textContent=
-        'Original lane: '+audit.originalScoringLane+' • Surviving lane: '+audit.scoringLane;
-      details.appendChild(lane);
-    }
-    const sources=document.createElement('div');
-    sources.textContent='Source receipts: ';
-    for(const [idx,url] of audit.sourceUrls.slice(0,8).entries()){
-      if(typeof url!=='string'||!url.startsWith('https://'))continue;
-      if(idx>0)sources.appendChild(document.createTextNode(' · '));
-      const link=document.createElement('a');link.href=url;link.target='_blank';
-      link.rel='noopener noreferrer';link.textContent=String(idx+1);
-      sources.appendChild(link);
-    }
-    details.appendChild(sources);
-    d.appendChild(details);
-  }
-  legs.appendChild(d);
-}
-}catch(e){status.textContent='Awaiting published engine result';detail.textContent=e.message;evidence.textContent='The site is online; engine output has not been published.';gradeBox.textContent='Official grading data unavailable.'}
-}load();
-// New GitHub Pages deployments appear without requiring a ChatGPT visit or
-// a manual refresh. Update again when the user returns to this browser tab.
-setInterval(()=>{if(!document.hidden)load();},120000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07121f">
+  <meta name="description" content="NHL True Blender: one authoritative Core 3 with source-backed G0–G18 scoring paths, official goalie and lineup evidence, and frozen-card postgame grades.">
+  <title>NHL True Blender</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-content">
+    <a class="brand" href="#top" aria-label="NHL True Blender, home">
+      <span class="brand-mark" aria-hidden="true">T3</span>
+      <span class="brand-copy"><strong>TRUE BLENDER</strong><span>NHL SCORER INTELLIGENCE</span></span>
+    </a>
+    <nav class="main-nav" aria-label="Dashboard sections">
+      <a href="#core">Core 3</a>
+      <a href="#slate">Matchups</a>
+      <a href="#results">Performance</a>
+      <a href="#system">Engine evidence</a>
+    </nav>
+    <button id="refresh" type="button" class="action-btn header-action" aria-label="Refresh published NHL evidence">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
+<main id="top" class="wrap">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <div class="hero-topline">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="eyebrow">AUTONOMOUS NHL SCORER ENGINE · EASTERN TIME</span>
+      </div>
+      <h1 id="hero-title">TRUE <em>BLENDER.</em></h1>
+      <p class="hero-sub">One authoritative Core 3 per slate. Every selected scorer has a real path, with independent goalie, matchup, source and gate evidence you can inspect.</p>
+      <div class="stat-strip" aria-label="Current slate summary">
+        <div class="stat"><span class="kicker">Selected slate</span><strong id="hero-date">Loading</strong><small>America / New York</small></div>
+        <div class="stat"><span class="kicker">Core survivors</span><strong id="stat-legs">—</strong><small>One recipient per game</small></div>
+        <div class="stat"><span class="kicker">Selected gate record</span><strong id="stat-gates">—</strong><small>20 master + 16 overlay</small></div>
+        <div class="stat"><span class="kicker">Skaters scanned</span><strong id="stat-scanned">—</strong><small>Before Core selection</small></div>
+      </div>
+    </div>
+  </section>
+  <section id="core" class="section" aria-labelledby="core-title">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">THE OFFICIAL CARD</div>
+        <h2 id="core-title">Core 3 · source-backed scorers</h2>
+        <p>Tap any player to see their exact pregame gate record, recipient separation, goalie target and source links. No manually assigned path quotas.</p>
+      </div>
+      <div class="section-actions">
+        <select id="slate-select" class="slate-picker" aria-label="Choose a saved NHL slate">
+          <option>Loading saved slates…</option>
+        </select>
+      </div>
+    </div>
+    <div class="section-panel">
+      <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
+        <span class="pill neutral">Loading official engine data</span>
+      </div>
+      <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core cards">
+        <div class="loading"></div><div class="loading"></div><div class="loading"></div>
+      </div>
+      <section id="leg-detail" class="detail-panel" aria-label="Selected NHL player complete gate evidence" hidden></section>
+    </div>
+  </section>
+  <section id="slate" class="section" aria-labelledby="slate-title">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">ENTIRE NHL SLATE</div>
+        <h2 id="slate-title">Matchup intelligence</h2>
+        <p>Projected and confirmed goalie evidence stays separate. Tap a matchup to inspect current rosters, source links, and defensive coverage.</p>
+      </div>
+    </div>
+    <div class="section-panel">
+      <div id="matchup-list" class="matchup-list">
+        <div class="loading"></div><div class="loading"></div>
+      </div>
+    </div>
+  </section>
+  <section id="results" class="section" aria-labelledby="results-title">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">IMMUTABLE POSTGAME RESULTS</div>
+        <h2 id="results-title">Grade, audit & season record</h2>
+        <p>Official NHL goal credit determines WIN or LOSS. A miss alone never authorizes a patch or rewrites a frozen card.</p>
+      </div>
+    </div>
+    <div class="panel-grid">
+      <div class="section-panel">
+        <div class="subheading"><h3>Official Core grade</h3><span class="pill neutral">FROZEN CARD</span></div>
+        <div id="grade-summary" class="muted">Loading official final results…</div>
+      </div>
+      <div class="section-panel">
+        <div class="subheading"><h3>Season recalibration</h3><span class="pill neutral">OFFICIAL ONLY</span></div>
+        <div id="season-summary" class="muted">Loading saved season performance…</div>
+      </div>
+    </div>
+  </section>
+  <section id="system" class="section" aria-labelledby="system-title">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">ENGINE TRANSPARENCY</div>
+        <h2 id="system-title">Execution & data provenance</h2>
+        <p>Selected-gate checks are separate from rejected skater records. Actual source gaps stay visible; nothing becomes a PASS for visual presentation.</p>
+      </div>
+    </div>
+    <div class="section-panel">
+      <div id="system-summary" class="muted">Loading saved evidence metrics…</div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div><strong>NHL TRUE BLENDER</strong> · Free GitHub Pages dashboard · All slate times Eastern</div>
+    <div>Card selection, 36 gate checks, source collection, grading and source-proven future patches execute in independent GitHub Actions. This website only displays saved results; it never guesses or replaces a scorer.</div>
+    <div><a href="https://github.com/benhavinsports/NHL-true-blender" target="_blank" rel="noopener noreferrer">View engine repository</a>
+    · <span id="hero-sync">Checking publishing timestamp…</span></div>
+  </footer>
+</main>
+</body>
+</html>
