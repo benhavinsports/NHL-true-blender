@@ -6,6 +6,8 @@ on:
       - 'site/**'
       - 'index.html'
       - 'runs/**'
+      - 'state/site_cards/**'
+      - 'state/site_runs/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 permissions:
@@ -29,20 +31,41 @@ jobs:
           mkdir -p site/data
           python - <<'PY'
           import json, pathlib, datetime
-          paths=sorted(pathlib.Path('runs').glob('true_blender_*.json'))
-          records=[]
-          for p in paths:
-              try:
-                  d=json.loads(p.read_text())
-                  if d.get('date') and d.get('stage'):
-                      records.append(d)
-              except (OSError,ValueError): pass
-          if records:
-              records.sort(key=lambda d:(d['date'], d.get('stage')=='CONFIRMED'))
-              d=records[-1]
-              output={k:d.get(k) for k in ('date','stage','games','g0Directions','g0Complete','gateRows','uniqueGameSurvivors','errors','card')}
-              output['publishedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
-              pathlib.Path('site/data/latest.json').write_text(json.dumps(output,default=str))
+          root=pathlib.Path('state')
+          status_files=sorted((root/'site_runs').glob('????-??-??.json'))
+          card_files=sorted((root/'site_cards').glob('????-??-??.json'))
+          dates=sorted({p.stem for p in status_files+card_files})
+          if dates:
+              date=dates[-1]
+              status_path=root/'site_runs'/f'{date}.json'
+              card_path=root/'site_cards'/f'{date}.json'
+              status=json.loads(status_path.read_text()) if status_path.exists() else {}
+              card=json.loads(card_path.read_text()) if card_path.exists() else None
+              if card and not (card.get('verified') is True and card.get('status')=='G18_SOURCE_VERIFIED'):
+                  raise ValueError('Refusing unverified Core card')
+              legs=json.loads(card['legsJson']) if card else []
+              payload={
+                  'date':date,'stage':card.get('stage') if card else status.get('stage'),
+                  'publishedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  'lastEngineRunUTC':status.get('updatedUTC'),
+                  'games':status.get('games'),'g0Directions':status.get('g0Directions'),
+                  'gateRows':status.get('gateRows'),
+                  'eligibleSkaterRows':status.get('eligibleSkaterRows'),
+                  'missingByGate':status.get('missingByGate',{}),
+                  'errors':status.get('errors',[]),
+                  'card':{'cardId':card['cardId'],'current_legs':legs,
+                          'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
+                          if card else None,
+                  'verified':bool(card),
+              }
+              pathlib.Path('site/data/latest.json').write_text(json.dumps(payload,default=str))
+          else:
+              pathlib.Path('site/data/latest.json').write_text(json.dumps({
+                  'date':None,'stage':None,'card':None,'verified':False,
+                  'status':'AWAITING_FIRST_ENGINE_RUN',
+                  'publishedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()
+              }))
+
           PY
       - name: Verify dashboard is deployment entry point
         run: |
