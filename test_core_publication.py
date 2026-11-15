@@ -25,7 +25,7 @@ class PublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             r = self.report()
             self.assertTrue(publish_verified_core(r, d)["published"])
-            self.assertTrue(publish_verified_core(r, d)["published"])
+            self.assertFalse(publish_verified_core(r, d)["published"])
 
     def test_conflicting_card_cannot_replace(self):
         with tempfile.TemporaryDirectory() as d:
