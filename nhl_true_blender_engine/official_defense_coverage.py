@@ -32,6 +32,34 @@ def conservative_zone(x,y):
         return "Point"
     return None
 
+
+def detailed_shot_origin_zone(x,y):
+    """Conservative NHL PBP x/y-derived circle / point subareas.
+
+    Unlike NHL EDGE tracking polygons, raw PBP x/y are arena-frame estimates
+    and cannot establish exact tracking-area membership or goal-mouth impact.
+    The shooting side is oriented so its attacking net has positive x.
+    This mapping is a labelled approximation, validated from source coords.
+    """
+    if type(x) not in (float,int) or type(y) not in (float,int):
+        return None
+    x=float(x);y=float(y)
+    ax,ay=abs(x),abs(y)
+    if ax>100 or ay>43 or ax<25 or x==0 or y==0:
+        return None
+    # In NHL rink Cartesian coordinates, the attacking net is at ±89.
+    # For an attacking end at -89, mirror both raw x and y axes.
+    # Left/right is perspective-normalized, not a claimed goalie glove side.
+    left=(x*y)>0
+    if 54<=ax<78 and 15<=ay<=35:
+        return "L Circle" if left else "R Circle"
+    if 25<=ax<54 and ay<=35:
+        if ay<=12:
+            return "Center Point"
+        return "L Point" if left else "R Point"
+    return None
+
+
 def summarize_concessions(events,game_meta):
     by_team=defaultdict(lambda:{"totalShots":0,"bins":defaultdict(int),"gameIds":set(),
                             "sourceUrls":set()})
@@ -53,8 +81,14 @@ def summarize_concessions(events,game_meta):
         defender=away if owner==home else home
         row=by_team[defender]
         row["totalShots"]+=1
+        # Keep original conservative broad bins, but also measure the
+        # separately sourced EDGE-compatible circle/point-lane proxies.
+        # Without these areas G9 could never review a documented L/R Circle
+        # goalie vulnerability; it wrongly treated "not mapped" as "not weak".
         region=conservative_zone(e.get("x"),e.get("y"))
+        detail=detailed_shot_origin_zone(e.get("x"),e.get("y"))
         if region:row["bins"][region]+=1
+        if detail:row["bins"][detail]+=1
         row["gameIds"].add(e["gameId"])
         if e.get("sourceUrl"):row["sourceUrls"].add(e["sourceUrl"])
     return by_team
@@ -71,7 +105,8 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
                 abbr_to_id[abbrev]=str(pid)
     by_team=summarize_concessions(events,game_meta)
     comparisons={}
-    for z in ("Low Slot","High Slot","Point"):
+    for z in ("Low Slot","High Slot","Point","L Circle","R Circle",
+              "L Point","R Point","Center Point"):
         peers=[row["bins"].get(z,0)/row["totalShots"]
                for row in by_team.values()
                if row["totalShots"]>=MIN_DEFENSE_SOURCE_SHOTS]
@@ -111,6 +146,10 @@ def make_coverage(con,snapshot,date,stage,events,game_meta):
                 "zoneConcessions":detail,
                 "comparison":"RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN",
                 "method":BIN_SPEC,
+                "derivedCirclePointAreas":True,
+                "derivedAreasNotExactNhlEdgeTrackingPolygons":True,
+                "coordinateSystem":"NHL_PBP_ARENA_FRAME_ORIENTED_TO_ATTACKING_NET",
+                "noGloveBlockerFiveHoleInterpretation":True,
                 "comparisonSampleTeams":sum(bool(q) for q in by_team.values()),
                 "trackedGameIds":sorted(row["gameIds"]),
                 "sourceUrls":urls,
