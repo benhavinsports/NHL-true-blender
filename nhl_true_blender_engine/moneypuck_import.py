@@ -19,14 +19,18 @@ def _num(row, key):
         return 0.0
 
 def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
-    if not export_asof or export_asof > slate_date:
+    if not export_asof or export_asof != slate_date:
         raise ValueError("MoneyPuck export as-of date must be verified and no later than slate")
     data = {name: _read(Path(directory)/f"{name}.csv")
             for name in ("goalies","skaters","lines","teams")}
     observed = datetime.now(timezone.utc).isoformat()
     imported = {"PLAYER_PRESSURE":0,"PLAYER_FINISH_CREDIT":0,
                 "TEAM_COVERAGE":0,"GOALIE_STATISTICS":0}
-    seasons={str(r.get("season")) for rows in data.values() for r in rows}\n    expected_season=str(int(slate_date[:4]) if int(slate_date[5:7])>=9 else int(slate_date[:4])-1)\n    if seasons!={expected_season}:\n        raise ValueError(f"MoneyPuck season mismatch: {seasons}; expected {expected_season}")\n    goalies = {(str(r["playerId"]),r["team"]):r for r in data["goalies"]
+    seasons={str(r.get("season")) for rows in data.values() for r in rows}
+    expected_season=str(int(slate_date[:4]) if int(slate_date[5:7])>=9 else int(slate_date[:4])-1)
+    if seasons!={expected_season}:
+        raise ValueError(f"MoneyPuck season mismatch: {seasons}; expected {expected_season}")
+    goalies = {(str(r["playerId"]),r["team"]):r for r in data["goalies"]
                if r["situation"]=="all"}
     skaters = {str(r["playerId"]):r for r in data["skaters"]
                if r["situation"]=="all"}
@@ -73,5 +77,5 @@ def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
                     imported[kind]+=1
             imported["GOALIE_STATISTICS"] += sum(1 for (pid,t) in goalies if t==opponent)
     return {"imported":imported,"exportAsOf":export_asof,
-            "source":"MoneyPuck user-provided CSV exports",
+            "source":"MoneyPuck public season aggregate CSV exports",
             "limits":"No anatomical shot impact zones, game-by-game dates, or confirmed deployment"}
