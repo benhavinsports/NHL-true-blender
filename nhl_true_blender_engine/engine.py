@@ -1104,6 +1104,26 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 evidence_stage='MIXED'
             card=save_card(con,date,evidence_stage,legs,len(games),audit=audit,now=now)
         except ValueError as e:errors.append(str(e))
+    # Additional matchups are allowed to have unseparated goalies once
+    # three distinct, source-qualified game recipients have been saved.
+    # Such a game is still recorded as rejected by G0. It is NOT a failure
+    # of a separately certified and preserved Core 3.
+    nonselected_game_notes=[]
+    if card:
+        selected_game_ids={str(x['gameId']) for x in card['current_legs']}
+        remaining=[]
+        for message in errors:
+            if (isinstance(message,str) and
+                ' G0 attack sides not physically separated by certified goalie weaknesses' in message
+                and message.split(' ',1)[0] not in selected_game_ids):
+                nonselected_game_notes.append(message)
+            elif (isinstance(message,str) and
+                  ' G0 no independently evidenced goalie target' in message
+                  and message.split(' ',1)[0] not in selected_game_ids):
+                nonselected_game_notes.append(message)
+            else:
+                remaining.append(message)
+        errors=remaining
     gaps=defaultdict(int)
     for rec in records:
         if rec['disposition']=='NOT_EXECUTED':gaps[rec['gate']]+=1
@@ -1112,6 +1132,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
             'uniqueGameSurvivors':len(qualified),
             'allG18QualifiedSurvivors':all_survivor_receipts,
+            'nonselectedGameResearchNotes':nonselected_game_notes,
+            'nonselectedGameResearchNeverReplacesLockedCore':True,
             'errors':errors,'scan':scan}
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
             {k:v for k,v in result.items() if k not in ('card','scan')})
