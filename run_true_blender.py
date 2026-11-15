@@ -13,6 +13,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from nhl_true_blender_engine.sources import NHLClient, official_slate
 from nhl_true_blender_engine.enrichment import attach
+from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
 
@@ -25,11 +26,13 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
     try:
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
+        source_research = await collect_secondary(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         summary = {k: v for k, v in result.items() if k != "scan"}
         summary.update({
             "officialSource": snapshot.get("officialSource"),
+            "secondarySourceResearch": source_research,
             "collectionErrors": snapshot.get("collectionErrors", []),
             "masterGateOrder": MASTER,
             "overlayGateOrder": OVERLAY,
