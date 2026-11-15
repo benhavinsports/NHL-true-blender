@@ -341,7 +341,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     emit('G0',bool(weak) and bool(goalie_profile['data'].get('sample')),
          {'targetGoalie':goalie_profile['data'].get('goalieId'), 'attacker':attack_team,
           'branchStatus':goalie_profile['data'].get('status'), 'weakZones':weak,
-          'separateGoalieBranch':True},source_ids=[goalie_profile['sourceUrl']])
+          'separateGoalieBranch':True},source_ids=list(filter(None,[
+          goalie_profile['sourceUrl'],goalie_profile['data'].get('goalieProfileSourceUrl')])))
     emit('G1',receipt(game.get('context')),
          {'venueRestTravel':evidence_data(game.get('context'))},
          source_ids=[game.get('context',{}).get('sourceUrl','')])
@@ -370,7 +371,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     emit('G5',bool(weak and release) and overlap,
          {'shooterZone':release['zone'] if release else None,'weakZones':weak,
           'goalieStrengthZones':strong},
-         eliminate=bool(weak and release and not overlap))
+         eliminate=bool(weak and release and not overlap),
+         source_ids=list(filter(None,[player.get('release',{}).get('sourceUrl'),
+             goalie_profile['data'].get('goalieProfileSourceUrl'),goalie_profile['sourceUrl']])))
     dep=player.get('deployment')
     dep_data=evidence_data(dep)
     dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED'))
@@ -391,7 +394,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     emit('G9',match,{'shooterZone':release['zone'] if release else None,
                    'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,
                    'redAvoid':coverage_data.get('redStrongZones',[]) if coverage_data else None},
-         eliminate=bool(coverage_data and release and release['zone'] in coverage_data.get('redStrongZones',[])))
+         eliminate=bool(coverage_data and release and release['zone'] in coverage_data.get('redStrongZones',[])),
+         source_ids=[coverage['sourceUrl']] if receipt(coverage) else [])
     ownership=player.get('finishOwnership');own=evidence_data(ownership)
     emit('G10',bool(own and own.get('recipient') is True),
          {'goalCreditOwned':own,'notAssistOrFeeder':True},
@@ -401,7 +405,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     wins,rows=challenger_proof(player,rivals,weak)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
-          'noGuessTransfer':True})
+          'noGuessTransfer':True},
+         source_ids=sorted({url for row in rows for url in row.get('sourceUrls',[])
+             if url} | ({player['release']['sourceUrl']} if receipt(player.get('release')) else set())))
     shots=player.get('pressure')
     recent_shots=evidence_data(shots,'recentAppearanceShots')
     pressure_valid=isinstance(recent_shots,int) and recent_shots>=0 or (isinstance(recent_shots,list) and bool(recent_shots) and all(isinstance(x,int) and x>=0 for x in recent_shots))
@@ -438,7 +444,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
                      cross_source_resolved),
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True,
-          'sourceDerivedReviewResolved':cross_source_resolved})
+          'sourceDerivedReviewResolved':cross_source_resolved},
+         source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # G18 can only be reached after every previous gate has positive evidence.
     passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
     emit('G18',passed,{'candidateEligibleForCrossGameFinal':passed})
