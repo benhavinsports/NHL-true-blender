@@ -122,3 +122,51 @@ async def collect_edge(client,con,snapshot,date,stage,concurrency=6):
             "anatomicalClaimCertified":False,
             "source":"https://api-web.nhle.com/v1/edge/",
             "doesNotReplaceGoalMouthScout":True}
+
+
+def review_g0_goalie_origins(con,snapshot,date,stage):
+    """Compare both opponent goalies using only observed NHL EDGE shot-origin areas.
+
+    For G0 research, not a new goalie starter claim or anatomical G0 pass.
+    A league-median percentile is descriptive: no scored/weighted side selection.
+    """
+    import json
+    output=[]
+    for game in snapshot.get("games",[]):
+        directions=[]
+        for attacker,defender in ((game["away"],game["home"]),(game["home"],game["away"])):
+            branches=game.get("goalies",{}).get(defender,[])
+            branch_rows=[]
+            for branch in branches:
+                data=branch.get("data") or {}
+                if data.get("status") not in ("PROJECTED","EXPECTED","CONFIRMED"):
+                    continue
+                if stage=="CONFIRMED" and data.get("status")!="CONFIRMED":
+                    continue
+                gid=str(data.get("goalieId") or "")
+                source=con.execute("""SELECT payload,source_url,observed_at FROM evidence
+                    WHERE slate_date=? AND stage=? AND game_id=? AND player_id=?
+                    AND kind='NHL_EDGE_GOALIE_RINK_ORIGIN'
+                    ORDER BY observed_at DESC LIMIT 1""",(date,stage,str(game["id"]),gid)).fetchone()
+                if not source:
+                    branch_rows.append({"goalieId":gid,"starterStatus":data["status"],
+                                        "zoneProfileFound":False})
+                    continue
+                profile=json.loads(source["payload"])
+                rows=[{"area":z["area"],"shotsAgainst":z["shotsAgainst"],
+                       "goalsAgainst":z["goalsAgainst"],
+                       "savePctg":z.get("savePctg"),
+                       "savePctgPercentile":z.get("savePctgPercentile")}
+                      for z in profile["rinkZoneRows"]
+                      if z["shotsAgainst"]>=30 and
+                         isinstance(z.get("savePctgPercentile"),(int,float))]
+                branch_rows.append({"goalieId":gid,"starterStatus":data["status"],
+                                    "zoneProfileFound":True,
+                                    "rinkShotOriginAreaRows":rows,
+                                    "sourceUrl":source["source_url"]})
+            directions.append({"attacker":attacker,"defender":defender,
+                               "goalieBranches":branch_rows})
+        output.append({"gameId":str(game["id"]),"matchup":game["away"]+"@"+game["home"],
+                       "directions":directions,"anatomicalWeaknessCertified":False,
+                       "status":"RINK_SHOT_ORIGIN_RESEARCH_ONLY"})
+    return output
