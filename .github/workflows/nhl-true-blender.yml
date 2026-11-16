@@ -20,9 +20,12 @@ on:
         required: false
         options: [projected, confirmed, watch, grade]
   schedule:
-    - cron: '15 8 * * *'
+    # Refresh projected evidence and the same one-card selection several
+    # times before puck drop; early goalie statuses are still EXPECTED.
+    - cron: '15 8,11,13,15,18 * * *'
       timezone: 'America/New_York'
-    - cron: '15 11,13,15,18 * * *'
+    # A separate later pass tries CONFIRMED without promoting projections.
+    - cron: '55 17,18 * * *'
       timezone: 'America/New_York'
     - cron: '38 7-23 * * *'
       timezone: 'America/New_York'
@@ -79,9 +82,9 @@ jobs:
           cron = os.environ.get('TRIGGER_CRON') or ''
           mode = os.environ.get('REQUESTED_MODE') or ''
           if not mode:
-              if cron.startswith('15 8 '):
+              if cron.startswith('15 8,11,13,15,18 '):
                   mode = 'projected'
-              elif cron.startswith('15 11,13,15,18 '):
+              elif cron.startswith('55 17,18 '):
                   mode = 'confirmed'
               elif cron.startswith('38 '):
                   mode = 'watch'
@@ -91,8 +94,9 @@ jobs:
                   # Night-time code-triggered runs grade the original Core as
                   # soon as its actual 2/3 matchups are OFF/FINAL; :38 cron
                   # still explicitly watches every not-started game.
-                  mode = ('projected' if now.hour < 11 else
-                          'confirmed' if now.hour < 19 else
+                  # Code-push refreshes are PROJECTED until late pregame;
+                  # wall-clock time alone never certifies confirmed lineups.
+                  mode = ('projected' if now.hour < 19 else
                           'grade' if now.hour >= 21 else 'watch')
           date = os.environ.get('REQUESTED_DATE') or (
               (now - datetime.timedelta(days=1)).date().isoformat()
