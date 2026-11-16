@@ -14,8 +14,8 @@ import json
 from .enrichment import ingest
 
 BIN_SPEC="NHL_RINK_COORDINATE_APPROXIMATION_V1"
-MIN_DEFENSE_SOURCE_SHOTS=70
-MIN_ZONE_SHOTS=8
+MIN_DEFENSE_SOURCE_SHOTS=120
+MIN_ZONE_SHOTS=16
 
 def conservative_zone(x,y):
     if type(x) not in (float,int) or type(y) not in (float,int):
@@ -63,11 +63,14 @@ def detailed_shot_origin_zone(x,y):
 
 
 def summarize_concessions(events,game_meta):
-    by_team=defaultdict(lambda:{"totalShots":0,"bins":defaultdict(int),"gameIds":set(),
-                            "sourceUrls":set()})
+    """Count ALL opponent shot attempts by rink origin, not only on-net shots."""
+    by_team=defaultdict(lambda:{
+        "totalAttempts":0,"totalShots":0,"goalsAgainst":0,
+        "bins":defaultdict(int),"onNetBins":defaultdict(int),
+        "goalBins":defaultdict(int),"gameIds":set(),"sourceUrls":set()})
     seen=set()
     for e in events:
-        if e.get("type") not in ("goal","shot-on-goal"):
+        if e.get("type") not in ("goal","shot-on-goal","missed-shot","blocked-shot"):
             continue
         game=game_meta.get(str(e.get("gameId")))
         if not game:
@@ -78,21 +81,29 @@ def summarize_concessions(events,game_meta):
         if not home or not away or owner not in (home,away):
             continue
         eid=(str(e["gameId"]),str(e["eventId"]))
-        if eid in seen:continue
+        if eid in seen:
+            continue
         seen.add(eid)
         defender=away if owner==home else home
         row=by_team[defender]
-        row["totalShots"]+=1
-        # Keep original conservative broad bins, but also measure the
-        # separately sourced EDGE-compatible circle/point-lane proxies.
-        # Without these areas G9 could never review a documented L/R Circle
-        # goalie vulnerability; it wrongly treated "not mapped" as "not weak".
+        row["totalAttempts"]+=1
+        row["gameIds"].add(str(e["gameId"]))
+        if e.get("type") in ("goal","shot-on-goal"):
+            row["totalShots"]+=1
+        if e.get("type")=="goal":
+            row["goalsAgainst"]+=1
+        # Every shot-attempt event is counted once. Coordinates are rink
+        # origin proxies; a blocked/missed attempt is not an on-net shot.
         region=conservative_zone(e.get("x"),e.get("y"))
         detail=detailed_shot_origin_zone(e.get("x"),e.get("y"))
-        if region:row["bins"][region]+=1
-        if detail:row["bins"][detail]+=1
-        row["gameIds"].add(e["gameId"])
-        if e.get("sourceUrl"):row["sourceUrls"].add(e["sourceUrl"])
+        for zone in {z for z in (region,detail) if z}:
+            row["bins"][zone]+=1
+            if e.get("type") in ("goal","shot-on-goal"):
+                row["onNetBins"][zone]+=1
+            if e.get("type")=="goal":
+                row["goalBins"][zone]+=1
+        if e.get("sourceUrl"):
+            row["sourceUrls"].add(e["sourceUrl"])
     return by_team
 
 def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
@@ -106,52 +117,70 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
             if abbrev and pid:
                 abbr_to_id[abbrev]=str(pid)
     by_team=summarize_concessions(events,game_meta)
-    comparisons={}
-    for z in ("Low Slot","High Slot","Point","L Circle","R Circle",
-              "L Point","R Point","Center Point"):
-        peers=[row["bins"].get(z,0)/row["totalShots"]
-               for row in by_team.values()
-               if row["totalShots"]>=MIN_DEFENSE_SOURCE_SHOTS]
-        comparisons[z]=median(peers) if len(peers)>=6 else None
+    # Compare each target club with OTHER clubs only. A lower share/rate of
+    # shots from an area is not proof that its defense is strong there.
+    minimum_peer_attempts=MIN_DEFENSE_SOURCE_SHOTS
+    minimum_peer_games=6
+    minimum_zone_attempts=MIN_ZONE_SHOTS
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
     count=0;fail=[]
     for game in snapshot.get("games",[]):
         for attacker,defender in ((game["away"],game["home"]),(game["home"],game["away"])):
             pid=abbr_to_id.get(defender)
             row=by_team.get(pid) if pid else None
-            if not row or row["totalShots"]<MIN_DEFENSE_SOURCE_SHOTS:
+            if (not row or row["totalAttempts"]<minimum_peer_attempts
+                    or len(row["gameIds"])<minimum_peer_games):
                 fail.append({"gameId":str(game["id"]),"defender":defender,
-                            "reason":"Not enough independently sourced historical shots against"})
+                            "reason":"Not enough independently sourced historical shot attempts across six games"})
                 continue
             green={};red={};detail={}
-            for z in comparisons:
-                med=comparisons[z]
-                if med is None:continue
-                n=row["bins"].get(z,0)
-                share=n/row["totalShots"]
-                info={"shotsAgainst":n,"allOnNetShotsAgainst":row["totalShots"],
-                      "share":share,"peerMedianShare":med,
-                      "gameCount":len(row["gameIds"]),
-                      "classification":BIN_SPEC}
+            for z in ("Low Slot","High Slot","Point","L Circle","R Circle",
+                      "L Point","R Point","Center Point"):
+                peers=[]
+                for peer_id,peer in by_team.items():
+                    if peer_id==pid:
+                        continue
+                    games=len(peer["gameIds"])
+                    if (peer["totalAttempts"]<minimum_peer_attempts
+                            or games<minimum_peer_games):
+                        continue
+                    peers.append(peer["bins"].get(z,0)/games)
+                if len(peers)<6:
+                    continue
+                peer_median=median(peers)
+                attempts=row["bins"].get(z,0)
+                games=len(row["gameIds"])
+                per_game=attempts/games
+                on_net=row["onNetBins"].get(z,0)
+                goals=row["goalBins"].get(z,0)
+                info={
+                    "attemptsAgainst":attempts,
+                    "onNetShotsAgainst":on_net,
+                    "goalsAgainst":goals,
+                    "allAttemptsAgainst":row["totalAttempts"],
+                    "allOnNetShotsAgainst":row["totalShots"],
+                    "attemptsPerGame":per_game,
+                    "peerMedianAttemptsPerGame":peer_median,
+                    "attemptShare":attempts/row["totalAttempts"],
+                    "gameCount":games,
+                    "peerTeamsCompared":len(peers),
+                    "classification":BIN_SPEC,
+                    "attemptTypes":["goal","shot-on-goal","missed-shot","blocked-shot"],
+                }
                 detail[z]=info
-                if n>=MIN_ZONE_SHOTS and share>med:
+                # Positive concession evidence only: elevated opponent shot
+                # attempts per game versus independent peer clubs. Low volume
+                # is NOT a red/strong-defense verdict and cannot eliminate.
+                if attempts>=minimum_zone_attempts and per_game>peer_median:
                     green[z]=info
-                elif n>=MIN_ZONE_SHOTS and share<med:
-                    red[z]=info
-            if not detail:
-                fail.append({"gameId":str(game["id"]),"defender":defender,
-                            "reason":"No defensible peer comparison"})
-                continue
             urls=sorted(row["sourceUrls"])
-            # Historically observed defending on-ice players at PBP shot times,
-            # from NHL's own player shift charts; NOT inferred from season TOI.
             shift_team=(shift_receipts or {}).get("byDefendingTeamId",{}).get(pid,{})
             observed_shift_events=list(shift_team.get("sampleEvents") or [])
             shift_sources=sorted(shift_team.get("shiftSourceUrls") or [])
             payload={"attackingTeam":attacker,"defendingTeam":defender,
                 "greenWeakZones":list(green),"redStrongZones":list(red),
                 "zoneConcessions":detail,
-                "comparison":"RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN",
+                "comparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
                 "method":BIN_SPEC,
                 "derivedCirclePointAreas":True,
                 "derivedAreasNotExactNhlEdgeTrackingPolygons":True,
@@ -169,13 +198,10 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                 "historicalShiftsNotTonightDeployment":True,
                 "onIcePlayerPositionsNotAssumed":True,
                 "inferredLaneNotExactNhlEdgePolygon":True,
-                "strengthsAndWeaknessesAreTeamShot_SHARE_NotGoalieSavePct":True,
+                "lowShotVolumeIsNotEvidenceOfDefensiveStrength":True,
+                "redZonesRequireIndependentPositiveDefensiveEvidence":True,
                 "unobservedAreasNotAssignedGreen":True}
             if urls:
-                # The 8-game evidence window and the labelled area inference
-                # can change between confirmed refreshes. Each distinct
-                # measured payload is a NEW immutable proof, never an update
-                # to the previously saved G9 source claim.
                 version=hashlib.sha256(json.dumps(payload,sort_keys=True,
                     separators=(",",":")).encode()).hexdigest()[:16]
                 ingest(con,{
