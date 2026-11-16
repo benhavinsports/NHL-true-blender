@@ -47,10 +47,17 @@ def review_all_candidates(con,snapshot,date,stage):
                         "observedStrengthAreaNames":sorted(strong),
                     })
                 usable=[b for b in opposing if b["physicalOriginMatch"]]
+                # G17 MUST audit the exact same goalie+defense-supported
+                # direct-recipient lanes that G10.5 adjudicates. It used to
+                # omit the G9 defensive coverage argument, producing
+                # contradictory outcomes for the same rival on the same slate.
+                defending=(game.get("coverage",{}).get(attacker) or {}).get("data") or {}
+                g9_green=defending.get("greenWeakZones")
                 rival_ok,rows=challenger_proof(scoped,
                     [x for x in teammates if str(x["id"])!=str(p["id"]) and
                      x.get("availability") not in ("OUT","SCRATCHED","INJURED")],
-                    branches[0]["data"].get("weakZones",{}) if len(branches)==1 else {})
+                    branches[0]["data"].get("weakZones",{}) if len(branches)==1 else {},
+                    g9_green)
                 lineup_available=bool(dep and dep.get("EV") and
                         dep.get("status") in ("PROJECTED","CONFIRMED"))
                 known_contradiction=any(b["observedStrongerArea"]
@@ -82,6 +89,8 @@ def review_all_candidates(con,snapshot,date,stage):
                         "rivalCompared":len(rows),
                         "eachSameLaneDefeated":rival_ok is True,
                         "rivalResults":rows,
+                        "G9OpponentDefenseWeakZonesUsed":list(g9_green) if isinstance(g9_green,list) else None,
+                        "matchesG10_5GoalieAndDefenseRouteScope":g9_green is not None,
                     },
                     "currentRinkOrigin":own["zone"],
                     "ownReleaseSource":scoped["release"]["sourceUrl"],
