@@ -18,6 +18,7 @@ from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
+from nhl_true_blender_engine.goalie_history_fallback import collect_goalie_pbp_fallback
 from nhl_true_blender_engine.official_context import collect_context
 from nhl_true_blender_engine.contradiction_review import review_all_candidates
 from nhl_true_blender_engine.first_gate_audit import first_gate_audit
@@ -60,6 +61,17 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         attach(con, snapshot, date, stage)
         derived_routes = derive_nhl_edge_attacks(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
+        # Goalie-first fallback requires the exact independently sourced
+        # expected/confirmed starter identity from the parsed lineup report.
+        # NHL EDGE sometimes lacks qualifying current-season origin data.
+        # Reconstruct goalie-specific previous-game NHL PBP (not rink-to-net
+        # anatomy) BEFORE G0 chooses an attack side. Never pick by absence
+        # of the opponent's profile.
+        async with _Client() as client:
+            goalie_pbp_fallback = await collect_goalie_pbp_fallback(
+                client,con,snapshot,date,stage)
+        source_research['independentGoaliePbpFallback']=goalie_pbp_fallback
+        attach(con, snapshot, date, stage)
         scouting_path = os.environ.get('GOALIE_SCOUTING_JSON')
         if scouting_path:
             source_research['goalieScouting'] = ingest_scouting(
@@ -90,6 +102,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result['lineupSourceCoverage']={k:source_research.get('parsedLineups',{}).get(k)
             for k in ('status','deploymentRecords','goalieReports','error')}
         result['g0RinkOriginResearch']=edge_g0_review
+        result['g0OfficialPbpFallback']=goalie_pbp_fallback
         # Source-verified Core JSON is produced independently by the engine.
         # GitHub Actions commits it under state/; GitHub Pages publishes
         # the authoritative card and run receipt via site/data/latest.json.
@@ -106,6 +119,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "officialEdgeRinkZoneEvidence": edge_research,
             "edgeDerivedShotOriginMechanisms": derived_routes,
             "g0RinkAreaGoalieComparison": edge_g0_review,
+            "goalieHistoricalOfficialPbpFallback": goalie_pbp_fallback,
             "sourceLinkedG17ContradictionReviews": contradiction_research,
             "automaticPregameWatch": initial_watch,
             "historicalGoalTracking": goal_tracking,
