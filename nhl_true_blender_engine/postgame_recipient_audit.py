@@ -55,6 +55,47 @@ def pregame_gate(con, date, leg, gate):
     prior.sort(key=lambda x:(x["stage"]=="CONFIRMED",x["evaluatedAt"]),reverse=True)
     return prior[0] if prior else None
 
+def pregame_g0_directions(con,date,game_id,puck_utc):
+    """Audit BOTH goalie-first attack directions BEFORE puck drop.
+
+    A single supported target goalie does NOT prove the opposite side was
+    evaluated; the other starter might lack a usable NHL EDGE/PBP profile.
+    """
+    puck=_time(puck_utc)
+    if puck is None:
+        return []
+    result={}
+    rows=con.execute("""SELECT stage,player_id,disposition,details,evaluated_at
+      FROM gates WHERE slate_date=? AND game_id=? AND gate='G0'
+        AND player_id LIKE 'GOALIE_DIRECTION:%'
+        AND stage IN ('PROJECTED','CONFIRMED')""",
+        (date,str(game_id))).fetchall()
+    for row in rows:
+        at=_time(row["evaluated_at"])
+        if not at or at>=puck:continue
+        attacker=row["player_id"].split("GOALIE_DIRECTION:",1)[1]
+        detail=json.loads(row["details"])
+        ev=detail.get("evidence") or {}
+        branch=ev.get("independentGoalieBranches") or []
+        d={
+            "attackTeam":attacker,
+            "defendTeam":ev.get("defender"),
+            "sourceProfileEvidenced":row["disposition"]=="PASS",
+            "starterStatuses":[x.get("status") for x in branch],
+            "goalieIds":[x.get("goalieId") for x in branch],
+            "goalieProfileSourceUrls":[x.get("sourceUrl") for x in branch],
+            "weakZonesByGoalie":[list((x.get("weakZones") or {}).keys()) for x in branch],
+            "sourceReceiptCount":len(detail.get("sourceIds") or []),
+            "originalStage":row["stage"],"evaluatedAt":row["evaluated_at"],
+            "postgameObservationsNotUsed":True,
+        }
+        prior=result.get(attacker)
+        if not prior or (row["stage"]=="CONFIRMED",at) > (
+            prior["originalStage"]=="CONFIRMED",_time(prior["evaluatedAt"])):
+            result[attacker]=d
+    return sorted(result.values(),key=lambda x:x["attackTeam"])
+
+
 def compare_official_goal_recipients(card, date, official_games, all_pbp, all_box, gate_reader):
     """Pure adjudication helper to regression test real causality boundaries.
 
@@ -223,8 +264,16 @@ async def collect_official_recipients(con,date,nhl):
     for gid in sorted(ids):
         pbp[gid]=await nhl.play_by_play(gid)
         box[gid]=await nhl.boxscore(gid)
-    return {
-        "status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",
-        **compare_official_goal_recipients(card,date,games,pbp,box,
-           lambda leg,gate: pregame_gate(con,date,leg,gate)),
-    }
+    report=compare_official_goal_recipients(card,date,games,pbp,box,
+           lambda leg,gate: pregame_gate(con,date,leg,gate))
+    for leg in report["selectedLegs"]:
+        original=next(x for x in card["current_legs"]
+                      if str(x["gameId"])==leg["gameId"] and
+                         str(x["playerId"])==leg["lockedPlayerId"])
+        directions=pregame_g0_directions(con,date,leg["gameId"],original["startUTC"])
+        leg["pregameBothG0Directions"]=directions
+        complete=len(directions)==2 and all(x["sourceProfileEvidenced"] for x in directions)
+        leg["bothGoalieDirectionsWereFullySourceReviewedBeforePuck"]=complete
+        if not complete:
+            leg["auditFlags"].append("OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED")
+    return {"status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",**report}
