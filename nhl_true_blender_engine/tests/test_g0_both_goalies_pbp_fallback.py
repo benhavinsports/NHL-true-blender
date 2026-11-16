@@ -4,6 +4,8 @@ All player and shot values are synthetic fixtures, never real NHL claims.
 """
 from copy import deepcopy
 from datetime import datetime,timezone
+import pytest
+from nhl_true_blender_engine.storage import open_db
 from nhl_true_blender_engine.engine import execute,g0_full_slate
 from nhl_true_blender_engine.tests.test_engine import game,snapshot,DATE,evidence
 from nhl_true_blender_engine.goalie_history_fallback import (
@@ -11,6 +13,12 @@ from nhl_true_blender_engine.goalie_history_fallback import (
     derive_independent_pbp_goalie_profile)
 
 SRC="https://api-web.nhle.com/v1/gamecenter/2026020001/play-by-play"
+
+@pytest.fixture
+def con(tmp_path):
+    db=open_db(str(tmp_path/"both-goalies.sqlite"))
+    yield db
+    db.close()
 
 def independent_no_weak_goalie(team):
     return evidence({
