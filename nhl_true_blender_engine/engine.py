@@ -138,6 +138,7 @@ def g0_full_slate(games, stage):
                     x.get('sourceReviewed') is True or
                     (x.get('sourceClass')=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY'
                      and x.get('fullySourceComparedAreas',0)>0))
+                sample_peer=game.get('goaliePeerContexts',{}).get(str(x.get('goalieId')))
                 proof={'goalieId':x.get('goalieId'),'status':x.get('status'),
                        'sourceUrl':src['sourceUrl'],'observedAt':src['observedAt'],
                        'weakZones':weak,'strengthZones':x.get('strengthZones',{}),
@@ -147,6 +148,7 @@ def g0_full_slate(games, stage):
                        'evidenceScope':x.get('evidenceScope') or x.get('sourceType'),
                        'sourceClass':x.get('sourceClass'),
                        'goalieProfileSourceUrl':x.get('goalieProfileSourceUrl'),
+                       'sameCohortPbp':sample_peer,
                        'goalieTeam':defender}
                 proofs.append(proof)
             complete=bool(proofs) and all(p['profileReviewed'] and bool(p['sample'])
