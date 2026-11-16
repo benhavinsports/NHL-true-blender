@@ -117,8 +117,22 @@ def audit_gate(gate, evidence, source_ids, stage):
         if isinstance(c,dict) and c.get('sourceType')=='DERIVED_CROSS_SOURCE_G17':
             need(e.get('sourceDerivedReviewResolved') is True,
                  'G17_DERIVED_CONFLICT_NOT_RESOLVED')
-            need(c.get('anatomicalWeaknessCertified') is True,
-                 'G17_ANATOMICAL_GOALIE_WEAKNESS_UNVERIFIED')
+            # G17 is a contradiction REVIEW, not a certificate of
+            # anatomical glove/blocker/five-hole vulnerability. The actual
+            # official NHL EDGE sources measure RINK SHOT ORIGIN. Requiring
+            # anatomicalWeaknessCertified=True made EVERY derived G17 fail
+            # permanently, even after a fully sourced, resolved comparison.
+            # Preserve the explicit non-anatomical scope, and certify only a
+            # genuinely matched/contradiction-free shot-origin review.
+            goalie_review=c.get('goalieStrengthReview') or {}
+            need(c.get('anatomicalWeaknessCertified') is False and
+                 c.get('scope')=='observed shot origins, NOT anatomical goal-mouth coordinates' and
+                 goalie_review.get('sourceScope')=='GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA',
+                 'G17_RINK_ORIGIN_SCOPE_MISREPRESENTED')
+            need(type(goalie_review.get('matchedWeakAreas')) is int and
+                 goalie_review['matchedWeakAreas']>0 and
+                 goalie_review.get('strongerAreaContradiction') is False,
+                 'G17_OBSERVED_GOALIE_STRENGTH_CONTRADICTION_NOT_CLEARED')
             if stage=='CONFIRMED':
                 need((c.get('lineupDisagreementReview') or {}).get('isTrulyConfirmed') is True,
                      'G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED')
