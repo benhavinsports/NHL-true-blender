@@ -108,10 +108,13 @@ def all_goalie_branches(game, stage):
         # A confirmed goalie replaces its expected branch, but an unconfirmed
         # matchup must retain its evidence-labelled EXPECTED/PROJECTED branch.
         # CONFIRMED describes the run phase, never an invented source status.
-        if stage=='CONFIRMED':
-            confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
-            if confirmed:
-                branches=confirmed
+        # A genuinely CONFIRMED starter supersedes projected/expected
+        # alternatives in either run phase. The old stage-only filter left
+        # two alleged starters in PROJECTED, despite an independently
+        # confirmed name, and G0 then failed before evaluating skaters.
+        confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
+        if confirmed:
+            branches=confirmed
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
         by_team[team]=[b for b in branches if str(b['data'].get('goalieId')) not in superseded]
