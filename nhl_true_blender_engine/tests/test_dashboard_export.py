@@ -27,8 +27,8 @@ def test_dashboard_exports_one_saved_core_real_36_checks_and_all_games(tmp_path)
         assert len(selected["gateDetails"])==36
         assert [g["gate"] for g in selected["gateDetails"]]==MASTER+OVERLAY
         assert selected["masterPassed"]==20
-        # Phase1 Step8 isn't proven in this fixture: never invent a PASS.
-        assert selected["overlayPassed"]<16
+        # A complete synthetic defensive-shift receipt can prove Step8.
+        assert selected["overlayPassed"]==16
         assert selected["sourceVerifiedPregameGateCount"]==(
             selected["masterPassed"]+selected["overlayPassed"])
         assert selected["gateDetails"][11]["gate"]=="G10.5"

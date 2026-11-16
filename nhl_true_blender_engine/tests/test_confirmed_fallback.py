@@ -26,10 +26,10 @@ def test_a_projected_finalist_is_explicitly_mixed_not_falsely_confirmed(tmp_path
     s=snapshot()
     s["games"][0]["rosters"]["T1A"]["data"]["players"][0]["deployment"]["data"]["status"]="PROJECTED"
     result=execute(con,s,DATE,"CONFIRMED")
-    assert result["card"],result["errors"]
-    assert result["card"]["stage"]=="MIXED"
+    assert result["card"] is None  # no certified Core from projected deployment
     row=con.execute("SELECT details,disposition FROM gates WHERE stage='CONFIRMED' AND player_id='1010' AND gate='G6'").fetchone()
-    assert row["disposition"]=="PASS"
+    assert row["disposition"]=="NOT_EXECUTED"
+    assert 'G6_PROJECTED_DEPLOYMENT_NOT_CONFIRMED' in row["details"]
     assert '"status":"PROJECTED"' in row["details"]
     con.close()
 

@@ -3,7 +3,7 @@ import json
 from nhl_true_blender_engine.engine import (MASTER,OVERLAY,execute,
      verify_complete_matrix,gate_record)
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.tests.test_engine import snapshot,DATE
+from nhl_true_blender_engine.tests.test_engine import snapshot,snapshot_without_shifts,DATE
 
 def _rows(con,player_id):
     return con.execute("""SELECT gate,disposition,details FROM gates
@@ -12,8 +12,8 @@ def _rows(con,player_id):
 
 def test_16_individual_overlay_source_checks_occur_before_G18(tmp_path):
     con=open_db(str(tmp_path/"overlay.sqlite"))
-    result=execute(con,snapshot(),"{}".format(DATE),"CONFIRMED")
-    assert result["card"] is not None,result["errors"]
+    result=execute(con,snapshot_without_shifts(),"{}".format(DATE),"CONFIRMED")
+    assert result["card"] is None  # incomplete Step8 cannot lock an internal card
     for player_id in ("1010","1020","1030"):
         rows=_rows(con,player_id)
         overlays=[x for x in rows if x["gate"] in OVERLAY]

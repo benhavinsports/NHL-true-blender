@@ -9,21 +9,27 @@ SRC = "https://example.org/synthetic-contract-evidence"
 DATE = (datetime.now(timezone.utc) + timedelta(days=15)).date().isoformat()
 START = (datetime.now(timezone.utc) + timedelta(days=15)).isoformat()
 
-def ev(data):
-    return {"sourceUrl": SRC, "observedAt": "2026-11-15T12:00:00Z", "data": data}
+def ev(data,source=SRC):
+    return {"sourceUrl": source, "observedAt": "2026-11-15T12:00:00Z", "data": data}
 
 def player(pid, attempts, goals):
     return {
         "id": str(pid), "name": "Test "+str(pid), "position": "C",
         "availability": "CONFIRMED", "jersey": 18,
-        "release": ev({"archetype": "wrist", "zone": "slot", "attempts": attempts, "ownedGoals": goals}),
+        "release": ev({"archetype": "wrist", "zone": "slot", "attempts": attempts, "ownedGoals": goals},SRC+"/shot-origin/"+str(pid)),
         "deployment": ev({"EV": "EV2", "PP": "PP2", "status": "CONFIRMED"}),
         "gameLog": ev({"appearances": [{"date": "2026-11-01", "shots": attempts}]}),
         "mappedGoals": ev({"goals": [{"goalId": str(pid)+":"+str(i), "date": "2026-11-01", "sourceUrl": SRC} for i in range(goals)]}),
         "officialGoalTotal": ev({"goals": goals}),
         "finishOwnership": ev({"recipient": True, "creditedGoalsVerified": True}),
         "pressure": ev({"recentAppearanceShots": attempts}),
-        "contradictions": ev({"goalieStrengthReview": "checked", "lineupDisagreementReview": "checked", "strongestRivalReview": "checked"})
+        "contradictions": ev({"sourceType":"FIXTURE_STRUCTURED_G17",
+            "unresolved":False,"anatomicalWeaknessCertified":True,
+            "goalieStrengthReview":{"matchedWeakAreas":1,"strongerAreaContradiction":False},
+            "lineupDisagreementReview":{"isTrulyConfirmed":True,
+               "hasProjectedOrConfirmedRole":True},
+            "strongestRivalReview":{"everyRivalReviewed":True,
+               "eachSameLaneDefeated":True}})
     }
 
 def fixture(n=3):
@@ -35,6 +41,14 @@ def fixture(n=3):
                    "weakZones": {"slot": {"sample": 200}},
                    "strengthZones": {"point": {"sample": 200}},
                    "sample": {"shots": 200}, "counterevidence": {"reviewed": True}})
+        shift_url="https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020300"
+        shift_evidence={"shiftByShift":[{
+             "zone":"slot","gameId":"2026020300","eventId":"11",
+             "period":1,"eventClock":"04:12",
+             "defendingOnIcePlayerIds":["11","22","33"],
+             "officialPlayByPlayUrl":"https://api-web.nhle.com/v1/gamecenter/2026020300/play-by-play",
+             "officialShiftChartUrl":shift_url}],
+             "shiftSourceUrls":[shift_url],"actualDefensiveShiftMatches":1}
         games.append({
             "id": str(9000+i), "date": DATE, "away": away, "home": home,
             "startUTC": START, "gameState": "FUT",
@@ -42,7 +56,7 @@ def fixture(n=3):
             "rosters": {away: ev({"players": [player(100+i*10, 30, 3), player(101+i*10, 10, 1)]}),
                         home: ev({"players": [player(102+i*10, 1, 0)]})},
             "context": ev({"venue": home, "rest": "verified"}),
-            "coverage": {away: ev({"greenWeakZones": ["slot"], "redStrongZones": ["point"]})}
+            "coverage": {away: ev({"greenWeakZones": ["slot"], "redStrongZones": ["point"],**shift_evidence})}
         })
     return {"games": games}
 
