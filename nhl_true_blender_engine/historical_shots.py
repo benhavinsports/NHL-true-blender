@@ -10,6 +10,7 @@ from .enrichment import ingest
 from .official_boxscore_history import collect_sampled_boxes
 from .official_defense_coverage import make_coverage
 from .shift_coverage import collect_shift_coverage
+from .secondary_sources import TEAM_SLUGS
 
 SHOT_TYPES = {"goal", "shot-on-goal", "missed-shot", "blocked-shot"}
 ON_NET = {"goal", "shot-on-goal"}
@@ -75,107 +76,135 @@ def goalie_summary(events, goalie_id):
             "note": "Shot type and rink coordinates cannot establish glove/blocker/five-hole."}
 
 async def collect_history(client, con, snapshot, slate_date, stage, max_games=8):
-    """Only pre-slate historical games. Never leak today's or future outcomes."""
-    teams = sorted({t for g in snapshot["games"] for t in (g["away"], g["home"])})
-    # Official club schedule endpoint provides historical game IDs and dates.
-    season_start = str(int(slate_date[:4]) if int(slate_date[5:7]) >= 9 else int(slate_date[:4])-1)
-    season = season_start + str(int(season_start)+1)
-    errors = []
-    history = {}
-    sem = asyncio.Semaphore(4)
+    """Collect target-team recent logs plus league-wide peer games for G9.
+
+    The target clubs' recent games feed player logs, official boxscore
+    reconciliation and shift joins. G9's peer median requires independent
+    samples from at least six OTHER clubs; fetching only today's four teams'
+    schedules made that impossible (all other teams had one game or fewer).
+    Therefore fetch the same bounded pre-slate window for every NHL club, but
+    keep non-target games out of individual player/goalie recent-log evidence.
+    """
+    target_teams=sorted({t for g in snapshot["games"] for t in (g["away"],g["home"])})
+    league_teams=sorted(TEAM_SLUGS)
+    season_start=str(int(slate_date[:4]) if int(slate_date[5:7])>=9 else int(slate_date[:4])-1)
+    season=season_start+str(int(season_start)+1)
+    errors=[];schedule_errors=[]
+    sem=asyncio.Semaphore(8)
     async def team_games(team):
-        try:
-            payload = await client.get(f"club-schedule-season/{team}/{season}")
-            games = payload["data"].get("games", [])
-            past = [g for g in games if str(g.get("gameDate", "")) < slate_date
-                    and g.get("gameState") in ("OFF", "FINAL")]
-            return team, past[-max_games:], None
-        except Exception as exc:
-            return team, [], str(exc)
-    responses = await asyncio.gather(*(team_games(t) for t in teams))
-    ids = {}
-    game_meta = {}
-    for team, games, err in responses:
-        if err:
-            errors.append({"team": team, "error": err})
-        for g in games:
-            if g.get("id"):
-                gid=str(g["id"])
-                ids[gid] = g.get("gameDate")
-                away=g.get("awayTeam") or {}
-                home=g.get("homeTeam") or {}
-                game_meta[gid]={
-                    "homeTeamId":str(home["id"]) if home.get("id") is not None else None,
-                    "awayTeamId":str(away["id"]) if away.get("id") is not None else None,
-                    "homeAbbrev":home.get("abbrev"),
-                    "awayAbbrev":away.get("abbrev")}
-    async def one(game_id, played):
         async with sem:
             try:
-                raw = await client.play_by_play(game_id)
-                return game_id, extract_events(raw, game_id, played), None
+                payload=await client.get(f"club-schedule-season/{team}/{season}")
+                games=payload["data"].get("games",[])
+                past=[g for g in games if str(g.get("gameDate",""))<slate_date
+                      and g.get("gameState") in ("OFF","FINAL")]
+                past.sort(key=lambda g:str(g.get("gameDate","")))
+                return team,past[-max_games:],None
             except Exception as exc:
-                return game_id, [], str(exc)
-    results = await asyncio.gather(*(one(g, d) for g, d in ids.items()))
-    events = []
-    for game_id, rows, err in results:
+                return team,[],f"{type(exc).__name__}: {exc}"
+    responses=await asyncio.gather(*(team_games(t) for t in league_teams))
+    target_ids={};coverage_ids={};game_meta={}
+    for team,games,err in responses:
         if err:
-            errors.append({"gameId": game_id, "error": err})
+            schedule_errors.append({"team":team,"error":err})
+            continue
+        for g in games:
+            if not g.get("id"):
+                continue
+            gid=str(g["id"])
+            coverage_ids[gid]=str(g.get("gameDate"))
+            if team in target_teams:
+                target_ids[gid]=str(g.get("gameDate"))
+            away=g.get("awayTeam") or {}
+            home=g.get("homeTeam") or {}
+            game_meta[gid]={
+                "homeTeamId":str(home["id"]) if home.get("id") is not None else None,
+                "awayTeamId":str(away["id"]) if away.get("id") is not None else None,
+                "homeAbbrev":home.get("abbrev"),
+                "awayAbbrev":away.get("abbrev")}
+    sem=asyncio.Semaphore(8)
+    async def one(game_id,played):
+        async with sem:
+            try:
+                raw=await client.play_by_play(game_id)
+                return game_id,extract_events(raw,game_id,played),None
+            except Exception as exc:
+                return game_id,[],f"{type(exc).__name__}: {exc}"
+    results=await asyncio.gather(*(one(gid,played) for gid,played in coverage_ids.items()))
+    coverage_events=[];pbp_errors=[]
+    for game_id,rows,err in results:
+        if err:
+            pbp_errors.append({"gameId":game_id,"error":err})
         else:
-            events.extend(rows)
-    boxscore_receipts=await collect_sampled_boxes(client,con,snapshot,slate_date,stage,ids,events)
-    shift_receipts=await collect_shift_coverage(ids,events,game_meta)
-    coverage_receipts=make_coverage(con,snapshot,slate_date,stage,events,game_meta,shift_receipts)
+            coverage_events.extend(rows)
+    target_events=[e for e in coverage_events if str(e["gameId"]) in target_ids]
+    target_game_meta={gid:game_meta[gid] for gid in target_ids if gid in game_meta}
+    # Only target-club games contribute to the candidate's actual appearances,
+    # goal credits, pressure samples and historical defensive shift receipts.
+    boxscore_receipts=await collect_sampled_boxes(
+        client,con,snapshot,slate_date,stage,target_ids,target_events)
+    shift_receipts=await collect_shift_coverage(
+        target_ids,target_events,target_game_meta)
+    # G9 uses every club's independently sampled recent PBP attempts to build
+    # a true league peer comparison; it never treats one-off opponents as a
+    # six-game defensive sample.
+    coverage_receipts=make_coverage(
+        con,snapshot,slate_date,stage,coverage_events,game_meta,shift_receipts)
     for game in snapshot["games"]:
-        for team in (game["away"], game["home"]):
-            roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
+        for team in (game["away"],game["home"]):
+            roster=(game.get("rosters",{}).get(team) or {}).get("data",{}).get("players",[])
             for player in roster:
-                pid = player["id"]
-                summary = shooter_summary(events, pid)
+                pid=player["id"]
+                summary=shooter_summary(target_events,pid)
                 if not summary["attempts"]:
                     continue
-                urls = sorted({e["sourceUrl"] for e in events if e["shooterId"] == str(pid)})
-                payload = {"recentAppearanceShots": summary["attempts"],
-                           "shotsOnGoal": summary["shotsOnGoal"],
-                           "ownedGoals": summary["ownedGoals"],
-                           "byShotType": summary["byShotType"],
-                           "historicalSourceUrls": urls,
-                           "sampleGameIds": sorted({e["gameId"] for e in events if e["shooterId"] == str(pid)}),
-                           "evidenceType": "OFFICIAL_HISTORICAL_SHOT_EVENTS"}
-                ingest(con, {"evidence_id": f"historical-pressure-{slate_date}-{stage}-{game['id']}-{pid}",
-                    "slate_date": slate_date, "stage": stage, "game_id": game["id"],
-                    "player_id": pid, "kind": "PLAYER_PRESSURE",
-                    "source_url": urls[0], "observed_at": datetime.now(timezone.utc).isoformat(),
-                    "payload": payload})
-    # Preserve every official historical goal as a source-linked recipient event.
-    # This is distinct from a speculative release lane or anatomical goalie weakness.
+                urls=sorted({e["sourceUrl"] for e in target_events if e["shooterId"]==str(pid)})
+                payload={"recentAppearanceShots":summary["attempts"],
+                         "shotsOnGoal":summary["shotsOnGoal"],
+                         "ownedGoals":summary["ownedGoals"],
+                         "byShotType":summary["byShotType"],
+                         "historicalSourceUrls":urls,
+                         "sampleGameIds":sorted({e["gameId"] for e in target_events if e["shooterId"]==str(pid)}),
+                         "evidenceType":"OFFICIAL_HISTORICAL_SHOT_EVENTS"}
+                ingest(con,{"evidence_id":f"historical-pressure-{slate_date}-{stage}-{game['id']}-{pid}",
+                    "slate_date":slate_date,"stage":stage,"game_id":game["id"],
+                    "player_id":pid,"kind":"PLAYER_PRESSURE",
+                    "source_url":urls[0],"observed_at":datetime.now(timezone.utc).isoformat(),
+                    "payload":payload})
+    # Preserve every official target-player goal as a source-linked recipient event.
     for game in snapshot["games"]:
-        for team in (game["away"], game["home"]):
-            roster = (game.get("rosters", {}).get(team) or {}).get("data", {}).get("players", [])
+        for team in (game["away"],game["home"]):
+            roster=(game.get("rosters",{}).get(team) or {}).get("data",{}).get("players",[])
             for player in roster:
-                pid = str(player["id"])
-                own = [e for e in events if e["shooterId"] == pid]
+                pid=str(player["id"])
+                own=[e for e in target_events if e["shooterId"]==pid]
                 if not own:
                     continue
-                goals = [e for e in own if e["type"] == "goal"]
-                urls = sorted({e["sourceUrl"] for e in own})
-                observed = datetime.now(timezone.utc).isoformat()
-                base = {"slate_date": slate_date, "stage": stage,
-                        "game_id": game["id"], "player_id": pid,
-                        "source_url": urls[0], "observed_at": observed}
-                mapped = [{"goalId": e["gameId"] + ":" + e["eventId"],
-                           "date": e["date"], "sourceUrl": e["sourceUrl"]}
-                          for e in goals]
-                ingest(con, {**base,
-                    "evidence_id": f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",
-                    "kind": "PLAYER_GOAL_EVENTS",
-                    "payload": {"goals": mapped, "scope": "SAMPLED_PRE_SLATE_GAMES_ONLY",
-                                "completeSeason": False}})
-                # Sample counts must never masquerade as season-wide official totals.
-    return {"historicalGames": len(ids), "shotEvents": len(events),
-            "errors": errors, "goalieIdentityEvents": sum(e["goalieId"] is not None for e in events),
-            "anatomicalGoalieWeaknessVerified": False,
-            "boxscoreGoalLogReconciliation": boxscore_receipts,
+                goals=[e for e in own if e["type"]=="goal"]
+                urls=sorted({e["sourceUrl"] for e in own})
+                observed=datetime.now(timezone.utc).isoformat()
+                base={"slate_date":slate_date,"stage":stage,"game_id":game["id"],
+                      "player_id":pid,"source_url":urls[0],"observed_at":observed}
+                mapped=[{"goalId":e["gameId"]+":"+e["eventId"],
+                         "date":e["date"],"sourceUrl":e["sourceUrl"]}
+                        for e in goals]
+                ingest(con,{**base,
+                    "evidence_id":f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",
+                    "kind":"PLAYER_GOAL_EVENTS",
+                    "payload":{"goals":mapped,"scope":"SAMPLED_PRE_SLATE_GAMES_ONLY",
+                               "completeSeason":False}})
+    errors=schedule_errors+pbp_errors
+    return {"historicalGames":len(target_ids),"shotEvents":len(target_events),
+            "coveragePeerGames":len(coverage_ids),
+            "coveragePeerTeams":len(league_teams),
+            "coveragePeerEvents":len(coverage_events),
+            "coveragePeerFetchFailures":len(pbp_errors),
+            "teamScheduleSources":len(league_teams)-len(schedule_errors),
+            "errors":errors,"goalieIdentityEvents":sum(e["goalieId"] is not None for e in target_events),
+            "anatomicalGoalieWeaknessVerified":False,
+            "boxscoreGoalLogReconciliation":boxscore_receipts,
             "defensiveCoverage":coverage_receipts,
             "historicalDefensiveShiftCoverage":{
-                k:v for k,v in shift_receipts.items() if k!='byDefendingTeamId'}}
+                k:v for k,v in shift_receipts.items() if k!='byDefendingTeamId'},
+            "G9PeerSampleIsLeagueWide":True,
+            "candidateRecentLogsExcludeNonTargetPeerGames":True}
