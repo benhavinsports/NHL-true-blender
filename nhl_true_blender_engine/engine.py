@@ -108,18 +108,33 @@ def g0_full_slate(games, stage):
             proofs=[]
             for src in branches:
                 x=src['data']; weak=x.get('weakZones',{})
+                # A source-proven STRONG goalie has NO weak zones but still
+                # has a measured independent G0 profile. Do not erase the
+                # negative/strong goalie receipt or choose the other side
+                # simply because this goalie lacked a weak zone.
+                source_reviewed=(bool(weak) and bool(x.get('sample')) and
+                                 x.get('counterevidence') is not None) or bool(
+                    x.get('sourceReviewed') is True or
+                    (x.get('sourceClass')=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY'
+                     and x.get('fullySourceComparedAreas',0)>0))
                 proof={'goalieId':x.get('goalieId'),'status':x.get('status'),
                        'sourceUrl':src['sourceUrl'],'observedAt':src['observedAt'],
                        'weakZones':weak,'strengthZones':x.get('strengthZones',{}),
                        'counterevidence':x.get('counterevidence'),
                        'sample':x.get('sample'),
+                       'profileReviewed':source_reviewed,
+                       'evidenceScope':x.get('evidenceScope') or x.get('sourceType'),
+                       'sourceClass':x.get('sourceClass'),
+                       'goalieProfileSourceUrl':x.get('goalieProfileSourceUrl'),
                        'goalieTeam':defender}
                 proofs.append(proof)
-            complete=bool(proofs) and all(bool(p['weakZones']) and bool(p['sample'])
+            complete=bool(proofs) and all(p['profileReviewed'] and bool(p['sample'])
                     and p['counterevidence'] is not None for p in proofs)
             scan.append({'gameId':str(game['id']),'attacker':attacker,'defender':defender,
-                         'targetGoalies':proofs,'goalieProfileEvidenced':complete})
-            if not complete:error.append(f"G0 {game['id']} {attacker} attacking {defender}: independent goalie weak-zone evidence not complete")
+                         'targetGoalies':proofs,'goalieProfileEvidenced':complete,
+                         'attackableWeakZoneFound':any(bool(p['weakZones']) for p in proofs),
+                         'oppositeDirectionMustAlsoBeReviewed':True})
+            if not complete:error.append(f"G0 {game['id']} {attacker} attacking {defender}: independent source-backed goalie sample or peer review incomplete")
     return scan,error
 
 
@@ -1086,26 +1101,28 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     # market, arbitrary weights, or alphabetic tiebreaks.
     selected_directions={}
     for match in games:
-        options=[x for x in scan if x['gameId']==str(match['id'])
-                 and x['goalieProfileEvidenced']]
-        if not options:
-            errors.append(f"{match['id']} G0 no independently evidenced goalie target")
-            continue
-        if len(options)==1:
-            selected_directions[str(match['id'])]=options[0]
-            continue
-        if len(options)!=2:
-            errors.append(f"{match['id']} G0 conflicting target goalie branches")
+        options=[x for x in scan if x['gameId']==str(match['id'])]
+        # HARD G0 DEPENDENCY: both source-backed starter profiles must be
+        # observed, even when one is independently measured as stronger/no
+        # weakness. The old len(options)==1 route selected a team SOLELY
+        # because the opposing goalie had no data, never an evidence decision.
+        if len(options)!=2 or not all(o['goalieProfileEvidenced'] for o in options):
+            errors.append(f"{match['id']} G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule")
             continue
         def weakness_vector(direction):
             profiles=direction['targetGoalies']
             if len(profiles)!=1:
                 return None
             zones=profiles[0]['weakZones']
-            if not isinstance(zones,dict) or not zones:
+            if not isinstance(zones,dict):
                 return None
-            # G0 compares independently certified goalie weakness zones,
-            # never skater fame, player picks, or unverified shot coordinates.
+            # The goalie may have NO weak origins in a separately observed,
+            # sufficient NHL EDGE/PBP sample: that is source-backed negative
+            # evidence, not an unresolved or assumed weakness.
+            if not zones and not profiles[0].get('profileReviewed'):
+                return None
+            # G0 compares evidence-backed goalie-origin lanes. Never
+            # infer glove/blocker/five-hole from these rink coordinates.
             return set(zones)
         left,right=(weakness_vector(x) for x in options)
         if left is not None and right is not None and left!=right:
