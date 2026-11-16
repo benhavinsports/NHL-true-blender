@@ -679,3 +679,82 @@ a{color:#70eff5}
 @media(prefers-reduced-motion:reduce){
  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+
+/* Full 36-gate card deck. Every gate is equally sized: no five-gate priority. */
+.gate-decks{
+  position:relative;background:linear-gradient(170deg,#132c60dc,#1334699e);
+  padding:13px 14px 9px;border-bottom:3px solid #4269a6;display:grid;gap:11px;
+}
+.gate-deck-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid #7993ba63;padding:5px 1px 11px;
+}
+.gate-deck-header strong{
+  font-family:ui-monospace,Consolas,monospace;font-size:10px;
+  color:#ffdb83;text-align:right;letter-spacing:.015em;
+}
+.gate-deck-group{min-width:0}
+.gate-group-heading{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:7px;margin:0 2px 9px;
+  color:#ecf8ff;font-family:ui-monospace,monospace;
+  font-weight:950;letter-spacing:.035em;font-size:11px;
+}
+.gate-group-heading small{color:#98badb;font-size:9px;letter-spacing:.015em;text-align:right}
+.gate-deck-list{
+  display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;
+  scrollbar-color:#548ecb #10264f;scrollbar-width:thin;
+  padding:5px 4px 13px;min-width:0;
+}
+.gate-mini-card{
+  --gate-ink:#2879bf;
+  display:flex;flex-direction:column;justify-content:space-between;
+  align-items:center;text-align:center;position:relative;flex:0 0 96px;
+  height:123px;min-height:123px;padding:7px 5px 9px;gap:5px;
+  background:linear-gradient(155deg,#fffdf0,#eee9d5);
+  color:#173456;border:3px solid #f9f5e4;border-radius:8px;
+  box-shadow:0 0 0 1px #0c2859,3px 5px 0 #0b1b46,4px 9px 15px #020c2e83;
+  scroll-snap-align:start;transition:transform .16s,border-color .16s;
+}
+.gate-mini-card:before{
+  content:"";position:absolute;inset:3px;
+  border:2px solid var(--gate-ink);border-radius:4px;pointer-events:none;
+}
+.gate-mini-card:hover,.gate-mini-card:focus-visible{
+  transform:translateY(-4px);border-color:#87f9ee;
+  box-shadow:0 0 0 2px #89ede4,3px 9px 0 #10285a;
+}
+.gate-mini-0{--gate-ink:#267dbe}
+.gate-mini-1{--gate-ink:#169c98}
+.gate-mini-2{--gate-ink:#b96a30}
+.gate-mini-3{--gate-ink:#8250be}
+.gate-mini-4{--gate-ink:#258e67}
+.mini-gate-code{
+  align-self:start;position:relative;color:var(--gate-ink);
+  font-family:ui-monospace,Consolas,monospace;font-size:14px;font-weight:1000;
+  margin-left:6px;letter-spacing:-.05em;
+}
+.mini-gate-symbol{font-size:28px;line-height:1;color:var(--gate-ink);opacity:.72}
+.mini-gate-title{
+  font-family:ui-monospace,monospace;
+  color:#193b58;font-size:9px;line-height:1.17;font-weight:950;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  line-clamp:3;overflow:hidden;max-width:100%;
+}
+.gate-deck-footnote{
+  color:#b6d6ed;line-height:1.5;font-size:10px;margin:0 0 3px;
+}
+@media(max-width:650px){
+  .gate-decks{padding:11px 10px 8px;gap:9px}
+  .gate-deck-header{align-items:start;gap:7px}
+  .gate-deck-header .eyebrow{font-size:9px;line-height:1.35}
+  .gate-deck-header strong{font-size:9px;max-width:50%}
+  .gate-group-heading{font-size:10px}
+  .gate-group-heading small{font-size:8px;max-width:46%}
+  .gate-mini-card{flex-basis:88px;height:114px;min-height:114px}
+  .mini-gate-code{font-size:12px}
+  .mini-gate-symbol{font-size:25px}
+  .mini-gate-title{font-size:8.5px}
+  .gate-deck-footnote{font-size:10px}
+}
