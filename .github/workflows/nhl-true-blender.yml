@@ -246,6 +246,17 @@ jobs:
                       card=json.loads(cardpath.read_text(encoding='utf-8'))
                       if card.get('cardId')!=status.get('cardId') or card.get('verified') is not True:
                           problems.append('Published Core does not match certified run ledger')
+              # Independent output acceptance: prove the *actual published*
+              # Core, not just internally reported certification flags.
+              # The full player matrix was checked by the engine; verify the
+              # exported two/three survivors have every independently
+              # executed, source-backed, ordered pre-puck gate and overlay.
+              try:
+                  from scripts.verify_published_core import verify_published_core
+                  result=verify_published_core(Path('state'),date)
+                  print('INDEPENDENT CORE CONTRACT:',json.dumps(result))
+              except Exception as exc:
+                  problems.append('Full 36-gate published Core verification failed: '+str(exc))
           print('Scheduled Blender phase:',date,mode)
           print('Verification:',test,'engine:',engine,'persist:',persist)
           if problems:
