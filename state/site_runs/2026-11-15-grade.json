@@ -128,8 +128,10 @@
           "auditFlags": [
             "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
             "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+            "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
           ],
+          "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
           "chosenGoals": 1,
           "gameId": "2026020327",
           "lockedPath": "PRIMARY",
@@ -1717,6 +1719,54 @@
               "status": "PASS"
             }
           },
+          "pregameBothG0Directions": [
+            {
+              "attackTeam": "DAL",
+              "defendTeam": "FLA",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8481033"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": true,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "CONFIRMED"
+              ],
+              "weakZonesByGoalie": [
+                [
+                  "Center Point",
+                  "Low Slot",
+                  "R Circle"
+                ]
+              ]
+            },
+            {
+              "attackTeam": "FLA",
+              "defendTeam": "DAL",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8479193"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": false,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "EXPECTED"
+              ],
+              "weakZonesByGoalie": [
+                []
+              ]
+            }
+          ],
           "retrospectiveGoalScorersMarkedDefeated": [
             "8482740"
           ],
@@ -1729,8 +1779,10 @@
             "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
             "OPPOSITE_G0_DIRECTION_SCORED_MORE_POSTGAME_ONLY",
             "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+            "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
           ],
+          "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
           "chosenGoals": 0,
           "gameId": "2026020328",
           "lockedPath": "PRIMARY",
@@ -3326,6 +3378,52 @@
               "status": "PASS"
             }
           },
+          "pregameBothG0Directions": [
+            {
+              "attackTeam": "ANA",
+              "defendTeam": "CGY",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8482445"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": false,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "CONFIRMED"
+              ],
+              "weakZonesByGoalie": [
+                []
+              ]
+            },
+            {
+              "attackTeam": "CGY",
+              "defendTeam": "ANA",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8478024"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": true,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "EXPECTED"
+              ],
+              "weakZonesByGoalie": [
+                [
+                  "Low Slot"
+                ]
+              ]
+            }
+          ],
           "retrospectiveGoalScorersMarkedDefeated": [
             "8474150"
           ],
@@ -3337,8 +3435,10 @@
             "LOCKED_SCORER_DID_NOT_SCORE",
             "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
             "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+            "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+            "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
           ],
+          "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
           "chosenGoals": 0,
           "gameId": "2026020326",
           "lockedPath": "PRIMARY",
@@ -5088,6 +5188,52 @@
               "status": "PASS"
             }
           },
+          "pregameBothG0Directions": [
+            {
+              "attackTeam": "EDM",
+              "defendTeam": "PHI",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8478435"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": true,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "CONFIRMED"
+              ],
+              "weakZonesByGoalie": [
+                [
+                  "L Circle"
+                ]
+              ]
+            },
+            {
+              "attackTeam": "PHI",
+              "defendTeam": "EDM",
+              "evaluatedAt": "2026-11-15T18:59:56-05:00",
+              "goalieIds": [
+                "8477465"
+              ],
+              "goalieProfileSourceUrls": [
+                "https://www.betweenthelineshockey.com/tonight.md"
+              ],
+              "originalStage": "CONFIRMED",
+              "postgameObservationsNotUsed": true,
+              "sourceProfileEvidenced": false,
+              "sourceReceiptCount": 1,
+              "starterStatuses": [
+                "EXPECTED"
+              ],
+              "weakZonesByGoalie": [
+                []
+              ]
+            }
+          ],
           "retrospectiveGoalScorersMarkedDefeated": [
             "8478402",
             "8477934",
@@ -5193,8 +5339,10 @@
         "auditFlags": [
           "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
           "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+          "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
         ],
+        "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
         "chosenGoals": 1,
         "gameId": "2026020327",
         "lockedPath": "PRIMARY",
@@ -6782,6 +6930,54 @@
             "status": "PASS"
           }
         },
+        "pregameBothG0Directions": [
+          {
+            "attackTeam": "DAL",
+            "defendTeam": "FLA",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8481033"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": true,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "CONFIRMED"
+            ],
+            "weakZonesByGoalie": [
+              [
+                "Center Point",
+                "Low Slot",
+                "R Circle"
+              ]
+            ]
+          },
+          {
+            "attackTeam": "FLA",
+            "defendTeam": "DAL",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8479193"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": false,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "EXPECTED"
+            ],
+            "weakZonesByGoalie": [
+              []
+            ]
+          }
+        ],
         "retrospectiveGoalScorersMarkedDefeated": [
           "8482740"
         ],
@@ -6794,8 +6990,10 @@
           "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
           "OPPOSITE_G0_DIRECTION_SCORED_MORE_POSTGAME_ONLY",
           "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+          "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
         ],
+        "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
         "chosenGoals": 0,
         "gameId": "2026020328",
         "lockedPath": "PRIMARY",
@@ -8391,6 +8589,52 @@
             "status": "PASS"
           }
         },
+        "pregameBothG0Directions": [
+          {
+            "attackTeam": "ANA",
+            "defendTeam": "CGY",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8482445"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": false,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "CONFIRMED"
+            ],
+            "weakZonesByGoalie": [
+              []
+            ]
+          },
+          {
+            "attackTeam": "CGY",
+            "defendTeam": "ANA",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8478024"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": true,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "EXPECTED"
+            ],
+            "weakZonesByGoalie": [
+              [
+                "Low Slot"
+              ]
+            ]
+          }
+        ],
         "retrospectiveGoalScorersMarkedDefeated": [
           "8474150"
         ],
@@ -8402,8 +8646,10 @@
           "LOCKED_SCORER_DID_NOT_SCORE",
           "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
           "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED",
-          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF"
+          "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF",
+          "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED"
         ],
+        "bothGoalieDirectionsWereFullySourceReviewedBeforePuck": false,
         "chosenGoals": 0,
         "gameId": "2026020326",
         "lockedPath": "PRIMARY",
@@ -10153,6 +10399,52 @@
             "status": "PASS"
           }
         },
+        "pregameBothG0Directions": [
+          {
+            "attackTeam": "EDM",
+            "defendTeam": "PHI",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8478435"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": true,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "CONFIRMED"
+            ],
+            "weakZonesByGoalie": [
+              [
+                "L Circle"
+              ]
+            ]
+          },
+          {
+            "attackTeam": "PHI",
+            "defendTeam": "EDM",
+            "evaluatedAt": "2026-11-15T18:59:56-05:00",
+            "goalieIds": [
+              "8477465"
+            ],
+            "goalieProfileSourceUrls": [
+              "https://www.betweenthelineshockey.com/tonight.md"
+            ],
+            "originalStage": "CONFIRMED",
+            "postgameObservationsNotUsed": true,
+            "sourceProfileEvidenced": false,
+            "sourceReceiptCount": 1,
+            "starterStatuses": [
+              "EXPECTED"
+            ],
+            "weakZonesByGoalie": [
+              []
+            ]
+          }
+        ],
         "retrospectiveGoalScorersMarkedDefeated": [
           "8478402",
           "8477934",
