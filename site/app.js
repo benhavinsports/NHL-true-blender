@@ -639,6 +639,47 @@ function renderSystem(){
  ];
  for(const [label,value] of rows){const d=el("div","system-stat");d.appendChild(el("strong","",value));d.appendChild(el("span","",label));grid.appendChild(d);}
  host.appendChild(grid);
+ const twoGoalieDecisions=x.g0TwoGoalieDirectionDecisions||{};
+ if(Object.keys(twoGoalieDecisions).length){
+   const panel=el("details","collapse");
+   const ready=Object.keys(twoGoalieDecisions).length;
+   panel.appendChild(el("summary","",
+     "G0 · BOTH goalies reviewed • "+ready+" game"+(ready===1?"":"s")+" source-selected"));
+   panel.appendChild(el("p","small muted",
+     "Source-backed goalie direction is decided before any skater gates. NHL EDGE origin percentile is not glove, blocker, or five-hole location."));
+   for(const [gameId,entry] of Object.entries(twoGoalieDecisions)){
+     const game=el("div","match");
+     const head=el("div","match-head");
+     head.appendChild(el("strong","",entry.attackingTeam+" ATTACKS "+entry.targetGoalieTeam+" • GAME "+gameId));
+     head.appendChild(pill(entry.bothGoaliesReviewedFirst===true?"2 GOALIES VERIFIED":"G0 SOURCE GAP",
+         entry.bothGoaliesReviewedFirst===true?"success":"warning"));
+     game.appendChild(head);
+     const proof=entry.decisionEvidence||{};
+     game.appendChild(el("p","small muted","Evidence method: "+
+        (entry.goalieSourceMethod||"Source-scoped goalie comparison").replace(/_/g," ")));
+     if(proof.winnerWeakOrigin){
+       game.appendChild(el("p","",
+          "Attacked goalie: "+proof.winnerWeakOrigin+" · save% peer percentile: "+
+          proof.winnerGoaliePeerSavePercentile+" · "+proof.winnerGoalsAllowedFromOrigin+
+          " allowed / "+proof.winnerGoalieOnNetShots+" on-net shots"));
+       game.appendChild(el("p","",
+          "Opposite goalie: "+proof.oppositeWeakOrigin+" · save% peer percentile: "+
+          proof.oppositeGoaliePeerSavePercentile+" · "+proof.oppositeGoalsAllowedFromOrigin+
+          " allowed / "+proof.oppositeGoalieOnNetShots+" on-net shots"));
+     }
+     const urls=el("div","source-links");
+     unique(proof.goalieSourceUrls||[]).map(u=>link(u,"NHL goalie evidence"))
+        .filter(Boolean).forEach(a=>urls.appendChild(a));
+     game.appendChild(urls);panel.appendChild(game);
+   }
+   const fallback=x.g0OfficialPbpFallback||{};
+   if(fallback.status){
+      panel.appendChild(el("p","small muted",
+       "Historical PBP fallback: "+fallback.status.replace(/_/g," ")+
+       " · goalie profiles recovered: "+(fallback.fallbackProfiles||0)));
+   }
+   host.appendChild(panel);
+ }
  if(x.lineupSourceCoverage||x.edgeSourceCoverage){
    const sources=el("details","collapse");
    sources.appendChild(el("summary","","Official source connection summary"));
