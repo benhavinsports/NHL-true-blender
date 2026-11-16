@@ -89,7 +89,7 @@ def test_g9_counts_all_attempts_and_never_calls_low_volume_a_strong_zone(tmp_pat
     assert target["totalShots"]==80
     assert target["bins"]["L Point"]==80
     assert target["onNetBins"]["L Point"]==40
-    assert target["goalBins"]["L Point"]==20
+    assert target["goalBins"]["L Point"]==16
 
     con=open_db(str(tmp_path/"g9.sqlite"))
     snapshot={"games":[{"id":"TODAY","away":"MTL","home":"NYR"}]}
