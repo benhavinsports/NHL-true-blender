@@ -175,13 +175,74 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run deploy-pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+      - name: Assert saved Core and execution certification
+        id: assert_certification
+        if: always()
+        env:
+          EXECUTED_MODE: ${{ env.BLENDER_EXECUTED_MODE }}
+          EXECUTED_DATE: ${{ env.BLENDER_EXECUTED_DATE }}
+          VERIFIED_TEST_OUTCOME: ${{ steps.verification.outcome }}
+          ENGINE_OUTCOME: ${{ steps.engine.outcome }}
+          PERSIST_OUTCOME: ${{ steps.persist.outcome }}
+        run: |
+          # The collector is allowed to save diagnostics even when it cannot
+          # select the original Core. But a GREEN GitHub workflow must mean
+          # the scheduled phase actually passed. Never mask source gaps with
+          # continue-on-error or an ordinary zero-exit Python runner.
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          test=os.environ.get('VERIFIED_TEST_OUTCOME')
+          engine=os.environ.get('ENGINE_OUTCOME')
+          persist=os.environ.get('PERSIST_OUTCOME')
+          date=os.environ.get('EXECUTED_DATE')
+          mode=os.environ.get('EXECUTED_MODE')
+          problems=[]
+          if test!='success':
+              problems.append('End-to-end verification suite did not pass: '+str(test))
+          if engine!='success':
+              problems.append('Blender engine step did not complete: '+str(engine))
+          if persist=='failure':
+              problems.append('Authoritative card/evidence persistence failed')
+          if mode in ('projected','confirmed'):
+              path=Path('state/site_runs')/f'{date}.json'
+              try:
+                  status=json.loads(path.read_text(encoding='utf-8'))
+              except (OSError,ValueError) as exc:
+                  problems.append('Missing/invalid saved source certification: '+str(exc))
+              else:
+                  # A JSON ledger that was saved is not proof the Blender
+                  # selected and certified any Core scorers. This is the
+                  # regression that repeatedly presented a green check.
+                  if status.get('slateDate')!=date:
+                      problems.append('Saved certification has wrong slate date')
+                  if not status.get('currentRunFullyCertified'):
+                      problems.append('Core not fully certified: '+str(status.get('errors') or status.get('publicationDecision')))
+                  if not status.get('publishedToSite') or not status.get('cardId'):
+                      problems.append('No verified authoritative Core published')
+                  cardpath=Path('state/site_cards')/f'{date}.json'
+                  if not cardpath.is_file():
+                      problems.append('Canonical Core file missing: '+str(cardpath))
+                  else:
+                      card=json.loads(cardpath.read_text(encoding='utf-8'))
+                      if card.get('cardId')!=status.get('cardId') or card.get('verified') is not True:
+                          problems.append('Published Core does not match certified run ledger')
+          print('Scheduled Blender phase:',date,mode)
+          print('Verification:',test,'engine:',engine,'persist:',persist)
+          if problems:
+              for problem in problems:
+                  print('::error::'+problem)
+              raise SystemExit('BLENDER EXECUTION FAILED CERTIFICATION; evidence was preserved')
+          print('BLENDER VERIFIED: tests, phase and canonical evidence match.')
+          PY
       - name: Publish engine execution diagnostics
         if: always()
         run: |
           echo '## Blender execution status' >> "$GITHUB_STEP_SUMMARY"
           echo 'Verification: ${{ steps.verification.outcome }}' >> "$GITHUB_STEP_SUMMARY"
           echo 'Engine: ${{ steps.engine.outcome }}' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Verification failure never substitutes for a verified Core.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Certification assertion: ${{ steps.assert_certification.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'A passing workflow MUST have a certified, saved Core when projected/confirmed.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
