@@ -11,7 +11,7 @@ from nhl_true_blender_engine.engine import execute,g0_full_slate
 from nhl_true_blender_engine.tests.test_engine import game,snapshot,DATE,evidence
 from nhl_true_blender_engine.goalie_history_fallback import (
     pregame_log_games,summarize_goalie_origin_pbp,
-    derive_independent_pbp_goalie_profile)
+    derive_independent_pbp_goalie_profile,needs_independent_pbp)
 
 SRC="https://api-web.nhle.com/v1/gamecenter/2026020001/play-by-play"
 
@@ -123,3 +123,20 @@ def test_sample_insufficient_does_not_certify_weakness():
     prof=derive_independent_pbp_goalie_profile("44",summarize_goalie_origin_pbp(events))
     assert prof["weakZones"]=={}
     assert prof["fullySourceComparedAreas"]==0
+
+def test_unqualified_edge_goalie_origin_triggers_independent_pbp_research():
+    source={"sourceClass":"DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+            "observedAreas":{"Low Slot":{"shotsAgainst":30}},
+            "sample":{"allZoneObservations":30},
+            "sourceReviewed":False,"weakZones":{}}
+    # Thirty observed shots without a proven peer comparison is NOT a
+    # certified G0 goalie review.
+    assert needs_independent_pbp(source) is True
+    source["sourceReviewed"]=True
+    assert needs_independent_pbp(source) is False
+    pbp={"sourceClass":"INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY",
+         "fullySourceComparedAreas":0}
+    assert needs_independent_pbp(pbp) is True
+    pbp["fullySourceComparedAreas"]=1
+    assert needs_independent_pbp(pbp) is False
+
