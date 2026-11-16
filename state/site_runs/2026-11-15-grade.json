@@ -1,0 +1,191 @@
+{
+  "cardId": "NHL-2026-11-15-CANONICAL",
+  "grade": {
+    "cardId": "NHL-2026-11-15-CANONICAL",
+    "gradedAt": "2026-11-15T22:49:29-05:00",
+    "hits": 1,
+    "legs": 3,
+    "missAudits": [
+      {
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
+        "gameId": "2026020328",
+        "patchesToAudit": [],
+        "player": "Morgan Frost"
+      },
+      {
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
+        "gameId": "2026020326",
+        "patchesToAudit": [],
+        "player": "Evan Bouchard"
+      }
+    ],
+    "officialSources": [
+      "https://api-web.nhle.com/v1/score/2026-11-15",
+      "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+    ],
+    "patchAdjudication": {
+      "activated": [],
+      "cardId": "NHL-2026-11-15-CANONICAL",
+      "decisions": [
+        {
+          "cardId": "NHL-2026-11-15-CANONICAL",
+          "codeAutomaticallyChanged": false,
+          "gameId": "2026020328",
+          "officialGoals": 0,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-15",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+          ],
+          "outcome": "MISS",
+          "playerId": "8480028",
+          "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+          "slateDate": "2026-11-15",
+          "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+        },
+        {
+          "cardId": "NHL-2026-11-15-CANONICAL",
+          "codeAutomaticallyChanged": false,
+          "gameId": "2026020326",
+          "officialGoals": 0,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-15",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+          ],
+          "outcome": "MISS",
+          "playerId": "8480803",
+          "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+          "slateDate": "2026-11-15",
+          "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+        }
+      ],
+      "missCount": 2,
+      "noUnprovenRuleChange": true,
+      "originalCardUntouched": true,
+      "slateDate": "2026-11-15",
+      "status": "POSTGAME_PATCH_ADJUDICATED"
+    },
+    "patchStatus": "NO_CAUSALLY_PROVEN_PATCH_TRIGGER",
+    "patchesApplied": [],
+    "patchesFutureSlatesOnly": true,
+    "playerResults": [
+      {
+        "gameId": "2026020327",
+        "goals": 1,
+        "player": "Jason Robertson",
+        "playerId": "8480027",
+        "result": "HIT"
+      },
+      {
+        "gameId": "2026020328",
+        "goals": 0,
+        "player": "Morgan Frost",
+        "playerId": "8480028",
+        "result": "MISS"
+      },
+      {
+        "gameId": "2026020326",
+        "goals": 0,
+        "player": "Evan Bouchard",
+        "playerId": "8480803",
+        "result": "MISS"
+      }
+    ],
+    "result": "LOSS"
+  },
+  "missAudits": [
+    {
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
+      "gameId": "2026020328",
+      "patchesToAudit": [],
+      "player": "Morgan Frost"
+    },
+    {
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
+      "gameId": "2026020326",
+      "patchesToAudit": [],
+      "player": "Evan Bouchard"
+    }
+  ],
+  "mode": "grade",
+  "originalCardPreserved": true,
+  "patchAdjudication": {
+    "activated": [],
+    "cardId": "NHL-2026-11-15-CANONICAL",
+    "decisions": [
+      {
+        "cardId": "NHL-2026-11-15-CANONICAL",
+        "codeAutomaticallyChanged": false,
+        "gameId": "2026020328",
+        "officialGoals": 0,
+        "officialSources": [
+          "https://api-web.nhle.com/v1/score/2026-11-15",
+          "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+        ],
+        "outcome": "MISS",
+        "playerId": "8480028",
+        "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+        "slateDate": "2026-11-15",
+        "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+      },
+      {
+        "cardId": "NHL-2026-11-15-CANONICAL",
+        "codeAutomaticallyChanged": false,
+        "gameId": "2026020326",
+        "officialGoals": 0,
+        "officialSources": [
+          "https://api-web.nhle.com/v1/score/2026-11-15",
+          "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+        ],
+        "outcome": "MISS",
+        "playerId": "8480803",
+        "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+        "slateDate": "2026-11-15",
+        "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+      }
+    ],
+    "missCount": 2,
+    "noUnprovenRuleChange": true,
+    "originalCardUntouched": true,
+    "slateDate": "2026-11-15",
+    "status": "POSTGAME_PATCH_ADJUDICATED"
+  },
+  "seasonHistory": {
+    "historyPath": "state/history/2026-27.json",
+    "losses": 1,
+    "officiallyGradedSlates": 1,
+    "season": "2026-27",
+    "verifiedAutomaticGuardPatches": [],
+    "wins": 0
+  },
+  "slateDate": "2026-11-15",
+  "status": "GRADED_OFFICIAL_GOAL_EVENTS"
+}

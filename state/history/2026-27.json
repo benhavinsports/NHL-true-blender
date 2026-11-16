@@ -1,0 +1,65 @@
+{
+  "allOfficialGrades": [
+    {
+      "cardId": "NHL-2026-11-15-CANONICAL",
+      "date": "2026-11-15",
+      "hits": 1,
+      "legs": 3,
+      "officialSources": [
+        "https://api-web.nhle.com/v1/score/2026-11-15",
+        "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+        "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+        "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+        "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+        "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+        "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+      ],
+      "originalFingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
+      "result": "LOSS",
+      "revision": 1
+    }
+  ],
+  "legHits": 1,
+  "legOpportunities": 3,
+  "losses": 1,
+  "monthlyThreeSlateCalibration": {
+    "2026-11": {
+      "gradedSlatesAvailable": 1,
+      "losses": 1,
+      "recalibrationSample": [
+        {
+          "cardId": "NHL-2026-11-15-CANONICAL",
+          "date": "2026-11-15",
+          "hits": 1,
+          "legs": 3,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-15",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020327/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+          ],
+          "originalFingerprint": "d697c4e88ed73e3ce21a0d3ad9c324c1531eb3fe1b430ca35ce8f29c5ce4efb4",
+          "result": "LOSS",
+          "revision": 1
+        }
+      ],
+      "sampleCount": 1,
+      "sampleDoesNotReplaceFullGradeLedger": true,
+      "sampleSelection": "First, middle and last actually graded slates (up to three); no ungraded or fabricated slates",
+      "wins": 0
+    }
+  },
+  "noSelectionsOrRetroactiveGradesInvented": true,
+  "officiallyGradedSlates": 1,
+  "postgameDecisionsWritten": 2,
+  "season": "2026-27",
+  "source": "FROZEN_SQLITE_CARDS_PLUS_OFFICIAL_NHL_GOAL_GRADES",
+  "throughDate": "2026-11-15",
+  "trackingWindowStart": "2026-10-01",
+  "verifiedAutomaticGuardPatches": [],
+  "winDefinition": "ALL_ORIGINAL_CORE_LEGS_SCORE",
+  "wins": 0
+}
