@@ -70,6 +70,7 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'awayRestDays':ctx.get('awayRestDays'),
           'travelMiles':ctx.get('travelMiles'),
           'travelDistanceNotInvented':ctx.get('travelMiles') is None,
+          'restSourceReviewed':has_rest,
           'contextSourcePresent':receipt(context)},src(context))
     red=cov.get('redStrongZones') or []
     zone_match=bool(zone and zone in weak)

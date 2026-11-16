@@ -9,6 +9,7 @@ import json
 from collections import Counter,defaultdict
 from .engine import MASTER,OVERLAY
 from .storage import get_card
+from .semantic_certification import audit_gate
 
 PROVENANCE_REQUIRED={
     "G0","G1","G2","G3","G4","G5","G6","G7","G9","G10",
@@ -30,12 +31,27 @@ def certify_gates(con,date,stage,expected_game_count=None):
     distributions=defaultdict(Counter);missing=Counter()
     overlay_copies=[];source_unattributed=[];duplicates=[]
     step8_missing=[];missing_gate_evidence=defaultdict(list)
+    semantic_failed_by_gate=Counter()
+    semantic_failed_examples=[]
+    independently_proven_by_gate=Counter()
+    attempted_by_gate=Counter()
     for key,matrix in skaters.items():
         if set(matrix)!=required:missing.update(required-set(matrix))
         for gate,row in matrix.items():
             distributions[gate][row["disposition"]]+=1
+            attempted_by_gate[gate]+=1
             detail=json.loads(row["details"])
             evidence=detail.get("evidence") or {}
+            if row["disposition"]=="PASS":
+                gaps=audit_gate(gate,evidence,detail.get("sourceIds"),stage)
+                if gaps:
+                    semantic_failed_by_gate[gate]+=1
+                    if len(semantic_failed_examples)<40:
+                        semantic_failed_examples.append({
+                            "gameId":key[0],"playerId":key[1],
+                            "gate":gate,"missingProof":gaps})
+                else:
+                    independently_proven_by_gate[gate]+=1
             if gate in OVERLAY and not(
                     evidence.get("independentOverlayEvaluation") is True and
                     evidence.get("checkedBeforeG18") is True and
@@ -79,6 +95,17 @@ def certify_gates(con,date,stage,expected_game_count=None):
             own_source_gaps=[gate for gate in PROVENANCE_REQUIRED
                 if gate in matrix and matrix[gate]["disposition"]=="PASS"
                 and not (json.loads(matrix[gate]["details"]).get("sourceIds") or [])]
+            semantic_gaps=[]
+            for gate in MASTER+OVERLAY:
+                if gate not in matrix or matrix[gate]["disposition"]!="PASS":
+                    continue
+                details=json.loads(matrix[gate]["details"])
+                for reason in audit_gate(gate,details.get("evidence"),
+                                         details.get("sourceIds"),stage):
+                    semantic_gaps.append({"gate":gate,"missingProof":reason})
+            if semantic_gaps:
+                selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
+                                             "semanticMissingProof":semantic_gaps})
             if own_source_gaps:
                 selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
                                              "gates":sorted(own_source_gaps)})
@@ -88,6 +115,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
                 "overlayAllPass":not bad_overlay,
                 "overlayMissingOrNonpassing":bad_overlay,
                 "missingProvenanceForPassingGates":sorted(own_source_gaps),
+                "semanticMissingProof":semantic_gaps,
+                "substantivelyCertified":not semantic_gaps and not bad_master and not bad_overlay,
                 "overlayIndependentlyEvaluated":all(
                     gate in matrix and
                     (json.loads(matrix[gate]["details"]).get("evidence") or {})
@@ -146,6 +175,10 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "missingMatrixGateRows":dict(missing),
+        "gateChecksAttempted":dict(attempted_by_gate),
+        "substantivelyCertifiedPasses":dict(independently_proven_by_gate),
+        "recordedPassesWithInsufficientProof":dict(semantic_failed_by_gate),
+        "recordedPassProofGapExamples":semantic_failed_examples,
         "step8MissingDetails":step8_missing,
         "step8MissingReasons":dict(Counter(x["reason"] for x in step8_missing)),
         "otherMissingSourceExamples":dict(missing_gate_evidence),

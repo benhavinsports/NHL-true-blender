@@ -23,15 +23,21 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
              for k in range(goals)]
     return {'id':str(pid),'name':'Skater '+str(pid),'position':'D' if who else 'C',
             'jersey':pid%90+1,'availability':avail,
-            'release':evidence({'archetype':'own wrist/snap release','zone':zone,'attempts':attempts,'ownedGoals':goals}),
+            'release':evidence({'archetype':'own wrist/snap release','zone':zone,'attempts':attempts,'ownedGoals':goals}, source=SRC+'/shot-origin/'+str(pid)),
             'deployment':evidence({'EV':'EV2','PP':'PP2','PK':'optional','status':'CONFIRMED'}),
             'gameLog':evidence({'appearances':[{'date':'2026-11-01','shots':attempts},{'date':'2026-11-02','shots':1}]}),
             'mappedGoals':evidence({'goals':entries}),
             'officialGoalTotal':evidence({'goals':goals}),
             'finishOwnership':evidence({'recipient':True,'creditedGoalsVerified':True}),
             'pressure':evidence({'recentAppearanceShots':[3,4,2]}),
-            'contradictions':evidence({'goalieStrengthReview':'contrast with middle slot',
-                'lineupDisagreementReview':'confirmed two outlets','strongestRivalReview':'Rival lower attempted release'}),
+            'contradictions':evidence({
+                'sourceType':'FIXTURE_STRUCTURED_G17','unresolved':False,
+                'anatomicalWeaknessCertified':True,
+                'goalieStrengthReview':{'matchedWeakAreas':1,'strongerAreaContradiction':False},
+                'lineupDisagreementReview':{'isTrulyConfirmed':True,
+                                           'hasProjectedOrConfirmedRole':True},
+                'strongestRivalReview':{'everyRivalReviewed':True,
+                                        'eachSameLaneDefeated':True}}),
             **({'whoAnomaly':evidence({'directIndependentRoute':True,'mechanism':'blue line chaos goal'})} if who else {})}
 
 

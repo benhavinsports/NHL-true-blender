@@ -540,23 +540,50 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             deficient.append(g)
         d[g]={'disposition':disp,'details':content}
         proof.append(gate_record(game,player['id'],g,disp,content,list(source_ids)))
-    emit('G0',bool(weak) and bool(goalie_profile['data'].get('sample')),
-         {'targetGoalie':goalie_profile['data'].get('goalieId'), 'attacker':attack_team,
-          'branchStatus':goalie_profile['data'].get('status'), 'weakZones':weak,
-          'separateGoalieBranch':True},source_ids=list(filter(None,[
+    # G0's per-skater record must point to an attack direction already
+    # adjudicated from BOTH goalies. A shared goalie profile is not itself
+    # a completed first-gate decision.
+    selected_direction=game.get('_g0SelectedDirection') or {}
+    goalie_id=str(goalie_profile['data'].get('goalieId') or '')
+    direction_ok=bool(
+        selected_direction.get('attacker')==attack_team
+        and selected_direction.get('defender') in (game['away'],game['home'])
+        and any(str(b.get('goalieId'))==goalie_id
+                for b in selected_direction.get('targetGoalies',[]))
+        and selected_direction.get('goalieProfileEvidenced') is True)
+    emit('G0',bool(direction_ok and weak and goalie_profile['data'].get('sample')
+                   and goalie_profile['data'].get('counterevidence') is not None),
+         {'targetGoalie':goalie_id,'attacker':attack_team,
+          'branchStatus':goalie_profile['data'].get('status'),'weakZones':weak,
+          'separateGoalieBranch':True,'directionSelectedBeforeSkaters':direction_ok,
+          'selectedAttacker':selected_direction.get('attacker'),
+          'selectedDefender':selected_direction.get('defender')},
+         source_ids=list(filter(None,[
           goalie_profile['sourceUrl'],goalie_profile['data'].get('goalieProfileSourceUrl')])))
-    emit('G1',receipt(game.get('context')),
-         {'venueRestTravel':evidence_data(game.get('context'))},
+    context=evidence_data(game.get('context')) or {}
+    has_venue=bool(context.get('venueHome') or context.get('venue'))
+    has_rest=(isinstance(context.get('homeRestDays'),int)
+              and isinstance(context.get('awayRestDays'),int)) or bool(context.get('rest'))
+    context_ok=bool(receipt(game.get('context')) and has_venue and has_rest)
+    emit('G1',context_ok,
+         {'venueRestTravel':context if context else None,
+          'venueReviewed':has_venue,'bothTeamRestReviewed':has_rest,
+          'travelUnobservedNotInvented':context.get('travelDistanceNotInSource') is True
+              or context.get('travelMiles') is None},
          source_ids=[game.get('context',{}).get('sourceUrl','')])
     roster=game.get('rosters',{}).get(attack_team)
     eligibility=player.get('availability','UNVERIFIED')
     # G2 surveys the WHOLE official current roster, not merely a lineup
     # publication's top lines. "UNVERIFIED" is roster eligibility to be
     # researched, NOT a confirmed dressed status or confirmed deployment.
-    roster_eligible=(receipt(roster) and eligibility in
+    roster_member=bool(receipt(roster) and any(
+        str(p.get('id'))==str(player.get('id'))
+        for p in (roster['data'].get('players') or [])))
+    roster_eligible=(roster_member and eligibility in
         ('DRESSED','CONFIRMED','PROJECTED_ACTIVE','UNVERIFIED'))
     emit('G2',bool(roster_eligible),
-         {'fullPoolSize':len(teammates),'availability':eligibility,
+         {'candidateOnOfficialRoster':roster_member,
+          'fullPoolSize':len(teammates),'availability':eligibility,
           'officialCurrentRosterSource':roster.get('sourceUrl') if receipt(roster) else None,
           'position':position,
           'currentRosterNotEquivalentToDressed':True,
@@ -564,9 +591,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'lineupStillRequiresIndependentG6':True},
          eliminate=eligibility in ('OUT','SCRATCHED','INJURED'),
          source_ids=[roster['sourceUrl']] if receipt(roster) else [])
-    emit('G3',bool(weak) and goalie_profile['data'].get('counterevidence') is not None,
+    g3_reviewed=bool(direction_ok and weak and goalie_profile['data'].get('sample')
+                      and goalie_profile['data'].get('counterevidence'))
+    emit('G3',g3_reviewed,
          {'goalieSample':goalie_profile['data'].get('sample'),
-          'goalieWeakZones':weak,'counterevidence':goalie_profile['data'].get('counterevidence')},
+          'goalieWeakZones':weak,
+          'goalieStrengthZones':goalie_profile['data'].get('strengthZones'),
+          'counterevidence':goalie_profile['data'].get('counterevidence'),
+          'opposingGoalieBranchReviewed':direction_ok},
          source_ids=list(filter(None,[goalie_profile['sourceUrl'],
              goalie_profile['data'].get('goalieProfileSourceUrl')])))
     emit('G4',bool(release), {'archetype':release.get('archetype') if release else None,
@@ -663,8 +695,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          source_ids=[milestone['sourceUrl']] if receipt(milestone) else [])
     who=player.get('whoAnomaly');who_ok=bool(receipt(who) and
         evidence_data(who,'directIndependentRoute') is True and overlap)
-    emit('G14',True,{'whoAnomalyPhysicallySupported':who_ok,
-                    'noForcedWho':True,'whoDetails':evidence_data(who) if who_ok else None})
+    # G14 can neutrally exclude a WHO route, but never invent an anomaly.
+    # Checking a sourced release is a real review; constant True was not.
+    who_reviewed=bool(receipt(player.get('release')) and release and
+                      goalie_profile.get('sourceUrl') and weak)
+    unsupported_who=bool(receipt(who) and not who_ok)
+    emit('G14',who_reviewed and not unsupported_who,
+         {'whoRouteReviewed':who_reviewed,
+          'whoAnomalyPhysicallySupported':who_ok,
+          'neutralNoWhoAnomaly':not receipt(who),
+          'unsupportedWhoEvidence':unsupported_who,
+          'noForcedWho':True,
+          'whoDetails':evidence_data(who) if who_ok else None},
+         source_ids=sorted(set([player['release']['sourceUrl']] if
+             receipt(player.get('release')) else []) | set(
+             [who['sourceUrl']] if receipt(who) else []) | set(
+             [goalie_profile['sourceUrl']] if receipt(goalie_profile) else [])))
     # G15 must be INDEPENDENT of G10's season goal-credit Boolean.
     # Cross-check historical credited goal IDs with a separate official
     # per-origin SHOOTER source. Neither proves tonight's scorer vs feeder.
@@ -1096,7 +1142,10 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         for branch in branches:
             for player in players:
                 scoped=release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
-                result,traces=evaluate_skater(match,team,scoped,players,branch,stage)
+                # Bind the G0 direction receipt to every skater checked after
+                # goalie-first selection; never infer direction from a PASS.
+                scoped_game={**match,'_g0SelectedDirection':direction}
+                result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage)
                 result,traces,guard_rejections=apply_active_guards(
                     result,traces,validated_patch_guards)
                 if guard_rejections:
