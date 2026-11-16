@@ -124,6 +124,14 @@ def attach(con, snapshot, date, stage):
                     # Scouting cannot independently establish who is starting.
                     continue
                 existing.append(wrapper)
+            elif kind=='GOALIE_STARTER' and data.get('projectedPreferred') is True:
+                # Same goalie/expected-status identity existed from another
+                # lineup source. Preserve the original source and attach the
+                # independent NHL.com projected preference as its own receipt.
+                prior['data']['projectedPreferred']=True
+                prior['data'].setdefault('projectedPreferenceSources',[])
+                if wrapper['sourceUrl'] not in prior['data']['projectedPreferenceSources']:
+                    prior['data']['projectedPreferenceSources'].append(wrapper['sourceUrl'])
             elif kind=='GOALIE_PROFILE':
                 # Profile has its own provenance; keep starter source separate.
                 # Only a real source-linked profile may provide weakness claims.

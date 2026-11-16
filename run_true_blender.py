@@ -56,6 +56,12 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         source_research = await collect_secondary(con, snapshot, date, stage)
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
             con,snapshot,date,stage)
+        # Independent dated NHL.com projected goalie listings are researched
+        # rather than treating ambiguous generic EXPECTED branches as final.
+        # These do not claim team confirmation or overwrite confirmed goalies.
+        from nhl_true_blender_engine.nhl_projected_goalies import collect_nhl_projected_goalies
+        source_research['officialNhlProjectedGoalies']=await collect_nhl_projected_goalies(
+            con,snapshot,date,stage)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
         if csv_dir and Path(csv_dir, 'skaters.csv').exists():
             source_research['moneypuck'] = import_moneypuck(

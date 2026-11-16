@@ -115,6 +115,14 @@ def all_goalie_branches(game, stage):
         confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
         if confirmed:
             branches=confirmed
+        else:
+            # Restrict generic EXPECTED candidates only when a dated NHL.com
+            # projected first-goalie listing resolves to one official ID.
+            # Disagreeing projected sources leave ALL branches eligible.
+            preferred=[b for b in branches if
+                       b['data'].get('projectedPreferred') is True]
+            if len({str(b['data'].get('goalieId')) for b in preferred})==1:
+                branches=preferred
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
         by_team[team]=[b for b in branches if str(b['data'].get('goalieId')) not in superseded]
