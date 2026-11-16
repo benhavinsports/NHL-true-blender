@@ -86,6 +86,52 @@ def parse_projected_goalies(html,game,date):
                        "publishedGoalies":[x[2] for x in matched]}
     return out
 
+def parse_official_unavailable(html,game,date):
+    """Only explicitly listed injured/scratched skaters on a dated NHL page.
+
+    Match full names to official current-roster IDs. Not being mentioned or
+    not appearing on a published line is NOT evidence that a skater is out.
+    Goalie scratch listings never enter the scorer-skater availability pool.
+    """
+    if not isinstance(html,str) or "projected lineup" not in html.lower():
+        return []
+    body=article_text(html)
+    day=datetime.strptime(date,"%Y-%m-%d")
+    if f"{day.strftime('%B')} {day.day}, {day.year}".casefold() not in body.casefold():
+        return []
+    out=[]
+    for team in (game["away"],game["home"]):
+        nickname=NICKNAMES.get(team,TEAM_SLUGS.get(team,"").split("-")[-1])
+        marker=re.search(r"\b"+re.escape(nickname)+r"\s+projected lineup\b",body,re.I)
+        if not marker:
+            continue
+        tail=body[marker.end():]
+        following=re.search(r"\b[a-z ]{2,36}\s+projected lineup\b|\bstatus report\b",
+                            tail,re.I)
+        section=tail[:following.start()] if following else tail[:4000]
+        roster=((game.get("rosters",{}).get(team) or {}).get("data") or {}).get("players",[])
+        for line in section.splitlines():
+            m=re.match(r"^\s*(Scratched|Injured):\s*(.+)$",line,re.I)
+            if not m:
+                continue
+            status="SCRATCHED" if m.group(1).lower()=="scratched" else "INJURED"
+            for part in m.group(2).split(","):
+                listed=normalized(re.sub(r"\([^)]*\)","",part))
+                if not listed:
+                    continue
+                matches=[p for p in roster if normalized(p.get("name"))==listed]
+                if len(matches)!=1:
+                    continue
+                out.append({"team":team,"playerId":str(matches[0]["id"]),
+                            "name":matches[0]["name"],"status":status})
+    # Contradictory independent lines do not prove someone unavailable.
+    grouped={}
+    for item in out:
+        grouped.setdefault((item["team"],item["playerId"]),[]).append(item)
+    return [v[0] for v in grouped.values()
+            if len({x["status"] for x in v})==1]
+
+
 async def collect_nhl_projected_goalies(con,snapshot,date,stage):
     """Review all known source variants; unmatched URLs never establish a starter."""
     games=snapshot.get("games",[])
@@ -105,13 +151,30 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                 except (httpx.HTTPError,ValueError) as exc:
                     return url,None,f"{type(exc).__name__}: {str(exc)[:120]}"
         pages=await asyncio.gather(*(fetch(url) for url in sorted(urls)))
-    attempts=[];found=0;seen={};conflicts=[]
+    attempts=[];found=0;seen={};conflicts=[];unavailable=[]
     for url,html,error in pages:
         attempts.append({"url":url,"status":"FETCH_FAILED" if error else "FETCHED",
                          "error":error})
         if not html:
             continue
         for game in games:
+            # A real, dated NHL.com "Injured:" or "Scratched:" list
+            # disqualifies that exact skater from teammate rivalry checks.
+            # Every source attribution is retained; missing names stay unknown.
+            for item in parse_official_unavailable(html,game,date):
+                observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
+                digest=hashlib.sha256(url.encode()).hexdigest()[:12]
+                ingest(con,{"evidence_id":f"nhl-projected-unavailable-{date}-{stage}-{game['id']}-{item['playerId']}-{item['status']}-{digest}",
+                    "slate_date":date,"stage":stage,"game_id":str(game["id"]),
+                    "player_id":item["playerId"],"kind":"PLAYER_STATUS",
+                    "source_url":url,"observed_at":observed,"payload":{
+                        "status":item["status"],"sourceType":"NHL_OFFICIAL_PROJECTED_LINEUP_UNAVAILABLE",
+                        "officialRosterIdMatched":True,
+                        "publishedAsOfSlateDate":date,
+                        "notAbsenceBased":True}})
+                unavailable.append({"gameId":str(game["id"]),
+                                    "playerId":item["playerId"],
+                                    "status":item["status"],"sourceUrl":url})
             for team,data in parse_projected_goalies(html,game,date).items():
                 key=(str(game["id"]),team)
                 if key in seen and seen[key]!=data["goalieId"]:
@@ -135,5 +198,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
     return {"status":"SOURCE_RESEARCH_COMPLETED",
             "sourceType":"NHL_OFFICIAL_PUBLISHED_PROJECTED_LINEUP",
             "sourceAttempts":attempts,"projectedGoalieReceipts":found,
+            "explicitInjuryAndScratchReceipts":len(unavailable),
+            "unavailablePlayerExamples":unavailable[:12],
             "contradictionsKept":conflicts,
             "neverPromotesProjectionToConfirmation":True}

@@ -1,5 +1,5 @@
 """NHL official projected goalie is evidence; never a fake confirmation."""
-from nhl_true_blender_engine.nhl_projected_goalies import parse_projected_goalies,preview_urls
+from nhl_true_blender_engine.nhl_projected_goalies import parse_projected_goalies,preview_urls,parse_official_unavailable
 from nhl_true_blender_engine.enrichment import ingest,attach
 from nhl_true_blender_engine.engine import all_goalie_branches
 from nhl_true_blender_engine.storage import open_db
@@ -79,3 +79,29 @@ def test_conflicting_source_goaltenders_are_not_forced(tmp_path):
         assert len(all_goalie_branches(g,"PROJECTED")["VAN"])==2
     finally:
         con.close()
+
+def test_explicit_nhl_injured_scratch_names_resolve_to_official_skater_ids_only():
+    g=game()
+    g["rosters"]["VAN"]["data"]["players"]=[
+        {"id":"101","name":"Arshdeep Bains","position":"L"},
+        {"id":"102","name":"Guillaume Brisebois","position":"D"},
+        {"id":"103","name":"Jake DeBrusk","position":"L"}]
+    g["rosters"]["UTA"]["data"]["players"]=[
+        {"id":"201","name":"Logan Cooley","position":"C"},
+        {"id":"202","name":"Nick Schmaltz","position":"C"},
+        {"id":"203","name":"Clayton Keller","position":"L"}]
+    markup="""<html><main><h1>November 16, 2026</h1>
+        <h2>Canucks projected lineup</h2>
+        <p>Jake DeBrusk -- Elias Pettersson -- Jonathan Lekkerimaki</p>
+        <p>Scratched: Arshdeep Bains, Leevi Merilainen</p>
+        <p>Injured: Guillaume Brisebois (undisclosed)</p>
+        <h2>Mammoth projected lineup</h2>
+        <p>Clayton Keller -- Vincent Trocheck -- Anders Lee</p>
+        <p>Injured: Logan Cooley (upper body), Nick Schmaltz (lower body)</p>
+        <p>Status report</p></main></html>"""
+    rows=parse_official_unavailable(markup,g,DATE)
+    assert {(x["playerId"],x["status"]) for x in rows}=={
+        ("101","SCRATCHED"),("102","INJURED"),
+        ("201","INJURED"),("202","INJURED")}
+    assert all(x["playerId"] not in ("1","2","3","4") for x in rows)
+    assert parse_official_unavailable(markup,g,"2026-11-15")==[]
