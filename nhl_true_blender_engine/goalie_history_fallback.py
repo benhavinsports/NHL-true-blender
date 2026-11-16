@@ -186,6 +186,7 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
     certified a relative weakness or a complete source review.
     """
     active={}
+    eligible_peers={}
     source_failures=[]
     for game in snapshot.get("games",[]):
         for team,branches in all_goalie_branches(game,stage).items():
@@ -193,9 +194,14 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 data=branch.get("data") or {}
                 pid=data.get("goalieId")
                 if not pid:continue
-                if not needs_independent_pbp(data):
-                    continue
-                active.setdefault(str(pid),set()).add(team)
+                # The historical goalie itself cannot serve as its own peer.
+                # Other independently identified slate goalies are a
+                # legitimate SAME-RINK-ZONE historical peer cohort. Collect
+                # their dated pre-slate PBP games but do NOT change their
+                # accepted EDGE profiles, starter status, or the G0 decision.
+                eligible_peers.setdefault(str(pid),set()).add(team)
+                if needs_independent_pbp(data):
+                    active.setdefault(str(pid),set()).add(team)
     if not active:
         return {"status":"ALL_GOALIE_PROFILES_ALREADY_MEASURED",
                 "goaliesNeedingPbpResearch":0,
@@ -210,7 +216,13 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 return pid,season,data,None
             except Exception as exc:
                 return pid,season,None,type(exc).__name__+": "+str(exc)[:190]
-    logs=await asyncio.gather(*(get_log(pid,season) for pid in active for season in seasons))
+    # A single reserve goalie's 16 historical games usually contains only
+    # ONE full goalie sample; opposing goalies seen once each often fail the
+    # 20-shot SAME-ORIGIN peer denominator. Previously G0 falsely reported
+    # "no peers" even though all remaining slate goalies had NHL game logs.
+    # Collect the same pre-slate history for each candidate peer first.
+    logs=await asyncio.gather(*(get_log(pid,season)
+                                for pid in eligible_peers for season in seasons))
     games={}
     goalies_with_history=set()
     for pid,season,payload,error in logs:
@@ -310,6 +322,9 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         "status":"OFFICIAL_PBP_FALLBACK_COLLECTED",
         "sourceType":SOURCE,
         "goaliesNeedingPbpResearch":len(active),
+        "independentlyIdentifiedSlateGoaliePeers":len(eligible_peers),
+        "distinctPreSlateNhlGamesCompared":len(games),
+        "samplePeersNotFullLeaguePercentile":True,
         "historicalNhlGamesFetched":sum(err is None for gid,events,err in outcomes),
         "goaliesWithOfficialPersonalHistory":len(goalies_with_history),
         "clubScheduleGamesRecovered":recovered_schedule_games,
