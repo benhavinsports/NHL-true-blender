@@ -30,6 +30,10 @@ on:
       timezone: 'America/New_York'
     - cron: '15,35 18 * * *'
       timezone: 'America/New_York'
+    # Capture late confirmed lineups before 7:30 PM ET puck drop.
+    # The engine enforces a per-game no-post-puck selection freeze.
+    - cron: '5,15,20 19 * * *'
+      timezone: 'America/New_York'
     - cron: '38 7-23 * * *'
       timezone: 'America/New_York'
     - cron: '30 0-6,21-23 * * *'
@@ -91,7 +95,8 @@ jobs:
           if not mode:
               if cron.startswith('15 8,11,13,15,18 '):
                   mode = 'projected'
-              elif cron.startswith('55 17,18 ') or cron.startswith('15,35 18 '):
+              elif (cron.startswith('55 17,18 ') or cron.startswith('15,35 18 ')
+                    or cron.startswith('5,15,20 19 ')):
                   mode = 'confirmed'
               elif cron.startswith('38 '):
                   mode = 'watch'
