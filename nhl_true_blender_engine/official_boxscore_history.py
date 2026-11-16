@@ -5,9 +5,19 @@ It is never silently described as a complete season or a zero for games missed.
 """
 from __future__ import annotations
 import asyncio
+import hashlib
+import json
 from collections import defaultdict
 from datetime import datetime,timezone
 from .enrichment import ingest
+
+def _versioned_receipt_id(base,payload):
+    """Retain corrected official boxscore observations without mutating old receipts."""
+    digest=hashlib.sha256(json.dumps(
+        payload,sort_keys=True,separators=(",",":"),default=str).encode("utf-8")
+        ).hexdigest()[:20]
+    return f"{base}-{digest}"
+
 
 async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events):
     sem=asyncio.Semaphore(5)
@@ -117,8 +127,8 @@ async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events
                            "shotsOnGoalNotTotalAttempts":True,
                            "scope":sample["scope"]})
                 ]:
-                    ingest(con,{**base,"evidence_id":
-                        f"nhl-box-{date}-{stage}-{game['id']}-{pid}-{kind}",
+                    ingest(con,{**base,"evidence_id":_versioned_receipt_id(
+                        f"nhl-box-{date}-{stage}-{game['id']}-{pid}-{kind}",payload),
                         "kind":kind,"payload":payload})
                 stats["verifiedOwnGoalRows"]+=1
                 stats["appearanceRows"]+=len(appearances)
