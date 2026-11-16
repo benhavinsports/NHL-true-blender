@@ -2,9 +2,23 @@
   "gameCount": 2,
   "initialBaselinesSavedWithoutAlert": 0,
   "lineupSource": {
-    "error": "ValueError: Lineup snapshot slate date mismatch: # Tonight in the NHL: line combinations and starting goalies (games dated 2026-11-15)",
+    "asOf": "2026-11-16T22:30:16+00:00",
+    "deploymentRecords": 70,
+    "goalieReports": 4,
     "source": "https://www.betweenthelineshockey.com/tonight.md",
-    "status": "SOURCE_UNAVAILABLE"
+    "status": "DATED_SOURCE_PARSED",
+    "unmatched": [
+      {
+        "name": "Elias Pettersson",
+        "reason": "OFFICIAL_PLAYER_ID_NOT_UNIQUELY_MATCHED",
+        "team": "VAN"
+      },
+      {
+        "name": "Elias Nils Pettersson",
+        "reason": "OFFICIAL_PLAYER_ID_NOT_UNIQUELY_MATCHED",
+        "team": "VAN"
+      }
+    ]
   },
   "mode": "watch",
   "slateDate": "2026-11-16",
