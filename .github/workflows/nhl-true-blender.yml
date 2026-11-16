@@ -148,7 +148,15 @@ jobs:
           # sources. Instead of silently losing the receipt, rerun the SAME
           # phase on the latest saved state. Never force-push or replace cards.
           for attempt in 1 2 3; do
-            git fetch origin main
+            # External GitHub connections can fail transiently AFTER
+            # the engine and full source evidence have finished. Do not
+            # lose the completed run on the first remote fetch timeout.
+            # Never force-push or silently mark an unpersisted Core green.
+            if ! git fetch origin main; then
+              echo "::warning::GitHub fetch unavailable, attempting safe retry $attempt/3"
+              sleep $((attempt * 5))
+              continue
+            fi
             if ! git diff --quiet "$GITHUB_SHA" origin/main -- state/; then
               echo "Newer canonical state; safely replaying this exact phase on its ledger"
               git reset --hard origin/main
