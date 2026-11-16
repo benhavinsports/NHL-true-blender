@@ -156,7 +156,23 @@ def certify_gates(con,date,stage,expected_game_count=None):
     # Keep genuine source gaps in the audit, but don't require every rejected
     # player to pass before certifying the three surviving recipients.
     outcome_counts=Counter()
+    # A candidate eliminated by a proven earlier gate is different from a
+    # candidate whose first nonpassing gate lacks source evidence. Preserve
+    # the first failure in the original execution order for auditability.
+    first_failure_counts=Counter()
+    first_failure_examples=[]
     for key,matrix in skaters.items():
+        first=next(((g,matrix[g]["disposition"]) for g in EXECUTION_ORDER
+                    if g not in matrix or matrix[g]["disposition"]!="PASS"),None)
+        if first:
+            gate,disposition=first
+            kind=("EVIDENCE_INCOMPLETE" if disposition=="NOT_EXECUTED"
+                  or disposition is None else "SOURCE_ELIMINATED")
+            first_failure_counts[kind]+=1
+            if len(first_failure_examples)<30:
+                first_failure_examples.append({"gameId":key[0],
+                    "playerId":key[1],"firstGate":gate,"disposition":disposition,
+                    "classification":kind})
         if key in selected_keyset:
             outcome_counts["SELECTED"]+=1
         elif any(r["disposition"]=="ELIMINATED" for r in matrix.values()):
@@ -240,6 +256,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "sourceUnattributedPassingGateExamples":source_unattributed[:15],
         "selectedLegs":selected,
         "selectionFunnel":funnel,
+        "firstFailureClassificationCounts":dict(first_failure_counts),
+        "firstFailureExamples":first_failure_examples,
         "selectedMasterGatesAllPass":all_selected_master,
         "selectedOverlayGatesAllPass":all_selected_overlay,
         "selectedSourceAttributionGaps":selected_source_gaps,
