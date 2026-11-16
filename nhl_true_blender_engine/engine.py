@@ -279,6 +279,31 @@ def reconcile_logs(p):
             'lastAppearances':ld['appearances'][:10]}
 
 
+def independently_dated_origin_route(player,zone):
+    """A positive NHL PBP shooter-origin observation for G10.5 tied recipients."""
+    wrapper=player.get("recentOrigin")
+    if not receipt(wrapper):
+        return None
+    data=wrapper.get("data") or {}
+    if (data.get("sourceType")!="OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN"
+        or data.get("scope")!="RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY"
+        or data.get("rinkBinsApproximateNotNhlEdgePolygons") is not True
+        or data.get("historicalOwnGoalCreditOnly") is not True):
+        return None
+    area=(data.get("zoneCounts") or {}).get(zone)
+    if not isinstance(area,dict):
+        return None
+    onnet=area.get("shotsOnGoal");goals=area.get("ownedGoals")
+    if not (type(onnet) is int and onnet>0 and type(goals) is int
+            and 0<=goals<=onnet and isinstance(area.get("sourceUrls"),list)
+            and len(area["sourceUrls"])>0):
+        return None
+    return {"ownedGoals":goals,"shotsOnGoal":onnet,
+            "sourceUrls":area["sourceUrls"],
+            "scope":"SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
+            "notAnNhlEdgeAreaPolygon":True}
+
+
 def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None):
     """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
 
@@ -398,6 +423,27 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
         rival_direct=(opponent_goals,opponent_shots)
         dominates=candidate_direct>rival_direct
         defeated_by=rival_direct>candidate_direct
+        recent_tie_proof=None
+        if candidate_direct==rival_direct:
+            # A season NHL EDGE tie is not permission to choose chalk or
+            # arbitrarily move G10.5. Research BOTH players' independent,
+            # dated, directly credited NHL PBP shots from their own routes.
+            # Positive evidence must exist for BOTH, using the same source
+            # method. Missing/identical observations stay unresolved.
+            own_recent=independently_dated_origin_route(candidate,base["zone"])
+            rival_recent=independently_dated_origin_route(rival,target["zone"])
+            if own_recent and rival_recent:
+                pair_a=(own_recent["ownedGoals"],own_recent["shotsOnGoal"])
+                pair_b=(rival_recent["ownedGoals"],rival_recent["shotsOnGoal"])
+                recent_tie_proof={
+                    "method":"INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN",
+                    "own":own_recent,"rival":rival_recent,
+                    "sameRecentSampleMethod":True,
+                    "seasonGoalAndShotTieReviewed":True,
+                    "notAnatomicalPlacement":True}
+                if pair_a!=pair_b:
+                    dominates=pair_a>pair_b
+                    defeated_by=pair_b>pair_a
         if not dominates:
             all_defeated=False
         rows.append({
@@ -409,7 +455,12 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'ownedGoals':base['ownedGoals']},
             'challenger':{'zone':target['zone'],'shotsOnGoal':opponent_shots,
                           'ownedGoals':opponent_goals},
-            'sourceUrls':[candidate['release']['sourceUrl'],wrapper['sourceUrl']],
+            'sourceUrls':sorted(set(
+                [candidate['release']['sourceUrl'],wrapper['sourceUrl']] +
+                (recent_tie_proof['own']['sourceUrls']+
+                 recent_tie_proof['rival']['sourceUrls']
+                 if recent_tie_proof else []))),
+            'independentRecentTieReview':recent_tie_proof,
             'sameLane':target['zone']==base['zone'],
             'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
             'allRivalJointlyViableZones':sorted({x['zone'] for x in viable}),

@@ -8,7 +8,7 @@ import json
 from datetime import date, datetime, timezone
 from .enrichment import ingest
 from .official_boxscore_history import collect_sampled_boxes
-from .official_defense_coverage import make_coverage
+from .official_defense_coverage import make_coverage,conservative_zone,detailed_shot_origin_zone
 from .shift_coverage import collect_shift_coverage
 from .secondary_sources import TEAM_SLUGS
 
@@ -82,6 +82,37 @@ def goalie_summary(events, goalie_id):
             "byShotType": by_type,
             "anatomicalWeaknessVerified": False,
             "note": "Shot type and rink coordinates cannot establish glove/blocker/five-hole."}
+
+def measured_recent_shooter_origins(events,player_id):
+    """Positive, independently attributed, pre-slate shooter PBP origin proof.
+
+    NHL play-by-play rink x/y is an APPROXIMATE shooting origin, never an
+    anatomical goalie target nor an exact NHL EDGE tracking polygon.
+    Only own goals/on-net shots count; assists and blocked/missed shots do not.
+    """
+    zones={}
+    seen=set()
+    for event in events:
+        if (str(event.get("shooterId"))!=str(player_id)
+            or event.get("type") not in ON_NET):
+            continue
+        key=(str(event.get("gameId")),str(event.get("eventId")))
+        if key in seen:
+            continue
+        seen.add(key)
+        labels=set(filter(None,(conservative_zone(event.get("x"),event.get("y")),
+                                detailed_shot_origin_zone(event.get("x"),event.get("y")))))
+        for name in labels:
+            row=zones.setdefault(name,{"shotsOnGoal":0,"ownedGoals":0,
+                                        "gameIds":set(),"sourceUrls":set()})
+            row["shotsOnGoal"]+=1
+            row["ownedGoals"]+=int(event["type"]=="goal")
+            row["gameIds"].add(str(event["gameId"]))
+            row["sourceUrls"].add(event["sourceUrl"])
+    return {z:{"shotsOnGoal":r["shotsOnGoal"],"ownedGoals":r["ownedGoals"],
+               "gameIds":sorted(r["gameIds"]),"sourceUrls":sorted(r["sourceUrls"])}
+            for z,r in sorted(zones.items())}
+
 
 async def collect_history(client, con, snapshot, slate_date, stage,
                           max_games=8, defense_research_games=16):
@@ -174,6 +205,26 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 if not summary["attempts"]:
                     continue
                 urls=sorted({e["sourceUrl"] for e in target_events if e["shooterId"]==str(pid)})
+                # Preserve dated, game-by-game positive shooter origin facts
+                # for independent tie review in G10.5. This receipt is not a
+                # fabricated future scorer and never overrides NHL EDGE goals.
+                origins=measured_recent_shooter_origins(target_events,pid)
+                if origins:
+                    origin_urls=sorted({u for area in origins.values()
+                                        for u in area["sourceUrls"]})
+                    origin_payload={"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+                        "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+                        "zoneCounts":origins,"rinkBinsApproximateNotNhlEdgePolygons":True,
+                        "historicalOwnGoalCreditOnly":True,
+                        "notTonightGoalPrediction":True}
+                    ingest(con,{"evidence_id":_versioned_receipt_id(
+                            f"nhl-pbp-own-origins-{slate_date}-{stage}-{game['id']}-{pid}",
+                            origin_payload),
+                        "slate_date":slate_date,"stage":stage,"game_id":game["id"],
+                        "player_id":pid,"kind":"PLAYER_RECENT_ORIGIN",
+                        "source_url":origin_urls[0],
+                        "observed_at":datetime.now(timezone.utc).isoformat(),
+                        "payload":origin_payload})
                 payload={"recentAppearanceShots":summary["attempts"],
                          "shotsOnGoal":summary["shotsOnGoal"],
                          "ownedGoals":summary["ownedGoals"],
