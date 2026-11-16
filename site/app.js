@@ -214,36 +214,52 @@ function renderPicker(){
  select.value=state.selectedDate||days[0];
 }
 function coreCard(leg,i){
+ // Player names, paths, game, puck drop, source route and card identity
+ // all come from the ONE saved Blender Core. This styling never picks.
  const path=auditedPath(leg);
- const button=el("button","core-card");
+ const button=el("button","core-card "+pathClass(path.display));
  button.type="button";
  const key=String(leg.gameId)+":"+String(leg.playerId);
  button.setAttribute("aria-pressed",String(key===state.selectedLeg));
- button.setAttribute("aria-label","Open "+leg.player+" source-based Core card");
+ button.setAttribute("aria-label","Flip "+leg.player+
+   " card to inspect 20 G gates, 16 overlay checks and their sources");
+ // A playing-card suit is decorative, never a scorer rank or calculated chance.
+ const suit=path.display==="TRANSFER"?"♦":path.display==="WHO"?"♣":"♠";
  const top=el("div","card-head");
- top.appendChild(el("span","card-index","SURVIVOR "+String(i+1).padStart(2,"0")));
+ top.appendChild(el("span","card-index","CORE "+String(i+1).padStart(2,"0")));
  top.appendChild(pill(path.display,pathClass(path.display)));
  button.appendChild(top);
- button.appendChild(el("div","player-name",leg.player));
- button.appendChild(el("div","card-match",String(leg.matchup||"Matchup unavailable").replace("@"," @ ")));
+ const artwork=el("div","card-illustration");
+ artwork.appendChild(el("span","face-corner top",suit));
+ const rink=el("div","rink-center");
+ rink.appendChild(el("span","card-emblem","◉"));
+ artwork.appendChild(rink);
+ artwork.appendChild(el("span","face-corner bottom",suit));
+ button.appendChild(artwork);
+ const plate=el("div","card-nameplate");
+ plate.appendChild(el("div","player-name",leg.player));
+ plate.appendChild(el("div","card-match",
+   String(leg.matchup||"Game source unavailable").replace("@"," @ ")));
+ button.appendChild(plate);
  const metadata=el("div","card-meta");
- metadata.appendChild(el("div","","Puck drop · "+etTime(leg.startUTC)));
- metadata.appendChild(el("div","","Scoring route · "+(leg.directRoute||"Source view pending")));
+ metadata.appendChild(el("div","","PUCK DROP · "+etTime(leg.startUTC)));
+ metadata.appendChild(el("div","","GOAL ROUTE · "+(leg.directRoute||"Open source details")));
  if(path.review&&path.display!==path.original)
-   metadata.appendChild(el("div","tiny","Original frozen path: "+path.original));
+   metadata.appendChild(el("div","tiny","Original frozen label: "+path.original));
  button.appendChild(metadata);
  const bottom=el("div","card-bottom");
- bottom.appendChild(el("span","","Explore 36 gates & sources"));
- bottom.appendChild(el("span","tiny-arrow","›"));
+ bottom.appendChild(el("span","","FLIP • INSPECT 36 GATES"));
+ bottom.appendChild(el("span","tiny-arrow","↻"));
  button.appendChild(bottom);
  button.addEventListener("click",()=>{
    state.selectedLeg=key;state.gateFilter="all";
    renderCards();renderDetails();
-   if(window.matchMedia("(max-width:700px)").matches)
-      $("leg-detail").scrollIntoView({behavior:"smooth",block:"start"});
+   const detail=$("evidence");
+   if(detail)detail.scrollIntoView({behavior:"smooth",block:"start"});
  });
  return button;
 }
+
 function renderCards(){
  const holder=$("core-cards");holder.replaceChildren();
  const saved=selectedEntry();
