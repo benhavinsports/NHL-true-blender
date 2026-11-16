@@ -2,7 +2,7 @@
 from nhl_true_blender_engine.engine import execute,MASTER,OVERLAY
 from nhl_true_blender_engine.gate_census import certify_gates
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.tests.test_engine import snapshot,DATE
+from nhl_true_blender_engine.tests.test_engine import snapshot,snapshot_without_shifts,DATE
 from scripts.publish_site_state import export_run
 
 SHIFT="https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020300"
@@ -57,18 +57,20 @@ def test_three_certified_survivors_can_publish_while_other_players_fail(tmp_path
 
 def test_missing_selected_gate_is_real_failure_not_overridden_by_other_losses(tmp_path):
     con=open_db(str(tmp_path/"missing.sqlite"))
-    slate=snapshot() # deliberately no source-backed shift events
+    slate=snapshot_without_shifts() # deliberately no source-backed shift events
     result=execute(con,slate,DATE,"CONFIRMED")
+    assert result["card"] is None
     audit=certify_gates(con,DATE,"CONFIRMED",len(slate["games"]))
     assert audit["allSkatersHaveEachGateRecord"] is True
     assert audit["selectedCoreOnlyFullyCertified"] is False
     assert audit["fullIndependentCardCertification"] is False
-    assert all(not x["overlayAllPass"] for x in audit["selectedLegs"])
+    assert audit["selectedLegs"]==[]
+    assert audit["overlayGateDispositions"]["Step8"].get("NOT_EXECUTED",0)>0
     result["gateCertification"]=audit
     status=export_run(con,DATE,"CONFIRMED",result,tmp_path/"state")
     assert status["currentRunFullyCertified"] is False
     assert status["publishedToSite"] is False
-    assert status["publicationDecision"]=="NEW_CARD_NOT_PUBLISHED_INCOMPLETE_OVERLAY"
+    assert status["publicationDecision"]=="NO_ELIGIBLE_G18_CARD"
     con.close()
 
 

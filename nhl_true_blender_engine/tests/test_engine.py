@@ -50,12 +50,22 @@ def game(idx,win=True):
         return evidence({'goalieId':gid,'team':team,'status':'CONFIRMED','weakZones':{'slot':{'savePct':.8}},
             'strengthZones':{'point':{'savePct':.93}},'counterevidence':'strong at distance',
             'sample':'dated 200 shot profile'})
+    # A complete synthetic baseline has independently attributed team shifts.
+    # Negative tests remove these receipts to verify that no Core is locked.
+    shift_url='https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020300'
+    shift_data={'shiftByShift':[{
+        'zone':'slot','gameId':'2026020300','eventId':'11',
+        'period':1,'eventClock':'04:12',
+        'defendingOnIcePlayerIds':['11','22','33'],
+        'officialShiftChartUrl':shift_url,
+        'officialPlayByPlayUrl':'https://api-web.nhle.com/v1/gamecenter/2026020300/play-by-play'}],
+        'shiftSourceUrls':[shift_url],'actualDefensiveShiftMatches':1}
     return {'id':str(5000+idx),'date':DATE,'away':away,'home':home,'startUTC':FUTURE,'gameState':'FUT',
         'goalies':{away:[],home:[goalie('g'+home,home)]},
         'rosters':{away:evidence({'players':[main,rival,d]}),home:evidence({'players':[]})},
         'context':evidence({'venue':home,'rest':'one day both teams','travel':'neutral'}),
-        'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point']}),
-                    home:evidence({'greenWeakZones':['slot'],'redStrongZones':['point']})}}
+        'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point'],**shift_data}),
+                    home:evidence({'greenWeakZones':['slot'],'redStrongZones':['point'],**shift_data})}}
 
 
 def snapshot(n=3):return {'games':[game(i+1) for i in range(n)]}
@@ -242,3 +252,11 @@ def test_missing_game_one_skater_trace_cannot_issue_card(con):
     selected={str(g['id']):{'attacker':g['away']} for g in s['games']}
     errors=verify_complete_matrix(s['games'],rows,[],now=datetime.now(timezone.utc),selected_directions=selected)
     assert any('1011' in e and 'Step7' in e for e in errors)
+def snapshot_without_shifts(n=3):
+    slate=snapshot(n)
+    for game in slate['games']:
+        for team in (game['away'],game['home']):
+            data=game['coverage'][team]['data']
+            for key in ('shiftByShift','shiftSourceUrls','actualDefensiveShiftMatches'):
+                data.pop(key,None)
+    return slate

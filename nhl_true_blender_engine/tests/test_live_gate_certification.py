@@ -3,41 +3,46 @@ import json
 from nhl_true_blender_engine.engine import execute,MASTER,OVERLAY
 from nhl_true_blender_engine.gate_census import certify_gates
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.tests.test_engine import snapshot,DATE
+from nhl_true_blender_engine.tests.test_engine import snapshot,snapshot_without_shifts,DATE
 from scripts.publish_site_state import export_run
 
 def test_census_separates_gate_row_count_from_real_source_proof(tmp_path):
     con=open_db(str(tmp_path/"ledger.sqlite"))
-    s=snapshot()
+    s=snapshot_without_shifts()
     result=execute(con,s,DATE,"CONFIRMED")
-    assert result["card"] and len(result["card"]["current_legs"])==3
+    assert result["card"] is None
     audit=certify_gates(con,DATE,"CONFIRMED",len(s["games"]))
     assert audit["allSkatersHaveEachGateRecord"] is True
     assert audit["allOverlayStepsWereIndependentlyChecked"] is True
     assert audit["gateRows"]==9*(len(MASTER)+len(OVERLAY))+6
-    assert audit["selectedMasterGatesAllPass"] is True
+    assert audit["selectedMasterGatesAllPass"] is False
     assert audit["selectedOverlayGatesAllPass"] is False
-    assert all(x["overlayIndependentlyEvaluated"] for x in audit["selectedLegs"])
-    assert all(any(v["gate"]=="Step8" and v["status"]=="NOT_EXECUTED"
-                   for v in x["overlayMissingOrNonpassing"]) for x in audit["selectedLegs"])
+    assert audit["selectedLegs"]==[]  # no provisional Core saved
     assert audit["fullIndependentCardCertification"] is False
     assert audit["overlayGateDispositions"]["Step8"]["NOT_EXECUTED"]>0
     con.close()
 
 def test_unproven_independent_overlay_cannot_newly_publish_card(tmp_path):
     con=open_db(str(tmp_path/"ledger.sqlite"))
-    s=snapshot();result=execute(con,s,DATE,"CONFIRMED")
+    s=snapshot_without_shifts();result=execute(con,s,DATE,"CONFIRMED")
+    assert result["card"] is None
     result["gateCertification"]=certify_gates(con,DATE,"CONFIRMED",3)
     status=export_run(con,DATE,"CONFIRMED",result,tmp_path/"state")
     assert status["publishedToSite"] is False
     assert status["currentRunFullyCertified"] is False
-    assert status["publicationDecision"]=="NEW_CARD_NOT_PUBLISHED_INCOMPLETE_OVERLAY"
+    assert status["publicationDecision"]=="NO_ELIGIBLE_G18_CARD"
     assert not (tmp_path/"state"/"site_cards"/(DATE+".json")).exists()
     con.close()
 
 def test_locked_original_card_survives_later_independent_source_gap(tmp_path):
     con=open_db(str(tmp_path/"ledger.sqlite"))
     s=snapshot();result=execute(con,s,DATE,"CONFIRMED")
+    assert result["card"] is not None
+    # A later regression must not rewrite a previously locked original.
+    con.execute("""UPDATE gates SET disposition='NOT_EXECUTED'
+        WHERE slate_date=? AND stage='CONFIRMED' AND player_id='1010'
+              AND gate='Step8'""",(DATE,))
+    con.commit()
     result["gateCertification"]=certify_gates(con,DATE,"CONFIRMED",3)
     saved=result["card"];card_dir=tmp_path/"state"/"site_cards"
     card_dir.mkdir(parents=True,exist_ok=True)

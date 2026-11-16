@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint
 from .overlay_checks import independent_overlay, STEP_ORDER
+from .semantic_certification import audit_gate
 
 MASTER = ([f'G{i}' for i in range(11)] + ['G10.5'] + [f'G{i}' for i in range(11,19)])
 OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] + [f'Step{i}' for i in range(11,15)])
@@ -530,6 +531,12 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         # elimination is permanent, but it does NOT excuse skipping later
         # evidence checks or silently calling them completed.
         disp,content=verdict(ok,detail,eliminate)
+        if disp=='PASS':
+            gaps=audit_gate(g,content,list(source_ids),stage)
+            if gaps:
+                disp='NOT_EXECUTED'
+                content={**content,'semanticProofGaps':gaps,
+                         'evidenceReviewedButInsufficient':True}
         if first_elimination_gate:
             content={**content,'alreadyEliminatedAtGate':first_elimination_gate,
                      'laterPositiveEvidenceCannotReinstate':True}
@@ -759,11 +766,15 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     previous_gates_passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
-    passed=previous_gates_passed and route is not None
+    # G18 may never lock a scorer with an insufficient independent overlay.
+    overlay_passed=len(overlay)==len(OVERLAY) and all(
+        r['disposition']=='PASS' for r in overlay)
+    passed=previous_gates_passed and overlay_passed and route is not None
     emit('G18',passed,{
         'candidateEligibleForCrossGameFinal':passed,
         'pathClassificationEvidence':path_proof,
         'classificationOccursAfterAllSourceGates':True,
+        'overlayPassedBeforeG18':overlay_passed,
         'notPresetOneOfEach':True},
         source_ids=path_proof['sourceUrls'])
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,

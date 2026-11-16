@@ -7,6 +7,8 @@ qualitative and nonblocking. Step 8 never invents shift-by-shift metrics.
 """
 from __future__ import annotations
 
+from .semantic_certification import audit_gate
+
 STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
 
@@ -46,6 +48,12 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
         detail={**evidence,'independentOverlayEvaluation':True,
                 'checkedBeforeG18':True,'masterGateVerdictCopied':False,
                 'nonblocking':bool(neutral)}
+        if verdict=='PASS':
+            gaps=audit_gate(step,detail,list(sources),stage)
+            if gaps:
+                verdict='NOT_EXECUTED'
+                detail['semanticProofGaps']=gaps
+                detail['evidenceReviewedButInsufficient']=True
         records.append(gate_record(game,player['id'],step,verdict,detail,list(sources)))
     # Each step is an independent source check; do not reuse G0-G18 verdicts.
     emit('Step0',bool(receipt(goalie) and weak and g.get('sample')),
