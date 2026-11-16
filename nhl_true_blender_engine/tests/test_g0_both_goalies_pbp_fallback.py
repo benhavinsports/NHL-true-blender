@@ -2,6 +2,7 @@
 
 All player and shot values are synthetic fixtures, never real NHL claims.
 """
+import json
 from copy import deepcopy
 from datetime import datetime,timezone
 import pytest
@@ -47,7 +48,21 @@ def test_g0_cannot_choose_one_goalie_just_because_opposite_profile_is_missing(co
     assert directions[0]["oppositeDirectionMustAlsoBeReviewed"] is True
     out=execute(con,{"games":[g]},DATE,"CONFIRMED")
     assert not out["card"]
-    assert out["eligibleSkaterRows"]==0
+    assert out["eligibleSkaterRows"]==3
+    # A missing source must never skip the remaining gate investigations.
+    # Every available goalie-specific research branch has 20 master + 16
+    # independent overlay rows, with G0 nonpassing and NO published pick.
+    diagnostic=con.execute("""SELECT player_id,gate,disposition,details
+        FROM gates WHERE slate_date=? AND stage='CONFIRMED'
+         AND player_id LIKE 'G0_RESEARCH:%'""",(DATE,)).fetchall()
+    from nhl_true_blender_engine.engine import EXECUTION_ORDER
+    assert len(diagnostic)==3*len(EXECUTION_ORDER)
+    for pid in {x["player_id"] for x in diagnostic}:
+        rows=[x for x in diagnostic if x["player_id"]==pid]
+        assert sorted(x["gate"] for x in rows)==sorted(EXECUTION_ORDER)
+        assert next(x for x in rows if x["gate"]=="G0")["disposition"]!="PASS"
+        assert next(x for x in rows if x["gate"]=="G18")["disposition"]!="PASS"
+        assert all(json.loads(x["details"])["g0ResearchOnly"] is True for x in rows)
     assert any("both attack directions REQUIRE" in msg for msg in out["errors"])
 
 def test_independently_measured_no_weak_goalie_is_a_valid_negative_g0_review(con):
