@@ -127,7 +127,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
     profile with no source-backed weak origin areas is not assigned any weakness.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
-    goalies=0;skaters=0;ambiguous=0;season_goal_owners=0;zero_shot_owners=0;unresolved=[];goalie_routes={}
+    goalies=0;weak_goalies=0;skaters=0;ambiguous=0;season_goal_owners=0;zero_shot_owners=0;unresolved=[];goalie_routes={}
     for g in snapshot.get("games",[]):
         id=str(g["id"])
         goalie_routes[id]={}
@@ -165,7 +165,10 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                     "strengthZones":profile["strengthZones"],
                     "sample":profile["sample"],
                     "observedAreas":profile["observedAreas"],
-                    "sourceReviewed":profile["sample"]["allZoneObservations"]>=MIN_GOALIE_ZONE_SHOTS,
+                    "sourceReviewed":any(
+                        metrics.get("shotsAgainst",0)>=MIN_GOALIE_ZONE_SHOTS and
+                        type(metrics.get("leagueSavePctgPercentile")) in (int,float)
+                        for metrics in profile["observedAreas"].values()),
                     "counterevidence":profile["counterevidence"],
                     "sourceType":ORIGIN_METHOD,
                     "sourceClass":"DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
@@ -186,6 +189,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
                     "kind":"GOALIE_PROFILE","source_url":source["sourceUrl"],
                     "observed_at":now,"payload":payload})
                 goalies+=1
+                weak_goalies+=bool(profile["weakZones"])
         for team in (g["away"],g["home"]):
             roster=(g.get("rosters",{}).get(team) or {}).get("data",{})
             for p in roster.get("players",[]):
@@ -276,9 +280,7 @@ def derive_nhl_edge_attacks(con,snapshot,date,stage):
         "method":ORIGIN_METHOD,"goalieProfilesWithMeasuredWeakOrigins":goalies,
         "ownSkaterRoutes":skaters,"ambiguousMultiRouteSkatersKept":ambiguous,
         "allIndependentlyObservedGoalieProfiles":goalies,
-        "goaliesWithWeakOrigins":goalies-sum(
-            1 for entries in goalie_routes.values() for branches in entries.values()
-            for b in branches if b["edgeSource"] and not b["weakOrigins"]),
+        "goaliesWithWeakOrigins":weak_goalies,
         "sourceBackedSkaterOwnGoalCredits":season_goal_owners,
         "sourceVerifiedZeroShotRivalProfiles":zero_shot_owners,
         "starterBranches":goalie_routes,
