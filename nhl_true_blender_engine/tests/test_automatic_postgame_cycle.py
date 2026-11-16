@@ -49,7 +49,15 @@ def fixture(root):
     site.write_text(json.dumps(original))
     return site,original
 
-def test_cycle_applies_sourced_future_guard_and_saves_cumulative_official_history(tmp_path):
+def test_cycle_applies_sourced_future_guard_and_saves_cumulative_official_history(tmp_path,monkeypatch):
+    # Synthetic official recipient comparison fixture, no live NHL request.
+    async def synthetic_official_recipients(con,date,nhl):
+        return {'status':'OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON',
+                'cardId':f'NHL-{DATE}-CANONICAL','readOnlyPostgameAudit':True,
+                'selectedLegs':[],'officialSourceUrls':[OFFICIAL],
+                'syntheticTestFixtureOnly':True}
+    monkeypatch.setattr('scripts.run_cycle.collect_official_recipients',
+                        synthetic_official_recipients)
     root=tmp_path/"state"
     card_path,original=fixture(root)
     run=asyncio.run(execute_cycle("grade",DATE,root))
