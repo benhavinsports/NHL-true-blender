@@ -162,12 +162,13 @@ def certify_gates(con,date,stage,expected_game_count=None):
     first_failure_counts=Counter()
     first_failure_examples=[]
     for key,matrix in skaters.items():
-        first=next(((g,matrix[g]["disposition"]) for g in EXECUTION_ORDER
+        first=next(((g,matrix[g]["disposition"] if g in matrix else "MISSING")
+                    for g in EXECUTION_ORDER
                     if g not in matrix or matrix[g]["disposition"]!="PASS"),None)
         if first:
             gate,disposition=first
-            kind=("EVIDENCE_INCOMPLETE" if disposition=="NOT_EXECUTED"
-                  or disposition is None else "SOURCE_ELIMINATED")
+            kind=("EVIDENCE_INCOMPLETE" if disposition in ("NOT_EXECUTED", "MISSING", None)
+                  else "SOURCE_ELIMINATED")
             first_failure_counts[kind]+=1
             if len(first_failure_examples)<30:
                 first_failure_examples.append({"gameId":key[0],
