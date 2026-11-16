@@ -28,6 +28,7 @@ from nhl_true_blender_engine.dashboard_export import export_dashboard
 from nhl_true_blender_engine.moneypuck_import import import_moneypuck
 from nhl_true_blender_engine.scouting_import import ingest_scouting
 from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
+from nhl_true_blender_engine.season_goal_history import collect_season_goal_history
 import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
@@ -45,6 +46,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             historical = await collect_history(client, con, snapshot, date, stage)
             context_research = await collect_context(client, con, snapshot, date, stage)
             edge_research = await collect_edge(client, con, snapshot, date, stage)
+            season_goal_research = await collect_season_goal_history(client, con, snapshot, date, stage)
             goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
@@ -90,6 +92,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         diag_path.parent.mkdir(parents=True, exist_ok=True)
         diag_path.write_text(json.dumps(diagnostic, indent=2, default=str), encoding='utf-8')
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
+        result['officialSeasonGoalHistoryCoverage']=season_goal_research
         result['g17CrossSourceReviews']=contradiction_research
         result['officialDefenseCoverage']=historical.get('defensiveCoverage',{})
         result['historicalShiftCoverage']=historical.get('historicalDefensiveShiftCoverage',{})
@@ -116,6 +119,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "historicalShotResearch": historical,
             "actualDefensiveShiftResearch": historical.get('historicalDefensiveShiftCoverage',{}),
             "officialVenueRestContext": context_research,
+            "officialFullSeasonGoalHistory": season_goal_research,
             "officialEdgeRinkZoneEvidence": edge_research,
             "edgeDerivedShotOriginMechanisms": derived_routes,
             "g0RinkAreaGoalieComparison": edge_g0_review,
