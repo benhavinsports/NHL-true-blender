@@ -12,6 +12,14 @@ from .official_defense_coverage import make_coverage
 from .shift_coverage import collect_shift_coverage
 from .secondary_sources import TEAM_SLUGS
 
+def _versioned_receipt_id(base,payload):
+    """Append immutable source-data revisions; identical reruns stay idempotent."""
+    digest=hashlib.sha256(json.dumps(
+        payload,sort_keys=True,separators=(",",":"),default=str).encode("utf-8")
+        ).hexdigest()[:20]
+    return f"{base}-{digest}"
+
+
 SHOT_TYPES = {"goal", "shot-on-goal", "missed-shot", "blocked-shot"}
 ON_NET = {"goal", "shot-on-goal"}
 
@@ -166,7 +174,8 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
                          "historicalSourceUrls":urls,
                          "sampleGameIds":sorted({e["gameId"] for e in target_events if e["shooterId"]==str(pid)}),
                          "evidenceType":"OFFICIAL_HISTORICAL_SHOT_EVENTS"}
-                ingest(con,{"evidence_id":f"historical-pressure-{slate_date}-{stage}-{game['id']}-{pid}",
+                ingest(con,{"evidence_id":_versioned_receipt_id(
+                        f"historical-pressure-{slate_date}-{stage}-{game['id']}-{pid}",payload),
                     "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                     "player_id":pid,"kind":"PLAYER_PRESSURE",
                     "source_url":urls[0],"observed_at":datetime.now(timezone.utc).isoformat(),
@@ -188,11 +197,12 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
                 mapped=[{"goalId":e["gameId"]+":"+e["eventId"],
                          "date":e["date"],"sourceUrl":e["sourceUrl"]}
                         for e in goals]
+                goal_payload={"goals":mapped,"scope":"SAMPLED_PRE_SLATE_GAMES_ONLY",
+                              "completeSeason":False}
                 ingest(con,{**base,
-                    "evidence_id":f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",
-                    "kind":"PLAYER_GOAL_EVENTS",
-                    "payload":{"goals":mapped,"scope":"SAMPLED_PRE_SLATE_GAMES_ONLY",
-                               "completeSeason":False}})
+                    "evidence_id":_versioned_receipt_id(
+                        f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",goal_payload),
+                    "kind":"PLAYER_GOAL_EVENTS","payload":goal_payload})
     errors=schedule_errors+pbp_errors
     return {"historicalGames":len(target_ids),"shotEvents":len(target_events),
             "coveragePeerGames":len(coverage_ids),
