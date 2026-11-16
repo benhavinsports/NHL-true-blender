@@ -1,6 +1,6 @@
 """The UI must show real selected-player gate receipts, never invented PASSes."""
 import json
-from nhl_true_blender_engine.engine import execute,MASTER,OVERLAY
+from nhl_true_blender_engine.engine import execute,MASTER,OVERLAY,EXECUTION_ORDER
 from nhl_true_blender_engine.storage import open_db,get_card
 from nhl_true_blender_engine.dashboard_export import export_dashboard
 from nhl_true_blender_engine.tests.test_engine import snapshot,DATE
@@ -25,14 +25,16 @@ def test_dashboard_exports_one_saved_core_real_36_checks_and_all_games(tmp_path)
          str(l["playerId"]) for l in before["current_legs"]}
     for selected in doc["legs"]:
         assert len(selected["gateDetails"])==36
-        assert [g["gate"] for g in selected["gateDetails"]]==MASTER+OVERLAY
+        assert [g["gate"] for g in selected["gateDetails"]]==EXECUTION_ORDER
+        assert selected["executionOrderVerified"] is True
+        assert selected["gateDetails"][-1]["gate"]=="G18"
         assert selected["masterPassed"]==20
         # A complete synthetic defensive-shift receipt can prove Step8.
         assert selected["overlayPassed"]==16
         assert selected["sourceVerifiedPregameGateCount"]==(
             selected["masterPassed"]+selected["overlayPassed"])
         assert selected["gateDetails"][11]["gate"]=="G10.5"
-        assert selected["gateDetails"][31]["gate"]=="Step10.5"
+        assert selected["gateDetails"][30]["gate"]=="Step10.5"
         assert all(g["prePuckRecord"] for g in selected["gateDetails"])
         assert selected["gateDetails"][0]["sourceIds"]
         assert selected["gateDetails"][0]["evidence"]["targetGoalie"]

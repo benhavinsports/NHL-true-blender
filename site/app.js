@@ -328,10 +328,12 @@ function renderDetails(){
  const passed=data?data.masterPassed+" / "+data.totalMaster+" master · "+
    data.overlayPassed+" / "+data.totalOverlay+" overlay":"No separately exported pre-puck matrix yet";
  summary.appendChild(el("p","",passed+
-   (data?" · Source stage: "+(data.stageOfGateRecords||"Unavailable"):"")));
+   (data?" · "+(data.executionOrderVerified?"exact execution order verified":"execution order NOT verified")+
+     " · Source stage: "+(data.stageOfGateRecords||"Unavailable"):"")));
  compliance.appendChild(summary);
- const passedAll=data&&data.masterPassed===data.totalMaster&&data.overlayPassed===data.totalOverlay;
- compliance.appendChild(pill(data?passedAll?"ALL 36 PASSED":"EVIDENCE REVIEW":"AWAITING EXPORT",
+ const passedAll=data&&data.executionOrderVerified===true&&
+   data.masterPassed===data.totalMaster&&data.overlayPassed===data.totalOverlay;
+ compliance.appendChild(pill(data?passedAll?"ALL 36 PASSED · ORDER VERIFIED":"EVIDENCE REVIEW":"AWAITING EXPORT",
      data?passedAll?"success":"warning":"neutral"));
  body.appendChild(compliance);
  if(!data){
@@ -378,7 +380,8 @@ function gateRow(record){
  const details=el("details","gate-row");
  details.dataset.gate=record.gate;
  const summary=el("summary");
- summary.appendChild(el("span","gate-code",record.gate));
+ summary.appendChild(el("span","gate-code",
+   "#"+(Number.isInteger(record.expectedExecutionIndex)?record.expectedExecutionIndex+1:"?")+" "+record.gate));
  summary.appendChild(el("span","gate-title",EXPLAIN[record.gate]||"Verified source review"));
  summary.appendChild(pill(record.status||"UNKNOWN",statusClass(record.status)));
  summary.appendChild(el("span","gate-chevron","›"));

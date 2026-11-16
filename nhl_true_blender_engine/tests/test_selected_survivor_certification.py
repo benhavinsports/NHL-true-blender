@@ -29,6 +29,7 @@ def test_three_certified_survivors_can_publish_while_other_players_fail(tmp_path
     audit=certify_gates(con,DATE,"CONFIRMED",len(slate["games"]))
     assert audit["scannedSkaters"]==9
     assert audit["allSkatersHaveEachGateRecord"]
+    assert audit["allSkatersHaveExactExecutionOrder"]
     assert audit["allOverlayStepsWereIndependentlyChecked"]
     assert len(audit["selectedLegs"])==3
     assert audit["selectedCoreOnlyFullyCertified"] is True

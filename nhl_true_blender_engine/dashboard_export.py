@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from .engine import MASTER, OVERLAY
+from .engine import MASTER, OVERLAY, EXECUTION_ORDER
 from .storage import get_card
 
 def _datetime(value):
@@ -109,6 +109,7 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
         "games":[_game_summary(g) for g in snapshot.get("games",[])],
         "masterOrder":MASTER,
         "overlayOrder":OVERLAY,
+        "executionOrder":EXECUTION_ORDER,
         "legs":[],
     }
     if card:
@@ -148,20 +149,33 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                     "appliedPatches":details.get("appliedPatches") or [],
                     "evaluatedAt":evaluated,
                     "prePuckRecord":True,
+                    "recordedExecutionIndex":details.get("executionIndex"),
+                    "executionPhase":details.get("executionPhase"),
                 }
             ordered=[]
-            for gate in MASTER+OVERLAY:
-                ordered.append(mapping.get(gate,{
-                    "gate":gate,"status":"NO_PREPUCK_RECEIPT",
-                    "sourceIds":[],"evidence":{},
-                    "prePuckRecord":False}))
+            for expected_index,gate in enumerate(EXECUTION_ORDER):
+                record=mapping.get(gate)
+                if record is None:
+                    record={"gate":gate,"status":"NO_PREPUCK_RECEIPT",
+                            "sourceIds":[],"evidence":{},
+                            "prePuckRecord":False,
+                            "recordedExecutionIndex":None,
+                            "executionPhase":None}
+                record["expectedExecutionIndex"]=expected_index
+                record["executionOrderVerified"]=(
+                    record.get("recordedExecutionIndex")==expected_index)
+                ordered.append(record)
+            order_verified=all(r["executionOrderVerified"] for r in ordered)
             payload["legs"].append({
                 "gameId":gameId,"playerId":playerId,"player":leg["player"],
                 "originalLockedPath":leg["path"],
                 "stageOfGateRecords":sourceStage,
                 "startUTC":leg.get("startUTC"),
-                "masterPassed":sum(r["status"]=="PASS" for r in ordered[:len(MASTER)]),
-                "overlayPassed":sum(r["status"]=="PASS" for r in ordered[len(MASTER):]),
+                "executionOrderVerified":order_verified,
+                "masterPassed":sum(r["gate"] in MASTER and r["status"]=="PASS"
+                                   for r in ordered),
+                "overlayPassed":sum(r["gate"] in OVERLAY and r["status"]=="PASS"
+                                    for r in ordered),
                 "totalMaster":len(MASTER),
                 "totalOverlay":len(OVERLAY),
                 "sourceVerifiedPregameGateCount":sum(r["status"]=="PASS" and

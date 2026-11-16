@@ -14,8 +14,19 @@ from .storage import save_card, save_gates, log_job, get_card, fingerprint
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .semantic_certification import audit_gate
 
-MASTER = ([f'G{i}' for i in range(11)] + ['G10.5'] + [f'G{i}' for i in range(11,19)])
-OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] + [f'Step{i}' for i in range(11,15)])
+# The user's 18 numbered scorer gates remain individually named and ordered.
+# G10.5 is the mandatory half-step between G10 and G11. G0 is the
+# separate goalie-first direction decision, not a substitute for scorer gates.
+SCORER_GATE_ORDER = ([f'G{i}' for i in range(1,11)] +
+                     ['G10.5'] + [f'G{i}' for i in range(11,19)])
+MASTER = ['G0'] + SCORER_GATE_ORDER
+OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] +
+           [f'Step{i}' for i in range(11,15)])
+# Execution order reflects the real dependency: G0, G1-G17 (including G10.5),
+# every independent overlay step in its own exact order, then final G18.
+EXECUTION_ORDER = MASTER[:-1] + OVERLAY + [MASTER[-1]]
+if MASTER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
+    raise RuntimeError('Authoritative NHL gate order was altered')
 PATCH_IDS = (
     'PATCH_PROVENANCE_V1','PATCH_START_TIME_V1','PATCH_OFFICIAL_SCORERS_V1',
     'PATCH_GATE13_CONTINUITY_V1','PATCH_RECIPIENT_LOCK_V1',
@@ -70,10 +81,17 @@ def verdict(pass_value, detail, eliminated=False):
 
 
 def gate_record(game, player, gate, disposition, detail, source_ids=None):
+    if gate not in EXECUTION_ORDER:
+        raise ValueError(f'Unknown gate outside the authoritative execution order: {gate}')
+    index=EXECUTION_ORDER.index(gate)
+    phase=('G0_GOALIE_FIRST' if gate=='G0' else
+           'OVERLAY' if gate in OVERLAY else
+           'G18_FINAL' if gate=='G18' else 'MASTER')
     return {'gameId':str(game['id']),'playerId':str(player),'gate':gate,
             'disposition':disposition,
             'details':{'evidence':detail,'sourceIds':source_ids or [],
-                       'appliedPatches':GATE_PATCHES.get(gate,[])} }
+                       'appliedPatches':GATE_PATCHES.get(gate,[]),
+                       'executionIndex':index,'executionPhase':phase}}
 
 
 def all_goalie_branches(game, stage):
@@ -792,10 +810,19 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         'overlayPassedBeforeG18':overlay_passed,
         'notPresetOneOfEach':True},
         source_ids=path_proof['sourceUrls'])
+    master_trace=[row['gate'] for row in proof]
+    overlay_trace=[row['gate'] for row in overlay]
+    if master_trace!=MASTER:
+        raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
+    if overlay_trace!=OVERLAY:
+        raise ValueError(f'Independent overlay execution order mismatch: {overlay_trace}')
+    execution_trace=proof[:-1]+overlay+proof[-1:]
+    if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
+        raise ValueError('Combined execution trace does not match the authoritative gate order')
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
             'route':route,'pathEvidence':path_proof,
             'pressure':evidence_data(shots),
-            'release':release,'challengers':rows},proof+overlay
+            'release':release,'challengers':rows},execution_trace
 
 
 
@@ -803,7 +830,7 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
     """Patch: 2026-11-05 complete every eligible player and overlay before G18."""
     errors=[]
     now=now or datetime.now(timezone.utc)
-    expected_set=set(MASTER+OVERLAY)
+    expected_set=set(EXECUTION_ORDER)
     if tuple(OVERLAY)!=tuple(STEP_ORDER):
         errors.append('Phase-1 overlay source order differs from the authoritative mapping')
     for game in games:
@@ -816,11 +843,22 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
         active_roster=complete_roster(game,direction['attacker'])
         for person in active_roster:
             pid=str(person['id'])
-            actual={r['gate'] for r in records
-                    if r['gameId']==str(game['id']) and r['playerId']==pid}
-            if actual!=expected_set:
-                missing=sorted(expected_set-actual)
+            candidate_records=[r for r in records
+                if r['gameId']==str(game['id']) and r['playerId']==pid]
+            actual=[r['gate'] for r in candidate_records]
+            if set(actual)!=expected_set:
+                missing=[gate for gate in EXECUTION_ORDER if gate not in set(actual)]
                 errors.append(f"{game['id']} player {pid} missing gate/overlay records {missing}")
+            if actual!=EXECUTION_ORDER:
+                errors.append(
+                    f"{game['id']} player {pid} wrong gate execution order; "
+                    f"expected {EXECUTION_ORDER}, got {actual}")
+            for index,entry in enumerate(candidate_records):
+                metadata=(entry.get('details') or {})
+                if metadata.get('executionIndex')!=index:
+                    errors.append(
+                        f"{game['id']} player {pid} gate {entry['gate']} "
+                        f"has execution index {metadata.get('executionIndex')} not {index}")
             # A filled row is not proof of a gate's own evidence review.
             # Each overlay must have its own pre-G18 source observation.
             for entry in records:

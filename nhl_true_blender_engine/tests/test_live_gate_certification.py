@@ -13,6 +13,7 @@ def test_census_separates_gate_row_count_from_real_source_proof(tmp_path):
     assert result["card"] is None
     audit=certify_gates(con,DATE,"CONFIRMED",len(s["games"]))
     assert audit["allSkatersHaveEachGateRecord"] is True
+    assert audit["allSkatersHaveExactExecutionOrder"] is True
     assert audit["allOverlayStepsWereIndependentlyChecked"] is True
     assert audit["gateRows"]==9*(len(MASTER)+len(OVERLAY))+6
     assert audit["selectedMasterGatesAllPass"] is False

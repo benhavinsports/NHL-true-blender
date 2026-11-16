@@ -6,7 +6,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import pytest
 from nhl_true_blender_engine.storage import open_db, save_card, get_card, grade_frozen_card, record_evidence, record_watch
-from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY, PATCH_IDS
+from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY, SCORER_GATE_ORDER, EXECUTION_ORDER, PATCH_IDS
 from nhl_true_blender_engine.sources import credited_goals_from_pbp, normalize_games, SourceUnavailable
 
 SRC='https://example.org/official-verifiable-fixture-not-live'
@@ -88,7 +88,13 @@ def con(tmp_path):
 
 
 def test_full_structural_three_game_run(con):
+    assert SCORER_GATE_ORDER == ([f'G{i}' for i in range(1,11)] +
+                                 ['G10.5'] + [f'G{i}' for i in range(11,19)])
+    assert MASTER == ['G0'] + SCORER_GATE_ORDER
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
+    assert EXECUTION_ORDER == MASTER[:-1] + OVERLAY + ['G18']
+    assert EXECUTION_ORDER[-1]=='G18'
+    assert EXECUTION_ORDER.index('G10.5') < EXECUTION_ORDER.index('G11')
     assert len(PATCH_IDS)==13
     res=execute(con,snapshot(),DATE,'CONFIRMED')
     assert res['g0Directions']==6 and res['g0Complete']==6
@@ -102,6 +108,10 @@ def test_full_structural_three_game_run(con):
     assert len({x['gameId'] for x in legs})==3
     assert con.execute('SELECT COUNT(*) FROM cards').fetchone()[0]==1
     assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==9*(len(MASTER)+len(OVERLAY))+6
+    stored=con.execute("SELECT gate,details FROM gates WHERE slate_date=? AND stage='CONFIRMED' AND game_id='5001' AND player_id='1010'",(DATE,)).fetchall()
+    stored.sort(key=lambda row:json.loads(row['details']).get('executionIndex',-1))
+    assert [row['gate'] for row in stored]==EXECUTION_ORDER
+    assert [json.loads(row['details'])['executionIndex'] for row in stored]==list(range(len(EXECUTION_ORDER)))
     assert 'PATCH-NOV12-G10.5-EXPLICIT-SEPARATION' in con.execute("SELECT details FROM gates WHERE gate='G10.5' AND player_id='1010'").fetchone()[0]
 
 
@@ -247,7 +257,7 @@ def test_all_thirteen_patch_ids_mapped_into_real_gates():
 
 
 def test_missing_game_one_skater_trace_cannot_issue_card(con):
-    from nhl_true_blender_engine.engine import verify_complete_matrix, gate_record, MASTER, OVERLAY
+    from nhl_true_blender_engine.engine import verify_complete_matrix, gate_record, MASTER, OVERLAY, EXECUTION_ORDER
     s=snapshot()
     rows=[]
     for game in s['games']:
@@ -255,7 +265,7 @@ def test_missing_game_one_skater_trace_cannot_issue_card(con):
             rows.append(gate_record(game,'GOALIE_DIRECTION:'+attack,'G0','PASS',{}))
         for team in (game['away'],game['home']):
             for p in game['rosters'][team]['data']['players']:
-                for gate in MASTER+OVERLAY:
+                for gate in EXECUTION_ORDER:
                     if p['id']=='1011' and gate=='Step7':continue
                     rows.append(gate_record(game,p['id'],gate,'PASS',{}))
     selected={str(g['id']):{'attacker':g['away']} for g in s['games']}
@@ -269,3 +279,26 @@ def snapshot_without_shifts(n=3):
             for key in ('shiftByShift','shiftSourceUrls','actualDefensiveShiftMatches'):
                 data.pop(key,None)
     return slate
+
+def test_matrix_verifier_rejects_reordered_gate_rows(con):
+    from nhl_true_blender_engine.engine import verify_complete_matrix,gate_record,EXECUTION_ORDER
+    s=snapshot()
+    rows=[]
+    for game in s['games']:
+        for attack in (game['away'],game['home']):
+            rows.append(gate_record(game,'GOALIE_DIRECTION:'+attack,'G0','PASS',{}))
+        for team in (game['away'],game['home']):
+            for person in game['rosters'][team]['data']['players']:
+                for gate in EXECUTION_ORDER:
+                    rows.append(gate_record(game,person['id'],gate,'PASS',{}))
+    game_id=str(s['games'][0]['id'])
+    chosen=[i for i,row in enumerate(rows)
+            if row['gameId']==game_id and row['playerId']=='1010']
+    a=next(i for i in chosen if rows[i]['gate']=='G10.5')
+    b=next(i for i in chosen if rows[i]['gate']=='G11')
+    rows[a],rows[b]=rows[b],rows[a]
+    directions={str(g['id']):{'attacker':g['away']} for g in s['games']}
+    errors=verify_complete_matrix(s['games'],rows,[],
+        now=datetime.now(timezone.utc),selected_directions=directions)
+    assert any('1010' in error and 'wrong gate execution order' in error
+               for error in errors)

@@ -7,7 +7,7 @@ selects or replaces a Core, and never changes a gate's disposition.
 from __future__ import annotations
 import json
 from collections import Counter,defaultdict
-from .engine import MASTER,OVERLAY
+from .engine import MASTER,OVERLAY,SCORER_GATE_ORDER,EXECUTION_ORDER
 from .storage import get_card
 from .semantic_certification import audit_gate
 
@@ -27,7 +27,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         if str(row["player_id"]).startswith("GOALIE_DIRECTION:"):continue
         key=(str(row["game_id"]),str(row["player_id"]))
         skaters[key][row["gate"]]=row
-    required=set(MASTER+OVERLAY)
+    required=set(EXECUTION_ORDER)
     distributions=defaultdict(Counter);missing=Counter()
     overlay_copies=[];source_unattributed=[];duplicates=[]
     step8_missing=[];missing_gate_evidence=defaultdict(list)
@@ -35,8 +35,27 @@ def certify_gates(con,date,stage,expected_game_count=None):
     semantic_failed_examples=[]
     independently_proven_by_gate=Counter()
     attempted_by_gate=Counter()
+    order_by_key={}
+    order_mismatches=[]
     for key,matrix in skaters.items():
         if set(matrix)!=required:missing.update(required-set(matrix))
+        indexed=[]
+        for gate,row in matrix.items():
+            detail=json.loads(row["details"])
+            raw_index=detail.get("executionIndex")
+            index=raw_index if type(raw_index) is int else -1
+            indexed.append((index,gate))
+        indexed.sort(key=lambda item:item[0])
+        actual_order=[gate for _,gate in indexed]
+        actual_indices=[index for index,_ in indexed]
+        order_ok=(actual_order==EXECUTION_ORDER and
+                  actual_indices==list(range(len(EXECUTION_ORDER))))
+        order_by_key[key]={"verified":order_ok,"actual":actual_order,
+                           "indices":actual_indices}
+        if not order_ok and len(order_mismatches)<40:
+            order_mismatches.append({"gameId":key[0],"playerId":key[1],
+                "expected":EXECUTION_ORDER,"actual":actual_order,
+                "recordedIndices":actual_indices})
         for gate,row in matrix.items():
             distributions[gate][row["disposition"]]+=1
             attempted_by_gate[gate]+=1
@@ -80,6 +99,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
     card=get_card(con,date)
     selected=[]
     selected_source_gaps=[]
+    selected_execution_order_gaps=[]
     selected_keyset=set()
     if card:
         for leg in card["current_legs"]:
@@ -92,11 +112,12 @@ def certify_gates(con,date,stage,expected_game_count=None):
                     matrix[gate]["disposition"] if gate in matrix else "MISSING"}
                          for gate in OVERLAY if gate not in matrix or
                          matrix[gate]["disposition"]!="PASS"]
-            own_source_gaps=[gate for gate in PROVENANCE_REQUIRED
-                if gate in matrix and matrix[gate]["disposition"]=="PASS"
+            own_source_gaps=[gate for gate in EXECUTION_ORDER
+                if gate in PROVENANCE_REQUIRED and gate in matrix
+                and matrix[gate]["disposition"]=="PASS"
                 and not (json.loads(matrix[gate]["details"]).get("sourceIds") or [])]
             semantic_gaps=[]
-            for gate in MASTER+OVERLAY:
+            for gate in EXECUTION_ORDER:
                 if gate not in matrix or matrix[gate]["disposition"]!="PASS":
                     continue
                 details=json.loads(matrix[gate]["details"])
@@ -108,9 +129,18 @@ def certify_gates(con,date,stage,expected_game_count=None):
                                              "semanticMissingProof":semantic_gaps})
             if own_source_gaps:
                 selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
-                                             "gates":sorted(own_source_gaps)})
+                                             "gates":own_source_gaps})
+            order_info=order_by_key.get(key,{"verified":False,"actual":[],"indices":[]})
+            if not order_info["verified"]:
+                selected_execution_order_gaps.append({
+                    "gameId":key[0],"playerId":key[1],
+                    "expected":EXECUTION_ORDER,"actual":order_info["actual"],
+                    "recordedIndices":order_info["indices"]})
             selected.append({"gameId":key[0],"playerId":key[1],
                 "player":leg["player"],"savedPath":leg["path"],
+                "executionOrderVerified":order_info["verified"],
+                "executionOrderGaps":([] if order_info["verified"] else
+                    ["RECORDED_GATE_ORDER_OR_INDEX_MISMATCH"]),
                 "masterAllPass":not bad_master,"masterMissingOrNonpassing":bad_master,
                 "overlayAllPass":not bad_overlay,
                 "overlayMissingOrNonpassing":bad_overlay,
@@ -150,9 +180,11 @@ def certify_gates(con,date,stage,expected_game_count=None):
     }
     all_matrix_present=bool(skaters) and not missing and all(
         len(x)==len(required) for x in skaters.values())
+    all_matrix_in_order=bool(skaters) and all(
+        order_by_key.get(key,{}).get("verified") is True for key in skaters)
     directions_complete=bool(goalie_directions) and (
         expected_game_count is None or len(goalie_directions)==2*expected_game_count)
-    independent=all_matrix_present and not overlay_copies
+    independent=all_matrix_present and all_matrix_in_order and not overlay_copies
     all_selected_master=bool(selected) and all(x["masterAllPass"] for x in selected)
     all_selected_overlay=bool(selected) and all(x["overlayAllPass"] for x in selected)
     required_legs=min(3,expected_game_count) if expected_game_count else len(selected)
@@ -161,27 +193,36 @@ def certify_gates(con,date,stage,expected_game_count=None):
         len({x["gameId"] for x in selected})==required_legs and
         all_selected_master and all_selected_overlay and
         all(x["overlayIndependentlyEvaluated"] for x in selected) and
-        not selected_source_gaps)
+        all(x["executionOrderVerified"] for x in selected) and
+        not selected_source_gaps and not selected_execution_order_gaps)
     return {
         "slateDate":date,"stage":stage,
-        "gateSpecification":{"masterOrder":MASTER,"overlayOrder":OVERLAY,
-                             "masterCount":len(MASTER),"overlayCount":len(OVERLAY)},
+        "gateSpecification":{"scorerGateOrder":SCORER_GATE_ORDER,
+                             "masterOrder":MASTER,"overlayOrder":OVERLAY,
+                             "executionOrder":EXECUTION_ORDER,
+                             "masterCount":len(MASTER),"overlayCount":len(OVERLAY),
+                             "executionCount":len(EXECUTION_ORDER)},
         "surveyedGoalieDirections":len(goalie_directions),
         "twoDirectionsPerScheduledGameRecorded":directions_complete,
         "goalieDirectionsWithPass":sum(x["disposition"]=="PASS" for x in goalie_directions),
         "scannedSkaters":len(skaters),"gateRows":len(rows),
         "allSkatersHaveEachGateRecord":all_matrix_present,
+        "allSkatersHaveExactExecutionOrder":all_matrix_in_order,
+        "executionOrderMismatches":order_mismatches,
         "allOverlayStepsWereIndependentlyChecked":independent,
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
-        "missingMatrixGateRows":dict(missing),
-        "gateChecksAttempted":dict(attempted_by_gate),
-        "substantivelyCertifiedPasses":dict(independently_proven_by_gate),
-        "recordedPassesWithInsufficientProof":dict(semantic_failed_by_gate),
+        "missingMatrixGateRows":{g:missing[g] for g in EXECUTION_ORDER if missing[g]},
+        "gateChecksAttempted":{g:attempted_by_gate[g] for g in EXECUTION_ORDER},
+        "substantivelyCertifiedPasses":{g:independently_proven_by_gate[g]
+                                        for g in EXECUTION_ORDER},
+        "recordedPassesWithInsufficientProof":{g:semantic_failed_by_gate[g]
+                                               for g in EXECUTION_ORDER},
         "recordedPassProofGapExamples":semantic_failed_examples,
         "step8MissingDetails":step8_missing,
         "step8MissingReasons":dict(Counter(x["reason"] for x in step8_missing)),
-        "otherMissingSourceExamples":dict(missing_gate_evidence),
+        "otherMissingSourceExamples":{g:missing_gate_evidence[g]
+                                       for g in EXECUTION_ORDER if missing_gate_evidence[g]},
         "copiedOverlayReceipts":overlay_copies[:12],
         "copiedOverlayReceiptCount":len(overlay_copies),
         "sourceUnattributedPassingGateCount":len(source_unattributed),
@@ -191,6 +232,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "selectedMasterGatesAllPass":all_selected_master,
         "selectedOverlayGatesAllPass":all_selected_overlay,
         "selectedSourceAttributionGaps":selected_source_gaps,
+        "selectedExecutionOrderGaps":selected_execution_order_gaps,
         "selectedCoreOnlyFullyCertified":selected_core_certified,
         "fullIndependentCardCertification":bool(
             directions_complete and independent and selected_core_certified),
