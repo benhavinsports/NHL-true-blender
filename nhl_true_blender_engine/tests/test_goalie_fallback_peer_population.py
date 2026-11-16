@@ -85,5 +85,15 @@ def test_official_goalie_history_collects_comparable_pre_slate_peer_sample(tmp_p
     assert payload["weakZones"]["Low Slot"]["peerGoaliesSampled"]==4
     assert payload["weakZones"]["Low Slot"]["samplePeerSavePctgPercentile"]==0
     assert payload["anatomicalWeaknessCertified"] is False
-    assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==1
+    peer=con.execute("""SELECT payload FROM evidence WHERE
+      kind='GOALIE_PBP_PEER_CONTEXT'""").fetchall()
+    assert len(peer)==5
+    population={json.loads(row["payload"])["samplePeerPopulationId"]
+                for row in peer}
+    assert len(population)==1
+    assert all(json.loads(row["payload"])["peerSampleNeverLeagueEDGEPercentile"]
+               for row in peer)
+    # Extra independent G0 comparison receipts do NOT overwrite five
+    # original starter/EDGE goalie profiles; only one needed PBP fallback.
+    assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==6
     con.close()
