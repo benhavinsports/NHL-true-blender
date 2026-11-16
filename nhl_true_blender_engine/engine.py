@@ -671,7 +671,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         release['zone']) if coverage_data and release else None
     g9_sources=sorted(set(
         ([coverage['sourceUrl']] if receipt(coverage) else [])+
-        [u for u in (coverage_data.get('sourceUrls') or [])
+        [u for u in ((coverage_data or {}).get('sourceUrls') or [])
          if isinstance(u,str) and u.startswith('https://')]))
     emit('G9',match,{'shooterZone':release['zone'] if release else None,
                    'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,
