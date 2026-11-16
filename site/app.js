@@ -525,6 +525,59 @@ function renderGrade(){
    d.appendChild(pill(p.result,statusClass(p.result)));lines.appendChild(d);
  }
  holder.appendChild(lines);
+ // Original saved recipient-vs-actual scorer audit, re-checked against
+ // every official NHL goal in these three matchups. This is not a re-pick.
+ const recipientReview=grade.postgameRecipientAudit||{};
+ if(recipientReview.status==="OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON" &&
+    recipientReview.cardId===saved.cardId){
+   const auditBox=el("details","collapse");
+   const summary=el("summary","","Flip postgame scorer audit • who scored instead?");
+   auditBox.appendChild(summary);
+   const important=el("div","notice warning",
+     "Retrospective outcome comparison, NOT a new Core or proof that an alternative scorer could have been known with certainty before puck drop.");
+   auditBox.appendChild(important);
+   for(const game of recipientReview.selectedLegs||[]){
+     const g=el("article","match");
+     const top=el("div","match-head");
+     top.appendChild(el("strong","",game.lockedPlayer));
+     top.appendChild(pill(game.chosenGoals?"HIT":"MISS",
+                             game.chosenGoals?"success":"danger"));
+     g.appendChild(top);
+     g.appendChild(el("p","",game.matchup+" • "+game.lockedTeam+
+       " goals: "+game.sameAttackSideGoals+
+       " • Opposing goals: "+game.oppositeAttackSideGoals));
+     const scorers=el("div","grade-lines");
+     for(const rival of game.officialScorers||[]){
+       const row=el("div","grade-line");
+       const fact=el("div");
+       fact.appendChild(el("strong","",rival.player+" · "+rival.goals+
+         " goal"+(rival.goals===1?"":"s")));
+       fact.appendChild(el("p","tiny muted",
+         rival.team+" · "+(rival.pregameG105Verdict?
+            "Original G10.5: "+rival.pregameG105Verdict:
+            rival.reasonNotPregameG105Compared==="OPPOSITE_G0_ATTACK_SIDE"?
+             "Outside selected G0 attack direction":"Original saved scorer")));
+       row.appendChild(fact);
+       if(rival.pregameG105Verdict==="DEFEATED")row.appendChild(pill("G10.5 REVIEW","warning"));
+       scorers.appendChild(row);
+     }
+     g.appendChild(scorers);
+     if((game.auditFlags||[]).includes("ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF")){
+       g.appendChild(el("p","archive-note",
+         "Audit: The old G15 PASS repeated historical goal credit rather than independently proving the future finishing role. Future G15 has been corrected."));
+     }
+     const sources=el("div","source-links");
+     unique(game.officialSources||[]).map(u=>link(u,"Official NHL scoring record")).filter(Boolean)
+          .forEach(a=>sources.appendChild(a));
+     g.appendChild(sources);
+     auditBox.appendChild(g);
+   }
+   holder.appendChild(auditBox);
+ }else if(recipientReview.status){
+   holder.appendChild(el("div","notice",
+     "Detailed scorer-versus-recipient audit: "+recipientReview.status.replace(/_/g," ")+
+     ". The frozen official card grade remains unchanged."));
+ }
  const audits=grade.missAudits||[];
  const p=el("p","small muted","Miss audits saved: "+audits.length+
     " · Verified future-only policy guards: "+(grade.patchesApplied?.length||0)+
