@@ -174,7 +174,7 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                       and data.get("sample",{}).get("allZoneObservations",0)>=MIN_ORIGIN_SHOTS)
                 if good or data.get("sourceClass")=="INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY":
                     continue
-                active[str(pid)]=None
+                active.setdefault(str(pid),set()).add(team)
     if not active:
         return {"status":"ALL_GOALIE_PROFILES_ALREADY_MEASURED",
                 "goaliesNeedingPbpResearch":0,
@@ -191,6 +191,7 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 return pid,season,None,type(exc).__name__+": "+str(exc)[:190]
     logs=await asyncio.gather(*(get_log(pid,season) for pid in active for season in seasons))
     games={}
+    goalies_with_history=set()
     for pid,season,payload,error in logs:
         if error:
             source_failures.append({"goalieId":pid,"endpoint":"game-log",
@@ -198,6 +199,45 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
             continue
         for gid,played in pregame_log_games(payload,date,max_games):
             games.setdefault(gid,played)
+            goalies_with_history.add(pid)
+    # A newly called-up / traded goalie may lack a goalie game-log response.
+    # Query the club's own OFFICIAL pre-slate season schedule as a second
+    # discovery route. This does not assume the goalie played for the club:
+    # each shot is attributed only by goalieInNetId in the actual game PBP.
+    missing=[(pid,team,season) for pid,teams in active.items()
+             if pid not in goalies_with_history
+             for team in teams for season in seasons]
+    async def club_schedule(pid,team,season):
+        async with sem:
+            try:
+                raw=await client.get(f"club-schedule-season/{team}/{season}")
+                return pid,team,season,raw,None
+            except Exception as exc:
+                return pid,team,season,None,type(exc).__name__+": "+str(exc)[:190]
+    fallback_schedules=await asyncio.gather(*(club_schedule(*entry)
+                                             for entry in missing))
+    recovered_schedule_games=0
+    for pid,team,season,payload,error in fallback_schedules:
+        if error:
+            source_failures.append({"goalieId":pid,"team":team,
+                 "endpoint":"club-schedule-season","season":season,"reason":error})
+            continue
+        # This is a discovery set, never a scorer or starter confirmation.
+        # The goalie identity itself MUST appear in goalieInNetId PBP.
+        eligible=[]
+        for row in (payload.get("data") or {}).get("games",[]):
+            gid=row.get("id")
+            played=row.get("gameDate")
+            if gid is None or not isinstance(played,str) or played[:10]>=date:
+                continue
+            if row.get("gameState") not in ("OFF","FINAL"):
+                continue
+            eligible.append((str(gid),played[:10]))
+        eligible.sort(key=lambda item:item[1],reverse=True)
+        for gid,played in eligible[:max_games]:
+            if gid not in games:
+                games[gid]=played
+                recovered_schedule_games+=1
     # Need to ensure no one goalie dominates the pooled sample just due to
     # twice as many fetched games; collect one deduplicated URL per game.
     async def get_game(gid,played):
@@ -250,6 +290,9 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         "sourceType":SOURCE,
         "goaliesNeedingPbpResearch":len(active),
         "historicalNhlGamesFetched":sum(err is None for gid,events,err in outcomes),
+        "goaliesWithOfficialPersonalHistory":len(goalies_with_history),
+        "clubScheduleGamesRecovered":recovered_schedule_games,
+        "clubScheduleNeverImpliesGoaliePlayed":True,
         "historicalGoalieIdentityEvents":sum(x.get("goalieId") is not None
                                              and x.get("type") in ON_NET for x in events),
         "fallbackProfiles":saved,
