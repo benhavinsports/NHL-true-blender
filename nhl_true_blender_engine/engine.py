@@ -1475,8 +1475,17 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         # peer cohort can resolve mixed NHL EDGE/PBP evidence WITHOUT ever
         # comparing their incompatible percentile populations directly.
         consensus=compare_g0_consensus_across_starters(options[0],options[1])
-        if consensus is not None:
+        if consensus is not None and len(consensus['targetGoalies'])==1:
             selected_directions[str(match['id'])]=consensus
+            continue
+        if consensus is not None:
+            # An attack side can be consistent across all projected goalies,
+            # yet a SPECIFIC opposing goalie still isn't independently
+            # identified. The scorer matrix is keyed by official player ID,
+            # so proceeding through two goalie branches would overwrite the
+            # other branch's source proof and falsely certify one result.
+            # Continue ALL source checks in namespaced G0 research instead.
+            errors.append(f"{match['id']} G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route")
             continue
         errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
     # A G0 failure MUST NOT silently short-circuit all 36 source checks.
