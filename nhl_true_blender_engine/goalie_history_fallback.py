@@ -240,10 +240,18 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 eligible_peers.setdefault(str(pid),set()).add(team)
                 if needs_independent_pbp(data):
                     active.setdefault(str(pid),set()).add(team)
-    if not active:
-        return {"status":"ALL_GOALIE_PROFILES_ALREADY_MEASURED",
+    if not eligible_peers:
+        return {"status":"NO_SOURCE_IDENTIFIED_SLATE_GOALIES",
                 "goaliesNeedingPbpResearch":0,
                 "sourceType":SOURCE,"fallbackProfiles":0,"sourceFailures":[]}
+    # Even when every goalie has a usable independent NHL EDGE profile,
+    # G0 can fail because its STARTER branches or measured areas cannot be
+    # ranked in the same comparator family. A shared dated NHL goalie PBP
+    # peer population is therefore collected for BOTH sides regardless of
+    # whether an EDGE profile is already present. These are supplementary
+    # G0 comparisons only; no EDGE receipts are replaced or falsely
+    # promoted to confirmed. The prior early-return made the entire
+    # same-cohort repair unreachable on repeat projected runs.
     season_start=int(date[:4]) if int(date[5:7])>=9 else int(date[:4])-1
     seasons=[f"{season_start}{season_start+1}",f"{season_start-1}{season_start}"]
     sem=asyncio.Semaphore(request_concurrency)
