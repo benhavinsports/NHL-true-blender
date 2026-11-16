@@ -64,7 +64,15 @@ def fixture(n=3):
             "rosters": {away: ev({"players": [player(100+i*10, 30, 3), player(101+i*10, 10, 1)]}),
                         home: ev({"players": [player(102+i*10, 1, 0)]})},
             "context": ev({"venue": home, "rest": "verified"}),
-            "coverage": {away: ev({"greenWeakZones": ["slot"], "redStrongZones": ["point"],**shift_evidence})}
+            "coverage": {away: ev({
+                "greenWeakZones":["slot"],"redStrongZones":["point"],
+                "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
+                "comparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+                "lowShotVolumeIsNotEvidenceOfDefensiveStrength":True,
+                "zoneConcessions":{"slot":{
+                    "attemptsAgainst":24,"gameCount":8,"peerTeamsCompared":8,
+                    "attemptsPerGame":3.0,"peerMedianAttemptsPerGame":1.5}},
+                **shift_evidence})}
         })
     return {"games": games}
 
