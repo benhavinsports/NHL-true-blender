@@ -107,7 +107,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                              'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
             async with _Client() as client:
                 refreshed_history=await collect_history(client,con,snapshot,date,stage)
-                refreshed_history.pop('_goaliePeerPbpEvents',None)
+                refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
                 await collect_context(client,con,snapshot,date,stage)
                 await collect_edge(client,con,snapshot,date,stage)
                 await collect_season_goal_history(client,con,snapshot,date,stage)
@@ -117,7 +117,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             async with _Client() as client:
-                await collect_goalie_pbp_fallback(client,con,snapshot,date,stage)
+                await collect_goalie_pbp_fallback(
+                    client,con,snapshot,date,stage,
+                    league_peer_events=refreshed_peer_events)
             attach(con,snapshot,date,stage)
             review_all_candidates(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
