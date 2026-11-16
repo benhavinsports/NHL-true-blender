@@ -333,19 +333,41 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         events,league_peer_events,date)
     target_only=summarize_goalie_origin_pbp(events)
     stats=summarize_goalie_origin_pbp(merged)
-    saved=0;fully_compared=0;unresolved=[]
+    saved=0;fully_compared=0;unresolved=[];cohort_profiles=0
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # Fingerprint exactly this pre-slate shared goalie peer population.
+    # Never compare a locally sampled peer percentile with NHL EDGE's
+    # league-wide percentile, even when both numbers happen to be similar.
+    population=hashlib.sha256(json.dumps({
+        "slate":date,"sampleGameIds":sorted(games),
+        "peerGoalieIds":sorted(stats),
+        "sourceScope":SOURCE},sort_keys=True).encode()).hexdigest()[:20]
     for game in snapshot.get("games",[]):
         for team,branches in all_goalie_branches(game,stage).items():
             for branch in branches:
                 pid=str(branch["data"].get("goalieId") or "")
-                if pid not in active:continue
-                # A peer-only goalie seen in a league-wide game is not
-                # authority to establish the scheduled starter's own history.
-                # Require the exact starter to have its OWN identified
-                # goalieInNetId events in its previously fetched games.
+                if pid not in eligible_peers:continue
+                # A peer goalie can become a COMPARABLE goalie without
+                # replacing its existing NHL EDGE profile. Require that
+                # goalie's OWN PBP game-log events, never roster inference.
                 derived=(derive_independent_pbp_goalie_profile(pid,stats)
                          if pid in target_only else None)
+                if derived and derived["fullySourceComparedAreas"]>0:
+                    peer={**derived,"team":team,"goalieId":pid,
+                          "status":branch["data"]["status"],
+                          "samplePeerPopulationId":population,
+                          "historicalSampleAsOf":date,
+                          "peerSampleNeverLeagueEDGEPercentile":True,
+                          "sourceGameIds":derived["sample"]["historicalGameIds"]}
+                    digest=hashlib.sha256(json.dumps(
+                        peer,sort_keys=True,separators=(",",":")).encode()).hexdigest()[:14]
+                    urls=derived["historicalPbpSources"]
+                    ingest(con,{"evidence_id":f"nhl-pbp-peer-{date}-{stage}-{game['id']}-{pid}-{digest}",
+                        "slate_date":date,"stage":stage,"game_id":str(game["id"]),
+                        "kind":"GOALIE_PBP_PEER_CONTEXT",
+                        "source_url":urls[0],"observed_at":now,"payload":peer})
+                    cohort_profiles+=1
+                if pid not in active:continue
                 if not derived:
                     unresolved.append({"gameId":str(game["id"]),"goalieId":pid,
                            "reason":"No individually identified NHL goalie saves/goals with historical rink coordinates"})
@@ -385,6 +407,9 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                                              and x.get("type") in ON_NET for x in events),
         "fallbackProfiles":saved,
         "goaliesWithPeerComparedOrigins":fully_compared,
+        "independentSameCohortProfiles":cohort_profiles,
+        "independentSameCohortPopulationId":population,
+        "cohortComparatorNotMixedWithEDGE":True,
         "unresolved":unresolved[:30],
         "sourceFailures":source_failures[:30],
         "historicalOnly":True,
