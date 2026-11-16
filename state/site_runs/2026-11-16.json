@@ -1,6 +1,7 @@
 {
   "allG18QualifiedSurvivors": [],
   "anatomicalEvidenceMisrepresented": false,
+  "bothGoaliesRequiredBeforeG0PlayerElimination": true,
   "cardSavedByEngine": false,
   "currentRunFullyCertified": false,
   "edgeSourceCoverage": {
@@ -140,6 +141,13 @@
   },
   "g0Complete": 4,
   "g0Directions": 4,
+  "g0OfficialPbpFallback": {
+    "fallbackProfiles": 0,
+    "goaliesNeedingPbpResearch": 0,
+    "sourceFailures": [],
+    "sourceType": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
+    "status": "ALL_GOALIE_PROFILES_ALREADY_MEASURED"
+  },
   "g0RinkOriginResearch": [
     {
       "anatomicalWeaknessCertified": false,
@@ -333,6 +341,60 @@
       "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
     }
   ],
+  "g0TwoGoalieDirectionDecisions": {
+    "2026020331": {
+      "attackingTeam": "MTL",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482193/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 24,
+        "oppositeGoaliePeerSavePercentile": 0.3103,
+        "oppositeGoalsAllowedFromOrigin": 2,
+        "oppositeWeakOrigin": "Center Point",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 36,
+        "winnerGoaliePeerSavePercentile": 0.1379,
+        "winnerGoalsAllowedFromOrigin": 3,
+        "winnerWeakOrigin": "L Point"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "NYR"
+    },
+    "2026020332": {
+      "attackingTeam": "UTA",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478872/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 44,
+        "oppositeGoaliePeerSavePercentile": 0.0862,
+        "oppositeGoalsAllowedFromOrigin": 8,
+        "oppositeWeakOrigin": "L Circle",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 23,
+        "winnerGoaliePeerSavePercentile": 0.0517,
+        "winnerGoalsAllowedFromOrigin": 4,
+        "winnerWeakOrigin": "Outside R"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "VAN"
+    }
+  },
   "games": 2,
   "gateCertification": {
     "allOverlayStepsWereIndependentlyChecked": true,
@@ -1542,5 +1604,5 @@
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-16T11:19:03+00:00"
+  "updatedUTC": "2026-11-16T11:21:41+00:00"
 }
