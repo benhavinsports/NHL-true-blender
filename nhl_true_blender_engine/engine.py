@@ -667,11 +667,23 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     coverage=game.get('coverage',{}).get(attack_team)
     coverage_data=evidence_data(coverage)
     match=bool(coverage_data and release and release['zone'] in coverage_data.get('greenWeakZones',[]))
+    zone_concession=(coverage_data.get('zoneConcessions') or {}).get(
+        release['zone']) if coverage_data and release else None
+    g9_sources=sorted(set(
+        ([coverage['sourceUrl']] if receipt(coverage) else [])+
+        [u for u in (coverage_data.get('sourceUrls') or [])
+         if isinstance(u,str) and u.startswith('https://')]))
     emit('G9',match,{'shooterZone':release['zone'] if release else None,
                    'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,
-                   'redAvoid':coverage_data.get('redStrongZones',[]) if coverage_data else None},
+                   'redAvoid':coverage_data.get('redStrongZones',[]) if coverage_data else None,
+                   'coverageSourceType':coverage_data.get('sourceType') if coverage_data else None,
+                   'coverageComparison':coverage_data.get('comparison') if coverage_data else None,
+                   'zoneConcessionEvidence':zone_concession,
+                   'lowShotVolumeNotStrengthEvidence':bool(
+                       coverage_data and coverage_data.get(
+                           'lowShotVolumeIsNotEvidenceOfDefensiveStrength') is True)},
          eliminate=bool(coverage_data and release and release['zone'] in coverage_data.get('redStrongZones',[])),
-         source_ids=[coverage['sourceUrl']] if receipt(coverage) else [])
+         source_ids=g9_sources)
     ownership=player.get('finishOwnership');own=evidence_data(ownership)
     # G10 proves historical OWN goal credit. It cannot certify that this
     # skater will be the recipient rather than an assist provider TONIGHT.
