@@ -95,8 +95,7 @@ def fixture(root):
         "fingerprint": "fixture-evidence-fingerprint", "revision": 1,
         "stage": "PROJECTED", "readOnly": True,
         "doesNotSelectOrReplaceScorers": True,
-        "games": [{"id": a}, {"id": b}] if False else [
-            {"id": x[0]} for x in pairs],
+        "games": [{"id": x[0]} for x in pairs],
         "masterOrder": list(MASTER), "overlayOrder": list(OVERLAY),
         "executionOrder": list(ORDER), "legs": exports,
     }
