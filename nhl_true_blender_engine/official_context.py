@@ -5,6 +5,8 @@ and arbitrary road-distance metrics are not invented.
 """
 from __future__ import annotations
 import asyncio
+import hashlib
+import json
 from datetime import date,datetime,timezone
 from .enrichment import ingest
 
@@ -60,7 +62,10 @@ async def collect_context(client,con,snapshot,slate_date,stage):
             "sources":[away["sourceUrl"],home["sourceUrl"],game["officialSourceUrl"]],
             "dataScope":"OFFICIAL_SCHEDULE_NOT_TRAVEL_TRACKING",
         }
-        ingest(con,{"evidence_id":f"nhl-context-{slate_date}-{stage}-{game['id']}",
+        digest=hashlib.sha256(json.dumps(
+            payload,sort_keys=True,separators=(",",":")).encode("utf-8")
+            ).hexdigest()[:20]
+        ingest(con,{"evidence_id":f"nhl-context-{slate_date}-{stage}-{game['id']}-{digest}",
             "slate_date":slate_date,"stage":stage,"game_id":str(game["id"]),
             "kind":"MATCH_CONTEXT","source_url":game["officialSourceUrl"],
             "observed_at":datetime.now(timezone.utc).isoformat(timespec="seconds"),
