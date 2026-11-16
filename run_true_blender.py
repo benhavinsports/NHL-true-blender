@@ -102,7 +102,20 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         initial_census=_census(con,date,stage,result.get('games'))
         unresolved=initial_census.get('firstFailureClassificationCounts',{}).get(
             'EVIDENCE_INCOMPLETE',0)
-        if unresolved:
+        # Do not mutate a frozen slate with a new pregame evidence pass.
+        # Once any game has started, refreshed goalie projections are not
+        # comparable to the pre-puck snapshot that created the locked card.
+        now_utc=datetime.now(timezone.utc)
+        any_started=any(
+            game.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
+            (game.get('startUTC') and
+             datetime.fromisoformat(game['startUTC'].replace('Z','+00:00'))<=now_utc)
+            for game in snapshot.get('games',[]))
+        if unresolved and any_started:
+            feedback.append({'pass':1,'status':'FROZEN_SLATE_RESEARCH_ONLY',
+                             'unresolvedFirstGateCandidates':unresolved,
+                             'noPostPuckReselection':True})
+        if unresolved and not any_started:
             feedback.append({'pass':1,'unresolvedFirstGateCandidates':unresolved,
                              'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
             async with _Client() as client:
