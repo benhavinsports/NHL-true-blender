@@ -48,6 +48,10 @@ def restore():
         print(f"Restored authoritative ledger ({RAW.stat().st_size} bytes) from gzip")
     finally:
         temp.unlink(missing_ok=True)
+        # SQLite WAL-mode quick_check can create sidecar files for the
+        # temporary restore path. They are not part of the canonical ledger.
+        for suffix in ("-wal","-shm","-journal"):
+            Path(str(temp)+suffix).unlink(missing_ok=True)
 
 
 def prepare():
