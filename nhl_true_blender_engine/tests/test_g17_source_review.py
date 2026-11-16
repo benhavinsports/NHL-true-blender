@@ -61,3 +61,41 @@ def test_source_review_cannot_assert_no_contradiction_without_lineup_or_on_rival
     assert data["lineupDisagreementReview"]["hasProjectedOrConfirmedRole"] is False
     assert data["strongestRivalReview"]["eachSameLaneDefeated"] is False
     con.close()
+
+
+def test_resolved_nonanatomical_derived_review_is_certifiable_without_faking_glove_weakness():
+    # The G17 collector only obtains NHL EDGE shot-ORIGIN profiles; prior
+    # certification mistakenly insisted on a nonexistent anatomical map.
+    from nhl_true_blender_engine.semantic_certification import audit_gate
+    c={
+        "sourceType":SCOPE,"unresolved":False,
+        "scope":"observed shot origins, NOT anatomical goal-mouth coordinates",
+        "anatomicalWeaknessCertified":False,
+        "goalieStrengthReview":{
+            "sourceScope":"GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
+            "matchedWeakAreas":1,"strongerAreaContradiction":False,
+            "opposingBranchesReviewed":1},
+        "lineupDisagreementReview":{
+            "hasProjectedOrConfirmedRole":True,"isTrulyConfirmed":False},
+        "strongestRivalReview":{
+            "everyRivalReviewed":True,"eachSameLaneDefeated":True},
+    }
+    e={"counterevidence":c,"sourceDerivedReviewResolved":True,
+       "retainsConflictingSources":True}
+    source=["https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/99/now"]
+    assert audit_gate("G17",e,source,"PROJECTED")==[]
+    bad={**c,"unresolved":True}
+    assert "G17_STRUCTURED_CONTRADICTION_REVIEW_NOT_RESOLVED" in audit_gate(
+        "G17",{**e,"counterevidence":bad,"sourceDerivedReviewResolved":False},
+        source,"PROJECTED")
+    contradictory={**c,"goalieStrengthReview":{
+        **c["goalieStrengthReview"],"strongerAreaContradiction":True}}
+    assert "G17_OBSERVED_GOALIE_STRENGTH_CONTRADICTION_NOT_CLEARED" in audit_gate(
+        "G17",{**e,"counterevidence":contradictory},source,"PROJECTED")
+    not_independently_sourced={**c,"goalieStrengthReview":{
+        "sourceScope":"UNKNOWN","matchedWeakAreas":0,
+        "strongerAreaContradiction":False}}
+    faults=audit_gate("G17",{**e,"counterevidence":not_independently_sourced},
+                     source,"PROJECTED")
+    assert "G17_RINK_ORIGIN_SCOPE_MISREPRESENTED" in faults
+    assert "G17_OBSERVED_GOALIE_STRENGTH_CONTRADICTION_NOT_CLEARED" in faults
