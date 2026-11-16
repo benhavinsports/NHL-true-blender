@@ -67,6 +67,22 @@ def audit_gate(gate, evidence, source_ids, stage):
              e.get('shooterZone') in (e.get('greenTarget') or []) and
              e.get('shooterZone') not in (e.get('redAvoid') or []),
              'G9_OPPONENT_DEFENSE_ROUTE_NOT_PROVED')
+        need(e.get('coverageSourceType')=='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY' and
+             e.get('coverageComparison')==
+             'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
+             'G9_LEGACY_OR_UNVERIFIED_COVERAGE_METHOD')
+        z=e.get('zoneConcessionEvidence') or {}
+        need(type(z.get('attemptsAgainst')) is int and
+             z.get('attemptsAgainst',0)>=16 and
+             type(z.get('gameCount')) is int and z.get('gameCount',0)>=6 and
+             type(z.get('peerTeamsCompared')) is int and
+             z.get('peerTeamsCompared',0)>=6 and
+             type(z.get('attemptsPerGame')) in (int,float) and
+             type(z.get('peerMedianAttemptsPerGame')) in (int,float) and
+             z.get('attemptsPerGame',0)>z.get('peerMedianAttemptsPerGame',0),
+             'G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING')
+        need(e.get('lowShotVolumeNotStrengthEvidence') is True,
+             'G9_LOW_VOLUME_MUST_NOT_BE_CALLED_DEFENSIVE_STRENGTH')
     elif gate=='G10':
         need(e.get('historicalDirectGoalRecipientVerified') is True and
              e.get('futureNotAssistOrFeederProven') is False,
