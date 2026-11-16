@@ -93,3 +93,36 @@ def test_no_goalie_history_does_not_manufacture_scoring_vulnerability(tmp_path):
     assert result["goaliesWithPeerComparedOrigins"]==0
     assert g0_full_slate([g],"PROJECTED")[0][0]["goalieProfileEvidenced"] is False
     db.close()
+
+
+def test_club_schedule_backfills_when_goalie_personal_game_log_is_missing(tmp_path):
+    db=open_db(str(tmp_path/"club-history.sqlite"))
+    g={"id":"9999","date":DATE,"away":TEAMS[0],"home":TEAMS[1],
+       "goalies":{TEAMS[0]:[],TEAMS[1]:[{
+           "sourceUrl":"https://www.betweenthelineshockey.com/tonight.md",
+           "observedAt":"2026-11-16T05:10:00Z",
+           "data":{"goalieId":"44","team":TEAMS[1],"status":"EXPECTED"}}]},
+       "rosters":{}, "coverage":{}}
+    client=FakeOfficialNHL()
+    async def empty_log(pid,season):
+        return {"data":{"gameLog":[]}}
+    client.game_log=empty_log
+    async def actual_club_schedule(route):
+        assert route.startswith("club-schedule-season/BBB/")
+        if route.endswith("/20262027"):
+            games=[{"id":200+i,"gameDate":f"2026-11-{9-i:02d}",
+                    "gameState":"OFF"} for i in range(5)]
+            games.append({"id":999,"gameDate":DATE,"gameState":"OFF"})
+        else:
+            games=[]
+        return {"data":{"games":games}}
+    client.get=actual_club_schedule
+    result=asyncio.run(collect_goalie_pbp_fallback(
+        client,db,{"games":[g]},DATE,"PROJECTED"))
+    assert result["goaliesWithOfficialPersonalHistory"]==0
+    assert result["clubScheduleGamesRecovered"]==5
+    assert result["fallbackProfiles"]==1
+    assert result["goaliesWithPeerComparedOrigins"]==1
+    assert result["historicalOnly"] is True
+    assert "999" not in client.game_requests
+    db.close()
