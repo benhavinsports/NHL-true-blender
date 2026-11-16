@@ -1250,6 +1250,137 @@ def compare_g0_different_weak_origins(a,b):
         }}
 
 
+def compare_g0_shared_official_pbp(a,b):
+    """G0 only: compare BOTH goalies against ONE historical NHL PBP peer pool.
+
+    The NHL EDGE league percentile and local PBP sample percentiles are NOT
+    interchangeable. Only identical, date-locked peer-population IDs and
+    exact goalieInNetId PBP historical receipts make this review comparable.
+    The chosen attack direction still requires separate skater G3..G18
+    confirmation using its independently attached goalie/defense evidence.
+    """
+    profiles=[x.get('targetGoalies') or [] for x in (a,b)]
+    if any(len(x)!=1 for x in profiles):return None
+    orig_a,orig_b=profiles[0][0],profiles[1][0]
+    pa,pb=orig_a.get('sameCohortPbp'),orig_b.get('sameCohortPbp')
+    if not isinstance(pa,dict) or not isinstance(pb,dict):return None
+    if not all(isinstance(x.get('sourceUrl'),str)
+               and x['sourceUrl'].startswith('https://') for x in (pa,pb)):
+        return None
+    da,db=pa.get('data') or {},pb.get('data') or {}
+    population=da.get('samplePeerPopulationId')
+    if not (population and population==db.get('samplePeerPopulationId') and
+            da.get('sourceClass')=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY' and
+            db.get('sourceClass')=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY' and
+            da.get('peerSampleNeverLeagueEDGEPercentile') is True and
+            db.get('peerSampleNeverLeagueEDGEPercentile') is True and
+            str(da.get('goalieId'))==str(orig_a.get('goalieId')) and
+            str(db.get('goalieId'))==str(orig_b.get('goalieId'))):
+        return None
+    wa,wb=da.get('weakZones') or {},db.get('weakZones') or {}
+    if not wa or not wb:return None
+    def qualified(zones):
+        return all(isinstance(v,dict) and type(v.get('shotsAgainst')) is int
+                   and v['shotsAgainst']>=20
+                   and type(v.get('goalsAgainst')) is int
+                   and 0<v['goalsAgainst']<=v['shotsAgainst']
+                   and type(v.get('samplePeerSavePctgPercentile')) in (int,float)
+                   and 0<=v['samplePeerSavePctgPercentile']<=1
+                   and v.get('peerComparedSameOrigin') is True
+                   and type(v.get('peerGoaliesSampled')) is int
+                   and v['peerGoaliesSampled']>=4
+                   for v in zones.values())
+    if not qualified(wa) or not qualified(wb):return None
+    def comparable(original,context,zones):
+        g=original['targetGoalies'][0]
+        return {**original,'targetGoalies':[{
+            **g,'weakZones':zones,
+            'sourceClass':'INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY',
+            'profileReviewed':True,'goalieProfileSourceUrl':context['sourceUrl']}]}
+    aa,bb=comparable(a,pa,wa),comparable(b,pb,wb)
+    chosen=compare_g0_different_weak_origins(aa,bb)
+    if chosen is None and set(wa)==set(wb):
+        # Same-origin zones: demand agreement between the DIRECT on-net
+        # goal allowance rate and the peer comparison for EVERY zone.
+        # No winner on conflict, exact ties or different peer denominators.
+        winner=None
+        for zone in sorted(wa):
+            x,y=wa[zone],wb[zone]
+            na,nb=x['shotsAgainst'],y['shotsAgainst']
+            ga,gb=x['goalsAgainst'],y['goalsAgainst']
+            ra,rb=x['samplePeerSavePctgPercentile'],y['samplePeerSavePctgPercentile']
+            side=('a' if ra<rb and ga*nb>gb*na else
+                  'b' if rb<ra and gb*na>ga*nb else None)
+            if side is None or (winner is not None and winner!=side):
+                return None
+            winner=side
+        chosen=aa if winner=='a' else bb if winner=='b' else None
+    if chosen is None:return None
+    original=a if chosen['attacker']==a['attacker'] else b
+    proof=chosen.get('g0DecisionProof') or {}
+    return {**original,
+        'g0SelectionMethod':'SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL',
+        'g0SelectedOnlyAfterBothStarterProfiles':True,
+        'g0DecisionProof':{
+            **proof,
+            'reason':'Same pre-slate official historical goalie PBP peer sample, not mixed with NHL EDGE ranking',
+            'samePeerPopulationId':population,
+            'goaliePbpSourceUrls':[pa['sourceUrl'],pb['sourceUrl']],
+            'sourceCoherentIndependentHistoricalSample':True,
+            'opposingGoaliesIndividuallyIdentified':True,
+            'noWeightsOrExternalOdds':True,
+            'notGloveBlockerFiveHole':True,
+            'notGuaranteedTonightGoal':True,
+        }}
+
+
+def compare_g0_consensus_across_starters(a,b):
+    """Never choose a PROJECTED starter by picking a convenient candidate.
+
+    If every independently sourced candidate-goalie pairing agrees on one
+    attacking side, that side is defensible before starter confirmation.
+    Otherwise preserve all branches, record unresolved G0 and do not publish.
+    """
+    left=a.get('targetGoalies') or []
+    right=b.get('targetGoalies') or []
+    if not left or not right:return None
+    agreed=None;audits=[]
+    for goalie_a in left:
+        for goalie_b in right:
+            if not goalie_a.get('profileReviewed') or not goalie_b.get('profileReviewed'):
+                return None
+            aa={**a,'targetGoalies':[goalie_a]}
+            bb={**b,'targetGoalies':[goalie_b]}
+            choice=(compare_g0_same_origin(aa,bb)
+                    or compare_g0_different_weak_origins(aa,bb)
+                    or compare_g0_shared_official_pbp(aa,bb))
+            if choice is None:
+                return None
+            if agreed is not None and choice['attacker']!=agreed:
+                return None
+            agreed=choice['attacker']
+            audits.append({
+                'attacker':choice['attacker'],
+                'goalieA':goalie_a.get('goalieId'),
+                'goalieB':goalie_b.get('goalieId'),
+                'sourceDecisionMethod':choice.get('g0SelectionMethod') or 'MATCHED_ORIGIN_GOAL_RATE_AND_PEER_PERCENTILE',
+                'proof':choice.get('g0DecisionProof'),
+            })
+    if not audits or agreed is None:return None
+    original=a if a['attacker']==agreed else b
+    return {**original,
+        'g0SelectionMethod':'ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE',
+        'g0SelectedOnlyAfterBothStarterProfiles':True,
+        'g0DecisionProof':{
+            'allProjectedGoalieCombinationsIndependentlyChecked':len(audits),
+            'eachCombinationAttacksSameSide':True,
+            'pairwiseReceipts':audits,
+            'projectedBranchesNeverSilentlyConfirmed':True,
+            'noUnknownGoalieAssumed':True,
+            'noWeightsOrArbitraryTieBreaks':True,
+        }}
+
+
 def execute(con, snapshot, date, stage='PROJECTED', now=None):
     now=now or datetime.now(timezone.utc)
     if stage not in ('PROJECTED','CONFIRMED'):raise ValueError('Stage is projected or confirmed')
@@ -1331,7 +1462,15 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         if distinct is not None:
             selected_directions[str(match['id'])]=distinct
             continue
-        errors.append(f"{match['id']} G0 both goalies reviewed but no source-decisive shared/normalized weak-origin comparison")
+        # Both goalie directions and every projected starter must be
+        # source-reviewed BEFORE advancing players. A common official PBP
+        # peer cohort can resolve mixed NHL EDGE/PBP evidence WITHOUT ever
+        # comparing their incompatible percentile populations directly.
+        consensus=compare_g0_consensus_across_starters(options[0],options[1])
+        if consensus is not None:
+            selected_directions[str(match['id'])]=consensus
+            continue
+        errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
     # A G0 failure MUST NOT silently short-circuit all 36 source checks.
     # Investigate each available goalie branch against each official skater
     # on BOTH sides, while retaining a FAILED G0 and forbidding selection.
