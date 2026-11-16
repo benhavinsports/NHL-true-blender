@@ -99,3 +99,36 @@ def test_resolved_nonanatomical_derived_review_is_certifiable_without_faking_glo
                      source,"PROJECTED")
     assert "G17_RINK_ORIGIN_SCOPE_MISREPRESENTED" in faults
     assert "G17_OBSERVED_GOALIE_STRENGTH_CONTRADICTION_NOT_CLEARED" in faults
+
+
+def test_g17_uses_identical_g0_g9_goalie_defense_rival_scope_as_g105(tmp_path):
+    """A better rival in a goalie-weak but G9-defended zone cannot secretly
+    veto the G10.5 winner when G17 rechecks the SAME pregame direct routes.
+    """
+    con=open_db(str(tmp_path/"same-route.sqlite"))
+    slate=build()
+    game=slate["games"][0]
+    game["goalies"]["BOS"][0]["data"]["weakZones"]["High Slot"]={"shotsAgainst":31}
+    rival=game["rosters"]["NYR"]["data"]["players"][1]
+    rival["release"]["data"].update({
+        "zone":"High Slot","attempts":24,"ownedGoals":11,
+        "allRoutes":[{"zone":"High Slot","sog":24,"ownedGoals":11},
+                     {"zone":"Low Slot","sog":18,"ownedGoals":3}]
+    })
+    game["coverage"]={"NYR":ev("coverage","NYR",{
+        "greenWeakZones":["Low Slot"],
+        "redStrongZones":["High Slot"]})}
+    result=review_all_candidates(con,slate,DATE,"PROJECTED")
+    assert result["reviewedSkaters"]==2
+    original=con.execute("""SELECT payload FROM evidence
+        WHERE player_id='1' AND kind='PLAYER_CONTRADICTIONS'""").fetchone()
+    data=json.loads(original["payload"])
+    assert data["unresolved"] is False
+    assert data["strongestRivalReview"]["eachSameLaneDefeated"] is True
+    assert data["strongestRivalReview"]["matchesG10_5GoalieAndDefenseRouteScope"] is True
+    assert data["strongestRivalReview"]["G9OpponentDefenseWeakZonesUsed"]==["Low Slot"]
+    rival_proof=data["strongestRivalReview"]["rivalResults"][0]
+    assert rival_proof["status"]=="DEFEATED"
+    assert rival_proof["challenger"]["zone"]=="Low Slot"
+    assert rival_proof["goalieWeaknessAndDefenseBothRequired"] is True
+    con.close()
