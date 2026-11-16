@@ -208,6 +208,11 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
             "coveragePeerGames":len(coverage_ids),
             "coveragePeerTeams":len(league_teams),
             "coveragePeerEvents":len(coverage_events),
+            # Ephemeral in-process handoff. The driver POPs this before
+            # writing run JSON; no extra raw league-wide events are persisted.
+            # This pre-slate official PBP pool is also suitable for a fair
+            # independently observed goalie-to-goalie shot-origin comparison.
+            "_goaliePeerPbpEvents":coverage_events,
             "coveragePeerFetchFailures":len(pbp_errors),
             "teamScheduleSources":len(league_teams)-len(schedule_errors),
             "errors":errors,"goalieIdentityEvents":sum(e["goalieId"] is not None for e in target_events),

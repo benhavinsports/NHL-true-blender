@@ -176,8 +176,45 @@ def needs_independent_pbp(data):
     return True
 
 
+def combine_official_pregame_goalie_peers(target_events, league_events, slate_date):
+    """Merge independently collected NHL PBP without counting a game twice.
+
+    The target's own separately fetched goalie-identified shots remain the
+    basis of the goalie profile. The league-wide historical games only supply
+    additional *actual* opposing goalie identities for same-area comparison.
+    Unknown, anonymous, same-day and post-slate events never enter the cohort.
+    This is rink shot ORIGIN data, not glove/blocker/five-hole data.
+    """
+    target_games={str(e.get("gameId")) for e in target_events
+                  if e.get("gameId") is not None}
+    seen={(str(e.get("gameId")),str(e.get("eventId"))) for e in target_events}
+    peers=[]
+    added_games=set()
+    for e in league_events or []:
+        if not isinstance(e,dict):
+            continue
+        gid=str(e.get("gameId") or "")
+        eventid=str(e.get("eventId") or "")
+        played=e.get("date")
+        url=e.get("sourceUrl")
+        if (not gid or not eventid or gid in target_games
+            or not isinstance(played,str) or len(played)!=10
+            or played>=slate_date
+            or e.get("type") not in ON_NET or not e.get("goalieId")
+            or not isinstance(url,str)
+            or not url.startswith("https://api-web.nhle.com/")):
+            continue
+        key=(gid,eventid)
+        if key in seen:
+            continue
+        seen.add(key)
+        added_games.add(gid)
+        peers.append(e)
+    return list(target_events)+peers, len(added_games)
+
+
 async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=16,
-                                      request_concurrency=5):
+                                      request_concurrency=5,league_peer_events=None):
     """Fetch exact starter identities and source-linked past NHL goalie games.
 
     Only goalies without a FULLY sourced independent measured profile require
@@ -287,7 +324,14 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
             source_failures.append({"gameId":gid,"endpoint":"play-by-play","reason":error})
             continue
         events.extend(shots)
-    stats=summarize_goalie_origin_pbp(events)
+    # These records were already fetched, dated and identified by the
+    # independent league-wide G9 official PBP collector. Reuse the real
+    # peer goalies here instead of interpreting a one-goalie sample as
+    # absence of peer data or fetching the same public games again.
+    merged,extra_peer_games=combine_official_pregame_goalie_peers(
+        events,league_peer_events,date)
+    target_only=summarize_goalie_origin_pbp(events)
+    stats=summarize_goalie_origin_pbp(merged)
     saved=0;fully_compared=0;unresolved=[]
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
     for game in snapshot.get("games",[]):
@@ -295,7 +339,12 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
             for branch in branches:
                 pid=str(branch["data"].get("goalieId") or "")
                 if pid not in active:continue
-                derived=derive_independent_pbp_goalie_profile(pid,stats)
+                # A peer-only goalie seen in a league-wide game is not
+                # authority to establish the scheduled starter's own history.
+                # Require the exact starter to have its OWN identified
+                # goalieInNetId events in its previously fetched games.
+                derived=(derive_independent_pbp_goalie_profile(pid,stats)
+                         if pid in target_only else None)
                 if not derived:
                     unresolved.append({"gameId":str(game["id"]),"goalieId":pid,
                            "reason":"No individually identified NHL goalie saves/goals with historical rink coordinates"})
@@ -323,7 +372,9 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         "sourceType":SOURCE,
         "goaliesNeedingPbpResearch":len(active),
         "independentlyIdentifiedSlateGoaliePeers":len(eligible_peers),
-        "distinctPreSlateNhlGamesCompared":len(games),
+        "distinctPreSlateNhlGamesCompared":len(games)+extra_peer_games,
+        "addedIndependentLeaguePeerGames":extra_peer_games,
+        "distinctPeerGoaliesWithOnNetEvents":len(stats),
         "samplePeersNotFullLeaguePercentile":True,
         "historicalNhlGamesFetched":sum(err is None for gid,events,err in outcomes),
         "goaliesWithOfficialPersonalHistory":len(goalies_with_history),

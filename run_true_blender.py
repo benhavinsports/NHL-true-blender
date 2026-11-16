@@ -44,6 +44,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
             historical = await collect_history(client, con, snapshot, date, stage)
+            # This event payload is an in-memory input to the later goalie
+            # fallback, not a JSON report or persistent duplicate database.
+            league_goalie_peer_events=historical.pop("_goaliePeerPbpEvents",[])
             context_research = await collect_context(client, con, snapshot, date, stage)
             edge_research = await collect_edge(client, con, snapshot, date, stage)
             season_goal_research = await collect_season_goal_history(client, con, snapshot, date, stage)
@@ -71,7 +74,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # of the opponent's profile.
         async with _Client() as client:
             goalie_pbp_fallback = await collect_goalie_pbp_fallback(
-                client,con,snapshot,date,stage)
+                client,con,snapshot,date,stage,
+                league_peer_events=league_goalie_peer_events)
         source_research['independentGoaliePbpFallback']=goalie_pbp_fallback
         attach(con, snapshot, date, stage)
         scouting_path = os.environ.get('GOALIE_SCOUTING_JSON')

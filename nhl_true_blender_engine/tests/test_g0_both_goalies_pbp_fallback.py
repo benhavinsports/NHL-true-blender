@@ -11,7 +11,8 @@ from nhl_true_blender_engine.engine import execute,g0_full_slate
 from nhl_true_blender_engine.tests.test_engine import game,snapshot,DATE,evidence
 from nhl_true_blender_engine.goalie_history_fallback import (
     pregame_log_games,summarize_goalie_origin_pbp,
-    derive_independent_pbp_goalie_profile,needs_independent_pbp)
+    derive_independent_pbp_goalie_profile,needs_independent_pbp,
+    combine_official_pregame_goalie_peers)
 
 SRC="https://api-web.nhle.com/v1/gamecenter/2026020001/play-by-play"
 
@@ -140,3 +141,43 @@ def test_unqualified_edge_goalie_origin_triggers_independent_pbp_research():
     pbp["fullySourceComparedAreas"]=1
     assert needs_independent_pbp(pbp) is False
 
+
+
+def test_league_goalie_peers_reuse_only_real_pregame_identity_and_unique_games():
+    own=[shot(1000,i,44,i<=7) for i in range(1,26)]
+    # Four entirely different, equally sourced prior games with fully
+    # attributable opposing goalie identities: a valid peer sample.
+    peer=[shot(1000+pid,i,pid,i<=against)
+          for pid,against in [(45,1),(46,2),(47,3),(48,4)]
+          for i in range(1,26)]
+    for e in peer:
+        e["date"]="2026-11-10"
+    # The source had already seen game 1000: must NEVER count it twice.
+    duplicate=dict(own[0])
+    # A future goal is time-leaking evidence and cannot be a peer.
+    future=shot(9999,1,49,True)
+    future["date"]="2026-11-16"
+    anonymous=shot(9998,1,None,True)
+    merged,added=combine_official_pregame_goalie_peers(
+        own,peer+[duplicate,future,anonymous],"2026-11-16")
+    assert added==4
+    assert len(merged)==125
+    stats=summarize_goalie_origin_pbp(merged)
+    assert len(stats)==5
+    assert stats["44"]["Low Slot"]["shotsAgainst"]==25
+    derived=derive_independent_pbp_goalie_profile("44",stats)
+    assert derived["fullySourceComparedAreas"]==1
+    assert derived["weakZones"]["Low Slot"]["goalsAgainst"]==7
+    assert derived["anatomicalWeaknessCertified"] is False
+
+
+def test_unverified_peer_source_and_peer_only_goalie_cannot_create_starter():
+    one=[shot(1000,i,44,i<=6) for i in range(1,25)]
+    unsupported=shot(1001,1,45,True)
+    unsupported["sourceUrl"]="https://example.com/synthetic-not-official"
+    merged,added=combine_official_pregame_goalie_peers(
+        one,[unsupported],"2026-11-16")
+    assert added==0
+    assert len(merged)==len(one)
+    stats=summarize_goalie_origin_pbp(merged)
+    assert "45" not in stats
