@@ -88,9 +88,15 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
         result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)
         diagnostic = explain_live_blockers(con,date,stage)
-        diag_path = state / 'site_runs' / f'{date}-gate-diagnostics.json'
+        # A confirmed-phase audit must not erase the projected-phase
+        # candidate matrix. Publish stage-qualified immutable snapshots and
+        # maintain the legacy latest-diagnostic alias for old dashboard links.
+        diag_path = state / 'site_runs' / f'{date}-{stage.lower()}-gate-diagnostics.json'
         diag_path.parent.mkdir(parents=True, exist_ok=True)
-        diag_path.write_text(json.dumps(diagnostic, indent=2, default=str), encoding='utf-8')
+        diag_text=json.dumps(diagnostic, indent=2, default=str)
+        diag_path.write_text(diag_text, encoding='utf-8')
+        (state / 'site_runs' / f'{date}-gate-diagnostics.json').write_text(
+            diag_text, encoding='utf-8')
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
         result['officialSeasonGoalHistoryCoverage']=season_goal_research
         result['g17CrossSourceReviews']=contradiction_research
