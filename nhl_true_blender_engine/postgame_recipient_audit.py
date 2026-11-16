@@ -84,7 +84,7 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
                                   "team":team_code}
         if not observed:
             raise SourceUnavailable("Official boxscore missing participating skaters "+game_id)
-        if set(x for x,n in counts.items() if n)>set(observed):
+        if not set(counts).issubset(set(observed)):
             raise SourceUnavailable("Official PBP scorer missing from NHL boxscore "+game_id)
         for pid,n in counts.items():
             if observed[pid]["goals"]!=n:
