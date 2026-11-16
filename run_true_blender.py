@@ -94,6 +94,41 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         contradiction_research = review_all_candidates(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        # Evidence feedback: re-research the actual source-incomplete gate
+        # candidates, refresh the attached snapshot, and execute the entire
+        # original gate order again. Never promote NOT_EXECUTED to PASS.
+        feedback=[]
+        from nhl_true_blender_engine.gate_census import certify_gates as _census
+        initial_census=_census(con,date,stage,result.get('games'))
+        unresolved=initial_census.get('firstFailureClassificationCounts',{}).get(
+            'EVIDENCE_INCOMPLETE',0)
+        if unresolved:
+            feedback.append({'pass':1,'unresolvedFirstGateCandidates':unresolved,
+                             'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
+            async with _Client() as client:
+                refreshed_history=await collect_history(client,con,snapshot,date,stage)
+                refreshed_history.pop('_goaliePeerPbpEvents',None)
+                await collect_context(client,con,snapshot,date,stage)
+                await collect_edge(client,con,snapshot,date,stage)
+                await collect_season_goal_history(client,con,snapshot,date,stage)
+            await collect_secondary(con,snapshot,date,stage)
+            await fetch_and_ingest_lineups(con,snapshot,date,stage)
+            attach(con,snapshot,date,stage)
+            derive_nhl_edge_attacks(con,snapshot,date,stage)
+            attach(con,snapshot,date,stage)
+            async with _Client() as client:
+                await collect_goalie_pbp_fallback(client,con,snapshot,date,stage)
+            attach(con,snapshot,date,stage)
+            review_all_candidates(con,snapshot,date,stage)
+            attach(con,snapshot,date,stage)
+            result=execute(con,snapshot,date,stage)
+            after=_census(con,date,stage,result.get('games'))
+            feedback.append({'pass':2,'unresolvedFirstGateCandidates':
+                after.get('firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0),
+                'resolvedCandidateCount':max(0,unresolved-after.get(
+                    'firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0)),
+                'noAutomaticPasses':True})
+        result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
         result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)
