@@ -9,7 +9,7 @@ from .goalie_zones import validate_goal_zone_evidence
 from .goalie_baselines import compare_goalie_to_baseline
 
 KINDS = {
- 'GOALIE_PROFILE','GOALIE_STARTER','PLAYER_STATUS','PLAYER_RELEASE',
+ 'GOALIE_PROFILE','GOALIE_STARTER','GOALIE_PBP_PEER_CONTEXT','PLAYER_STATUS','PLAYER_RELEASE',
  'PLAYER_DEPLOYMENT','PLAYER_GAME_LOG','PLAYER_GOAL_EVENTS','PLAYER_ZERO_ON_NET_ROUTE',
  'PLAYER_OFFICIAL_GOALS','PLAYER_MARKET','PLAYER_FINISH_CREDIT',
  'PLAYER_SEASON_HISTORY','PLAYER_PRESSURE','PLAYER_MILESTONE','PLAYER_WHO','PLAYER_TRANSFER',
@@ -83,7 +83,15 @@ def attach(con, snapshot, date, stage):
         g=next((x for x in snapshot['games'] if x['id']==row['game_id']),None)
         if not g:continue
         wrapper={'sourceUrl':row['source_url'],'observedAt':row['observed_at'],'evidenceId':row['evidence_id'],'data':data}
-        if kind in ('GOALIE_PROFILE','GOALIE_STARTER'):
+        if kind=='GOALIE_PBP_PEER_CONTEXT':
+            # Same-source PBP goalie peer cohorts are G0 COMPARISON
+            # supplements only. Never overwrite the authoritative goalie
+            # starter/profile or promote a projected status to confirmed.
+            team=data.get('team')
+            pid=str(data.get('goalieId') or '')
+            if team in (g['away'],g['home']) and pid:
+                g.setdefault('goaliePeerContexts',{})[pid]=wrapper
+        elif kind in ('GOALIE_PROFILE','GOALIE_STARTER'):
             team=data.get('team')
             if team not in (g['away'],g['home']):continue
             # Keep all probable/confirmed goalie branches rather than overwriting them.
