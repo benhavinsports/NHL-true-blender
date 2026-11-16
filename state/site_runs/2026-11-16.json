@@ -12,39 +12,47 @@
     "status": "EVIDENCE_COLLECTED",
     "totalFailed": 0
   },
-  "eligibleSkaterRows": 72,
+  "eligibleSkaterRows": 50,
   "errors": [
-    "2026020332 G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route",
     "G18 only 0 fully evidenced games; 2 required"
   ],
   "firstNonpassingGateAudit": {
-    "allGateRowsPresent": 119,
+    "allGateRowsPresent": 50,
     "firstNonpassingGateCounts": {
-      "G0": 94,
-      "G4": 3,
-      "G5": 9,
-      "G6": 2,
-      "G9": 11
+      "G10": 1,
+      "G10.5": 14,
+      "G4": 5,
+      "G5": 10,
+      "G6": 8,
+      "G9": 12
     },
     "notAScorerRanking": true,
     "samplesByFirstGate": {
-      "G0": [
+      "G10": [
         {
-          "firstNonpassingGate": "G0",
+          "firstNonpassingGate": "G10",
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
+          "playerId": "8477070",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10.5": [
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020332",
+          "playerId": "8475314",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
-          "firstNonpassingGate": "G0",
+          "firstNonpassingGate": "G10.5",
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
+          "playerId": "8476389",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
-          "firstNonpassingGate": "G0",
+          "firstNonpassingGate": "G10.5",
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
+          "playerId": "8477346",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -100,6 +108,12 @@
           "gameId": "2026020331",
           "playerId": "8481743",
           "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020332",
+          "playerId": "8477220",
+          "reasonDisposition": "NOT_EXECUTED"
         }
       ],
       "G9": [
@@ -123,28 +137,28 @@
         }
       ]
     },
-    "scannedSkaters": 119
+    "scannedSkaters": 50
   },
   "g0Complete": 4,
   "g0Directions": 4,
   "g0OfficialPbpFallback": {
-    "addedIndependentLeaguePeerGames": 112,
+    "addedIndependentLeaguePeerGames": 123,
     "anatomicalClaimCertified": false,
     "clubScheduleGamesRecovered": 0,
     "clubScheduleNeverImpliesGoaliePlayed": true,
     "cohortComparatorNotMixedWithEDGE": true,
-    "distinctPeerGoaliesWithOnNetEvents": 84,
-    "distinctPreSlateNhlGamesCompared": 242,
+    "distinctPeerGoaliesWithOnNetEvents": 80,
+    "distinctPreSlateNhlGamesCompared": 215,
     "fallbackProfiles": 0,
     "goaliesNeedingPbpResearch": 0,
-    "goaliesWithOfficialPersonalHistory": 6,
+    "goaliesWithOfficialPersonalHistory": 4,
     "goaliesWithPeerComparedOrigins": 0,
-    "historicalGoalieIdentityEvents": 7121,
-    "historicalNhlGamesFetched": 130,
+    "historicalGoalieIdentityEvents": 5028,
+    "historicalNhlGamesFetched": 92,
     "historicalOnly": true,
-    "independentSameCohortPopulationId": "c95944966de59d370eaf",
-    "independentSameCohortProfiles": 6,
-    "independentlyIdentifiedSlateGoaliePeers": 6,
+    "independentSameCohortPopulationId": "053f58a5b637ec3ae020",
+    "independentSameCohortProfiles": 4,
+    "independentlyIdentifiedSlateGoaliePeers": 4,
     "samplePeersNotFullLeaguePercentile": true,
     "sourceFailures": [],
     "sourceType": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
@@ -250,21 +264,6 @@
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478872/now",
               "starterStatus": "EXPECTED",
               "zoneProfileFound": true
-            },
-            {
-              "goalieId": "8482657",
-              "rinkShotOriginAreaRows": [
-                {
-                  "area": "Low Slot",
-                  "goalsAgainst": 10,
-                  "savePctg": 0.782609,
-                  "savePctgPercentile": 0.2069,
-                  "shotsAgainst": 46
-                }
-              ],
-              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482657/now",
-              "starterStatus": "EXPECTED",
-              "zoneProfileFound": true
             }
           ]
         },
@@ -272,49 +271,6 @@
           "attacker": "UTA",
           "defender": "VAN",
           "goalieBranches": [
-            {
-              "goalieId": "8482447",
-              "rinkShotOriginAreaRows": [
-                {
-                  "area": "High Slot",
-                  "goalsAgainst": 9,
-                  "savePctg": 0.804348,
-                  "savePctgPercentile": 0.2759,
-                  "shotsAgainst": 46
-                },
-                {
-                  "area": "L Circle",
-                  "goalsAgainst": 2,
-                  "savePctg": 0.955556,
-                  "savePctgPercentile": 0.8621,
-                  "shotsAgainst": 45
-                },
-                {
-                  "area": "Low Slot",
-                  "goalsAgainst": 25,
-                  "savePctg": 0.793388,
-                  "savePctgPercentile": 0.2759,
-                  "shotsAgainst": 121
-                },
-                {
-                  "area": "R Circle",
-                  "goalsAgainst": 2,
-                  "savePctg": 0.945946,
-                  "savePctgPercentile": 0.8621,
-                  "shotsAgainst": 37
-                },
-                {
-                  "area": "R Point",
-                  "goalsAgainst": 1,
-                  "savePctg": 0.975,
-                  "savePctgPercentile": 0.3276,
-                  "shotsAgainst": 40
-                }
-              ],
-              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
-              "starterStatus": "EXPECTED",
-              "zoneProfileFound": true
-            },
             {
               "goalieId": "8484268",
               "rinkShotOriginAreaRows": [
@@ -416,12 +372,12 @@
               "opposingGoaliesIndividuallyIdentified": true,
               "oppositeDirectionSourceReviewed": true,
               "oppositeGoalieOnNetShots": 63,
-              "oppositeGoaliePeerSavePercentile": 0.2037037037037037,
+              "oppositeGoaliePeerSavePercentile": 0.09090909090909091,
               "oppositeGoalsAllowedFromOrigin": 14,
               "oppositeWeakOrigin": "High Slot",
               "reason": "Same pre-slate official historical goalie PBP peer sample, not mixed with NHL EDGE ranking",
               "samePeerComparatorScope": "INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY",
-              "samePeerPopulationId": "c95944966de59d370eaf",
+              "samePeerPopulationId": "053f58a5b637ec3ae020",
               "sourceCoherentIndependentHistoricalSample": true,
               "winnerGoalieOnNetShots": 44,
               "winnerGoaliePeerSavePercentile": 0.0,
@@ -436,6 +392,32 @@
       "goalieSourceMethod": "ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE",
       "isAnatomicalWeaknessClaim": false,
       "targetGoalieTeam": "MTL"
+    },
+    "2026020332": {
+      "attackingTeam": "UTA",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478872/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484268/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 44,
+        "oppositeGoaliePeerSavePercentile": 0.0862,
+        "oppositeGoalsAllowedFromOrigin": 8,
+        "oppositeWeakOrigin": "L Circle",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 28,
+        "winnerGoaliePeerSavePercentile": 0.0,
+        "winnerGoalsAllowedFromOrigin": 4,
+        "winnerWeakOrigin": "Outside L"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "VAN"
     }
   },
   "games": 2,
@@ -449,44 +431,44 @@
     "executionOrderMismatches": [],
     "fullIndependentCardCertification": false,
     "gateChecksAttempted": {
-      "G0": 119,
-      "G1": 119,
-      "G10": 119,
-      "G10.5": 119,
-      "G11": 119,
-      "G12": 119,
-      "G13": 119,
-      "G14": 119,
-      "G15": 119,
-      "G16": 119,
-      "G17": 119,
-      "G18": 119,
-      "G2": 119,
-      "G3": 119,
-      "G4": 119,
-      "G5": 119,
-      "G6": 119,
-      "G7": 119,
-      "G8": 119,
-      "G9": 119,
-      "Step0": 119,
-      "Step1": 119,
-      "Step10": 119,
-      "Step10.5": 119,
-      "Step11": 119,
-      "Step12": 119,
-      "Step13": 119,
-      "Step14": 119,
-      "Step2": 119,
-      "Step3": 119,
-      "Step4": 119,
-      "Step5": 119,
-      "Step6": 119,
-      "Step7": 119,
-      "Step8": 119,
-      "Step9": 119
+      "G0": 50,
+      "G1": 50,
+      "G10": 50,
+      "G10.5": 50,
+      "G11": 50,
+      "G12": 50,
+      "G13": 50,
+      "G14": 50,
+      "G15": 50,
+      "G16": 50,
+      "G17": 50,
+      "G18": 50,
+      "G2": 50,
+      "G3": 50,
+      "G4": 50,
+      "G5": 50,
+      "G6": 50,
+      "G7": 50,
+      "G8": 50,
+      "G9": 50,
+      "Step0": 50,
+      "Step1": 50,
+      "Step10": 50,
+      "Step10.5": 50,
+      "Step11": 50,
+      "Step12": 50,
+      "Step13": 50,
+      "Step14": 50,
+      "Step2": 50,
+      "Step3": 50,
+      "Step4": 50,
+      "Step5": 50,
+      "Step6": 50,
+      "Step7": 50,
+      "Step8": 50,
+      "Step9": 50
     },
-    "gateRows": 4288,
+    "gateRows": 1804,
     "gateSpecification": {
       "executionCount": 36,
       "executionOrder": [
@@ -594,128 +576,84 @@
     "goalieDirectionsWithPass": 4,
     "masterGateDispositions": {
       "G0": {
-        "NOT_EXECUTED": 94,
-        "PASS": 25
+        "PASS": 50
       },
       "G1": {
-        "PASS": 119
+        "PASS": 50
       },
       "G10": {
-        "NOT_EXECUTED": 37,
-        "PASS": 82
+        "NOT_EXECUTED": 17,
+        "PASS": 33
       },
       "G10.5": {
-        "NOT_EXECUTED": 90,
-        "PASS": 29
+        "NOT_EXECUTED": 27,
+        "PASS": 23
       },
       "G11": {
-        "NOT_EXECUTED": 7,
-        "PASS": 112
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "G12": {
-        "NOT_EXECUTED": 11,
-        "PASS": 108
+        "NOT_EXECUTED": 7,
+        "PASS": 43
       },
       "G13": {
-        "PASS": 119
+        "PASS": 50
       },
       "G14": {
-        "NOT_EXECUTED": 9,
-        "PASS": 110
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "G15": {
-        "NOT_EXECUTED": 75,
-        "PASS": 44
+        "NOT_EXECUTED": 38,
+        "PASS": 12
       },
       "G16": {
-        "NOT_EXECUTED": 90,
-        "PASS": 29
+        "NOT_EXECUTED": 27,
+        "PASS": 23
       },
       "G17": {
-        "NOT_EXECUTED": 64,
-        "PASS": 55
+        "NOT_EXECUTED": 39,
+        "PASS": 11
       },
       "G18": {
-        "NOT_EXECUTED": 119
+        "NOT_EXECUTED": 50
       },
       "G2": {
-        "PASS": 119
+        "PASS": 50
       },
       "G3": {
-        "NOT_EXECUTED": 94,
-        "PASS": 25
+        "PASS": 50
       },
       "G4": {
-        "NOT_EXECUTED": 9,
-        "PASS": 110
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "G5": {
-        "ELIMINATED": 16,
-        "NOT_EXECUTED": 9,
-        "PASS": 94
+        "ELIMINATED": 10,
+        "NOT_EXECUTED": 5,
+        "PASS": 35
       },
       "G6": {
-        "NOT_EXECUTED": 33,
-        "PASS": 86
+        "NOT_EXECUTED": 14,
+        "PASS": 36
       },
       "G7": {
-        "NOT_EXECUTED": 7,
-        "PASS": 112
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "G8": {
-        "PASS": 119
+        "PASS": 50
       },
       "G9": {
-        "NOT_EXECUTED": 46,
-        "PASS": 73
+        "NOT_EXECUTED": 24,
+        "PASS": 26
       }
     },
     "missingMatrixGateRows": {},
     "neverTreatsGateRecordAsAutomaticPass": true,
     "nonselectedCandidateFailuresAreNotCertificationErrors": true,
     "otherMissingSourceExamples": {
-      "G0": [
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477951",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478474",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
-          "sourceCount": 2
-        }
-      ],
       "G10": [
         {
           "gameId": "2026020331",
@@ -776,27 +714,27 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
+          "playerId": "8475314",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
+          "playerId": "8476389",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
+          "playerId": "8477070",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
+          "playerId": "8477346",
           "sourceCount": 25
         }
       ],
@@ -818,22 +756,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
+          "playerId": "8478507",
           "sourceCount": 1
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483472",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8478507",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483472",
+          "playerId": "8483472",
           "sourceCount": 0
         }
       ],
@@ -855,28 +783,23 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
+          "playerId": "8478507",
           "sourceCount": 1
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
+          "playerId": "8481827",
           "sourceCount": 2
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483436",
+          "playerId": "8483436",
           "sourceCount": 3
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483472",
+          "playerId": "8483472",
           "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8478507",
-          "sourceCount": 1
         }
       ],
       "G14": [
@@ -897,27 +820,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
+          "playerId": "8481827",
           "sourceCount": 1
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483436",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8481827",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483436",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:VAN:8478872:8484901",
+          "playerId": "8483436",
           "sourceCount": 2
         }
       ],
@@ -981,27 +889,27 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
+          "playerId": "8475314",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
+          "playerId": "8476389",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
+          "playerId": "8477070",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
+          "playerId": "8477346",
           "sourceCount": 25
         }
       ],
@@ -1089,48 +997,6 @@
           "sourceCount": 5
         }
       ],
-      "G3": [
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477951",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478474",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
-          "sourceCount": 2
-        }
-      ],
       "G4": [
         {
           "gameId": "2026020331",
@@ -1149,27 +1015,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
+          "playerId": "8481827",
           "sourceCount": 1
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483436",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8481827",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483436",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:VAN:8478872:8484901",
+          "playerId": "8483436",
           "sourceCount": 1
         }
       ],
@@ -1191,27 +1042,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
+          "playerId": "8481827",
           "sourceCount": 2
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483436",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8481827",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483436",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:VAN:8478872:8484901",
+          "playerId": "8483436",
           "sourceCount": 3
         }
       ],
@@ -1253,7 +1089,7 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 1
         }
       ],
@@ -1275,22 +1111,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
+          "playerId": "8478507",
           "sourceCount": 0
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483472",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8478507",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483472",
+          "playerId": "8483472",
           "sourceCount": 0
         }
       ],
@@ -1396,39 +1222,34 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
+          "playerId": "8475314",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
+          "playerId": "8476389",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
+          "playerId": "8477070",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 25
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
+          "playerId": "8477346",
           "sourceCount": 25
         }
       ],
       "Step11": [
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8481827",
+          "playerId": "8481827",
           "sourceCount": 0
         }
       ],
@@ -1450,27 +1271,27 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8475314",
+          "playerId": "8475314",
           "sourceCount": 26
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8476389",
+          "playerId": "8476389",
           "sourceCount": 26
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477070",
+          "playerId": "8477070",
           "sourceCount": 26
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 26
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477346",
+          "playerId": "8477346",
           "sourceCount": 26
         }
       ],
@@ -1576,22 +1397,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
+          "playerId": "8478507",
           "sourceCount": 0
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483472",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8478507",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483472",
+          "playerId": "8483472",
           "sourceCount": 0
         }
       ],
@@ -1613,27 +1424,12 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8481827",
+          "playerId": "8481827",
           "sourceCount": 0
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483436",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8481827",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483436",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:VAN:8478872:8484901",
+          "playerId": "8483436",
           "sourceCount": 1
         }
       ],
@@ -1675,7 +1471,7 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8477220",
+          "playerId": "8477220",
           "sourceCount": 0
         }
       ],
@@ -1739,85 +1535,75 @@
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8478507",
+          "playerId": "8478507",
           "sourceCount": 1
         },
         {
           "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8482447:8483472",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8478507",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020332",
-          "playerId": "G0_RESEARCH:UTA:8484268:8483472",
+          "playerId": "8483472",
           "sourceCount": 0
         }
       ]
     },
     "overlayGateDispositions": {
       "Step0": {
-        "PASS": 119
+        "PASS": 50
       },
       "Step1": {
-        "PASS": 119
+        "PASS": 50
       },
       "Step10": {
-        "NOT_EXECUTED": 25,
-        "PASS": 94
+        "NOT_EXECUTED": 15,
+        "PASS": 35
       },
       "Step10.5": {
-        "NOT_EXECUTED": 90,
-        "PASS": 29
+        "NOT_EXECUTED": 27,
+        "PASS": 23
       },
       "Step11": {
-        "NOT_EXECUTED": 2,
-        "PASS": 117
+        "NOT_EXECUTED": 1,
+        "PASS": 49
       },
       "Step12": {
-        "NOT_EXECUTED": 90,
-        "PASS": 29
+        "NOT_EXECUTED": 27,
+        "PASS": 23
       },
       "Step13": {
-        "PASS": 119
+        "PASS": 50
       },
       "Step14": {
-        "NOT_EXECUTED": 64,
-        "PASS": 55
+        "NOT_EXECUTED": 39,
+        "PASS": 11
       },
       "Step2": {
-        "PASS": 119
+        "PASS": 50
       },
       "Step3": {
-        "NOT_EXECUTED": 25,
-        "PASS": 94
+        "NOT_EXECUTED": 15,
+        "PASS": 35
       },
       "Step4": {
-        "NOT_EXECUTED": 7,
-        "PASS": 112
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "Step5": {
-        "NOT_EXECUTED": 9,
-        "PASS": 110
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       },
       "Step6": {
-        "NOT_EXECUTED": 33,
-        "PASS": 86
+        "NOT_EXECUTED": 14,
+        "PASS": 36
       },
       "Step7": {
-        "NOT_EXECUTED": 25,
-        "PASS": 94
+        "NOT_EXECUTED": 15,
+        "PASS": 35
       },
       "Step8": {
-        "PASS": 119
+        "PASS": 50
       },
       "Step9": {
-        "NOT_EXECUTED": 7,
-        "PASS": 112
+        "NOT_EXECUTED": 5,
+        "PASS": 45
       }
     },
     "recordedPassProofGapExamples": [],
@@ -1859,7 +1645,7 @@
       "Step8": 0,
       "Step9": 0
     },
-    "scannedSkaters": 119,
+    "scannedSkaters": 50,
     "selectedCoreOnlyFullyCertified": false,
     "selectedExecutionOrderGaps": [],
     "selectedLegs": [],
@@ -1870,12 +1656,12 @@
       "allNonselectedRetainGateAudit": true,
       "lockedCoreRecipients": 0,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 103,
+      "notQualifiedIncompleteEvidence": 40,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
       "qualifiedButNotChosen": 0,
-      "sourceEliminated": 16,
-      "surveyedEligibleSkaters": 119
+      "sourceEliminated": 10,
+      "surveyedEligibleSkaters": 50
     },
     "slateDate": "2026-11-16",
     "sourceUnattributedPassingGateCount": 0,
@@ -1884,47 +1670,47 @@
     "step8MissingDetails": [],
     "step8MissingReasons": {},
     "substantivelyCertifiedPasses": {
-      "G0": 25,
-      "G1": 119,
-      "G10": 82,
-      "G10.5": 29,
-      "G11": 112,
-      "G12": 108,
-      "G13": 119,
-      "G14": 110,
-      "G15": 44,
-      "G16": 29,
-      "G17": 55,
+      "G0": 50,
+      "G1": 50,
+      "G10": 33,
+      "G10.5": 23,
+      "G11": 45,
+      "G12": 43,
+      "G13": 50,
+      "G14": 45,
+      "G15": 12,
+      "G16": 23,
+      "G17": 11,
       "G18": 0,
-      "G2": 119,
-      "G3": 25,
-      "G4": 110,
-      "G5": 94,
-      "G6": 86,
-      "G7": 112,
-      "G8": 119,
-      "G9": 73,
-      "Step0": 119,
-      "Step1": 119,
-      "Step10": 94,
-      "Step10.5": 29,
-      "Step11": 117,
-      "Step12": 29,
-      "Step13": 119,
-      "Step14": 55,
-      "Step2": 119,
-      "Step3": 94,
-      "Step4": 112,
-      "Step5": 110,
-      "Step6": 86,
-      "Step7": 94,
-      "Step8": 119,
-      "Step9": 112
+      "G2": 50,
+      "G3": 50,
+      "G4": 45,
+      "G5": 35,
+      "G6": 36,
+      "G7": 45,
+      "G8": 50,
+      "G9": 26,
+      "Step0": 50,
+      "Step1": 50,
+      "Step10": 35,
+      "Step10.5": 23,
+      "Step11": 49,
+      "Step12": 23,
+      "Step13": 50,
+      "Step14": 11,
+      "Step2": 50,
+      "Step3": 35,
+      "Step4": 45,
+      "Step5": 45,
+      "Step6": 36,
+      "Step7": 35,
+      "Step8": 50,
+      "Step9": 45
     },
     "surveyedGoalieDirections": 4,
     "twoDirectionsPerScheduledGameRecorded": true
   },
-  "gateRows": 4288,
+  "gateRows": 1804,
   "historicalShiftCoverage": {
     "attemptedGames": 30,
     "chartedGames": 29,
@@ -1947,33 +1733,31 @@
     "status": "DATED_SOURCE_PARSED"
   },
   "missingByGate": {
-    "G0": 94,
-    "G10": 37,
-    "G10.5": 90,
-    "G11": 7,
-    "G12": 11,
-    "G14": 9,
-    "G15": 75,
-    "G16": 90,
-    "G17": 64,
-    "G18": 119,
-    "G3": 94,
-    "G4": 9,
-    "G5": 9,
-    "G6": 33,
-    "G7": 7,
-    "G9": 46,
-    "Step10": 25,
-    "Step10.5": 90,
-    "Step11": 2,
-    "Step12": 90,
-    "Step14": 64,
-    "Step3": 25,
-    "Step4": 7,
-    "Step5": 9,
-    "Step6": 33,
-    "Step7": 25,
-    "Step9": 7
+    "G10": 17,
+    "G10.5": 27,
+    "G11": 5,
+    "G12": 7,
+    "G14": 5,
+    "G15": 38,
+    "G16": 27,
+    "G17": 39,
+    "G18": 50,
+    "G4": 5,
+    "G5": 5,
+    "G6": 14,
+    "G7": 5,
+    "G9": 24,
+    "Step10": 15,
+    "Step10.5": 27,
+    "Step11": 1,
+    "Step12": 27,
+    "Step14": 39,
+    "Step3": 15,
+    "Step4": 5,
+    "Step5": 5,
+    "Step6": 14,
+    "Step7": 15,
+    "Step9": 5
   },
   "nonselectedGameResearchIsDiagnosticOnly": true,
   "nonselectedGameResearchNotes": [],
@@ -2011,15 +1795,15 @@
     "allNonselectedRetainGateAudit": true,
     "lockedCoreRecipients": 0,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 103,
+    "notQualifiedIncompleteEvidence": 40,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
     "qualifiedButNotChosen": 0,
-    "sourceEliminated": 16,
-    "surveyedEligibleSkaters": 119
+    "sourceEliminated": 10,
+    "surveyedEligibleSkaters": 50
   },
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-16T20:51:29+00:00"
+  "updatedUTC": "2026-11-16T20:52:58+00:00"
 }
