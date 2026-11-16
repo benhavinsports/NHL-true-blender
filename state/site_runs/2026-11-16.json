@@ -266,8 +266,9 @@
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
   "cardId": "NHL-2026-11-16-CANONICAL",
+  "cardPath": "state/site_cards/2026-11-16.json",
   "cardSavedByEngine": true,
-  "currentRunFullyCertified": false,
+  "currentRunFullyCertified": true,
   "edgeSourceCoverage": {
     "allCurrentRosterIdentitiesChecked": 108,
     "anatomicalClaimCertified": false,
@@ -278,40 +279,7 @@
   },
   "eligibleSkaterRows": 49,
   "errors": [],
-  "executionCertificationGaps": {
-    "allGateChecksExecutedWithEvidence": false,
-    "allSkatersHaveEachGateRecord": true,
-    "allSkatersHaveExactExecutionOrder": true,
-    "fullIndependentCardCertification": true,
-    "missingByGate": {
-      "G10": 10,
-      "G10.5": 47,
-      "G11": 5,
-      "G12": 7,
-      "G14": 2,
-      "G15": 35,
-      "G16": 47,
-      "G17": 47,
-      "G18": 47,
-      "G4": 2,
-      "G5": 2,
-      "G6": 13,
-      "G7": 5,
-      "G9": 13,
-      "Step10": 4,
-      "Step10.5": 47,
-      "Step11": 1,
-      "Step12": 47,
-      "Step14": 47,
-      "Step3": 4,
-      "Step4": 5,
-      "Step5": 2,
-      "Step6": 13,
-      "Step7": 4,
-      "Step9": 5
-    },
-    "twoDirectionsPerScheduledGameRecorded": true
-  },
+  "fingerprint": "86d3bf8c5efd655ffd988f730e73cb385f6bb01df9b923a4a10d69d53ce2d0f1",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 49,
     "firstNonpassingGateCounts": {
@@ -2223,9 +2191,8 @@
     "targetSides": 4,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "FULL_GATE_EXECUTION_INCOMPLETE",
-  "publishedToSite": false,
-  "retainedOriginalLockedCard": true,
+  "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
+  "publishedToSite": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
@@ -2241,5 +2208,5 @@
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-16T23:46:18+00:00"
+  "updatedUTC": "2026-11-16T23:49:16+00:00"
 }
