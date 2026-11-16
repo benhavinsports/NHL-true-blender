@@ -4,7 +4,7 @@ No scorer ranking, extra Core or fake gate pass. This is a debugging receipt.
 """
 import json
 from collections import Counter,defaultdict
-from .engine import MASTER
+from .engine import MASTER, OVERLAY
 
 def explain_live_blockers(con,date,stage):
     rows=con.execute("""SELECT game_id,player_id,gate,disposition,details FROM gates
@@ -88,6 +88,66 @@ def explain_live_blockers(con,date,stage):
                 subtype="NOT_PROVEN"
             root_causes[gate]["CAUSE:"+subtype]+=1
             if len(examples[gate])<12:examples[gate].append(item)
+    # Preserve the complete player-by-player gate matrix. Aggregate counts
+    # alone hid whether G5/G9/G6/G10/G10.5/G17 were failing the SAME players
+    # or disjoint candidates; the exact intersection is required to repair G18.
+    candidate_matrix=[]
+    for (game_id,pid),trace in sorted(players.items()):
+        master={g:(trace[g]["disposition"] if g in trace else "MISSING_RECORD")
+                for g in MASTER}
+        overlay={g:(trace[g]["disposition"] if g in trace else "MISSING_RECORD")
+                 for g in OVERLAY}
+        failed_master=[g for g,v in master.items() if v!="PASS"]
+        failed_overlay=[g for g,v in overlay.items() if v!="PASS"]
+        reasons={}
+        for gate in set(failed_master+failed_overlay):
+            row=trace.get(gate)
+            if not row:continue
+            detail=json.loads(row["details"]);ev=detail.get("evidence",{})
+            if gate=="G5":
+                reasons[gate]={"zone":ev.get("shooterZone"),
+                               "goalieWeakZones":list(ev.get("weakZones") or {})}
+            elif gate=="G6":
+                reasons[gate]={"deployment":ev.get("deployment")}
+            elif gate=="G9":
+                reasons[gate]={"zone":ev.get("shooterZone"),
+                    "green":ev.get("greenTarget"),"red":ev.get("redAvoid"),
+                    "method":ev.get("coverageComparison"),
+                    "zoneConcession":ev.get("zoneConcessionEvidence")}
+            elif gate=="G10":
+                own=ev.get("goalCreditOwned") or {}
+                reasons[gate]={"recipient":own.get("recipient"),
+                    "ownedGoalsInActualAppearances":own.get("ownedGoalsInActualAppearances"),
+                    "creditedGoalsVerified":own.get("creditedGoalsVerified")}
+            elif gate=="G10.5":
+                comparisons=ev.get("comparisonRows") or []
+                status=Counter(x.get("status") for x in comparisons)
+                reasons[gate]={"comparisonCounts":dict(status),
+                    "firstDirectContradictions":[
+                        {"challengerId":x.get("challengerId"),"status":x.get("status"),
+                         "candidate":x.get("candidate"),"challenger":x.get("challenger")}
+                        for x in comparisons if x.get("status") not in
+                        ("DEFEATED","DIFFERENT_TARGET_LANE")][:3]}
+            elif gate=="G17":
+                c=ev.get("counterevidence") or {}
+                reasons[gate]={"outcome":c.get("outcome"),
+                    "unresolved":c.get("unresolved"),
+                    "goalieStrengthReview":c.get("goalieStrengthReview"),
+                    "lineupDisagreementReview":c.get("lineupDisagreementReview"),
+                    "strongestRivalReview":c.get("strongestRivalReview")}
+        candidate_matrix.append({
+            "gameId":game_id,"playerId":pid,
+            "masterPassCount":sum(v=="PASS" for v in master.values()),
+            "masterGateCount":len(MASTER),
+            "overlayPassCount":sum(v=="PASS" for v in overlay.values()),
+            "overlayGateCount":len(OVERLAY),
+            "firstNonpassingMasterGate":next((g for g in MASTER if master[g]!="PASS"),None),
+            "failedMasterGates":failed_master,
+            "failedOverlayGates":failed_overlay,
+            "missingMasterRecords":[g for g,v in master.items() if v=="MISSING_RECORD"],
+            "missingOverlayRecords":[g for g,v in overlay.items() if v=="MISSING_RECORD"],
+            "masterDispositions":master,"overlayDispositions":overlay,
+            "nonpassReasons":reasons})
     return {"slateDate":date,"stage":stage,"playersEvaluated":len(players),
             "firstNonpassingByOriginalGate":dict(first_counts),
             "firstExamples":dict(first_examples),
@@ -95,4 +155,11 @@ def explain_live_blockers(con,date,stage):
             "sourceBlockedCandidatesByGame":dict(game_blockers),
             "gateDispositionAndCauseCounts":{k:dict(v) for k,v in root_causes.items()},
             "actualBlockedSourceExamples":dict(examples),
+            "candidateGateMatrix":candidate_matrix,
+            "allCandidatesHaveEveryMasterAndOverlayRecord":all(
+                not x["missingMasterRecords"] and not x["missingOverlayRecords"]
+                for x in candidate_matrix),
+            "candidatesPassingAllMasterAndOverlayGates":sum(
+                not x["failedMasterGates"] and not x["failedOverlayGates"]
+                for x in candidate_matrix),
             "diagnosticOnly":True,"noPlayerRankingOrArtificialGatePass":True}
