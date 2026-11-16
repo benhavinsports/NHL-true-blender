@@ -72,7 +72,7 @@ def persist():
     digest=checksum(RAW)
     tmp=ARCHIVE.with_name(ARCHIVE.name+".tmp")
     try:
-        with open(RAW,"rb") as inp,gzip.open(tmp,"wb",compresslevel=9,mtime=None) as out:
+        with open(RAW,"rb") as inp,gzip.open(tmp,"wb",compresslevel=9) as out:
             for chunk in iter(lambda:inp.read(1024*1024),b""):
                 out.write(chunk)
         compressed=tmp.stat().st_size
