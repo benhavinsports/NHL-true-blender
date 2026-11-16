@@ -577,10 +577,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     season_supplement=(own.get('seasonGoalSupplement') or {}).get('data',{}) if own else {}
     historic_direct=bool(
         receipt(ownership) and own.get('creditedGoalsVerified') is True
-        and own.get('recipient') is True and own.get('independentHistoricallyScored') is True
-        and ((type(own_goals) is int and own_goals>0) or
-             (type(season_supplement.get('ownedSeasonGoalsFromNhlEdgeShotOrigins')) is int
-              and season_supplement['ownedSeasonGoalsFromNhlEdgeShotOrigins']>0)))
+        and own.get('recipient') is True and rec and
+        type(rec.get('officialGoals')) is int and rec['officialGoals']>0
+        and ((own_goals is None or (type(own_goals) is int and own_goals>=0))
+             and (not season_supplement or
+                 type(season_supplement.get('ownedSeasonGoalsFromNhlEdgeShotOrigins')) is int)))
     emit('G10',historic_direct,
          {'goalCreditOwned':own,
           'historicalDirectGoalRecipientVerified':historic_direct,
