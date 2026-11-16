@@ -376,6 +376,7 @@ function renderDetails(){
 }
 function gateRow(record){
  const details=el("details","gate-row");
+ details.dataset.gate=record.gate;
  const summary=el("summary");
  summary.appendChild(el("span","gate-code",record.gate));
  summary.appendChild(el("span","gate-title",EXPLAIN[record.gate]||"Verified source review"));
@@ -604,8 +605,45 @@ function renderSystem(){
     "Unselected matchup research: "+x.nonselectedGameResearchNotes.join(" • ")));
  host.appendChild(details);
 }
+function renderCompleteGateDeck(){
+  // All 20 master + 16 overlay steps are displayed identically.
+  // This deck is NAVIGATION ONLY; it never changes a Blender decision.
+  for(const [id,gates,type] of [
+    ["master-gate-deck",MASTER,"master"],
+    ["overlay-gate-deck",OVERLAY,"overlay"]
+  ]){
+    const holder=$(id);
+    if(!holder)continue;
+    holder.replaceChildren();
+    for(const [i,gate] of gates.entries()){
+      const card=el("button","gate-mini-card gate-mini-"+(i%5));
+      card.type="button";
+      card.dataset.gate=gate;
+      card.setAttribute("aria-label","Inspect "+gate+": "+(EXPLAIN[gate]||"Gate evidence"));
+      card.appendChild(el("span","mini-gate-code",gate));
+      card.appendChild(el("span","mini-gate-symbol",type==="master"?"♠":"◇"));
+      card.appendChild(el("span","mini-gate-title",EXPLAIN[gate]||"Source check"));
+      card.addEventListener("click",()=>{
+        state.gateFilter=type;
+        renderDetails();
+        const detail=$("leg-detail");
+        // Never assert PASS without an actual saved row. The target row
+        // includes status, evidence fields and clickable source URLs.
+        const row=[...detail.querySelectorAll(".gate-row")].find(
+          x=>x.dataset.gate===gate);
+        if(row){
+          row.open=true;
+          row.scrollIntoView({behavior:"smooth",block:"center"});
+        }else{
+          $("evidence").scrollIntoView({behavior:"smooth",block:"start"});
+        }
+      });
+      holder.appendChild(card);
+    }
+  }
+}
 function renderAll(){
- renderPicker();renderHeader();renderCards();renderDetails();
+ renderPicker();renderHeader();renderCompleteGateDeck();renderCards();renderDetails();
  renderMatchups();renderGrade();renderSeason();renderSystem();
 }
 async function loadEvidence(date){
