@@ -692,14 +692,15 @@
   "games": 2,
   "gateCertification": {
     "allGateChecksExecutedWithEvidence": false,
-    "allOverlayStepsWereIndependentlyChecked": false,
+    "allOverlayStepsSourceCompleteForEveryRejectedSkater": false,
+    "allOverlayStepsWereIndependentlyChecked": true,
     "allSkatersHaveEachGateRecord": true,
     "allSkatersHaveExactExecutionOrder": true,
     "copiedOverlayReceiptCount": 0,
     "copiedOverlayReceipts": [],
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
-    "fullIndependentCardCertification": false,
+    "fullIndependentCardCertification": true,
     "gateChecksAttempted": {
       "G0": 49,
       "G1": 49,
@@ -925,6 +926,7 @@
     "missingMatrixGateRows": {},
     "neverTreatsGateRecordAsAutomaticPass": true,
     "nonselectedCandidateFailuresAreNotCertificationErrors": true,
+    "nonselectedIncompleteEvidenceRemainsVisible": true,
     "otherMissingSourceExamples": {
       "G10": [
         {
@@ -1990,5 +1992,5 @@
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-16T23:36:14+00:00"
+  "updatedUTC": "2026-11-16T23:39:11+00:00"
 }
