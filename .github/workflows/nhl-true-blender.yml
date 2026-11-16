@@ -101,9 +101,12 @@ jobs:
                   # Night-time code-triggered runs grade the original Core as
                   # soon as its actual 2/3 matchups are OFF/FINAL; :38 cron
                   # still explicitly watches every not-started game.
-                  # Code-push refreshes are PROJECTED until late pregame;
-                  # wall-clock time alone never certifies confirmed lineups.
-                  mode = ('projected' if now.hour < 19 else
+                  # Code-push pregame verification uses the appropriate
+                  # phase. CONFIRMED still requires actual confirmed-source
+                  # evidence for each goalie/line; it never upgrades a
+                  # PROJECTED observation based on the clock alone.
+                  mode = ('projected' if now.hour < 17 else
+                          'confirmed' if now.hour < 19 else
                           'grade' if now.hour >= 21 else 'watch')
           date = os.environ.get('REQUESTED_DATE') or (
               (now - datetime.timedelta(days=1)).date().isoformat()
