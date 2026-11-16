@@ -61,7 +61,16 @@ def game(idx,win=True):
         'officialPlayByPlayUrl':'https://api-web.nhle.com/v1/gamecenter/2026020300/play-by-play'}],
         'shiftSourceUrls':[shift_url],'actualDefensiveShiftMatches':1}
     return {'id':str(5000+idx),'date':DATE,'away':away,'home':home,'startUTC':FUTURE,'gameState':'FUT',
-        'goalies':{away:[],home:[goalie('g'+home,home)]},
+        'goalies':{
+            away:[evidence({'goalieId':'g'+away,'team':away,
+                'status':'CONFIRMED','weakZones':{},
+                'strengthZones':{'slot':{'savePct':.97}},
+                'sample':{'allZoneObservations':80,'source':'independent synthetic goalie report'},
+                'observedAreas':{'slot':{'shotsAgainst':80,'goalsAgainst':2,'saves':78}},
+                'sourceReviewed':True,
+                'counterevidence':{'reviewedIndependentOrigins':['slot']},
+                'sourceClass':'DERIVED_RINK_ORIGIN_NOT_ANATOMICAL'})],
+            home:[goalie('g'+home,home)]},
         'rosters':{away:evidence({'players':[main,rival,d]}),home:evidence({'players':[]})},
         'context':evidence({'venue':home,'rest':'one day both teams','travel':'neutral'}),
         'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point'],**shift_data}),
@@ -82,7 +91,7 @@ def test_full_structural_three_game_run(con):
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
     assert len(PATCH_IDS)==13
     res=execute(con,snapshot(),DATE,'CONFIRMED')
-    assert res['g0Directions']==6 and res['g0Complete']==3
+    assert res['g0Directions']==6 and res['g0Complete']==6
     assert res['eligibleSkaterRows']==9
     assert res['gateRows']==9*(len(MASTER)+len(OVERLAY))+6
     assert res['uniqueGameSurvivors']==3
@@ -100,7 +109,7 @@ def test_missing_opposing_goalie_profile_blocks_entire_g18(con):
     s=snapshot()
     s['games'][2]['goalies'][s['games'][2]['home']]=[]
     result=execute(con,s,DATE,'CONFIRMED')
-    assert result['g0Complete']==2
+    assert result['g0Complete']==5
     assert result['card'] is None
     assert any('G0' in e for e in result['errors'])
 
