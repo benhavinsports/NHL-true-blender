@@ -24,20 +24,29 @@ def test_confirmed_phase_cannot_promote_projected_deployment():
         'G6',dep,['https://lineup.example'],'CONFIRMED')
     assert audit_gate('G6',dep,['https://lineup.example'],'PROJECTED')==[]
 
-def test_g15_independent_source_and_g17_anatomical_source_required():
+def test_g15_separate_own_goal_source_and_g17_real_rink_review_not_fake_anatomy():
     g15={'independentHistoricalGoalFinishingEvidence':True,
          'separateOfficialShotOriginSource':True,
          'officialOwnedGoalsInMatchedOrigin':2}
-    assert audit_gate('G15',g15,['https://nhl.com'],'CONFIRMED')
+    assert 'G15_MISSING_SEPARATE_GOAL_CREDIT_AND_RELEASE_SOURCES' in audit_gate(
+        'G15',g15,['https://nhl.com'],'CONFIRMED')
     g17={'sourceDerivedReviewResolved':True,
          'counterevidence':{'sourceType':'DERIVED_CROSS_SOURCE_G17',
-            'goalieStrengthReview':{'matchedWeakAreas':1},
-            'lineupDisagreementReview':{'isTrulyConfirmed':False},
+            'scope':'observed shot origins, NOT anatomical goal-mouth coordinates',
+            'goalieStrengthReview':{
+                'matchedWeakAreas':1,
+                'strongerAreaContradiction':False,
+                'sourceScope':'GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA'},
+            'lineupDisagreementReview':{
+                'isTrulyConfirmed':False,'hasProjectedOrConfirmedRole':True},
             'strongestRivalReview':{'eachSameLaneDefeated':True},
             'unresolved':False,'anatomicalWeaknessCertified':False}}
-    gaps=audit_gate('G17',g17,['https://nhl.com'],'CONFIRMED')
-    assert 'G17_ANATOMICAL_GOALIE_WEAKNESS_UNVERIFIED' in gaps
-    assert 'G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED' in gaps
+    sources=['https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/99/now']
+    assert audit_gate('G17',g17,sources,'PROJECTED')==[]
+    gaps=audit_gate('G17',g17,sources,'CONFIRMED')
+    assert gaps==['G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED']
+    g17['counterevidence']['lineupDisagreementReview']['isTrulyConfirmed']=True
+    assert audit_gate('G17',g17,sources,'CONFIRMED')==[]
 
 def test_overlay_proves_own_checked_values_not_just_independent_flag():
     opaque={'independentOverlayEvaluation':True,'checkedBeforeG18':True,
