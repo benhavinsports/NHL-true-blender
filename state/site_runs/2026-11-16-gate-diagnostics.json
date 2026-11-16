@@ -4,11 +4,9 @@
   "playersEvaluated": 47,
   "firstNonpassingByOriginalGate": {
     "G5": 14,
-    "G9": 8,
-    "G6": 9,
-    "G10": 8,
-    "G10.5": 7,
-    "G4": 1
+    "G9": 22,
+    "G6": 8,
+    "G4": 3
   },
   "firstExamples": {
     "G5": [
@@ -77,51 +75,15 @@
         "playerId": "8478507"
       }
     ],
-    "G10": [
-      {
-        "gameId": "2026020332",
-        "playerId": "8475314"
-      },
-      {
-        "gameId": "2026020332",
-        "playerId": "8476389"
-      },
+    "G4": [
       {
         "gameId": "2026020332",
         "playerId": "8477070"
       },
       {
         "gameId": "2026020332",
-        "playerId": "8477346"
+        "playerId": "8483472"
       },
-      {
-        "gameId": "2026020332",
-        "playerId": "8478831"
-      }
-    ],
-    "G10.5": [
-      {
-        "gameId": "2026020332",
-        "playerId": "8478474"
-      },
-      {
-        "gameId": "2026020332",
-        "playerId": "8479343"
-      },
-      {
-        "gameId": "2026020332",
-        "playerId": "8479369"
-      },
-      {
-        "gameId": "2026020332",
-        "playerId": "8479410"
-      },
-      {
-        "gameId": "2026020332",
-        "playerId": "8480849"
-      }
-    ],
-    "G4": [
       {
         "gameId": "2026020332",
         "playerId": "8485010"
@@ -135,11 +97,10 @@
       "G6": 3
     },
     "2026020332": {
-      "G10": 8,
+      "G9": 14,
+      "G4": 3,
       "G5": 1,
-      "G6": 6,
-      "G10.5": 7,
-      "G4": 1
+      "G6": 5
     }
   },
   "sourceBlockedCandidatesByGame": {
@@ -148,518 +109,149 @@
         "playerId": "8476479",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8480074",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8480865",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8481540",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8481618",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8482087",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8482964",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8483457",
         "firstNonpassingGate": "G9",
         "releaseArea": "L Point",
-        "opponentWeakAreas": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ]
+        "opponentWeakAreas": []
       }
     ],
     "2026020332": [
       {
         "playerId": "8475314",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8476389",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
-      },
-      {
-        "playerId": "8477070",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8477346",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "R Point",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8478474",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 12,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 12,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 6,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 12,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 12,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 3,
-              "zone": "High Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8478831",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8479343",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 5,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 2,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 2,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 2,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 16,
-              "zone": "Low Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8479369",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 15,
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 1,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 6,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 1,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 10,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 1,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "R Point",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8479410",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 7,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 10,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 10,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 10,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 2,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "High Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8479619",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8479977",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8480849",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 3,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 16,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 7,
-              "shotsOnGoal": 21,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 14,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 18,
-              "zone": "Low Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8480855",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 14,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 8,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 6,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 8,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 10,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 8,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8484386",
-        "firstNonpassingGate": "G10.5",
-        "releaseArea": null,
-        "contradictionStatuses": {
-          "RIVAL_DOMINATES": 10,
-          "NO_DECISIVE_ROUTE_SEPARATION": 1,
-          "NO_RELEASE_SOURCE": 1
-        },
-        "firstDirectRivalContradictions": [
-          {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 3,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 6,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 3,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 11,
-              "zone": "Low Slot"
-            }
-          },
-          {
-            "id": "8482699",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION",
-            "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 3,
-              "zone": "High Slot"
-            },
-            "challenger": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 3,
-              "zone": "High Slot"
-            }
-          }
-        ]
+        "firstNonpassingGate": "G9",
+        "releaseArea": "High Slot",
+        "opponentWeakAreas": []
       },
       {
         "playerId": "8484388",
-        "firstNonpassingGate": "G10",
-        "releaseArea": null
+        "firstNonpassingGate": "G9",
+        "releaseArea": "Low Slot",
+        "opponentWeakAreas": []
       }
     ]
   },
   "gateDispositionAndCauseCounts": {
     "G4": {
-      "PASS": 46,
-      "NOT_EXECUTED": 1,
-      "CAUSE:NO_SOURCE_BACKED_SHOOTER_AREA": 1
+      "PASS": 44,
+      "NOT_EXECUTED": 3,
+      "CAUSE:NO_SOURCE_BACKED_SHOOTER_AREA": 3
     },
     "G5": {
       "ELIMINATED": 14,
-      "CAUSE:NO_GOALIE_AREA_OVERLAP": 15,
-      "PASS": 32,
-      "NOT_EXECUTED": 1
+      "CAUSE:NO_GOALIE_AREA_OVERLAP": 17,
+      "PASS": 30,
+      "NOT_EXECUTED": 3
     },
     "G6": {
       "NOT_EXECUTED": 15,
@@ -667,11 +259,8 @@
       "PASS": 32
     },
     "G9": {
-      "ELIMINATED": 20,
-      "CAUSE:RED_AVOID": 20,
-      "NOT_EXECUTED": 5,
-      "CAUSE:NO_MATCHING_GREEN": 5,
-      "PASS": 22
+      "NOT_EXECUTED": 47,
+      "CAUSE:NO_MATCHING_GREEN": 47
     },
     "G10": {
       "PASS": 24,
@@ -681,9 +270,8 @@
     "G10.5": {
       "PASS": 24,
       "NOT_EXECUTED": 23,
-      "CAUSE:RIVAL_DOMINATES": 21,
-      "CAUSE:NO_RELEASE_SOURCE": 1,
-      "CAUSE:MISSING_COMPARISON": 1
+      "CAUSE:NO_RELEASE_SOURCE": 20,
+      "CAUSE:MISSING_COMPARISON": 3
     },
     "G17": {
       "NOT_EXECUTED": 39,
@@ -881,19 +469,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8475184",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "Low Slot",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -901,19 +480,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8476479",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -921,19 +491,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8476875",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -941,19 +502,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8476981",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "Low Slot",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -961,19 +513,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8478133",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "Low Slot",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -981,19 +524,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8478851",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "R Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1001,19 +535,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8480018",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "Low Slot",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1021,19 +546,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8480074",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1041,19 +557,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8480865",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1063,17 +570,8 @@
         "playerId": "8481523",
         "disposition": "NOT_EXECUTED",
         "zone": "Crease",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1081,19 +579,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8481540",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1101,19 +590,10 @@
       {
         "gameId": "2026020331",
         "playerId": "8481618",
-        "disposition": "ELIMINATED",
+        "disposition": "NOT_EXECUTED",
         "zone": "L Point",
-        "green": [
-          "High Slot",
-          "L Circle",
-          "R Circle",
-          "Center Point"
-        ],
-        "red": [
-          "Low Slot",
-          "L Point",
-          "R Point"
-        ],
+        "green": [],
+        "red": [],
         "sourceIds": [
           "https://api-web.nhle.com/v1/gamecenter/2026020185/play-by-play"
         ]
@@ -1297,20 +777,10 @@
         "playerId": "8475314",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 17,
-          "RIVAL_DOMINATES": 2,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
           {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
@@ -1322,16 +792,10 @@
         "playerId": "8476389",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 18,
-          "RIVAL_DOMINATES": 1,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
           {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
@@ -1342,133 +806,21 @@
         "gameId": "2026020332",
         "playerId": "8477070",
         "disposition": "NOT_EXECUTED",
-        "comparisonCounts": {
-          "RIVAL_DOMINATES": 15,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2,
-          "NO_DECISIVE_ROUTE_SEPARATION": 4
-        },
-        "blockedRivals": [
-          {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478474",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480855",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8485010",
-            "status": "NO_RELEASE_SOURCE"
-          }
-        ]
+        "comparisonCounts": {},
+        "blockedRivals": []
       },
       {
         "gameId": "2026020332",
         "playerId": "8477220",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 12,
-          "DEFEATED": 8,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 1
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
-          },
-          {
-            "id": "8479410",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8484386",
-            "status": "RIVAL_DOMINATES"
           }
         ]
       },
@@ -1477,67 +829,13 @@
         "playerId": "8477346",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 15,
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478474",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480855",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477070",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
+            "id": "8485010",
+            "status": "NO_RELEASE_SOURCE"
           }
         ]
       },
@@ -1546,9 +844,8 @@
         "playerId": "8477951",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 19,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
@@ -1562,63 +859,13 @@
         "playerId": "8478474",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 12,
-          "DEFEATED": 7,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
-          },
-          {
-            "id": "8479410",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8484386",
-            "status": "RIVAL_DOMINATES"
           }
         ]
       },
@@ -1627,67 +874,13 @@
         "playerId": "8478507",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 15,
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478474",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480855",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477070",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
+            "id": "8485010",
+            "status": "NO_RELEASE_SOURCE"
           }
         ]
       },
@@ -1696,47 +889,13 @@
         "playerId": "8478831",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 11,
-          "RIVAL_DOMINATES": 8,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
-          },
-          {
-            "id": "8479410",
-            "status": "RIVAL_DOMINATES"
           }
         ]
       },
@@ -1745,32 +904,10 @@
         "playerId": "8479343",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 14,
-          "RIVAL_DOMINATES": 5,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
           {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
@@ -1782,67 +919,13 @@
         "playerId": "8479369",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 15,
-          "NO_DECISIVE_ROUTE_SEPARATION": 4,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
           {
-            "id": "8484388",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479619",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478474",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8482699",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480855",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477070",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8478831",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
+            "id": "8485010",
+            "status": "NO_RELEASE_SOURCE"
           }
         ]
       },
@@ -1851,40 +934,10 @@
         "playerId": "8479410",
         "disposition": "NOT_EXECUTED",
         "comparisonCounts": {
-          "DEFEATED": 12,
-          "RIVAL_DOMINATES": 7,
-          "NO_RELEASE_SOURCE": 1,
-          "DIFFERENT_TARGET_LANE": 2
+          "DIFFERENT_TARGET_LANE": 21,
+          "NO_RELEASE_SOURCE": 1
         },
         "blockedRivals": [
-          {
-            "id": "8483431",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8480849",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479343",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8475314",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8477951",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8476389",
-            "status": "RIVAL_DOMINATES"
-          },
-          {
-            "id": "8479977",
-            "status": "RIVAL_DOMINATES"
-          },
           {
             "id": "8485010",
             "status": "NO_RELEASE_SOURCE"
@@ -1893,6 +946,18 @@
       }
     ],
     "G4": [
+      {
+        "gameId": "2026020332",
+        "playerId": "8477070",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
+      {
+        "gameId": "2026020332",
+        "playerId": "8483472",
+        "disposition": "NOT_EXECUTED",
+        "ownRelease": null
+      },
       {
         "gameId": "2026020332",
         "playerId": "8485010",
