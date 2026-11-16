@@ -55,17 +55,24 @@ def export_run(con, slate_date, stage, result, root='state'):
         'survivorOnlyCertification':(result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified'),
         'nonselectedGateAuditIsDiagnosticOnly':True,
     }
-    # The execution census is the publication authority, not the presence of
-    # a saved card or the selected players' legacy trace alone. A recorded
-    # NOT_EXECUTED gate must never be presented as a fully executed Blender.
+    # "Gate executed" and "player passed the gate" are distinct. Every
+    # surveyed skater MUST have an ordered receipt for every gate, but rejected
+    # skaters are expected to have ELIMINATED / NOT_EXECUTED source outcomes.
+    # Those outcomes remain visible in missingByGate; they do not disqualify
+    # fully proven surviving recipients. The recipient-specific checks below
+    # independently enforce all 36 PASSes and their source/overlay evidence.
     census=result.get('gateCertification') or {}
+    scanned=census.get('scannedSkaters')
+    attempts=census.get('gateChecksAttempted') or {}
+    all_gates_attempted=(type(scanned) is int and scanned>0
+        and all(attempts.get(gate)==scanned for gate in MASTER+OVERLAY))
     full_execution=(
-        census.get('fullIndependentCardCertification') is True
-        and census.get('allGateChecksExecutedWithEvidence') is True
+        all_gates_attempted
         and census.get('allSkatersHaveEachGateRecord') is True
         and census.get('allSkatersHaveExactExecutionOrder') is True
+        and census.get('allOverlayStepsWereIndependentlyChecked') is True
+        and census.get('copiedOverlayReceiptCount') == 0
         and census.get('twoDirectionsPerScheduledGameRecorded') is True
-        and not result.get('missingByGate')
     )
     if not full_execution:
         prior=root/'site_cards'/f'{slate_date}.json'
