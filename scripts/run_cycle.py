@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from nhl_true_blender_engine.audit import audit_misses
 from nhl_true_blender_engine.postgame_recalibration import adjudicate_misses,season_history
+from nhl_true_blender_engine.postgame_recipient_audit import collect_official_recipients
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
@@ -17,7 +18,7 @@ from scripts.publish_site_state import PublicationConflict, _write
 
 ET = ZoneInfo('America/New_York')
 
-def _publish_official_grade(root,date,grade,audits,patch_adjudication=None):
+def _publish_official_grade(root,date,grade,audits,patch_adjudication=None,recipient_audit=None):
     """Attach official final outcome to the SAME saved G18 card.
 
     Grading and missed-gate auditing never change the frozen recipient list,
@@ -46,6 +47,7 @@ def _publish_official_grade(root,date,grade,audits,patch_adjudication=None):
         'playerResults':graded,
         'officialSources':grade['official_sources'],
         'missAudits':audits,
+        'postgameRecipientAudit':recipient_audit or {'status':'OFFICIAL_SCORER_COMPARISON_PENDING'},
         'patchAdjudication':patch_adjudication or {},
         'patchesApplied':(patch_adjudication or {}).get('activated',[]),
         'patchStatus':('SOURCE_VALIDATED_FUTURE_GUARDS_ACTIVATED'
@@ -108,6 +110,25 @@ async def execute_cycle(mode, date, root='state'):
                     status=official.get('status','WAITING_FOR_FINAL')
                 if grade:
                     audits=audit_misses(con,date)
+                    # Independently confirm EVERY official scorer in each
+                    # locked matchup against NHL PBP AND NHL boxscore, then
+                    # compare their frozen PRE-PUCK G0/G10.5/G15/G17 proofs.
+                    # An outcome-only mismatch never mutates a source gate.
+                    nhl=NHLClient()
+                    try:
+                        recipient_audit=await collect_official_recipients(con,date,nhl)
+                    except Exception as exc:
+                        # Do not lose/undo an already official frozen grade if
+                        # an independent postgame source request times out.
+                        recipient_audit={
+                            'status':'SOURCE_VERIFICATION_PENDING',
+                            'errorType':type(exc).__name__,
+                            'doesNotOverrideOfficialGrade':True,
+                            'notACertifiedRecipientComparison':True}
+                    finally:
+                        await nhl.close()
+                    if recipient_audit.get('status')=='OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON':
+                        _write(root/'site_runs'/f'{date}-recipient-audit.json',recipient_audit)
                     # A real official grade triggers automatic adjudication,
                     # not a hand-entered patch or a new Core. A missed goal
                     # alone NEVER activates a policy.
@@ -115,10 +136,11 @@ async def execute_cycle(mode, date, root='state'):
                     season_year=int(date[:4]) if int(date[5:7])>=10 else int(date[:4])-1
                     history=season_history(con,season_year,date)
                     _write(root/'history'/f'{history["season"]}.json',history)
-                    report=_publish_official_grade(root,date,grade,audits,adjudication)
+                    report=_publish_official_grade(root,date,grade,audits,adjudication,recipient_audit)
                     output={'slateDate':date,'mode':mode,'status':status,
                             'cardId':grade['card_id'],'grade':report,
                             'missAudits':audits,'patchAdjudication':adjudication,
+                            'postgameRecipientAudit':recipient_audit,
                             'seasonHistory':{
                                 'season':history['season'],
                                 'officiallyGradedSlates':history['officiallyGradedSlates'],
