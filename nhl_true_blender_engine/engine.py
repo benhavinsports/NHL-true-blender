@@ -1089,8 +1089,8 @@ def compare_g0_different_weak_origins(a,b):
         return None
     pa,pb=profiles[0][0],profiles[1][0]
     wa,wb=pa.get('weakZones') or {},pb.get('weakZones') or {}
-    if not wa or not wb:
-        return None
+    if not wa or not wb or set(wa)==set(wb):
+        return None  # matched-zone goalie weakness requires direct comparator
     src_a=pa.get('sourceClass')
     src_b=pb.get('sourceClass')
     if src_a!=src_b:
