@@ -152,6 +152,30 @@ def derive_independent_pbp_goalie_profile(goalie_id,zone_counts):
     }
 
 
+def needs_independent_pbp(data):
+    """A measured total without a qualified peer/source review is not G0 proof.
+
+    A goalie can have a nonempty NHL EDGE shot-location response containing
+    only unqualified areas; the previous predicate treated any 20 shots as a
+    completed goalie review and never fetched the official PBP fallback.
+    """
+    if not isinstance(data,dict):
+        return True
+    observations=data.get("observedAreas")
+    sample=data.get("sample") or {}
+    if (data.get("sourceClass")=="DERIVED_RINK_ORIGIN_NOT_ANATOMICAL"
+        and data.get("sourceReviewed") is True
+        and isinstance(observations,dict)
+        and type(sample.get("allZoneObservations")) is int
+        and sample["allZoneObservations"]>=MIN_ORIGIN_SHOTS):
+        return False
+    if (data.get("sourceClass")=="INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY"
+        and type(data.get("fullySourceComparedAreas")) is int
+        and data["fullySourceComparedAreas"]>0):
+        return False
+    return True
+
+
 async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=16,
                                       request_concurrency=5):
     """Fetch exact starter identities and source-linked past NHL goalie games.
@@ -169,10 +193,7 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 data=branch.get("data") or {}
                 pid=data.get("goalieId")
                 if not pid:continue
-                good=(data.get("sourceClass")=="DERIVED_RINK_ORIGIN_NOT_ANATOMICAL"
-                      and isinstance(data.get("observedAreas"),dict)
-                      and data.get("sample",{}).get("allZoneObservations",0)>=MIN_ORIGIN_SHOTS)
-                if good or data.get("sourceClass")=="INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY":
+                if not needs_independent_pbp(data):
                     continue
                 active.setdefault(str(pid),set()).add(team)
     if not active:
