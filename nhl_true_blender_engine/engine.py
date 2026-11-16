@@ -232,7 +232,7 @@ def reconcile_logs(p):
             'lastAppearances':ld['appearances'][:10]}
 
 
-def challenger_proof(candidate, challengers, goalie_weak_zones):
+def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None):
     """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
 
     NHL EDGE independently measures each skater's shots on goal and own goals
@@ -291,21 +291,43 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
                          'status':'RELEASE_PROVENANCE_MISSING'})
             all_defeated=False
             continue
-        # Players can attack multiple areas. A rival's main season scoring
-        # area is NOT evidence they lack a secondary route through this lane.
-        matching=[x for x in release.get('allRoutes',[])
-                  if x.get('zone')==base['zone']]
-        if not matching and release.get('zone')==base['zone']:
-            matching=[{'zone':release['zone'],'sog':release['attempts'],
-                       'ownedGoals':release['ownedGoals']}]
-        if not matching:
+        # A rival does not become a defeated goal recipient merely because
+        # its best scoring route differs from this candidate's route. G0 can
+        # identify MULTIPLE independently weak areas for the same goalie.
+        # G10.5 must compare the rival's strongest actually recorded OWN
+        # finishing route through ANY jointly viable G0+G9 area.
+        # Earlier code ignored goalie_weak_zones entirely and compared only
+        # the candidate's lane, falsely defeating other direct recipients.
+        all_routes=release.get('allRoutes') or []
+        if not all_routes and release.get('zone'):
+            all_routes=[{'zone':release['zone'],'sog':release.get('attempts'),
+                         'ownedGoals':release.get('ownedGoals')}]
+        goalie_areas=set(goalie_weak_zones or {})
+        defensive_areas=(set(defense_weak_zones)
+                         if defense_weak_zones is not None else None)
+        viable=[x for x in all_routes if
+                x.get('zone') in goalie_areas and
+                (defensive_areas is None or x['zone'] in defensive_areas) and
+                type(x.get('sog',x.get('attempts'))) is int and
+                type(x.get('ownedGoals')) is int and
+                x.get('sog',x.get('attempts'))>=x.get('ownedGoals')>=0]
+        if not viable:
             rows.append({'challengerId':str(rival['id']),
                          'status':'DIFFERENT_TARGET_LANE',
                          'candidateZone':base['zone'],
-                         'rivalKnownAreas':[x.get('zone') for x in release.get('allRoutes',[])],
+                         'rivalKnownAreas':[x.get('zone') for x in all_routes],
+                         'G0GoalieWeakZones':sorted(goalie_areas),
+                         'G9DefensiveWeakZones':sorted(defensive_areas) if defensive_areas is not None else None,
+                         'noneOfKnownRivalOriginsJointlyMatchG0G9':True,
+                         'notEvidenceRivalCannotScoreTonight':True,
                          'sourceUrls':[wrapper['sourceUrl']]})
             continue
-        target=matching[0]
+        # Own direct goal credit first; on-net shots break only goal ties.
+        # Routes with exactly matching evidence do not require an arbitrary
+        # choice to compare THIS rival with the candidate.
+        priority=lambda x:(x['ownedGoals'],x.get('sog',x.get('attempts')))
+        target=max(viable,key=priority)
+        tied_zones=sorted({x['zone'] for x in viable if priority(x)==priority(target)})
         opponent_shots=target.get('sog',target.get('attempts'))
         opponent_goals=target.get('ownedGoals')
         if (not isinstance(opponent_shots,int) or
@@ -335,10 +357,14 @@ def challenger_proof(candidate, challengers, goalie_weak_zones):
                      'NO_DECISIVE_ROUTE_SEPARATION',
             'candidate':{'zone':base['zone'],'shotsOnGoal':base['attempts'],
                          'ownedGoals':base['ownedGoals']},
-            'challenger':{'zone':base['zone'],'shotsOnGoal':opponent_shots,
+            'challenger':{'zone':target['zone'],'shotsOnGoal':opponent_shots,
                           'ownedGoals':opponent_goals},
             'sourceUrls':[candidate['release']['sourceUrl'],wrapper['sourceUrl']],
-            'sameLane':True,
+            'sameLane':target['zone']==base['zone'],
+            'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
+            'allRivalJointlyViableZones':sorted({x['zone'] for x in viable}),
+            'jointlyViableRouteTiedZones':tied_zones,
+            'goalieWeaknessAndDefenseBothRequired':defensive_areas is not None,
             'rivalEVRole':evidence_data(rival.get('deployment')),
             'roleReviewIncomplete':not receipt(rival.get('deployment')),
             'noSeasonTotalInvented':True,
@@ -593,7 +619,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
-    wins,rows=challenger_proof(player,rivals,weak)
+    wins,rows=challenger_proof(player,rivals,weak,
+        coverage_data.get('greenWeakZones') if coverage_data else None)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True},
