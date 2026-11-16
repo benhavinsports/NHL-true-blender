@@ -143,12 +143,23 @@ async def official_final_grade(client, con, slate_date):
     scores=await client.score(slate_date)
     games=normalize_games(scores,slate_date)
     if not games: raise SourceUnavailable('No official games returned for date')
-    all_final=all(g['gameState'] in ('OFF','FINAL') for g in games)
-    if not all_final:
-        return {'grade':None,'status':'GAMES_NOT_ALL_OFFICIALLY_FINAL',
-                'finalGames':sum(g['gameState'] in ('OFF','FINAL') for g in games),
-                'games':len(games)}
+    # Only the three original LOCKED Core matchups determine when this card
+    # can be graded. Other late-start games in the five-game NHL slate must
+    # not delay the source-verified result for an already final Core.
+    # Never grade any individual Core leg from a nonfinal game.
     by_game={str(g['id']):g for g in games}
+    selected_game_ids={str(l['gameId']) for l in card['current_legs']}
+    missing=sorted(selected_game_ids-set(by_game))
+    if missing:
+        raise SourceUnavailable('Original frozen Core game(s) missing from NHL official schedule: '+', '.join(missing))
+    pending=sorted(gid for gid in selected_game_ids
+                   if by_game[gid]['gameState'] not in ('OFF','FINAL'))
+    if pending:
+        return {'grade':None,'status':'CORE_MATCHUPS_NOT_ALL_OFFICIALLY_FINAL',
+                'coreGames':len(selected_game_ids),
+                'officiallyFinalCoreGames':len(selected_game_ids)-len(pending),
+                'pendingCoreGameIds':pending,
+                'nonCoreGamesDoNotBlockGrading':True}
     verified={};sources=[scores['url']]
     for leg in card['current_legs']:
         gid=str(leg['gameId'])
