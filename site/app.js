@@ -391,6 +391,11 @@ function gateRow(record){
       " · "+sources.length+" attributed source"+(sources.length===1?"":"s"):
     "No matching pre-puck receipt available; this gate is NOT represented as passed."));
  const evidence=record.evidence||{};
+ if(record.gate==="G10"&&evidence.notAssistOrFeeder===true){
+   const warning=el("div","notice warning",
+     "ORIGINAL CARD AUDIT: This older G10 receipt claimed the skater was not an assist/feeder based on historically credited goals alone. It was not proof of tonight's finisher. The frozen original remains unchanged; future engine runs now report this uncertainty accurately.");
+   inner.appendChild(warning);
+ }
  const summaryBits=el("div","evidence-chips");
  const simple=Object.entries(evidence).filter(([k,v])=>
     (["string","number","boolean"].includes(typeof v))&&v!==null&&
