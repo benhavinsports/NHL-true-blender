@@ -9,6 +9,7 @@ def test_nonselected_unresolved_goalie_direction_does_not_invalidate_locked_core
     g=s["games"][3]
     # Neither attack direction has a sourced opposing goalie profile.
     g["goalies"][g["home"]]=[]
+    g["goalies"][g["away"]]=[]
     result=execute(con,s,DATE,"CONFIRMED")
     assert result["card"] is not None,result["errors"]
     assert len(result["card"]["current_legs"])==3
@@ -19,7 +20,7 @@ def test_nonselected_unresolved_goalie_direction_does_not_invalidate_locked_core
     assert result["nonselectedGameResearchNeverReplacesLockedCore"] is True
     # The failed goalie direction remains in the actual source record.
     assert result["g0Directions"]==8
-    assert result["g0Complete"]==3
+    assert result["g0Complete"]==6
     assert con.execute("""SELECT COUNT(*) FROM gates WHERE slate_date=?
         AND game_id=? AND gate='G0' AND disposition='NOT_EXECUTED'""",
         (DATE,str(g["id"]))).fetchone()[0]==2
