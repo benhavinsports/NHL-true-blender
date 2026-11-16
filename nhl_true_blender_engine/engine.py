@@ -398,8 +398,13 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'goalieWeakAreaDirectlyMatched':bool(zone and zone in (goalie_data.get('weakZones') or {})),
         'independentDefenseAreaDirectlyMatched':bool(zone and zone in
             (cover.get('greenWeakZones') or [])),
-        'actualGoalRecipientNotFeeder':bool(own.get('recipient') is True and
-            own.get('creditedGoalsVerified') is True),
+        'historicallyCreditedIndependentGoalRecipient':bool(
+            own.get('recipient') is True and
+            own.get('creditedGoalsVerified') is True and
+            receipt(player.get('release')) and
+            type((release or {}).get('ownedGoals')) is int and
+            release['ownedGoals']>0 and
+            dispositions.get('G15',{}).get('disposition')=='PASS'),
         'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
             and dispositions.get('G16',{}).get('disposition')=='PASS'),
         'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
@@ -497,6 +502,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'laneChangedAfterGoalieFirstG0':changed_lane,
         'primaryOriginIsSourceDistinct':primary_source_lane,
         'positiveDirectGateEvidence':direct,
+        'futureAssistOrGoalOutcomeNeverProvedFromHistory':True,
         'G10_5DisplacedPrimaryEvidence':approved_rivals,
         'explicitDisplacementSourceValidated':bool(confirmed_displacement),
         'independentTransferDerivedFromG0AndG10_5':derived_displacement,
@@ -659,9 +665,24 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         evidence_data(who,'directIndependentRoute') is True and overlap)
     emit('G14',True,{'whoAnomalyPhysicallySupported':who_ok,
                     'noForcedWho':True,'whoDetails':evidence_data(who) if who_ok else None})
-    emit('G15',bool(own and own.get('recipient') is True),
-         {'independentFinish':True if own and own.get('recipient') is True else None},
-         source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
+    # G15 must be INDEPENDENT of G10's season goal-credit Boolean.
+    # Cross-check historical credited goal IDs with a separate official
+    # per-origin SHOOTER source. Neither proves tonight's scorer vs feeder.
+    finish_corrob=bool(
+        own and own.get('recipient') is True and
+        receipt(ownership) and rec and rec.get('officialGoals',0)>0 and
+        receipt(player.get('release')) and release and
+        type(release.get('ownedGoals')) is int and release['ownedGoals']>0)
+    emit('G15',finish_corrob,
+         {'independentHistoricalGoalFinishingEvidence':finish_corrob,
+          'goalSourceReconciledToDatedAppearances':bool(rec),
+          'separateOfficialShotOriginSource':bool(receipt(player.get('release'))),
+          'officialOwnedGoalsInMatchedOrigin':release.get('ownedGoals') if release else None,
+          'futureGoalVersusAssistRoleNotProven':True,
+          'notASecondCopyOfG10RecipientBoolean':True},
+         source_ids=sorted(set(x['sourceUrl'] for x in (
+             ownership,player.get('release'),player.get('mappedGoals'))
+             if receipt(x))))
     emit('G16',wins is True and len(rows)==len(rivals),
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True},
