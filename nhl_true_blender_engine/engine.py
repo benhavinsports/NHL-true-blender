@@ -691,22 +691,50 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # for playmakers and must never appear as proof of tonight's role.
     own_goals=own.get('ownedGoalsInActualAppearances') if own else None
     season_supplement=(own.get('seasonGoalSupplement') or {}).get('data',{}) if own else {}
+    season_history=player.get('seasonHistory')
+    season_data=evidence_data(season_history) or {}
+    season_goal_games=season_data.get('goalScoringGames')
+    # An eight-game sample cannot disprove an independently sourced goal
+    # earlier in THIS regular season. Official dated player game logs can
+    # corroborate OWN season goals shown separately by NHL EDGE shot origin.
+    verified_season_goals=bool(
+        receipt(season_history)
+        and season_data.get('sourceType')=='NHL_OFFICIAL_PLAYER_DATED_REGULAR_SEASON_GAME_LOG'
+        and season_data.get('scope')=='OFFICIAL_CURRENT_SEASON_DATED_GAMES_PRIOR_TO_SLATE'
+        and str(season_data.get('playerId'))==str(player['id'])
+        and type(season_data.get('officialPastSeasonGoals')) is int
+        and season_data['officialPastSeasonGoals']>0
+        and isinstance(season_goal_games,list) and bool(season_goal_games)
+        and all(type(x.get('goals')) is int and x['goals']>0
+                and isinstance(x.get('date'),str) and x['date']<str(game['date'])
+                and x.get('gameId') for x in season_goal_games)
+        and sum(x['goals'] for x in season_goal_games)==
+            season_data['officialPastSeasonGoals'])
+    sample_goals=bool(rec and type(rec.get('officialGoals')) is int
+                      and rec['officialGoals']>0)
     historic_direct=bool(
         receipt(ownership) and own.get('creditedGoalsVerified') is True
         and own.get('recipient') is True and rec and
-        type(rec.get('officialGoals')) is int and rec['officialGoals']>0
-        and ((own_goals is None or (type(own_goals) is int and own_goals>=0))
-             and (not season_supplement or
-                 type(season_supplement.get('ownedSeasonGoalsFromNhlEdgeShotOrigins')) is int)))
+        (sample_goals or verified_season_goals)
+        and (own_goals is None or
+             (type(own_goals) is int and own_goals>=0))
+        and (not season_supplement or
+             type(season_supplement.get('ownedSeasonGoalsFromNhlEdgeShotOrigins')) is int))
     emit('G10',historic_direct,
          {'goalCreditOwned':own,
           'historicalDirectGoalRecipientVerified':historic_direct,
+          'historicalDirectGoalRecipientVerificationMethod':
+              'RECENT_DATED_PBP_BOXSCORE' if sample_goals else
+              'FULL_SEASON_GAME_LOG' if verified_season_goals else None,
+          'independentOfficialSeasonGoalHistory':season_data if verified_season_goals else None,
           'directGoalProofIsHistoricalNotTonight':True,
           'futureAssistsVsGoalRecipientUnresolved':True,
           'futureNotAssistOrFeederProven':False,
           'G10_5AndG17MustSeparatelyReviewRecipientCompetition':True},
          eliminate=bool(own and own.get('recipient') is False),
-         source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
+         source_ids=sorted(set(x['sourceUrl'] for x in
+             (ownership, season_history if verified_season_goals else None)
+             if receipt(x))))
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     wins,rows=challenger_proof(player,rivals,weak,
@@ -766,20 +794,31 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # G15 must be INDEPENDENT of G10's season goal-credit Boolean.
     # Cross-check historical credited goal IDs with a separate official
     # per-origin SHOOTER source. Neither proves tonight's scorer vs feeder.
+    # G15 independently compares credited historical season goals from an
+    # official dated player log to the skater's OWN NHL EDGE shot-origin
+    # finishing observations. No inferred future score or fabricated goal IDs.
+    season_release_consistent=bool(
+        verified_season_goals and release and
+        type(release.get('ownedGoals')) is int
+        and release['ownedGoals']<=season_data['officialPastSeasonGoals'])
     finish_corrob=bool(
         own and own.get('recipient') is True and
-        receipt(ownership) and rec and rec.get('officialGoals',0)>0 and
-        receipt(player.get('release')) and release and
+        receipt(ownership) and rec and (sample_goals or season_release_consistent)
+        and receipt(player.get('release')) and release and
         type(release.get('ownedGoals')) is int and release['ownedGoals']>0)
     emit('G15',finish_corrob,
          {'independentHistoricalGoalFinishingEvidence':finish_corrob,
           'goalSourceReconciledToDatedAppearances':bool(rec),
           'separateOfficialShotOriginSource':bool(receipt(player.get('release'))),
           'officialOwnedGoalsInMatchedOrigin':release.get('ownedGoals') if release else None,
+          'officialDatedSeasonGoals':season_data.get('officialPastSeasonGoals') if verified_season_goals else None,
+          'seasonAndReleaseGoalCreditsConsistent':season_release_consistent if verified_season_goals else None,
+          'independentSeasonLogSource':season_history.get('sourceUrl') if verified_season_goals else None,
           'futureGoalVersusAssistRoleNotProven':True,
           'notASecondCopyOfG10RecipientBoolean':True},
          source_ids=sorted(set(x['sourceUrl'] for x in (
-             ownership,player.get('release'),player.get('mappedGoals'))
+             ownership,player.get('release'),player.get('mappedGoals'),
+             season_history if verified_season_goals else None)
              if receipt(x))))
     emit('G16',wins is True and len(rows)==len(rivals),
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
