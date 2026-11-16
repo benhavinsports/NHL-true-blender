@@ -3,26 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#07121f">
-  <meta name="description" content="NHL True Blender: one authoritative Core 3 with source-backed G0–G18 scoring paths, official goalie and lineup evidence, and frozen-card postgame grades.">
-  <title>NHL True Blender</title>
+  <meta name="theme-color" content="#101b42">
+  <meta name="description" content="NHL True Blender: interactive card-table interface for the one authoritative Core 3, real G0–G18 evidence, and official frozen-card results.">
+  <title>NHL True Blender · The Core Deck</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./app.js"></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-content">
-    <a class="brand" href="#top" aria-label="NHL True Blender, home">
-      <span class="brand-mark" aria-hidden="true">T3</span>
-      <span class="brand-copy"><strong>TRUE BLENDER</strong><span>NHL SCORER INTELLIGENCE</span></span>
+    <a href="#top" class="brand" aria-label="True Blender home">
+      <span class="brand-mark" aria-hidden="true">TB</span>
+      <span class="brand-copy"><strong>TRUE BLENDER</strong><span>THE NHL CORE DECK</span></span>
     </a>
-    <nav class="main-nav" aria-label="Dashboard sections">
-      <a href="#core">Core 3</a>
-      <a href="#slate">Matchups</a>
-      <a href="#results">Performance</a>
-      <a href="#system">Engine evidence</a>
+    <nav class="main-nav" aria-label="Game board sections">
+      <a href="#core">Card table</a>
+      <a href="#evidence">Card details</a>
+      <a href="#slate">Full slate</a>
+      <a href="#results">Results</a>
     </nav>
-    <button id="refresh" type="button" class="action-btn header-action" aria-label="Refresh published NHL evidence">
+    <button id="refresh" type="button" class="action-btn header-action" aria-label="Refresh verified NHL data">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
       </svg>
@@ -30,97 +30,157 @@
     </button>
   </div>
 </header>
-<main id="top" class="wrap">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-content">
-      <div class="hero-topline">
-        <span class="live-dot" aria-hidden="true"></span>
-        <span class="eyebrow">AUTONOMOUS NHL SCORER ENGINE · EASTERN TIME</span>
-        <span id="hero-phase" class="pill neutral" aria-live="polite">CHECKING LIVE SLATE</span>
+<main id="top" class="wrap game-main">
+  <section id="core" class="game-shell" aria-label="NHL True Blender interactive card table">
+    <aside class="game-rail run-rail" aria-label="Current NHL slate and execution information">
+      <div class="arcade-header"><span>RUN INFO</span><span class="corner-suit" aria-hidden="true">✦</span></div>
+      <div class="rail-body">
+        <div class="slate-name">
+          <span class="eyebrow">THE SLATE</span>
+          <strong id="hero-date">Loading…</strong>
+          <span class="rail-caption">NEW YORK · EASTERN TIME</span>
+        </div>
+        <div class="round-objective">
+          <span class="eyebrow">ENGINE STATUS</span>
+          <span id="hero-phase" class="pill neutral" aria-live="polite">CHECKING SOURCE</span>
+          <p>One locked Core per slate. No replacement picks.</p>
+        </div>
+        <div class="rail-stat-box">
+          <span class="rail-stat-label">SELECTED GATES</span>
+          <strong id="stat-gates">—</strong>
+          <small>20 master + 16 overlay</small>
+        </div>
+        <div class="rail-stat-box secondary">
+          <span class="rail-stat-label">PLAYERS EVALUATED</span>
+          <strong id="stat-scanned">—</strong>
+          <small>Full eligible player pool</small>
+        </div>
+        <div class="run-control">
+          <label for="slate-select" class="eyebrow">CHOOSE YOUR SLATE</label>
+          <select id="slate-select" class="slate-picker" aria-label="Choose a saved NHL slate">
+            <option>Loading saved slates…</option>
+          </select>
+          <a class="game-button gold" href="#results">POSTGAME RESULTS <span aria-hidden="true">↗</span></a>
+          <a class="game-button cyan" href="#system">ENGINE EVIDENCE <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
-      <h1 id="hero-title">TRUE <em>BLENDER.</em></h1>
-      <p class="hero-sub">One authoritative Core 3 per slate. Every selected scorer has a real path, with independent goalie, matchup, source and gate evidence you can inspect.</p>
-      <div class="stat-strip" aria-label="Current slate summary">
-        <div class="stat"><span class="kicker">Selected slate</span><strong id="hero-date">Loading</strong><small>America / New York</small></div>
-        <div class="stat"><span class="kicker">Core survivors</span><strong id="stat-legs">—</strong><small>One recipient per game</small></div>
-        <div class="stat"><span class="kicker">Selected gate record</span><strong id="stat-gates">—</strong><small>20 master + 16 overlay</small></div>
-        <div class="stat"><span class="kicker">Skaters scanned</span><strong id="stat-scanned">—</strong><small>Before Core selection</small></div>
+    </aside>
+
+    <div class="game-table" aria-label="Scorer card table">
+      <div class="table-header">
+        <span class="eyebrow">YOUR SAVED CORE · 3 DIFFERENT GAMES</span>
+        <span class="table-glimmer" aria-hidden="true">✧ ✦ ✧</span>
+        <span class="table-header-label">REAL PATHS ONLY</span>
+      </div>
+      <div class="joker-shelf" aria-label="The Blender's critical source checks">
+        <div class="joker-tile joker-blue"><span class="joker-code">G0</span><span class="joker-symbol" aria-hidden="true">◎</span><strong>GOALIE</strong><small>ATTACK SIDE</small></div>
+        <div class="joker-tile joker-turquoise"><span class="joker-code">G5</span><span class="joker-symbol" aria-hidden="true">⌖</span><strong>ROUTE</strong><small>OWN SHOT LANE</small></div>
+        <div class="joker-tile joker-orange"><span class="joker-code">10.5</span><span class="joker-symbol" aria-hidden="true">⇄</span><strong>RECIPIENT</strong><small>DIRECT VS RIVAL</small></div>
+        <div class="joker-tile joker-purple"><span class="joker-code">G17</span><span class="joker-symbol" aria-hidden="true">◇</span><strong>CONTRADICTION</strong><small>FULL REVIEW</small></div>
+        <div class="joker-tile joker-green"><span class="joker-code">G18</span><span class="joker-symbol" aria-hidden="true">✦</span><strong>CORE LOCK</strong><small>SOURCE VERIFIED</small></div>
+      </div>
+      <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
+        <span class="pill neutral">Loading verified engine data</span>
+      </div>
+      <div class="play-stage">
+        <div class="play-stage-heading">
+          <span aria-hidden="true">♠</span>
+          <div>
+            <span class="eyebrow">THE MAIN HAND</span>
+            <h1>CORE <em>3</em></h1>
+          </div>
+          <span aria-hidden="true">♠</span>
+        </div>
+        <p class="table-instruction">TAP A PLAYER CARD TO REVEAL ITS 36 GATES</p>
+        <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core scorer cards">
+          <div class="loading"></div><div class="loading"></div><div class="loading"></div>
+        </div>
+      </div>
+      <div class="hand-tray">
+        <div class="tray-marker"><span class="eyebrow">SCORING PATHS</span><span>PRIMARY / TRANSFER / WHO — FOUND, NEVER FORCED</span></div>
+        <div class="hand-ornament" aria-hidden="true"><span>♠</span><span>♥</span><span>♦</span><span>♣</span><span>♠</span></div>
+        <a href="#evidence" class="table-link">EXPLORE THE CARD BACKS <span aria-hidden="true">↓</span></a>
       </div>
     </div>
+
+    <aside class="game-rail deck-rail" aria-label="Core deck and source evidence navigation">
+      <div class="arcade-header"><span>CORE DECK</span><span class="corner-suit" aria-hidden="true">♠</span></div>
+      <div class="rail-body deck-rail-body">
+        <div class="deck-stage" aria-hidden="true">
+          <div class="deck-layer deck-layer-back"></div>
+          <div class="deck-layer deck-layer-mid"></div>
+          <div class="deck-layer deck-layer-top">
+            <span class="deck-corner">T<span>B</span></span>
+            <div class="deck-center-mark"><span>✦</span><b>CORE</b></div>
+            <span class="deck-corner bottom">T<span>B</span></span>
+          </div>
+        </div>
+        <div class="deck-counter"><strong id="stat-legs">—</strong><span>CARDS LOCKED</span></div>
+        <div class="deck-data">
+          <div><span>RUN PHASE</span><strong id="stat-phase">—</strong></div>
+          <div><span>CARD DETAIL</span><strong>36 GATES</strong></div>
+          <div><span>ENGINE</span><strong>AUTOMATIC</strong></div>
+        </div>
+        <div class="deck-navigation">
+          <a class="game-button cyan" href="#evidence">FLIP THE CARD <span aria-hidden="true">↓</span></a>
+          <a class="game-button gold" href="#slate">VIEW ALL GAMES <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+    </aside>
   </section>
-  <section id="core" class="section" aria-labelledby="core-title">
+
+  <section id="evidence" class="section card-back-section" aria-labelledby="evidence-title">
     <div class="section-heading">
       <div>
-        <div class="eyebrow">THE OFFICIAL CARD</div>
-        <h2 id="core-title">Core 3 · source-backed scorers</h2>
-        <p>Tap any player to see their exact pregame gate record, recipient separation, goalie target and source links. No manually assigned path quotas.</p>
+        <span class="eyebrow">FLIP THE SELECTED CARD</span>
+        <h2 id="evidence-title">Behind the pick <span aria-hidden="true">✦</span></h2>
+        <p>Actual saved pre-puck gate evidence, opposing goalie, scorer lane, G10.5 recipient review and supporting links. Nothing is invented for the display.</p>
       </div>
-      <div class="section-actions">
-        <select id="slate-select" class="slate-picker" aria-label="Choose a saved NHL slate">
-          <option>Loading saved slates…</option>
-        </select>
-      </div>
+      <a class="game-button cyan short" href="#core">BACK TO YOUR HAND ↑</a>
     </div>
-    <div class="section-panel">
-      <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
-        <span class="pill neutral">Loading official engine data</span>
-      </div>
-      <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core cards">
-        <div class="loading"></div><div class="loading"></div><div class="loading"></div>
-      </div>
-      <section id="leg-detail" class="detail-panel" aria-label="Selected NHL player complete gate evidence" hidden></section>
-    </div>
+    <section id="leg-detail" class="detail-panel" aria-label="Selected NHL player complete gate evidence" hidden></section>
   </section>
+
   <section id="slate" class="section" aria-labelledby="slate-title">
     <div class="section-heading">
-      <div>
-        <div class="eyebrow">ENTIRE NHL SLATE</div>
-        <h2 id="slate-title">Matchup intelligence</h2>
-        <p>Projected and confirmed goalie evidence stays separate. Tap a matchup to inspect current rosters, source links, and defensive coverage.</p>
+      <div><span class="eyebrow">THE REST OF THE TABLE</span><h2 id="slate-title">Matchup deck</h2>
+        <p>All scheduled games, separately sourced goalies, line assignments, availability and defensive coverage.</p>
       </div>
     </div>
     <div class="section-panel">
-      <div id="matchup-list" class="matchup-list">
-        <div class="loading"></div><div class="loading"></div>
-      </div>
+      <div id="matchup-list" class="matchup-list"><div class="loading"></div><div class="loading"></div></div>
     </div>
   </section>
+
   <section id="results" class="section" aria-labelledby="results-title">
     <div class="section-heading">
-      <div>
-        <div class="eyebrow">IMMUTABLE POSTGAME RESULTS</div>
-        <h2 id="results-title">Grade, audit & season record</h2>
-        <p>Official NHL goal credit determines WIN or LOSS. A miss alone never authorizes a patch or rewrites a frozen card.</p>
+      <div><span class="eyebrow">THE FINAL HAND</span><h2 id="results-title">Grade & season record</h2>
+        <p>Only official NHL goal credit determines WIN or LOSS. Frozen Core cards never change after puck drop.</p>
       </div>
     </div>
     <div class="panel-grid">
-      <div class="section-panel">
-        <div class="subheading"><h3>Official Core grade</h3><span class="pill neutral">FROZEN CARD</span></div>
-        <div id="grade-summary" class="muted">Loading official final results…</div>
+      <div class="section-panel"><div class="subheading"><h3>Official Core grade</h3><span class="pill neutral">FROZEN CARD</span></div>
+        <div id="grade-summary" class="muted">Checking official results…</div>
       </div>
-      <div class="section-panel">
-        <div class="subheading"><h3>Season recalibration</h3><span class="pill neutral">OFFICIAL ONLY</span></div>
-        <div id="season-summary" class="muted">Loading saved season performance…</div>
+      <div class="section-panel"><div class="subheading"><h3>Season recalibration</h3><span class="pill neutral">OFFICIAL ONLY</span></div>
+        <div id="season-summary" class="muted">Checking season history…</div>
       </div>
     </div>
   </section>
+
   <section id="system" class="section" aria-labelledby="system-title">
     <div class="section-heading">
-      <div>
-        <div class="eyebrow">ENGINE TRANSPARENCY</div>
-        <h2 id="system-title">Execution & data provenance</h2>
-        <p>Selected-gate checks are separate from rejected skater records. Actual source gaps stay visible; nothing becomes a PASS for visual presentation.</p>
+      <div><span class="eyebrow">UNDER THE HOOD</span><h2 id="system-title">Engine & source receipts</h2>
+        <p>The saved gate evidence is separate from rejected skater records. No invented inputs, odds, paths or forced categories.</p>
       </div>
     </div>
-    <div class="section-panel">
-      <div id="system-summary" class="muted">Loading saved evidence metrics…</div>
-    </div>
+    <div class="section-panel"><div id="system-summary" class="muted">Checking engine results…</div></div>
   </section>
+
   <footer class="footer">
-    <div><strong>NHL TRUE BLENDER</strong> · Free GitHub Pages dashboard · All slate times Eastern</div>
-    <div>Card selection, 36 gate checks, source collection, grading and source-proven future patches execute in independent GitHub Actions. This website only displays saved results; it never guesses or replaces a scorer.</div>
-    <div><a href="https://github.com/benhavinsports/NHL-true-blender" target="_blank" rel="noopener noreferrer">View engine repository</a>
-    · <span id="hero-sync">Checking publishing timestamp…</span></div>
+    <div><strong>NHL TRUE BLENDER</strong> · Free GitHub Pages · All slate times Eastern</div>
+    <div>Actual G0–G18 selection and independent overlay execute in GitHub Actions. This card-game-style viewer does not choose scorers or simulate evidence.</div>
+    <div><a href="https://github.com/benhavinsports/NHL-true-blender" target="_blank" rel="noopener noreferrer">ENGINE REPOSITORY</a> · <span id="hero-sync">Checking saved feed…</span></div>
   </footer>
 </main>
 </body>
