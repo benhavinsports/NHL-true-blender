@@ -35,6 +35,8 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
     schedules=[]
     game_index={}
     class FakeClient:
+        def __init__(self):
+            self.goal_mode=False
         async def get(self,path):
             team=path.split("/")[-2]
             schedules.append(team)
@@ -51,14 +53,23 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
             return {"data":{"games":games}}
         async def play_by_play(self,gid):
             info=game_index[gid]
-            return {"url":f"https://api-web.nhle.com/v1/gamecenter/{gid}/play-by-play",
-                "data":{"plays":[{
-                    "eventId":1,"typeDescKey":"shot-on-goal",
+            plays=[{
+                "eventId":1,"typeDescKey":"shot-on-goal",
+                "periodDescriptor":{"periodType":"REG","number":1},
+                "timeInPeriod":"04:00",
+                "details":{"shootingPlayerId":999,"eventOwnerTeamId":info["awayId"],
+                           "goalieInNetId":888,"xCoord":42,"yCoord":23,
+                           "shotType":"wrist"}}]
+            if self.goal_mode:
+                plays.append({
+                    "eventId":2,"typeDescKey":"goal",
                     "periodDescriptor":{"periodType":"REG","number":1},
-                    "timeInPeriod":"04:00",
-                    "details":{"shootingPlayerId":999,"eventOwnerTeamId":info["awayId"],
+                    "timeInPeriod":"05:00",
+                    "details":{"scoringPlayerId":999,"eventOwnerTeamId":info["awayId"],
                                "goalieInNetId":888,"xCoord":42,"yCoord":23,
-                               "shotType":"wrist"}}]}}
+                               "shotType":"wrist"}})
+            return {"url":f"https://api-web.nhle.com/v1/gamecenter/{gid}/play-by-play",
+                    "data":{"plays":plays}}
     captured={}
     async def fake_boxes(client,con,snapshot,date,stage,game_dates,events):
         captured["box_game_count"]=len(game_dates)
@@ -82,8 +93,18 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
             "MTL":{"data":{"players":[{"id":999,"name":"Target"}]}},
             "NYR":{"data":{"players":[{"id":998,"name":"Opponent"}]}}}}]}
     con=open_db(str(tmp_path/"league-peer.sqlite"))
+    client=FakeClient()
     result=asyncio.run(hs.collect_history(
-        FakeClient(),con,snapshot,"2026-11-16","PROJECTED"))
+        client,con,snapshot,"2026-11-16","PROJECTED"))
+    # The provider later corrects the same historical sample by adding
+    # credited goals. A second run must append new immutable receipts rather
+    # than crash on the fixed date/stage/player evidence key.
+    client.goal_mode=True
+    revised=asyncio.run(hs.collect_history(
+        client,con,snapshot,"2026-11-16","PROJECTED"))
+    assert revised["historicalGames"]==16
+    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_PRESSURE'").fetchone()[0]==2
+    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_GOAL_EVENTS'").fetchone()[0]==2
     assert set(schedules)==set(teams)
     assert result["coveragePeerTeams"]==len(teams)==32
     assert result["coveragePeerGames"]==256
