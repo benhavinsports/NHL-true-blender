@@ -31,6 +31,7 @@ def both_goalies_full(s):
 
 def test_g0_cannot_choose_one_goalie_just_because_opposite_profile_is_missing(con):
     g=game(1)
+    g["goalies"][g["away"]]=[]
     directions,notes=g0_full_slate([g],"CONFIRMED")
     assert len(directions)==2
     assert directions[0]["goalieProfileEvidenced"] is True
