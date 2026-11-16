@@ -55,6 +55,38 @@ def export_run(con, slate_date, stage, result, root='state'):
         'survivorOnlyCertification':(result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified'),
         'nonselectedGateAuditIsDiagnosticOnly':True,
     }
+    # The execution census is the publication authority, not the presence of
+    # a saved card or the selected players' legacy trace alone. A recorded
+    # NOT_EXECUTED gate must never be presented as a fully executed Blender.
+    census=result.get('gateCertification') or {}
+    full_execution=(
+        census.get('fullIndependentCardCertification') is True
+        and census.get('allGateChecksExecutedWithEvidence') is True
+        and census.get('allSkatersHaveEachGateRecord') is True
+        and census.get('allSkatersHaveExactExecutionOrder') is True
+        and census.get('twoDirectionsPerScheduledGameRecorded') is True
+        and not result.get('missingByGate')
+    )
+    if not full_execution:
+        prior=root/'site_cards'/f'{slate_date}.json'
+        old=json.loads(prior.read_text(encoding='utf-8')) if prior.exists() else None
+        status.update({
+            'currentRunFullyCertified':False,
+            'publishedToSite':False,
+            'retainedOriginalLockedCard':bool(old),
+            'cardId':old.get('cardId') if old else None,
+            'publicationDecision':'FULL_GATE_EXECUTION_INCOMPLETE',
+            'executionCertificationGaps':{
+                'missingByGate':result.get('missingByGate',{}),
+                'fullIndependentCardCertification':census.get('fullIndependentCardCertification'),
+                'allGateChecksExecutedWithEvidence':census.get('allGateChecksExecutedWithEvidence'),
+                'allSkatersHaveEachGateRecord':census.get('allSkatersHaveEachGateRecord'),
+                'allSkatersHaveExactExecutionOrder':census.get('allSkatersHaveExactExecutionOrder'),
+                'twoDirectionsPerScheduledGameRecorded':census.get('twoDirectionsPerScheduledGameRecorded'),
+            },
+        })
+        _write(status_path,status)
+        return status
     if not card:
         # Post-puck freeze is intentional: the selection engine may no longer
         # issue a new card even though today's ORIGINAL locked card is saved.
