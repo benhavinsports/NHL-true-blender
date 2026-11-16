@@ -13,8 +13,8 @@
   },
   "eligibleSkaterRows": 0,
   "errors": [
-    "2026020331 G0 no independently evidenced goalie target",
-    "2026020332 G0 no independently evidenced goalie target",
+    "2026020331 G0 attack sides not physically separated by certified goalie weaknesses",
+    "2026020332 G0 attack sides not physically separated by certified goalie weaknesses",
     "G18 only 0 fully evidenced games; 2 required"
   ],
   "firstNonpassingGateAudit": {
@@ -24,7 +24,7 @@
     "samplesByFirstGate": {},
     "scannedSkaters": 0
   },
-  "g0Complete": 0,
+  "g0Complete": 4,
   "g0Directions": 4,
   "g0RinkOriginResearch": [
     {
@@ -33,12 +33,86 @@
         {
           "attacker": "MTL",
           "defender": "NYR",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482193",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.864865,
+                  "savePctgPercentile": 0.5517,
+                  "shotsAgainst": 37
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.916667,
+                  "savePctgPercentile": 0.5345,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "L Point",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.916667,
+                  "savePctgPercentile": 0.1379,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.869048,
+                  "savePctgPercentile": 0.8103,
+                  "shotsAgainst": 84
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.942857,
+                  "savePctgPercentile": 0.8448,
+                  "shotsAgainst": 35
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482193/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "NYR",
           "defender": "MTL",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8484170",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.945946,
+                  "savePctgPercentile": 0.7586,
+                  "shotsAgainst": 37
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 9,
+                  "savePctg": 0.902174,
+                  "savePctgPercentile": 0.9483,
+                  "shotsAgainst": 92
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.911111,
+                  "savePctgPercentile": 0.6034,
+                  "shotsAgainst": 45
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020331",
@@ -51,12 +125,93 @@
         {
           "attacker": "VAN",
           "defender": "UTA",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8478872",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.83871,
+                  "savePctgPercentile": 0.3966,
+                  "shotsAgainst": 31
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 8,
+                  "savePctg": 0.818182,
+                  "savePctgPercentile": 0.0862,
+                  "shotsAgainst": 44
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 17,
+                  "savePctg": 0.817204,
+                  "savePctgPercentile": 0.569,
+                  "shotsAgainst": 93
+                },
+                {
+                  "area": "R Point",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.96875,
+                  "savePctgPercentile": 0.2931,
+                  "shotsAgainst": 32
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478872/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "UTA",
           "defender": "VAN",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482447",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 9,
+                  "savePctg": 0.804348,
+                  "savePctgPercentile": 0.2759,
+                  "shotsAgainst": 46
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.955556,
+                  "savePctgPercentile": 0.8621,
+                  "shotsAgainst": 45
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 25,
+                  "savePctg": 0.793388,
+                  "savePctgPercentile": 0.2759,
+                  "shotsAgainst": 121
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.945946,
+                  "savePctgPercentile": 0.8621,
+                  "shotsAgainst": 37
+                },
+                {
+                  "area": "R Point",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.975,
+                  "savePctgPercentile": 0.3276,
+                  "shotsAgainst": 40
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020332",
@@ -118,7 +273,7 @@
         "Step14"
       ]
     },
-    "goalieDirectionsWithPass": 0,
+    "goalieDirectionsWithPass": 4,
     "masterGateDispositions": {
       "G0": {},
       "G1": {},
@@ -209,14 +364,12 @@
     "sourceScope": "HISTORICAL_OFFICIAL_NHL_SHIFT_INTERVALS_AND_PLAY_BY_PLAY"
   },
   "lineupSourceCoverage": {
-    "deploymentRecords": null,
-    "error": "ValueError: Lineup snapshot slate date mismatch: # Tonight in the NHL: line combinations and starting goalies (games dated 2026-11-15)",
-    "goalieReports": null,
-    "status": "SOURCE_UNAVAILABLE"
+    "deploymentRecords": 65,
+    "error": null,
+    "goalieReports": 4,
+    "status": "DATED_SOURCE_PARSED"
   },
-  "missingByGate": {
-    "G0": 4
-  },
+  "missingByGate": {},
   "nonselectedGameResearchIsDiagnosticOnly": true,
   "nonselectedGameResearchNotes": [],
   "nonselectedGateAuditIsDiagnosticOnly": true,
@@ -268,5 +421,5 @@
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-16T05:10:36+00:00"
+  "updatedUTC": "2026-11-16T11:08:03+00:00"
 }
