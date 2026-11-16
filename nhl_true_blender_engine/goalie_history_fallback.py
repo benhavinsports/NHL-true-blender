@@ -82,7 +82,7 @@ def summarize_goalie_origin_pbp(events):
     return result
 
 
-def derive_independent_pbp_goalie_profile(goalie_id,zone_counts):
+def derive_independent_pbp_goalie_profile(goalie_id,zone_counts,peer_counts=None):
     """Derive peer-relative empirical shot-origin weaknesses, not certainty.
 
     Population is ONLY the fetched pre-slate official PBP goalie identities.
@@ -92,12 +92,17 @@ def derive_independent_pbp_goalie_profile(goalie_id,zone_counts):
     """
     this=(zone_counts or {}).get(str(goalie_id))
     if not this:return None
+    # When independent league-wide pre-slate NHL PBP exists, only THAT
+    # stable cohort may define percentiles. Current projected goalie
+    # identities can change without changing a single historical save:
+    # adding/removing them from the denominator is an artificial G0 flip.
+    reference=(zone_counts if peer_counts is None else peer_counts)
     zones={};weak={};strong={};referenced=set();total=0
     for zone,z in sorted(this.items()):
         n=z["shotsAgainst"];goals=z["goalsAgainst"]
         total+=n
         comparable=[]
-        for peer_id,rows in zone_counts.items():
+        for peer_id,rows in reference.items():
             if peer_id==str(goalie_id) or zone not in rows:continue
             other=rows[zone]
             if other["shotsAgainst"]>=MIN_ORIGIN_SHOTS:
@@ -341,15 +346,32 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         events,league_peer_events,date)
     target_only=summarize_goalie_origin_pbp(events)
     stats=summarize_goalie_origin_pbp(merged)
+    # A goalie pulled from today's PROJECTED group must NOT mutate the
+    # empirical denominator used for some OTHER goalie's G0 direction.
+    # league_peer_events are dated official league-wide prior-game PBP
+    # collected independently of today's starter identities.
+    stable_peer_events,_=combine_official_pregame_goalie_peers(
+        [],league_peer_events,date)
+    fixed_cohort=bool(stable_peer_events)
+    reference_stats=(summarize_goalie_origin_pbp(stable_peer_events)
+                     if fixed_cohort else stats)
+    own_samples=target_only if fixed_cohort else stats
+    # Hash all independent source observations, including actual goal type,
+    # so a new official correction gets a new auditable cohort ID. Never
+    # hash today's projected list or our targeted goalie fetching order.
+    reference_signature=(
+       sorted((str(x['gameId']),str(x['eventId']),
+               str(x['goalieId']),str(x['type']),str(x['date']))
+              for x in stable_peer_events)
+       if fixed_cohort else
+       [('DYNAMIC_FALLBACK',str(gid)) for gid in sorted(games)])
     saved=0;fully_compared=0;unresolved=[];cohort_profiles=0
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
-    # Fingerprint exactly this pre-slate shared goalie peer population.
-    # Never compare a locally sampled peer percentile with NHL EDGE's
-    # league-wide percentile, even when both numbers happen to be similar.
     population=hashlib.sha256(json.dumps({
-        "slate":date,"sampleGameIds":sorted(games),
-        "peerGoalieIds":sorted(stats),
-        "sourceScope":SOURCE},sort_keys=True).encode()).hexdigest()[:20]
+        "slate":date,"sampleEvents":reference_signature,
+        "sourceScope":SOURCE,
+        "referenceIndependentOfProjectedGoalies":fixed_cohort},
+        sort_keys=True).encode()).hexdigest()[:20]
     for game in snapshot.get("games",[]):
         for team,branches in all_goalie_branches(game,stage).items():
             for branch in branches:
@@ -358,8 +380,10 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 # A peer goalie can become a COMPARABLE goalie without
                 # replacing its existing NHL EDGE profile. Require that
                 # goalie's OWN PBP game-log events, never roster inference.
-                derived=(derive_independent_pbp_goalie_profile(pid,stats)
-                         if pid in target_only else None)
+                derived=(derive_independent_pbp_goalie_profile(
+                    pid,own_samples,
+                    peer_counts=reference_stats if fixed_cohort else None)
+                    if pid in target_only else None)
                 if derived and derived["fullySourceComparedAreas"]>0:
                     peer={**derived,"team":team,"goalieId":pid,
                           "status":branch["data"]["status"],
@@ -417,6 +441,8 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
         "goaliesWithPeerComparedOrigins":fully_compared,
         "independentSameCohortProfiles":cohort_profiles,
         "independentSameCohortPopulationId":population,
+        "cohortIndependentOfProjectedStarterRoster":fixed_cohort,
+        "cohortSource":"PRE_SLATE_LEAGUE_WIDE_NHL_PBP" if fixed_cohort else "FETCHED_GOALIE_GAME_LOG_PEERS",
         "cohortComparatorNotMixedWithEDGE":True,
         "unresolved":unresolved[:30],
         "sourceFailures":source_failures[:30],
