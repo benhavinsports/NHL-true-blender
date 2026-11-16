@@ -4,6 +4,8 @@ Never infer anatomical goalie weakness from danger tiers. CSV aggregates have no
 per-game chronology; caller must provide a verified export as-of date.
 """
 import csv
+import hashlib
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from .enrichment import ingest
@@ -17,6 +19,16 @@ def _num(row, key):
         return float(row[key])
     except (ValueError, KeyError, TypeError):
         return 0.0
+
+def _immutable_receipt_id(base, payload):
+    # An upstream CSV can be updated repeatedly during the SAME slate.
+    # A fixed (date,stage,player,kind) ID caused immutable receipt
+    # conflicts on every second run when MoneyPuck changed one statistic.
+    # Content-addressed revisions retain ALL earlier source observations,
+    # while identical replays safely reuse the exact evidence receipt.
+    blob=json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False)
+    digest=hashlib.sha256(blob.encode('utf-8')).hexdigest()[:20]
+    return f"{base}-{digest}"
 
 def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
     if not export_asof or export_asof != slate_date:
@@ -48,7 +60,8 @@ def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
                            "evidenceType":"HISTORICAL_TEAM_DANGER_AGGREGATES",
                            "greenWeakZones":[],"redStrongZones":[],
                            "noAnatomicalZoneInference":True}
-                ingest(con,{"evidence_id":f"mp-team-{slate_date}-{stage}-{game['id']}-{team}",
+                ingest(con,{"evidence_id":_immutable_receipt_id(
+                    f"mp-team-{slate_date}-{stage}-{game['id']}-{team}",payload),
                     "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                     "kind":"TEAM_COVERAGE","source_url":"https://moneypuck.com/data.htm",
                     "observed_at":observed,"payload":payload})
@@ -70,7 +83,8 @@ def import_moneypuck(con, snapshot, slate_date, stage, directory, export_asof):
                         "ownedGoals":_num(row,"I_F_goals"),
                         "primaryAssists":_num(row,"I_F_primaryAssists"),
                         "evidenceType":"HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION","recipientUndetermined":True})):
-                    ingest(con,{"evidence_id":f"mp-{kind}-{slate_date}-{stage}-{game['id']}-{pid}",
+                    ingest(con,{"evidence_id":_immutable_receipt_id(
+                        f"mp-{kind}-{slate_date}-{stage}-{game['id']}-{pid}",payload),
                         "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                         "player_id":pid,"kind":kind,"source_url":"https://moneypuck.com/data.htm",
                         "observed_at":observed,"payload":payload})
