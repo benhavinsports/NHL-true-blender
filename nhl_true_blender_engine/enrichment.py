@@ -15,6 +15,11 @@ KINDS = {
  'PLAYER_PRESSURE','PLAYER_MILESTONE','PLAYER_WHO','PLAYER_TRANSFER',
  'PLAYER_CONTRADICTIONS','MATCH_CONTEXT','TEAM_COVERAGE'
 }
+OFFICIAL_COVERAGE_COMPARISONS=frozenset((
+    'RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN',
+    'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
+))
+
 KIND_TO_FIELD={
  'PLAYER_RELEASE':'release','PLAYER_ZERO_ON_NET_ROUTE':'zeroShotOriginProof',
  'PLAYER_DEPLOYMENT':'deployment',
@@ -124,10 +129,16 @@ def attach(con, snapshot, date, stage):
             if data.get('attackingTeam') in (g['home'],g['away']):
                 attack=data['attackingTeam']
                 current=g['coverage'].get(attack)
-                is_official=(data.get('comparison')==
-                    'RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN')
-                current_official=(current and current['data'].get('comparison')==
-                    'RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN')
+                # A changed, source-backed G9 methodology must replace
+                # the older official coverage snapshot. Hard-coding only the
+                # previous comparison string silently kept stale red/green
+                # zones attached even though the new receipt was persisted.
+                is_official=bool(
+                    data.get('sourceType')=='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY'
+                    or data.get('comparison') in OFFICIAL_COVERAGE_COMPARISONS)
+                current_official=bool(current and (
+                    current['data'].get('sourceType')=='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY'
+                    or current['data'].get('comparison') in OFFICIAL_COVERAGE_COMPARISONS))
                 # Independently mapped actual recent NHL allowed shots outrank
                 # a MoneyPuck season danger-share aggregate for G9 lane proof.
                 if current_official and not is_official:
@@ -135,6 +146,10 @@ def attach(con, snapshot, date, stage):
                     continue
                 if is_official and current and not current_official:
                     wrapper['data'].setdefault('seasonDangerSupplement',current)
+                elif is_official and current and current_official:
+                    # Retain the prior source revision for audit while making
+                    # the newest official coverage receipt authoritative.
+                    wrapper['data'].setdefault('previousCoverageRevision',current)
                 g['coverage'][attack]=wrapper
         elif kind.startswith('PLAYER_'):
             pid=str(row['player_id'])
