@@ -178,6 +178,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
             observed_shift_events=list(shift_team.get("sampleEvents") or [])
             shift_sources=sorted(shift_team.get("shiftSourceUrls") or [])
             payload={"attackingTeam":attacker,"defendingTeam":defender,
+                "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
                 "greenWeakZones":list(green),"redStrongZones":list(red),
                 "zoneConcessions":detail,
                 "comparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
