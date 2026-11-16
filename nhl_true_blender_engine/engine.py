@@ -1324,8 +1324,56 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             selected_directions[str(match['id'])]=distinct
             continue
         errors.append(f"{match['id']} G0 both goalies reviewed but no source-decisive shared/normalized weak-origin comparison")
-    # A missing target direction is a hard failure only when G0 cannot select
-    # a target for that matchup; the opposite direction is not a second pool.
+    # A G0 failure MUST NOT silently short-circuit all 36 source checks.
+    # Investigate each available goalie branch against each official skater
+    # on BOTH sides, while retaining a FAILED G0 and forbidding selection.
+    unresolved_branch_analyses=[]
+    unresolved_unique_pool=0
+    for match in games:
+        gid=str(match['id'])
+        if gid in selected_directions:
+            continue
+        started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
+            match.get('startUTC') and
+            datetime.fromisoformat(match['startUTC'].replace('Z','+00:00'))<=now)
+        if started:
+            continue
+        for attacker,defender in ((match['away'],match['home']),
+                                  (match['home'],match['away'])):
+            players=complete_roster(match,attacker)
+            unresolved_unique_pool+=len(players)
+            branches=all_goalie_branches(match,stage).get(defender,[])
+            for branch in branches:
+                goalie_id=str(branch['data'].get('goalieId') or 'UNKNOWN')
+                for player in players:
+                    scoped=release_matched_to_g0_target(
+                        player,branch,match.get('coverage',{}).get(attacker))
+                    # No _g0SelectedDirection: these are NOT proposed Core
+                    # paths. Every gate is physically checked with the real
+                    # source branch, but G0 and G18 must remain nonpassing.
+                    candidate,trace=evaluate_skater(
+                        match,attacker,scoped,players,branch,stage)
+                    if candidate['dispositions']['G0']['disposition']=='PASS' or candidate['complete']:
+                        raise ValueError('G0 research cannot become a certified scorer')
+                    research_id=f'G0_RESEARCH:{attacker}:{goalie_id}:{player["id"]}'
+                    for row in trace:
+                        row['playerId']=research_id
+                        row['details']['g0ResearchOnly']=True
+                        row['details']['actualOfficialPlayerId']=str(player['id'])
+                        row['details']['researchGoalieId']=goalie_id
+                        row['details']['g0DirectionNotDecided']=True
+                        row['details']['cannotBeSelectedOrPublished']=True
+                    if [row['gate'] for row in trace]!=EXECUTION_ORDER:
+                        raise ValueError('G0 research skipped master or overlay gates')
+                    records.extend(trace)
+                    unresolved_branch_analyses.append({
+                        'gameId':gid,'attacker':attacker,'goalieId':goalie_id,
+                        'playerId':str(player['id']),
+                        'masterAndOverlayChecks':len(trace),
+                        'g0Disposition':'NOT_EXECUTED',
+                        'cannotEnterG18Card':True})
+    # Missing G0 direction remains a hard selection blocker. It is NOT
+    # permission to skip the rest of the physical-evidence investigation.
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
@@ -1404,6 +1452,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             else:
                 errors += comparison_errors or [
                     f"{match['id']} G18 multiple source-unseparated recipients"]
+    pool_size+=unresolved_unique_pool
     save_gates(con,date,stage,records)
     chosen,selection_errors=cross_game_winners(qualified,len(games))
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
@@ -1475,6 +1524,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 for gid,d in selected_directions.items()},
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
             'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
+            'unresolvedG0ResearchBranchCount':len(unresolved_branch_analyses),
+            'unresolvedG0PlayerSourceChecks':sum(x['masterAndOverlayChecks']
+                    for x in unresolved_branch_analyses),
+            'unresolvedG0ResearchDoesNotSelect':True,
+            'unresolvedG0ResearchExamples':unresolved_branch_analyses[:20],
             'uniqueGameSurvivors':len(qualified),
             'allG18QualifiedSurvivors':all_survivor_receipts,
             'nonselectedGameResearchNotes':nonselected_game_notes,
