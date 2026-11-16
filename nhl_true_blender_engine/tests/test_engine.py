@@ -73,8 +73,24 @@ def game(idx,win=True):
             home:[goalie('g'+home,home)]},
         'rosters':{away:evidence({'players':[main,rival,d]}),home:evidence({'players':[]})},
         'context':evidence({'venue':home,'rest':'one day both teams','travel':'neutral'}),
-        'coverage':{away:evidence({'greenWeakZones':['slot'],'redStrongZones':['point'],**shift_data}),
-                    home:evidence({'greenWeakZones':['slot'],'redStrongZones':['point'],**shift_data})}}
+        'coverage':{away:evidence({
+                        'greenWeakZones':['slot'],'redStrongZones':['point'],
+                        'sourceType':'OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY',
+                        'comparison':'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
+                        'lowShotVolumeIsNotEvidenceOfDefensiveStrength':True,
+                        'zoneConcessions':{'slot':{
+                            'attemptsAgainst':24,'gameCount':8,'peerTeamsCompared':8,
+                            'attemptsPerGame':3.0,'peerMedianAttemptsPerGame':1.5}},
+                        **shift_data}),
+                    home:evidence({
+                        'greenWeakZones':['slot'],'redStrongZones':['point'],
+                        'sourceType':'OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY',
+                        'comparison':'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
+                        'lowShotVolumeIsNotEvidenceOfDefensiveStrength':True,
+                        'zoneConcessions':{'slot':{
+                            'attemptsAgainst':24,'gameCount':8,'peerTeamsCompared':8,
+                            'attemptsPerGame':3.0,'peerMedianAttemptsPerGame':1.5}},
+                        **shift_data})}}
 
 
 def snapshot(n=3):return {'games':[game(i+1) for i in range(n)]}
