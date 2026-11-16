@@ -1070,6 +1070,89 @@ def compare_g0_same_origin(direction_a, direction_b):
     return direction_a if winner=='a' else direction_b if winner=='b' else None
 
 
+def compare_g0_different_weak_origins(a,b):
+    """When physical weak ORIGINS differ, use NHL's published area peer ranks.
+
+    Before any skaters: two separately sourced starter goalie profiles are
+    required. NHL EDGE savePctgPercentile is a PERCENTILE RELATIVE TO
+    COMPARABLE GOALIES IN THAT RINK AREA; it is the only common scale
+    between distinct shot-origin zones. Lowest percentile = weaker
+    published save record vs NHL peers, not biggest raw goals/sample or
+    shooting odds. No fabricated weight, no reputation, no skater info.
+
+    Two independent PBP proxy profiles may share the same peer population;
+    never compare a PBP-local percentile against a league EDGE percentile.
+    Exact ties/noncomparable provenance remain unresolved, not guessed.
+    """
+    profiles=(a.get('targetGoalies') or [],b.get('targetGoalies') or [])
+    if any(len(p)!=1 or p[0].get('profileReviewed') is not True for p in profiles):
+        return None
+    pa,pb=profiles[0][0],profiles[1][0]
+    wa,wb=pa.get('weakZones') or {},pb.get('weakZones') or {}
+    if not wa or not wb:
+        return None
+    src_a=pa.get('sourceClass')
+    src_b=pb.get('sourceClass')
+    if src_a!=src_b:
+        return None
+    # Explicit NHL EDGE (official full-league percentile) or peer-sampled
+    # NHL PBP (local percentile), never mixing their meaning.
+    if src_a=='DERIVED_RINK_ORIGIN_NOT_ANATOMICAL':
+        key='leagueSavePctgPercentile'
+        method='NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0'
+    elif src_a=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY':
+        key='samplePeerSavePctgPercentile'
+        method='NHL_PBP_SAMPLED_PEER_RANK_CROSS_ORIGIN_G0'
+    else:
+        return None
+    def weakest(profile,zones):
+        measured=[]
+        for zone,metrics in zones.items():
+            if not isinstance(metrics,dict):
+                return None
+            n=metrics.get('shotsAgainst')
+            goals=metrics.get('goalsAgainst')
+            percentile=metrics.get(key)
+            if not (type(n) is int and n>=20 and
+                    type(goals) is int and 0<goals<=n and
+                    type(percentile) in (int,float) and 0<=percentile<=1):
+                return None
+            measured.append((percentile,zone,n,goals,metrics))
+        if not measured:
+            return None
+        ordered=sorted(measured,key=lambda row:(row[0],row[1]))
+        return ordered[0]
+    weakest_a=weakest(pa,wa)
+    weakest_b=weakest(pb,wb)
+    if weakest_a is None or weakest_b is None:
+        return None
+    score_a=weakest_a[0];score_b=weakest_b[0]
+    if score_a==score_b:
+        return None  # no arbitrary alphabetical or star tiebreaker
+    chosen,other=(a,b) if score_a<score_b else (b,a)
+    win,lose=(weakest_a,weakest_b) if score_a<score_b else (weakest_b,weakest_a)
+    return {**chosen,
+        'g0SelectionMethod':method,
+        'g0SelectedOnlyAfterBothStarterProfiles':True,
+        'g0DecisionProof':{
+            'reason':'Independent goalie-origin lower published peer save percentile, not game score or skater rank',
+            'winnerWeakOrigin':win[1],
+            'winnerGoalieOnNetShots':win[2],
+            'winnerGoalsAllowedFromOrigin':win[3],
+            'winnerGoaliePeerSavePercentile':win[0],
+            'oppositeWeakOrigin':lose[1],
+            'oppositeGoalieOnNetShots':lose[2],
+            'oppositeGoalsAllowedFromOrigin':lose[3],
+            'oppositeGoaliePeerSavePercentile':lose[0],
+            'samePeerComparatorScope':src_a,
+            'noWeightsOrExternalOdds':True,
+            'notGloveBlockerFiveHole':True,
+            'oppositeDirectionSourceReviewed':True,
+            'goalieSourceUrls':[pa.get('goalieProfileSourceUrl') or pa.get('sourceUrl'),
+                               pb.get('goalieProfileSourceUrl') or pb.get('sourceUrl')],
+        }}
+
+
 def execute(con, snapshot, date, stage='PROJECTED', now=None):
     now=now or datetime.now(timezone.utc)
     if stage not in ('PROJECTED','CONFIRMED'):raise ValueError('Stage is projected or confirmed')
@@ -1138,9 +1221,20 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         # league save-percentile; otherwise keep G0 unresolved.
         comparative=compare_g0_same_origin(options[0],options[1])
         if comparative is not None:
-            selected_directions[str(match['id'])]=comparative
+            selected_directions[str(match['id'])]={**comparative,
+                'g0SelectionMethod':'MATCHED_ORIGIN_DIRECT_GOAL_RATE_AND_PEER_PERCENTILE',
+                'g0SelectedOnlyAfterBothStarterProfiles':True}
             continue
-        errors.append(f"{match['id']} G0 attack sides not physically separated by certified goalie weaknesses")
+        # Different goalie weaknesses are not unreviewed/uncomparable merely
+        # because they come from different named zones. Compare the league's
+        # normalized SOURCE percentile on each goalie's independently
+        # demonstrated worst vulnerable origin, while the full opposing
+        # profiles stay on record and every skater later passes G4/G5/G9.
+        distinct=compare_g0_different_weak_origins(options[0],options[1])
+        if distinct is not None:
+            selected_directions[str(match['id'])]=distinct
+            continue
+        errors.append(f"{match['id']} G0 both goalies reviewed but no source-decisive shared/normalized weak-origin comparison")
     # A missing target direction is a hard failure only when G0 cannot select
     # a target for that matchup; the opposite direction is not a second pool.
     for match in games:
@@ -1283,6 +1377,13 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     for rec in records:
         if rec['disposition']=='NOT_EXECUTED':gaps[rec['gate']]+=1
     result={'card':card,'date':date,'stage':stage,'games':len(games),
+            'g0TwoGoalieDirectionDecisions':{
+                gid:{'attackingTeam':d['attacker'],'targetGoalieTeam':d['defender'],
+                     'goalieSourceMethod':d.get('g0SelectionMethod') or 'SOURCE_WEAK_ZONE_SET_CONTAINMENT',
+                     'decisionEvidence':d.get('g0DecisionProof'),
+                     'bothGoaliesReviewedFirst':True,
+                     'isAnatomicalWeaknessClaim':False}
+                for gid,d in selected_directions.items()},
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
             'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
             'uniqueGameSurvivors':len(qualified),
