@@ -1272,7 +1272,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 and message.split(' ',1)[0] not in selected_game_ids):
                 nonselected_game_notes.append(message)
             elif (isinstance(message,str) and
-                  ' G0 no independently evidenced goalie target' in message
+                  (' G0 no independently evidenced goalie target' in message or
+                   ' G0 both attack directions REQUIRE independent goalie profiles' in message)
                   and message.split(' ',1)[0] not in selected_game_ids):
                 nonselected_game_notes.append(message)
             else:
