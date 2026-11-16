@@ -52,3 +52,26 @@ def test_overlay_proves_own_checked_values_not_just_independent_flag():
     opaque={'independentOverlayEvaluation':True,'checkedBeforeG18':True,
             'masterGateVerdictCopied':False}
     assert 'STEP0_GOALIE_NOT_REVIEWED' in audit_gate('Step0',opaque,[],'CONFIRMED')
+
+
+def test_g9_requires_positive_all_attempt_per_game_concession_not_legacy_green_label():
+    evidence={
+        "shooterZone":"L Point","greenTarget":["L Point"],"redAvoid":[],
+        "coverageSourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
+        "coverageComparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "lowShotVolumeNotStrengthEvidence":True,
+        "zoneConcessionEvidence":{
+            "attemptsAgainst":24,"gameCount":8,"peerTeamsCompared":12,
+            "attemptsPerGame":3.0,"peerMedianAttemptsPerGame":1.5}}
+    sources=[f"https://api-web.nhle.com/v1/gamecenter/{i}/play-by-play"
+             for i in range(8)]
+    assert audit_gate("G9",evidence,sources,"PROJECTED")==[]
+    legacy={**evidence,
+        "coverageSourceType":None,
+        "coverageComparison":"RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN"}
+    gaps=audit_gate("G9",legacy,sources,"PROJECTED")
+    assert "G9_LEGACY_OR_UNVERIFIED_COVERAGE_METHOD" in gaps
+    insufficient={**evidence,"zoneConcessionEvidence":{
+        **evidence["zoneConcessionEvidence"],"attemptsPerGame":1.0}}
+    assert "G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING" in audit_gate(
+        "G9",insufficient,sources,"PROJECTED")
