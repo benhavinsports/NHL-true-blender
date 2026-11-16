@@ -124,9 +124,10 @@ async def test_watch_baseline_silent_then_material_change(tmp_path):
     con=open_db(str(tmp_path/'watch.sqlite'))
     snap=snapshot(2)
     before=await collect_watch(None,con,DATE,snap)
-    # Only the two sourced report categories per game count. Do not invent a
-    # missing away-goalie or empty home-roster report to inflate G0 coverage.
-    assert before['initialBaselinesSavedWithoutAlert']==4
+    # Both independently measured goalie starter reports per matchup are
+    # now real source-backed G0 evidence; baseline records include each one,
+    # plus the eligible skater role category where available.
+    assert before['initialBaselinesSavedWithoutAlert']==6
     assert before['verifiedMaterialChanges']==0
     assert con.execute('SELECT COUNT(*) FROM watch_events').fetchone()[0]==0
     repeat=await collect_watch(None,con,DATE,snap)
