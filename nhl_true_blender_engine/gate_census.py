@@ -184,7 +184,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
         order_by_key.get(key,{}).get("verified") is True for key in skaters)
     directions_complete=bool(goalie_directions) and (
         expected_game_count is None or len(goalie_directions)==2*expected_game_count)
-    independent=all_matrix_present and all_matrix_in_order and not overlay_copies
+    independent=(all_matrix_present and all_matrix_in_order and not overlay_copies
+                 and not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER))
     all_selected_master=bool(selected) and all(x["masterAllPass"] for x in selected)
     all_selected_overlay=bool(selected) and all(x["overlayAllPass"] for x in selected)
     required_legs=min(3,expected_game_count) if expected_game_count else len(selected)
@@ -209,7 +210,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "allSkatersHaveEachGateRecord":all_matrix_present,
         "allSkatersHaveExactExecutionOrder":all_matrix_in_order,
         "executionOrderMismatches":order_mismatches,
-        "allOverlayStepsWereIndependentlyChecked":independent,
+        "allOverlayStepsWereIndependentlyChecked":bool(all_matrix_present and all_matrix_in_order and not overlay_copies and not any(distributions[g]["NOT_EXECUTED"] for g in OVERLAY)),
+        "allGateChecksExecutedWithEvidence":not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER),
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "missingMatrixGateRows":{g:missing[g] for g in EXECUTION_ORDER if missing[g]},
