@@ -113,6 +113,10 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 await collect_season_goal_history(client,con,snapshot,date,stage)
             await collect_secondary(con,snapshot,date,stage)
             await fetch_and_ingest_lineups(con,snapshot,date,stage)
+            # Refresh independent official projected starter identities too;
+            # otherwise the second pass compares new goalie history against
+            # stale starter identities and can regress the G0 attack branch.
+            await collect_nhl_projected_goalies(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
@@ -121,6 +125,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                     client,con,snapshot,date,stage,
                     league_peer_events=refreshed_peer_events)
             attach(con,snapshot,date,stage)
+            # G0 source-origin review is an input to the selection engine,
+            # not merely a report. Recompute it after changing goalie evidence.
+            review_g0_goalie_origins(con,snapshot,date,stage)
             review_all_candidates(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             result=execute(con,snapshot,date,stage)
