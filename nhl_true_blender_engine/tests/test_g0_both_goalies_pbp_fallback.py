@@ -158,6 +158,7 @@ def test_league_goalie_peers_reuse_only_real_pregame_identity_and_unique_games()
     future=shot(9999,1,49,True)
     future["date"]="2026-11-16"
     anonymous=shot(9998,1,None,True)
+    anonymous["goalieId"]=None  # test builder serializes every argument
     merged,added=combine_official_pregame_goalie_peers(
         own,peer+[duplicate,future,anonymous],"2026-11-16")
     assert added==4

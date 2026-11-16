@@ -200,7 +200,8 @@ def combine_official_pregame_goalie_peers(target_events, league_events, slate_da
         if (not gid or not eventid or gid in target_games
             or not isinstance(played,str) or len(played)!=10
             or played>=slate_date
-            or e.get("type") not in ON_NET or not e.get("goalieId")
+            or e.get("type") not in ON_NET
+            or str(e.get("goalieId") or "").lower() in ("","none","null","0")
             or not isinstance(url,str)
             or not url.startswith("https://api-web.nhle.com/")):
             continue
