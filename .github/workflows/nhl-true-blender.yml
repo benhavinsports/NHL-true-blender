@@ -88,7 +88,12 @@ jobs:
               elif cron.startswith('30 '):
                   mode = 'grade'
               else:
-                  mode = 'projected' if now.hour < 11 else ('confirmed' if now.hour < 19 else 'watch')
+                  # Night-time code-triggered runs grade the original Core as
+                  # soon as its actual 2/3 matchups are OFF/FINAL; :38 cron
+                  # still explicitly watches every not-started game.
+                  mode = ('projected' if now.hour < 11 else
+                          'confirmed' if now.hour < 19 else
+                          'grade' if now.hour >= 21 else 'watch')
           date = os.environ.get('REQUESTED_DATE') or (
               (now - datetime.timedelta(days=1)).date().isoformat()
               if mode == 'grade' and now.hour < 8 else now.date().isoformat()
