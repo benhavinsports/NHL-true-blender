@@ -58,6 +58,41 @@ def decode_dated_goals(payload, player_id, slate_date):
             "noSyntheticGoalEventIds":True,
             "notFullPbpEventReconciliation":True}
 
+def certified_zero_on_net_route(season):
+    """A real NHL dated game log with no SOG cannot supply a same-origin
+    direct historical shooting lane. This does NOT say the skater cannot
+    score tonight or that the skater is unavailable."""
+    if (not isinstance(season,dict)
+        or season.get('sourceType') != SOURCE_TYPE
+        or season.get('scope') != 'OFFICIAL_CURRENT_SEASON_DATED_GAMES_PRIOR_TO_SLATE'
+        or season.get('sameSlateDateExcluded') is not True):
+        return None
+    games=season.get('datedGames')
+    if not isinstance(games,list) or not games:
+        return None
+    if (season.get('actualAppearances') != len(games)
+        or type(season.get('officialPastSeasonGoals')) is not int
+        or season['officialPastSeasonGoals'] != 0
+        or any(type(g.get('shotsOnGoal')) is not int or
+               g['shotsOnGoal'] != 0 or
+               type(g.get('goals')) is not int or g['goals'] != 0
+               for g in games)):
+        return None
+    return {
+        'sourceType':SOURCE_TYPE,
+        'sourceScope':'OFFICIAL_CURRENT_SEASON_DATED_GAMES_PRIOR_TO_SLATE',
+        'allDatedSeasonAppearancesChecked':len(games),
+        'allReportedShotOriginsChecked':0,
+        'observedOnNetShotsAcrossAllReportedOrigins':0,
+        'ownedGoalsAcrossAllReportedOrigins':0,
+        'verifiedNoSameLaneOnNetRoute':True,
+        'officialDatedGameLogZeroSOG':True,
+        'noClaimOfFutureScoringImpossibility':True,
+        'doesNotQualifyForG4Release':True,
+        'notAnAnatomicalClaim':True
+    }
+
+
 async def collect_season_goal_history(client,con,snapshot,date,stage,concurrency=6):
     """Research every roster skater, not only favorite scorers or G0 survivors."""
     if date!=datetime.now(ET).date().isoformat():
@@ -83,7 +118,7 @@ async def collect_season_goal_history(client,con,snapshot,date,stage,concurrency
             except Exception as exc:
                 return pid,None,None,f"{type(exc).__name__}: {exc}"
     results=await asyncio.gather(*(one(pid) for pid in players))
-    sourced=0;scorers=0;errors=[]
+    sourced=0;scorers=0;zero_route_proofs=0;errors=[]
     for pid,raw,proof,error in results:
         if not proof:
             errors.append({"playerId":pid,"reason":error or "SOURCE_MISSING_OR_INCOMPLETE_DATED_GAMES"})
@@ -91,15 +126,23 @@ async def collect_season_goal_history(client,con,snapshot,date,stage,concurrency
         proof["officialSourceUrl"]=raw["url"]
         digest=hashlib.sha256(json.dumps(
             proof,sort_keys=True,separators=(",",":")).encode()).hexdigest()[:20]
+        zero_route=certified_zero_on_net_route(proof)
         for gid in players[pid]:
             ingest(con,{"evidence_id":f"nhl-season-log-{date}-{stage}-{gid}-{pid}-{digest}",
                 "slate_date":date,"stage":stage,"game_id":gid,"player_id":pid,
                 "kind":"PLAYER_SEASON_HISTORY","source_url":raw["url"],
                 "observed_at":raw["observedAt"],"payload":proof})
+            if zero_route:
+                ingest(con,{"evidence_id":f"nhl-season-zero-own-shot-{date}-{stage}-{gid}-{pid}-{digest}",
+                    "slate_date":date,"stage":stage,"game_id":gid,"player_id":pid,
+                    "kind":"PLAYER_ZERO_ON_NET_ROUTE","source_url":raw["url"],
+                    "observed_at":raw["observedAt"],"payload":zero_route})
+        zero_route_proofs+=bool(zero_route)
         sourced+=1
         scorers+=int(proof["officialPastSeasonGoals"]>0)
     return {"status":"SOURCE_REVIEW_COMPLETED","playersQueried":len(players),
             "sourcedSkaters":sourced,"playersWithCreditedSeasonGoals":scorers,
+            "officialFullSeasonZeroSogSkaters":zero_route_proofs,
             "unavailable":len(errors),"examples":errors[:20],
             "season":season,"scope":SOURCE_TYPE,
             "avoidsFutureStatLeakage":True,"noGoalEventsInvented":True}

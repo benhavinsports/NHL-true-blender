@@ -299,7 +299,9 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
             zero=rival.get('zeroShotOriginProof')
             zdata=evidence_data(zero)
             if (receipt(zero) and
-                zdata.get('sourceType')=='NHL_EDGE_SKATER_SHOT_ORIGIN_CURRENT_SEASON' and
+                zdata.get('sourceType') in (
+                    'NHL_EDGE_SKATER_SHOT_ORIGIN_CURRENT_SEASON',
+                    'NHL_OFFICIAL_PLAYER_DATED_REGULAR_SEASON_GAME_LOG') and
                 zdata.get('verifiedNoSameLaneOnNetRoute') is True and
                 zdata.get('observedOnNetShotsAcrossAllReportedOrigins')==0 and
                 zdata.get('ownedGoalsAcrossAllReportedOrigins')==0):
@@ -313,7 +315,8 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                              'sourceUrls':[zero['sourceUrl']],
                              'evidenceId':zero.get('evidenceId'),
                              'noClaimOfFutureScoringImpossibility':True,
-                             'sourceVerifiedZeroShotSeason':True})
+                             'sourceVerifiedZeroShotSeason':True,
+                             'sourceEvidenceType':zdata.get('sourceType')})
                 continue
             rows.append({'challengerId':str(rival['id']),
                          'status':'NO_RELEASE_SOURCE',
@@ -671,7 +674,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         release['zone']) if coverage_data and release else None
     g9_sources=sorted(set(
         ([coverage['sourceUrl']] if receipt(coverage) else [])+
-        [u for u in ((coverage_data or {}).get('sourceUrls') or [])
+        [u for u in (coverage_data.get('sourceUrls') or [])
          if isinstance(u,str) and u.startswith('https://')]))
     emit('G9',match,{'shooterZone':release['zone'] if release else None,
                    'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,

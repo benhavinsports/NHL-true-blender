@@ -1,6 +1,6 @@
 """Independent official full-season goal evidence; synthetic test inputs only."""
 import json
-from nhl_true_blender_engine.season_goal_history import decode_dated_goals
+from nhl_true_blender_engine.season_goal_history import decode_dated_goals,certified_zero_on_net_route
 from nhl_true_blender_engine.tests.test_engine import snapshot,DATE,evidence
 from nhl_true_blender_engine.engine import execute
 from nhl_true_blender_engine.storage import open_db
@@ -86,3 +86,29 @@ def test_unverified_or_inconsistent_season_goal_cannot_pass(tmp_path):
         assert row["disposition"]=="NOT_EXECUTED"
     finally:
         con.close()
+
+def test_official_season_zero_shots_can_resolve_unknown_direct_rival_without_invented_route():
+    from nhl_true_blender_engine.engine import challenger_proof
+    season=decode_dated_goals({"gameLog":[
+        {"gameId":2026020111,"gameDate":"2026-11-01","goals":0,"shots":0},
+        {"gameId":2026020144,"gameDate":"2026-11-08","goals":0,"shots":0}
+    ]},9999,"2026-11-16")
+    zero=certified_zero_on_net_route(season)
+    assert zero["verifiedNoSameLaneOnNetRoute"] is True
+    assert zero["noClaimOfFutureScoringImpossibility"] is True
+    main=snapshot()["games"][0]["rosters"]["T1A"]["data"]["players"][0]
+    opponent={"id":"9999","name":"Unknown sample","position":"C",
+        "zeroShotOriginProof":evidence(zero,
+            "https://api-web.nhle.com/v1/player/9999/game-log/20262027/2")}
+    proof,rows=challenger_proof(main,[opponent],{"slot":{}},["slot"])
+    assert proof is True
+    assert rows[0]["status"]=="SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE"
+    assert rows[0]["sourceEvidenceType"]=="NHL_OFFICIAL_PLAYER_DATED_REGULAR_SEASON_GAME_LOG"
+
+
+def test_official_season_with_any_sog_is_not_zero_route_evidence():
+    season=decode_dated_goals({"gameLog":[
+        {"gameId":2026020111,"gameDate":"2026-11-01","goals":0,"shots":1},
+        {"gameId":2026020144,"gameDate":"2026-11-08","goals":0,"shots":0}
+    ]},9999,"2026-11-16")
+    assert certified_zero_on_net_route(season) is None

@@ -13,6 +13,38 @@ def norm(s):
     s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]", "", s.casefold())
 
+
+def unique_official_player(name, roster, reserved_ids=()):
+    """Resolve a lineup name without guessing a player ID.
+
+    First use the complete normalized official name. Only if absent, permit
+    first-name/nickname variants with at least three matching initial letters
+    and an *exact* remaining surname. Never collapse two same-name players,
+    double-map published assignments, or infer a player's role from a team
+    roster alone.
+    """
+    exact=[p for p in roster if norm(p.get("name",""))==norm(name)]
+    if len(exact)==1 and str(exact[0]["id"]) not in reserved_ids:
+        return exact[0]
+    if exact:
+        return None
+    parts=str(name).split()
+    if len(parts)<2:
+        return None
+    first=norm(parts[0]);surname=norm(" ".join(parts[1:]))
+    if len(first)<3 or not surname:
+        return None
+    candidates=[]
+    for p in roster:
+        tokens=str(p.get("name","")).split()
+        if len(tokens)<2:
+            continue
+        a=norm(tokens[0]);b=norm(" ".join(tokens[1:]))
+        if (len(a)>=3 and a[:3]==first[:3] and b==surname and
+            str(p.get("id")) not in reserved_ids):
+            candidates.append(p)
+    return candidates[0] if len(candidates)==1 else None
+
 def parse_markdown(text):
     teams = {}
     goalies = []
@@ -78,12 +110,27 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
             for unit, names in team["pp"].items():
                 for name in names:
                     assignments.setdefault(name, {})["powerPlayUnit"] = int(unit)
-            for name, data in assignments.items():
-                candidates = by_name.get(norm(name), [])
-                if len(candidates) != 1:
-                    unmatched.append({"team": abbrev, "name": name})
+            # Reserve IDs with unambiguous full-name matches before trying
+            # nicknames. Two source names cannot silently become one skater.
+            exact_ids={}
+            for name in assignments:
+                matches=by_name.get(norm(name),[])
+                if len(matches)==1:
+                    exact_ids[name]=str(matches[0]["id"])
+            seen={}
+            for name,data in assignments.items():
+                p=unique_official_player(name,roster,(
+                    pid for other,pid in exact_ids.items() if other!=name))
+                if not p:
+                    unmatched.append({"team":abbrev,"name":name,
+                                      "reason":"OFFICIAL_PLAYER_ID_NOT_UNIQUELY_MATCHED"})
                     continue
-                p = candidates[0]
+                pid=str(p["id"])
+                if pid in seen:
+                    unmatched.append({"team":abbrev,"name":name,
+                                      "reason":"DUPLICATE_PLAYER_ID_LINEUP_CONFLICT"})
+                    continue
+                seen[pid]=name
                 ingest(con, {
                     "evidence_id": f"btl-{date}-{stage}-{game['id']}-{p['id']}-{observed_at}",
                     "slate_date": date, "stage": stage,
