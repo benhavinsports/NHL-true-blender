@@ -36,8 +36,12 @@ def article_text(html):
     return re.sub(r"[ \t]+"," ","".join(parser.parts))
 
 def normalized(value):
-    return re.sub(r"[^a-z0-9 ]","",unicodedata.normalize(
-        "NFKD",str(value)).encode("ascii","ignore").decode().casefold())
+    ascii_text=unicodedata.normalize("NFKD",str(value)).encode(
+        "ascii","ignore").decode().casefold()
+    # HTML paragraphs are separated by line breaks. Preserve them as word
+    # boundaries; deleting newlines glued "Nikita Tolopilo" to the prior
+    # skater name and made exact roster ID matches impossible.
+    return re.sub(r"[^a-z0-9]+"," ",ascii_text).strip()
 
 def preview_urls(game,date):
     day=datetime.strptime(date,"%Y-%m-%d")
