@@ -212,10 +212,14 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                 count+=1
     return {"coverageAttackSides":count,
             "targetSides":2*len(snapshot.get("games",[])),
-            "peerMedianZoneShares":comparisons,
+            "peerComparison":"OTHER_TEAM_MEDIAN_SHOT_ATTEMPTS_PER_GAME",
+            "minimumPeerAttempts":minimum_peer_attempts,
+            "minimumPeerGames":minimum_peer_games,
+            "minimumZoneAttempts":minimum_zone_attempts,
             "failedSources":fail[:15],
             "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
             "zonesAreConservativeDerivedRinkAreas":True,
+            "lowShotVolumeNeverCreatesRedStrengthZone":True,
             "officialShiftChartGames":(shift_receipts or {}).get("chartedGames",0),
             "historicalDefensiveEventsWithObservedShifts":
                 (shift_receipts or {}).get("matchedDefensiveShotEvents",0)}
