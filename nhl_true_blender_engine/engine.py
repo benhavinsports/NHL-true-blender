@@ -569,8 +569,25 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          eliminate=bool(coverage_data and release and release['zone'] in coverage_data.get('redStrongZones',[])),
          source_ids=[coverage['sourceUrl']] if receipt(coverage) else [])
     ownership=player.get('finishOwnership');own=evidence_data(ownership)
-    emit('G10',bool(own and own.get('recipient') is True),
-         {'goalCreditOwned':own,'notAssistOrFeeder':True},
+    # G10 proves historical OWN goal credit. It cannot certify that this
+    # skater will be the recipient rather than an assist provider TONIGHT.
+    # The previous hard-coded "notAssistOrFeeder: True" overstated evidence
+    # for playmakers and must never appear as proof of tonight's role.
+    own_goals=own.get('ownedGoalsInActualAppearances') if own else None
+    season_supplement=(own.get('seasonGoalSupplement') or {}).get('data',{}) if own else {}
+    historic_direct=bool(
+        receipt(ownership) and own.get('creditedGoalsVerified') is True
+        and own.get('recipient') is True and own.get('independentHistoricallyScored') is True
+        and ((type(own_goals) is int and own_goals>0) or
+             (type(season_supplement.get('ownedSeasonGoalsFromNhlEdgeShotOrigins')) is int
+              and season_supplement['ownedSeasonGoalsFromNhlEdgeShotOrigins']>0)))
+    emit('G10',historic_direct,
+         {'goalCreditOwned':own,
+          'historicalDirectGoalRecipientVerified':historic_direct,
+          'directGoalProofIsHistoricalNotTonight':True,
+          'futureAssistsVsGoalRecipientUnresolved':True,
+          'futureNotAssistOrFeederProven':False,
+          'G10_5AndG17MustSeparatelyReviewRecipientCompetition':True},
          eliminate=bool(own and own.get('recipient') is False),
          source_ids=[ownership['sourceUrl']] if receipt(ownership) else [])
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
