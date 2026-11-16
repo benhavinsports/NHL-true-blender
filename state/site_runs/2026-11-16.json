@@ -1,6 +1,162 @@
 {
   "allG18QualifiedSurvivors": [
     {
+      "attackTeam": "MTL",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020067/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020331",
+      "gameStartUTC": "2026-11-17T00:30:00Z",
+      "goalieId": "8476914",
+      "goalieObservedZoneStats": {
+        "anatomicalGoalMouthWeaknessVerified": false,
+        "area": "High Slot",
+        "goalsAgainst": 14,
+        "originMap": "APPROXIMATE_NHL_PBP_RINK_COORDINATES",
+        "peerComparedSameOrigin": true,
+        "peerGoalieIds": [
+          "8484170",
+          "8478048",
+          "8482447",
+          "8480947",
+          "8478872",
+          "8484268"
+        ],
+        "peerGoaliesSampled": 6,
+        "sampleGameIds": [
+          "2025020682",
+          "2025020712",
+          "2025020763",
+          "2025020794",
+          "2025020826",
+          "2025020893",
+          "2025020918",
+          "2025020979",
+          "2025021002",
+          "2025021064",
+          "2025021135",
+          "2025021178",
+          "2025021224",
+          "2025021237",
+          "2025021278",
+          "2026020267",
+          "2026020294"
+        ],
+        "samplePeerMedianSavePctg": 0.8,
+        "samplePeerSavePctgPercentile": 0.25,
+        "savePctg": 0.7777777777777778,
+        "saves": 49,
+        "shotsAgainst": 63,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/gamecenter/2025020682/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020712/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020763/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020794/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020826/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020893/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020918/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025020979/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021002/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021064/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021135/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021178/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021224/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021237/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2025021278/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020267/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020294/play-by-play"
+        ]
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2025020682/play-by-play",
+      "goalieStatus": "CONFIRMED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 906,
+        "allOnNetShotsAgainst": 438,
+        "attemptShare": 0.15783664459161148,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 143,
+        "attemptsPerGame": 8.9375,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 5,
+        "onNetShotsAgainst": 52,
+        "peerMedianAttemptsPerGame": 8.8125,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "MTL@NYR",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "NYR",
+      "ownRouteZone": "High Slot",
+      "ownShotsOnGoal": 5,
+      "ownedGoals": 2,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 2,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8483686",
+            "rivalOriginalPrimaryOrigin": "High Slot",
+            "sameLane": "High Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481540/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483686/now"
+            ]
+          }
+        ],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": true,
+        "laneChangedAfterGoalieFirstG0": true,
+        "originalScoringLane": "L Net Side",
+        "path": "TRANSFER",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": false,
+        "rationale": "Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5",
+        "scoringLane": "High Slot",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481540/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483686/now",
+          "https://api-web.nhle.com/v1/gamecenter/2025020682/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020067/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020209/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Cole Caufield",
+      "playerId": "8481540",
+      "routeLabel": "TRANSFER",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481540/now"
+    },
+    {
       "attackTeam": "UTA",
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020085/play-by-play",
       "deployment": {
@@ -109,8 +265,10 @@
   ],
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
-  "cardSavedByEngine": false,
-  "currentRunFullyCertified": false,
+  "cardId": "NHL-2026-11-16-CANONICAL",
+  "cardPath": "state/site_cards/2026-11-16.json",
+  "cardSavedByEngine": true,
+  "currentRunFullyCertified": true,
   "edgeSourceCoverage": {
     "allCurrentRosterIdentitiesChecked": 108,
     "anatomicalClaimCertified": false,
@@ -120,15 +278,14 @@
     "totalFailed": 0
   },
   "eligibleSkaterRows": 49,
-  "errors": [
-    "G18 only 1 fully evidenced games; 2 required"
-  ],
+  "errors": [],
+  "fingerprint": "86d3bf8c5efd655ffd988f730e73cb385f6bb01df9b923a4a10d69d53ce2d0f1",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 49,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 1,
+      "FULL_G0_G18_PASS": 2,
       "G10": 2,
-      "G10.5": 26,
+      "G10.5": 25,
       "G2": 13,
       "G4": 2,
       "G5": 1,
@@ -137,6 +294,12 @@
     "notAScorerRanking": true,
     "samplesByFirstGate": {
       "FULL_G0_G18_PASS": [
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020331",
+          "playerId": "8481540",
+          "reasonDisposition": "PASS"
+        },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
           "gameId": "2026020332",
@@ -533,7 +696,7 @@
     "copiedOverlayReceipts": [],
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
-    "fullIndependentCardCertification": false,
+    "fullIndependentCardCertification": true,
     "gateChecksAttempted": {
       "G0": 49,
       "G1": 49,
@@ -690,8 +853,8 @@
         "PASS": 39
       },
       "G10.5": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "G11": {
         "NOT_EXECUTED": 5,
@@ -713,16 +876,16 @@
         "PASS": 14
       },
       "G16": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "G17": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "G18": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "G2": {
         "ELIMINATED": 13,
@@ -811,12 +974,12 @@
         {
           "gameId": "2026020331",
           "playerId": "8476479",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
           "playerId": "8476875",
-          "sourceCount": 19
+          "sourceCount": 24
         },
         {
           "gameId": "2026020331",
@@ -826,7 +989,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8478133",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
@@ -841,7 +1004,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8480074",
-          "sourceCount": 18
+          "sourceCount": 22
         }
       ],
       "G11": [
@@ -971,12 +1134,12 @@
         {
           "gameId": "2026020331",
           "playerId": "8476479",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
           "playerId": "8476875",
-          "sourceCount": 19
+          "sourceCount": 24
         },
         {
           "gameId": "2026020331",
@@ -986,7 +1149,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8478133",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
@@ -1001,7 +1164,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8480074",
-          "sourceCount": 18
+          "sourceCount": 22
         }
       ],
       "G17": [
@@ -1254,12 +1417,12 @@
         {
           "gameId": "2026020331",
           "playerId": "8476479",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
           "playerId": "8476875",
-          "sourceCount": 19
+          "sourceCount": 24
         },
         {
           "gameId": "2026020331",
@@ -1269,7 +1432,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8478133",
-          "sourceCount": 18
+          "sourceCount": 22
         },
         {
           "gameId": "2026020331",
@@ -1284,7 +1447,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8480074",
-          "sourceCount": 18
+          "sourceCount": 22
         }
       ],
       "Step11": [
@@ -1303,12 +1466,12 @@
         {
           "gameId": "2026020331",
           "playerId": "8476479",
-          "sourceCount": 19
+          "sourceCount": 23
         },
         {
           "gameId": "2026020331",
           "playerId": "8476875",
-          "sourceCount": 20
+          "sourceCount": 25
         },
         {
           "gameId": "2026020331",
@@ -1318,7 +1481,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8478133",
-          "sourceCount": 19
+          "sourceCount": 23
         },
         {
           "gameId": "2026020331",
@@ -1333,7 +1496,7 @@
         {
           "gameId": "2026020331",
           "playerId": "8480074",
-          "sourceCount": 19
+          "sourceCount": 23
         }
       ],
       "Step14": [
@@ -1543,23 +1706,23 @@
         "PASS": 45
       },
       "Step10.5": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "Step11": {
         "NOT_EXECUTED": 1,
         "PASS": 48
       },
       "Step12": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "Step13": {
         "PASS": 49
       },
       "Step14": {
-        "NOT_EXECUTED": 48,
-        "PASS": 1
+        "NOT_EXECUTED": 47,
+        "PASS": 2
       },
       "Step2": {
         "PASS": 49
@@ -1632,20 +1795,53 @@
       "Step9": 0
     },
     "scannedSkaters": 49,
-    "selectedCoreOnlyFullyCertified": false,
+    "selectedCoreOnlyFullyCertified": true,
     "selectedExecutionOrderGaps": [],
-    "selectedLegs": [],
-    "selectedMasterGatesAllPass": false,
-    "selectedOverlayGatesAllPass": false,
+    "selectedLegs": [
+      {
+        "executionOrderGaps": [],
+        "executionOrderVerified": true,
+        "gameId": "2026020331",
+        "masterAllPass": true,
+        "masterMissingOrNonpassing": [],
+        "missingProvenanceForPassingGates": [],
+        "overlayAllPass": true,
+        "overlayIndependentlyEvaluated": true,
+        "overlayMissingOrNonpassing": [],
+        "player": "Cole Caufield",
+        "playerId": "8481540",
+        "savedPath": "TRANSFER",
+        "semanticMissingProof": [],
+        "substantivelyCertified": true
+      },
+      {
+        "executionOrderGaps": [],
+        "executionOrderVerified": true,
+        "gameId": "2026020332",
+        "masterAllPass": true,
+        "masterMissingOrNonpassing": [],
+        "missingProvenanceForPassingGates": [],
+        "overlayAllPass": true,
+        "overlayIndependentlyEvaluated": true,
+        "overlayMissingOrNonpassing": [],
+        "player": "Mikhail Sergachev",
+        "playerId": "8479410",
+        "savedPath": "TRANSFER",
+        "semanticMissingProof": [],
+        "substantivelyCertified": true
+      }
+    ],
+    "selectedMasterGatesAllPass": true,
+    "selectedOverlayGatesAllPass": true,
     "selectedSourceAttributionGaps": [],
     "selectionFunnel": {
       "allNonselectedRetainGateAudit": true,
-      "lockedCoreRecipients": 0,
+      "lockedCoreRecipients": 2,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 34,
+      "notQualifiedIncompleteEvidence": 33,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 1,
+      "qualifiedButNotChosen": 0,
       "sourceEliminated": 14,
       "surveyedEligibleSkaters": 49
     },
@@ -1659,15 +1855,15 @@
       "G0": 49,
       "G1": 49,
       "G10": 39,
-      "G10.5": 1,
+      "G10.5": 2,
       "G11": 44,
       "G12": 42,
       "G13": 49,
       "G14": 47,
       "G15": 14,
-      "G16": 1,
-      "G17": 1,
-      "G18": 1,
+      "G16": 2,
+      "G17": 2,
+      "G18": 2,
       "G2": 36,
       "G3": 49,
       "G4": 47,
@@ -1679,11 +1875,11 @@
       "Step0": 49,
       "Step1": 49,
       "Step10": 45,
-      "Step10.5": 1,
+      "Step10.5": 2,
       "Step11": 48,
-      "Step12": 1,
+      "Step12": 2,
       "Step13": 49,
-      "Step14": 1,
+      "Step14": 2,
       "Step2": 49,
       "Step3": 45,
       "Step4": 44,
@@ -1720,24 +1916,24 @@
   },
   "missingByGate": {
     "G10": 10,
-    "G10.5": 48,
+    "G10.5": 47,
     "G11": 5,
     "G12": 7,
     "G14": 2,
     "G15": 35,
-    "G16": 48,
-    "G17": 48,
-    "G18": 48,
+    "G16": 47,
+    "G17": 47,
+    "G18": 47,
     "G4": 2,
     "G5": 2,
     "G6": 13,
     "G7": 5,
     "G9": 13,
     "Step10": 4,
-    "Step10.5": 48,
+    "Step10.5": 47,
     "Step11": 1,
-    "Step12": 48,
-    "Step14": 48,
+    "Step12": 47,
+    "Step14": 47,
     "Step3": 4,
     "Step4": 5,
     "Step5": 2,
@@ -1774,22 +1970,22 @@
     "targetSides": 4,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "NO_ELIGIBLE_G18_CARD",
-  "publishedToSite": false,
+  "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
+  "publishedToSite": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
-    "lockedCoreRecipients": 0,
+    "lockedCoreRecipients": 2,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 34,
+    "notQualifiedIncompleteEvidence": 33,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 1,
+    "qualifiedButNotChosen": 0,
     "sourceEliminated": 14,
     "surveyedEligibleSkaters": 49
   },
   "slateDate": "2026-11-16",
   "stage": "PROJECTED",
-  "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-16T21:02:24+00:00"
+  "survivorOnlyCertification": true,
+  "updatedUTC": "2026-11-16T21:08:12+00:00"
 }
