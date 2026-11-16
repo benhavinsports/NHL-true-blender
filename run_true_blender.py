@@ -98,6 +98,48 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
         result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)
         diagnostic = explain_live_blockers(con,date,stage)
+        # Compact, stage-specific ROOT CAUSE evidence for the actual G0-
+        # selected roster only. The large diagnostic matrix is retained in
+        # full, but aggregating its intersections makes it possible to
+        # repair source failures without visually sorting or picking skaters.
+        # This is NOT a replacement Core, ranking or scoring shortcut.
+        from collections import Counter
+        real=[row for row in diagnostic.get('candidateGateMatrix',[])
+              if row.get('masterDispositions',{}).get('G0')=='PASS'
+              and not str(row.get('playerId','')).startswith('G0_RESEARCH:')]
+        overlapping=Counter()
+        gate_causes=Counter()
+        samples={}
+        for row in real:
+            gates=tuple(row.get('failedMasterGates') or ())
+            steps=tuple(row.get('failedOverlayGates') or ())
+            overlapping[(gates,steps)]+=1
+            for gate in gates+steps:
+                gate_causes[gate]+=1
+                # Source-grounded example, not a skater shortlist.
+                if gate not in samples:
+                    samples[gate]={'gameId':row['gameId'],
+                                   'playerId':row['playerId'],
+                                   'reason':(row.get('nonpassReasons') or {}).get(gate)}
+        blocker_summary={
+            'slateDate':date,'stage':stage,
+            'g0AcceptedSkaterMatrices':len(real),
+            'g0RejectedResearchNeverCountsAsCandidate':True,
+            'allGatesExecutedButNotAllPassed':True,
+            'notScorerSelectionOrRanking':True,
+            'fullActualCandidateGateMatrixStoredSeparately':True,
+            'nonpassingGateCounts':dict(gate_causes),
+            'exactFailedGateIntersections':[{
+                'masterGates':list(master),'overlaySteps':list(overlay),
+                'playerCount':count}
+                for (master,overlay),count in
+                sorted(overlapping.items(),key=lambda item:(-item[1],str(item[0])))],
+            'oneObservedEvidenceExamplePerGate':samples,
+        }
+        diag_root=state/'site_runs'
+        diag_root.mkdir(parents=True,exist_ok=True)
+        (diag_root/f'{date}-{stage.lower()}-blocker-summary.json').write_text(
+            json.dumps(blocker_summary,indent=2,default=str),encoding='utf-8')
         # A confirmed-phase audit must not erase the projected-phase
         # candidate matrix. Publish stage-qualified immutable snapshots and
         # maintain the legacy latest-diagnostic alias for old dashboard links.
