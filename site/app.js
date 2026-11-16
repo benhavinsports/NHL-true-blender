@@ -566,6 +566,10 @@ function renderGrade(){
        g.appendChild(el("p","archive-note",
          "Audit: The old G15 PASS repeated historical goal credit rather than independently proving the future finishing role. Future G15 has been corrected."));
      }
+     if(game.bothGoalieDirectionsWereFullySourceReviewedBeforePuck===false){
+       g.appendChild(el("p","archive-note",
+         "Pregame G0 source gap: Both opposing goalie attack directions were NOT independently evidenced before puck drop. The saved result cannot establish that the Blender compared both goalies completely."));
+     }
      const sources=el("div","source-links");
      unique(game.officialSources||[]).map(u=>link(u,"Official NHL scoring record")).filter(Boolean)
           .forEach(a=>sources.appendChild(a));
