@@ -36,7 +36,8 @@ def fixture(n=3):
     games=[]
     for i in range(n):
         away,home="A"+str(i),"H"+str(i)
-        # Only home goalie is evidenced as a G0 target: selects AWAY attack.
+        # Both goalies are independently reviewed. Only the home goalie
+        # has an observed weak attack area: G0 selects the away attack.
         goalie=ev({"goalieId": "GH"+str(i), "team": home, "status": "CONFIRMED",
                    "weakZones": {"slot": {"sample": 200}},
                    "strengthZones": {"point": {"sample": 200}},
@@ -49,10 +50,17 @@ def fixture(n=3):
              "officialPlayByPlayUrl":"https://api-web.nhle.com/v1/gamecenter/2026020300/play-by-play",
              "officialShiftChartUrl":shift_url}],
              "shiftSourceUrls":[shift_url],"actualDefensiveShiftMatches":1}
+        no_weak_goalie=ev({
+            "goalieId":"GA"+str(i),"team":away,"status":"CONFIRMED",
+            "weakZones":{},"strengthZones":{"slot":{"shotsAgainst":70,"goalsAgainst":1}},
+            "observedAreas":{"slot":{"shotsAgainst":70,"goalsAgainst":1,"saves":69}},
+            "sample":{"allZoneObservations":70},"sourceReviewed":True,
+            "counterevidence":{"reviewedPeerSample":True},
+            "sourceClass":"DERIVED_RINK_ORIGIN_NOT_ANATOMICAL"})
         games.append({
             "id": str(9000+i), "date": DATE, "away": away, "home": home,
             "startUTC": START, "gameState": "FUT",
-            "goalies": {away: [], home: [goalie]},
+            "goalies": {away: [no_weak_goalie], home: [goalie]},
             "rosters": {away: ev({"players": [player(100+i*10, 30, 3), player(101+i*10, 10, 1)]}),
                         home: ev({"players": [player(102+i*10, 1, 0)]})},
             "context": ev({"venue": home, "rest": "verified"}),
