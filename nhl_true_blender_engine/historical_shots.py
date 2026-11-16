@@ -83,15 +83,18 @@ def goalie_summary(events, goalie_id):
             "anatomicalWeaknessVerified": False,
             "note": "Shot type and rink coordinates cannot establish glove/blocker/five-hole."}
 
-async def collect_history(client, con, snapshot, slate_date, stage, max_games=8):
+async def collect_history(client, con, snapshot, slate_date, stage,
+                          max_games=8, defense_research_games=16):
     """Collect target-team recent logs plus league-wide peer games for G9.
 
     The target clubs' recent games feed player logs, official boxscore
     reconciliation and shift joins. G9's peer median requires independent
     samples from at least six OTHER clubs; fetching only today's four teams'
     schedules made that impossible (all other teams had one game or fewer).
-    Therefore fetch the same bounded pre-slate window for every NHL club, but
-    keep non-target games out of individual player/goalie recent-log evidence.
+    Therefore fetch the larger, bounded pre-slate defensive comparison window
+    from every NHL club, but keep the original eight latest team games for
+    individual player goals, pressure, appearance logs and shift joins.
+    Expanding G9 source research must NOT rewrite the player's recent sample.
     """
     target_teams=sorted({t for g in snapshot["games"] for t in (g["away"],g["home"])})
     league_teams=sorted(TEAM_SLUGS)
@@ -107,7 +110,7 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
                 past=[g for g in games if str(g.get("gameDate",""))<slate_date
                       and g.get("gameState") in ("OFF","FINAL")]
                 past.sort(key=lambda g:str(g.get("gameDate","")))
-                return team,past[-max_games:],None
+                return team,past[-max(max_games,defense_research_games):],None
             except Exception as exc:
                 return team,[],f"{type(exc).__name__}: {exc}"
     responses=await asyncio.gather(*(team_games(t) for t in league_teams))
@@ -116,12 +119,16 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
         if err:
             schedule_errors.append({"team":team,"error":err})
             continue
+        # A longer independently sampled G9 defense cohort cannot silently
+        # widen G7/G10/G12 recent-player history or invent extra appearances.
+        recent_target_ids={str(g["id"]) for g in games[-max_games:]
+                           if g.get("id")} if team in target_teams else set()
         for g in games:
             if not g.get("id"):
                 continue
             gid=str(g["id"])
             coverage_ids[gid]=str(g.get("gameDate"))
-            if team in target_teams:
+            if gid in recent_target_ids:
                 target_ids[gid]=str(g.get("gameDate"))
             away=g.get("awayTeam") or {}
             home=g.get("homeTeam") or {}
@@ -208,6 +215,8 @@ async def collect_history(client, con, snapshot, slate_date, stage, max_games=8)
             "coveragePeerGames":len(coverage_ids),
             "coveragePeerTeams":len(league_teams),
             "coveragePeerEvents":len(coverage_events),
+            "G9IndependentPeerHistoryWindow":max(max_games,defense_research_games),
+            "playerRecentHistoryWindowUnchanged":max_games,
             # Ephemeral in-process handoff. The driver POPs this before
             # writing run JSON; no extra raw league-wide events are persisted.
             # This pre-slate official PBP pool is also suitable for a fair
