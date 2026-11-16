@@ -2534,8 +2534,16 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
+        "G5": {
+          "zone": "Low Slot",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -3327,16 +3335,8 @@
             ]
           }
         },
-        "G5": {
-          "zone": "Low Slot",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -3489,6 +3489,11 @@
         "Step14": "PASS"
       },
       "nonpassReasons": {
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
         "G9": {
           "zone": "Center Point",
           "green": [
@@ -3520,11 +3525,6 @@
             "peerMedianAttemptsPerGame": 4.375,
             "peerTeamsCompared": 31
           }
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
         }
       }
     },
@@ -3599,6 +3599,23 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": null,
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G17": {
+          "outcome": null,
+          "unresolved": null,
+          "goalieStrengthReview": null,
+          "lineupDisagreementReview": null,
+          "strongestRivalReview": null
+        },
+        "G10.5": {
+          "comparisonCounts": {},
+          "firstDirectContradictions": []
+        },
         "G9": {
           "zone": null,
           "green": [
@@ -3612,23 +3629,6 @@
           "red": [],
           "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
           "zoneConcession": null
-        },
-        "G17": {
-          "outcome": null,
-          "unresolved": null,
-          "goalieStrengthReview": null,
-          "lineupDisagreementReview": null,
-          "strongestRivalReview": null
-        },
-        "G5": {
-          "zone": null,
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10.5": {
-          "comparisonCounts": {},
-          "firstDirectContradictions": []
         }
       }
     },
@@ -3875,19 +3875,11 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G9": {
+        "G5": {
           "zone": "Offensive Neutral Zone",
-          "green": [
-            "Low Slot",
-            "Point",
-            "L Circle",
-            "R Circle",
-            "L Point",
-            "R Point"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
+          "goalieWeakZones": [
+            "Center Point"
+          ]
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -4675,11 +4667,19 @@
             ]
           }
         },
-        "G5": {
+        "G9": {
           "zone": "Offensive Neutral Zone",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
+          "green": [
+            "Low Slot",
+            "Point",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "R Point"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -4745,41 +4745,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
-        "G9": {
-          "zone": "Center Point",
-          "green": [
-            "Low Slot",
-            "Point",
-            "L Circle",
-            "R Circle",
-            "L Point",
-            "R Point"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": {
-            "allAttemptsAgainst": 494,
-            "allOnNetShotsAgainst": 226,
-            "attemptShare": 0.06477732793522267,
-            "attemptTypes": [
-              "goal",
-              "shot-on-goal",
-              "missed-shot",
-              "blocked-shot"
-            ],
-            "attemptsAgainst": 32,
-            "attemptsPerGame": 4.0,
-            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-            "gameCount": 8,
-            "goalsAgainst": 1,
-            "onNetShotsAgainst": 18,
-            "peerMedianAttemptsPerGame": 4.375,
-            "peerTeamsCompared": 31
-          }
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -5565,6 +5530,41 @@
               }
             ]
           }
+        },
+        "G6": {
+          "deployment": null
+        },
+        "G9": {
+          "zone": "Center Point",
+          "green": [
+            "Low Slot",
+            "Point",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "R Point"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": {
+            "allAttemptsAgainst": 494,
+            "allOnNetShotsAgainst": 226,
+            "attemptShare": 0.06477732793522267,
+            "attemptTypes": [
+              "goal",
+              "shot-on-goal",
+              "missed-shot",
+              "blocked-shot"
+            ],
+            "attemptsAgainst": 32,
+            "attemptsPerGame": 4.0,
+            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+            "gameCount": 8,
+            "goalsAgainst": 1,
+            "onNetShotsAgainst": 18,
+            "peerMedianAttemptsPerGame": 4.375,
+            "peerTeamsCompared": 31
+          }
         }
       }
     },
@@ -5647,6 +5647,31 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": null
+        },
+        "G17": {
+          "outcome": null,
+          "unresolved": null,
+          "goalieStrengthReview": null,
+          "lineupDisagreementReview": null,
+          "strongestRivalReview": null
+        },
+        "G6": {
+          "deployment": null
+        },
+        "G5": {
+          "zone": null,
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10.5": {
+          "comparisonCounts": {},
+          "firstDirectContradictions": []
+        },
         "G9": {
           "zone": null,
           "green": [
@@ -5660,31 +5685,6 @@
           "red": [],
           "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
           "zoneConcession": null
-        },
-        "G10.5": {
-          "comparisonCounts": {},
-          "firstDirectContradictions": []
-        },
-        "G17": {
-          "outcome": null,
-          "unresolved": null,
-          "goalieStrengthReview": null,
-          "lineupDisagreementReview": null,
-          "strongestRivalReview": null
-        },
-        "G5": {
-          "zone": null,
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G6": {
-          "deployment": null
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": null
         }
       }
     },
@@ -5752,6 +5752,17 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": "R Point",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -6546,17 +6557,6 @@
               }
             ]
           }
-        },
-        "G5": {
-          "zone": "R Point",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
         }
       }
     },
@@ -6622,6 +6622,12 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": "Low Slot",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -7406,12 +7412,6 @@
               }
             ]
           }
-        },
-        "G5": {
-          "zone": "Low Slot",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
         }
       }
     },
@@ -7483,40 +7483,10 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
-        "G9": {
-          "zone": "Center Point",
-          "green": [
-            "Low Slot",
-            "Point",
-            "L Circle",
-            "R Circle",
-            "L Point",
-            "R Point"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": {
-            "allAttemptsAgainst": 494,
-            "allOnNetShotsAgainst": 226,
-            "attemptShare": 0.06477732793522267,
-            "attemptTypes": [
-              "goal",
-              "shot-on-goal",
-              "missed-shot",
-              "blocked-shot"
-            ],
-            "attemptsAgainst": 32,
-            "attemptsPerGame": 4.0,
-            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-            "gameCount": 8,
-            "goalsAgainst": 1,
-            "onNetShotsAgainst": 18,
-            "peerMedianAttemptsPerGame": 4.375,
-            "peerTeamsCompared": 31
-          }
+        "G10": {
+          "recipient": true,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -8296,10 +8266,40 @@
             ]
           }
         },
-        "G10": {
-          "recipient": true,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": true
+        "G6": {
+          "deployment": null
+        },
+        "G9": {
+          "zone": "Center Point",
+          "green": [
+            "Low Slot",
+            "Point",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "R Point"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": {
+            "allAttemptsAgainst": 494,
+            "allOnNetShotsAgainst": 226,
+            "attemptShare": 0.06477732793522267,
+            "attemptTypes": [
+              "goal",
+              "shot-on-goal",
+              "missed-shot",
+              "blocked-shot"
+            ],
+            "attemptsAgainst": 32,
+            "attemptsPerGame": 4.0,
+            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+            "gameCount": 8,
+            "goalsAgainst": 1,
+            "onNetShotsAgainst": 18,
+            "peerMedianAttemptsPerGame": 4.375,
+            "peerTeamsCompared": 31
+          }
         }
       }
     },
@@ -8451,6 +8451,11 @@
         "Step14": "PASS"
       },
       "nonpassReasons": {
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
         "G9": {
           "zone": "Center Point",
           "green": [
@@ -8482,11 +8487,6 @@
             "peerMedianAttemptsPerGame": 4.375,
             "peerTeamsCompared": 31
           }
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
         }
       }
     },
@@ -8642,6 +8642,12 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": "Low Slot",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -9429,12 +9435,6 @@
               }
             ]
           }
-        },
-        "G5": {
-          "zone": "Low Slot",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
         }
       }
     },
@@ -9505,22 +9505,16 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
-        "G9": {
+        "G5": {
           "zone": "Crease",
-          "green": [
-            "Low Slot",
-            "Point",
-            "L Circle",
-            "R Circle",
-            "L Point",
-            "R Point"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -10311,16 +10305,22 @@
             ]
           }
         },
-        "G5": {
-          "zone": "Crease",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
+        "G6": {
+          "deployment": null
         },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
+        "G9": {
+          "zone": "Crease",
+          "green": [
+            "Low Slot",
+            "Point",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "R Point"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -10382,6 +10382,11 @@
         "Step14": "PASS"
       },
       "nonpassReasons": {
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
         "G9": {
           "zone": "Center Point",
           "green": [
@@ -10413,11 +10418,6 @@
             "peerMedianAttemptsPerGame": 4.375,
             "peerTeamsCompared": 31
           }
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
         }
       }
     },
@@ -10583,8 +10583,16 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
+        "G5": {
+          "zone": "Low Slot",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": true,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -11371,16 +11379,8 @@
             ]
           }
         },
-        "G5": {
-          "zone": "Low Slot",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10": {
-          "recipient": true,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": true
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -11456,6 +11456,28 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": null,
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
+        "G17": {
+          "outcome": null,
+          "unresolved": null,
+          "goalieStrengthReview": null,
+          "lineupDisagreementReview": null,
+          "strongestRivalReview": null
+        },
+        "G10.5": {
+          "comparisonCounts": {},
+          "firstDirectContradictions": []
+        },
         "G9": {
           "zone": null,
           "green": [
@@ -11469,28 +11491,6 @@
           "red": [],
           "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
           "zoneConcession": null
-        },
-        "G17": {
-          "outcome": null,
-          "unresolved": null,
-          "goalieStrengthReview": null,
-          "lineupDisagreementReview": null,
-          "strongestRivalReview": null
-        },
-        "G5": {
-          "zone": null,
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
-        },
-        "G10.5": {
-          "comparisonCounts": {},
-          "firstDirectContradictions": []
         }
       }
     },
@@ -11556,6 +11556,12 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G5": {
+          "zone": "Low Slot",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -12341,12 +12347,6 @@
               }
             ]
           }
-        },
-        "G5": {
-          "zone": "Low Slot",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
         }
       }
     },
@@ -12416,8 +12416,16 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
+        "G5": {
+          "zone": "L Circle",
+          "goalieWeakZones": [
+            "Center Point"
+          ]
+        },
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -13204,16 +13212,8 @@
             ]
           }
         },
-        "G5": {
-          "zone": "L Circle",
-          "goalieWeakZones": [
-            "Center Point"
-          ]
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -15391,6 +15391,11 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
+        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -16379,11 +16384,6 @@
               }
             }
           ]
-        },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
         }
       }
     },
@@ -16452,9 +16452,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -17444,6 +17441,9 @@
               }
             }
           ]
+        },
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -18558,9 +18558,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -19550,6 +19547,9 @@
               }
             }
           ]
+        },
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -20684,78 +20684,10 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G9": {
-          "zone": "R Point",
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": {
-            "allAttemptsAgainst": 434,
-            "allOnNetShotsAgainst": 217,
-            "attemptShare": 0.06451612903225806,
-            "attemptTypes": [
-              "goal",
-              "shot-on-goal",
-              "missed-shot",
-              "blocked-shot"
-            ],
-            "attemptsAgainst": 28,
-            "attemptsPerGame": 3.5,
-            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-            "gameCount": 8,
-            "goalsAgainst": 0,
-            "onNetShotsAgainst": 17,
-            "peerMedianAttemptsPerGame": 3.7777777777777777,
-            "peerTeamsCompared": 31
-          }
-        },
-        "G10.5": {
-          "comparisonCounts": {
-            "DEFEATED": 16,
-            "RIVAL_DOMINATES": 1,
-            "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE": 1,
-            "DIFFERENT_TARGET_LANE": 4,
-            "NO_DECISIVE_ROUTE_SEPARATION": 2
-          },
-          "firstDirectContradictions": [
-            {
-              "challengerId": "8483431",
-              "status": "RIVAL_DOMINATES",
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 3,
-                "zone": "R Point"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 4,
-                "zone": "L Circle"
-              }
-            },
-            {
-              "challengerId": "8481827",
-              "status": "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
-              "candidate": null,
-              "challenger": null
-            },
-            {
-              "challengerId": "8484386",
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 3,
-                "zone": "R Point"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 3,
-                "zone": "L Circle"
-              }
-            }
-          ]
+        "G10": {
+          "recipient": true,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -21702,6 +21634,9 @@
             ]
           }
         },
+        "G6": {
+          "deployment": null
+        },
         "G5": {
           "zone": "R Point",
           "goalieWeakZones": [
@@ -21712,13 +21647,78 @@
             "Outside R"
           ]
         },
-        "G6": {
-          "deployment": null
+        "G10.5": {
+          "comparisonCounts": {
+            "DEFEATED": 16,
+            "RIVAL_DOMINATES": 1,
+            "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE": 1,
+            "DIFFERENT_TARGET_LANE": 4,
+            "NO_DECISIVE_ROUTE_SEPARATION": 2
+          },
+          "firstDirectContradictions": [
+            {
+              "challengerId": "8483431",
+              "status": "RIVAL_DOMINATES",
+              "candidate": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 3,
+                "zone": "R Point"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 4,
+                "zone": "L Circle"
+              }
+            },
+            {
+              "challengerId": "8481827",
+              "status": "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
+              "candidate": null,
+              "challenger": null
+            },
+            {
+              "challengerId": "8484386",
+              "status": "NO_DECISIVE_ROUTE_SEPARATION",
+              "candidate": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 3,
+                "zone": "R Point"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 3,
+                "zone": "L Circle"
+              }
+            }
+          ]
         },
-        "G10": {
-          "recipient": true,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": true
+        "G9": {
+          "zone": "R Point",
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": {
+            "allAttemptsAgainst": 434,
+            "allOnNetShotsAgainst": 217,
+            "attemptShare": 0.06451612903225806,
+            "attemptTypes": [
+              "goal",
+              "shot-on-goal",
+              "missed-shot",
+              "blocked-shot"
+            ],
+            "attemptsAgainst": 28,
+            "attemptsPerGame": 3.5,
+            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+            "gameCount": 8,
+            "goalsAgainst": 0,
+            "onNetShotsAgainst": 17,
+            "peerMedianAttemptsPerGame": 3.7777777777777777,
+            "peerTeamsCompared": 31
+          }
         }
       }
     },
@@ -23895,16 +23895,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G9": {
-          "zone": "Outside R",
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -24906,6 +24896,16 @@
               }
             }
           ]
+        },
+        "G9": {
+          "zone": "Outside R",
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -28140,18 +28140,10 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
-        "G9": {
-          "zone": "Outside R",
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": 0,
+          "creditedGoalsVerified": true
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -29101,11 +29093,6 @@
             ]
           }
         },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": 0,
-          "creditedGoalsVerified": true
-        },
         "G10.5": {
           "comparisonCounts": {
             "DEFEATED": 5,
@@ -29157,6 +29144,19 @@
               }
             }
           ]
+        },
+        "G6": {
+          "deployment": null
+        },
+        "G9": {
+          "zone": "Outside R",
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -32379,19 +32379,10 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G9": {
-          "zone": null,
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
-        },
-        "G10.5": {
-          "comparisonCounts": {},
-          "firstDirectContradictions": []
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": null
         },
         "G17": {
           "outcome": null,
@@ -32410,10 +32401,19 @@
             "Outside R"
           ]
         },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": null
+        "G10.5": {
+          "comparisonCounts": {},
+          "firstDirectContradictions": []
+        },
+        "G9": {
+          "zone": null,
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -32482,9 +32482,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -33474,6 +33471,9 @@
               }
             }
           ]
+        },
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -33537,9 +33537,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
           "unresolved": true,
@@ -34476,6 +34473,9 @@
               }
             ]
           }
+        },
+        "G6": {
+          "deployment": null
         }
       }
     },
@@ -34552,23 +34552,6 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G9": {
-          "zone": null,
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
-        },
-        "G17": {
-          "outcome": null,
-          "unresolved": null,
-          "goalieStrengthReview": null,
-          "lineupDisagreementReview": null,
-          "strongestRivalReview": null
-        },
         "G5": {
           "zone": null,
           "goalieWeakZones": [
@@ -34584,9 +34567,26 @@
           "ownedGoalsInActualAppearances": null,
           "creditedGoalsVerified": null
         },
+        "G17": {
+          "outcome": null,
+          "unresolved": null,
+          "goalieStrengthReview": null,
+          "lineupDisagreementReview": null,
+          "strongestRivalReview": null
+        },
         "G10.5": {
           "comparisonCounts": {},
           "firstDirectContradictions": []
+        },
+        "G9": {
+          "zone": null,
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
@@ -34662,18 +34662,10 @@
         "Step14": "NOT_EXECUTED"
       },
       "nonpassReasons": {
-        "G6": {
-          "deployment": null
-        },
-        "G9": {
-          "zone": "Outside R",
-          "green": [
-            "Low Slot",
-            "L Circle"
-          ],
-          "red": [],
-          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-          "zoneConcession": null
+        "G10": {
+          "recipient": null,
+          "ownedGoalsInActualAppearances": null,
+          "creditedGoalsVerified": null
         },
         "G17": {
           "outcome": "UNRESOLVED_CONTRADICTION",
@@ -35621,11 +35613,6 @@
             ]
           }
         },
-        "G10": {
-          "recipient": null,
-          "ownedGoalsInActualAppearances": null,
-          "creditedGoalsVerified": null
-        },
         "G10.5": {
           "comparisonCounts": {
             "NO_DECISIVE_ROUTE_SEPARATION": 5,
@@ -35677,6 +35664,19 @@
               }
             }
           ]
+        },
+        "G6": {
+          "deployment": null
+        },
+        "G9": {
+          "zone": "Outside R",
+          "green": [
+            "Low Slot",
+            "L Circle"
+          ],
+          "red": [],
+          "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+          "zoneConcession": null
         }
       }
     },
