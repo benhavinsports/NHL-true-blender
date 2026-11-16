@@ -44,6 +44,15 @@ def open_db(db_path=None):
         details TEXT NOT NULL, evaluated_at TEXT NOT NULL,
         PRIMARY KEY (slate_date,stage,game_id,player_id,gate)
       );
+      CREATE TABLE IF NOT EXISTS gate_history (
+        snapshot_hash TEXT PRIMARY KEY, slate_date TEXT NOT NULL,
+        stage TEXT NOT NULL, game_id TEXT NOT NULL, player_id TEXT NOT NULL,
+        gate TEXT NOT NULL, disposition TEXT NOT NULL,
+        details TEXT NOT NULL, evaluated_at TEXT NOT NULL,
+        archived_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS ix_gate_history_slate
+        ON gate_history(slate_date, stage, game_id, player_id);
       CREATE TABLE IF NOT EXISTS jobs (
         run_id TEXT PRIMARY KEY, slate_date TEXT NOT NULL, mode TEXT NOT NULL,
         started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, details TEXT NOT NULL
@@ -139,11 +148,39 @@ def record_evidence(con, item):
 
 
 def save_gates(con, date, stage, records):
+    """Replace the CURRENT execution matrix; archive prior receipts first.
+
+    The previous UPSERT accumulated player traces from earlier G0 attack
+    directions across separate runs on the SAME slate. That could report
+    214 candidates against 96 currently eligible skaters. Historical
+    results remain immutable in gate_history; only this run's records
+    participate in live G0-G18 certification.
+    """
     with transaction(con):
+        previous=con.execute(
+            """SELECT slate_date,stage,game_id,player_id,gate,disposition,
+                      details,evaluated_at FROM gates
+               WHERE slate_date=? AND stage=?""",(date,stage)).fetchall()
+        for row in previous:
+            payload=[row[k] for k in (
+                'slate_date','stage','game_id','player_id',
+                'gate','disposition','details')]
+            digest=hashlib.sha256(encode(payload).encode('utf-8')).hexdigest()
+            con.execute(
+                """INSERT OR IGNORE INTO gate_history
+                   (snapshot_hash,slate_date,stage,game_id,player_id,
+                    gate,disposition,details,evaluated_at,archived_at)
+                   VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                (digest,*payload,row['evaluated_at'],stamp()))
+        # Records from the last run are replaced as a set. Gate history is
+        # archived rather than silently erased or allowed to count as live.
+        con.execute("DELETE FROM gates WHERE slate_date=? AND stage=?",
+                    (date,stage))
         for x in records:
-            con.execute('''INSERT OR REPLACE INTO gates VALUES (?,?,?,?,?,?,?,?)''',
+            con.execute('''INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)''',
                 (date,stage,x['gameId'],str(x.get('playerId','GOALIE_ATTACK')),
                  x['gate'],x['disposition'],encode(x.get('details',{})),stamp()))
+
 
 
 def assert_card_structure(legs, games_count):
