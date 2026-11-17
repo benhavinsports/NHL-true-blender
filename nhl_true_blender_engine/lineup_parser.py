@@ -83,6 +83,7 @@ def parse_markdown(text):
 def ingest_lineups(con, snapshot, date, stage, text, observed_at):
     parsed = parse_markdown(text)
     inserted = 0
+    matched_goalie_reports = 0
     unmatched = []
     for game in snapshot["games"]:
         for abbrev in (game["away"], game["home"]):
@@ -150,10 +151,14 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
             if goalie["team"] not in (game["home"], game["away"]):
                 continue
             roster = (game.get("rosters", {}).get(goalie["team"]) or {}).get("data", {})
-            matches = [p for p in roster.get("goalies", []) if norm(p["name"]) == norm(goalie["name"])]
-            if len(matches) != 1:
+            # The NHL official roster can spell a first name differently
+            # (Dan/Daniel). Apply the SAME unambiguous full-name-or-first-name
+            # variant matcher as skaters, with an exact surname. Never guess
+            # from a surname alone or accept two matching official IDs.
+            matched = unique_official_player(goalie["name"], roster.get("goalies", []))
+            if matched is None:
                 unmatched.append({"team": goalie["team"], "goalie": goalie["name"],
-                                  "reason": "Official goalie ID not uniquely matched"})
+                                  "reason": "OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"})
                 continue
             ingest(con, {
                 "evidence_id": f"btl-goalie-{date}-{stage}-{game['id']}-{goalie['team']}-{observed_at}",
@@ -161,14 +166,18 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
                 "kind": "GOALIE_STARTER", "source_url": URL,
                 "observed_at": observed_at,
                 "payload": {"team": goalie["team"], "goalieName": goalie["name"],
-                            "goalieId": matches[0]["id"],
+                            "goalieId": matched["id"],
                             "status": "CONFIRMED" if goalie["status"] == "CONFIRMED" else "EXPECTED",
                             "identityMatched": True,
                             "starterSourceStatus": goalie["status"],
                             "note": "Secondary lineup report; not independent team confirmation"}
             })
+            matched_goalie_reports += 1
     return {"deploymentRecords": inserted, "unmatched": unmatched,
-            "goalieReports": len(parsed["goalies"]), "source": URL}
+            "goalieReports": len(parsed["goalies"]),
+            "matchedGoalieReports": matched_goalie_reports,
+            "unmatchedGoalieReports": sum("goalie" in x for x in unmatched),
+            "source": URL}
 
 
 async def fetch_and_ingest_lineups(con,snapshot,date,stage):

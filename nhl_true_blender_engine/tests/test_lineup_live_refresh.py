@@ -79,3 +79,46 @@ def test_collision_does_not_guess_which_elias_pettersson_is_dressed():
     roster=[{"id":"20","name":"Elias Nils Pettersson"},
             {"id":"21","name":"Elias Carl Pettersson"}]
     assert unique_official_player("Elias Pettersson",roster) is None
+
+
+def test_goalie_first_name_variant_reconciles_only_unique_official_roster_id(tmp_path):
+    from nhl_true_blender_engine.lineup_parser import ingest_lineups
+    from json import loads
+    markdown = """# Tonight in the NHL: line combinations and starting goalies (games dated 2026-11-17)
+## Edmonton Oilers at Philadelphia Flyers
+Starting goalies:
+- Dan Vladar (PHI), Unconfirmed
+- Tristan Jarry (EDM), Unconfirmed
+"""
+    def official(goalies):
+        return {"data":{"players":[],"goalies":goalies}}
+    game={"id":"g1","away":"EDM","home":"PHI",
+          "goalies":{"EDM":[],"PHI":[]},
+          "rosters":{"EDM":official([{"id":"100","name":"Tristan Jarry"}]),
+                     "PHI":official([{"id":"200","name":"Daniel Vladar"}])}}
+    con=open_db(str(tmp_path/"alias.sqlite"))
+    try:
+        result=ingest_lineups(con,{"games":[game]},"2026-11-17","PROJECTED",
+                              markdown,"2026-11-17T17:00:00Z")
+        assert result["goalieReports"]==2
+        assert result["matchedGoalieReports"]==2
+        assert result["unmatchedGoalieReports"]==0
+        rows=con.execute("SELECT payload FROM evidence WHERE kind='GOALIE_STARTER'").fetchall()
+        ids={str(loads(row["payload"])["goalieId"]) for row in rows}
+        assert ids=={"100","200"}
+        assert all(loads(row["payload"])["status"]=="EXPECTED" for row in rows)
+        # An ambiguous nickname cannot establish either official goalie ID.
+        game["rosters"]["PHI"]["data"]["goalies"].append(
+            {"id":"201","name":"Dany Vladar"})
+        con.execute("DELETE FROM evidence")
+        result=ingest_lineups(con,{"games":[game]},"2026-11-17","PROJECTED",
+                              markdown,"2026-11-17T17:01:00Z")
+        assert result["matchedGoalieReports"]==1
+        assert result["unmatchedGoalieReports"]==1
+        assert any(x.get("reason")=="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
+                   for x in result["unmatched"])
+        ids={str(loads(row["payload"])["goalieId"]) for row in
+             con.execute("SELECT payload FROM evidence WHERE kind='GOALIE_STARTER'")}
+        assert ids=={"100"}
+    finally:
+        con.close()
