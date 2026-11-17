@@ -134,7 +134,7 @@ async def execute_cycle(mode, date, root='state'):
                     # alone NEVER activates a policy.
                     adjudication=adjudicate_misses(con,date,root=root)
                     season_year=int(date[:4]) if int(date[5:7])>=10 else int(date[:4])-1
-                    history=season_history(con,season_year,date)
+                    history=season_history(con,season_year,date,root=root)
                     _write(root/'history'/f'{history["season"]}.json',history)
                     report=_publish_official_grade(root,date,grade,audits,adjudication,recipient_audit)
                     output={'slateDate':date,'mode':mode,'status':status,
