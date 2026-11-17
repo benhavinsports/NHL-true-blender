@@ -74,7 +74,7 @@ def _unresolved_first_gate_source_receipts(con, date, stage, game_pool):
         proof={}
         for gate in wanted:
             row=con.execute(
-                "SELECT disposition,details FROM gates WHERE slate_date=? "
+                "SELECT disposition,details,evaluated_at FROM gates WHERE slate_date=? "
                 "AND stage=? AND game_id=? AND player_id=? AND gate=?",
                 (date,stage,str(game.get('gameId')),pid,gate)).fetchone()
             if not row:
@@ -111,6 +111,15 @@ def _unresolved_first_gate_source_receipts(con, date, stage, game_pool):
         out.append(item)
     return out
 
+
+def _before_puck(when, start):
+    """Only time-stamped original decisions strictly before this game's puck drop."""
+    try:
+        a=datetime.fromisoformat(str(when).replace('Z','+00:00'))
+        b=datetime.fromisoformat(str(start).replace('Z','+00:00'))
+        return a.tzinfo is not None and b.tzinfo is not None and a<b
+    except (TypeError,ValueError):
+        return False
 
 def _public_survivor_gate_cards(con, slate_date, stage, pool):
     """Read-only compact actual gate receipts for every saved game survivor.
@@ -192,7 +201,8 @@ def _public_survivor_gate_cards(con, slate_date, stage, pool):
             rows.append({'gate':gate,'status':record['disposition'],
                 # This is a display receipt, not an assertion that a
                 # missing source or post-puck row may be called pre-puck.
-                'prePuckRecord':original.get('prePuckRecord') is True,
+                'prePuckRecord':_before_puck(record['evaluated_at'],
+                    game.get('gameStartUTC')),
                 'sourceIds':list(dict.fromkeys(
                     x for x in original.get('sourceIds',[])
                     if isinstance(x,str) and x.startswith('https://')))[:10],
