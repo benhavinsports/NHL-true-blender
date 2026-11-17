@@ -62,7 +62,7 @@ def test_saved_engine_core_passes_one_original_gate_sequence(tmp_path):
         "pathClassificationEvidence"].update({"pathQuotaApplied":True}),
     lambda run,card,g: run["gateCertification"]["gateChecksAttempted"].update(
         {"G0":1}),
-    lambda run,card,g: run["allG18QualifiedSurvivors"].append(
+    lambda run,card,g: run["preCoreQualifiedSurvivors"].append(
         {"gameId":"unreviewed-game","playerId":"unreviewed-player"}),
 ])
 def test_rejects_missing_skipped_aliased_or_relabelled_source_proof(tmp_path,mutate):
@@ -75,7 +75,7 @@ def test_rejects_missing_skipped_aliased_or_relabelled_source_proof(tmp_path,mut
 
 def test_g18_rejects_unreported_extra_survivor(tmp_path):
     run,card,gates=fixture(tmp_path)
-    run["allG18QualifiedSurvivors"].append(
+    run["preCoreQualifiedSurvivors"].append(
         {"gameId":"unreviewed-game","playerId":"unreviewed-player"})
     persist(tmp_path,run,card,gates)
     with pytest.raises(AssertionError,match="silently dropped"):
