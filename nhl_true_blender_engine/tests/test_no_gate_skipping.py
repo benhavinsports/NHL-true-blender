@@ -16,7 +16,11 @@ def test_eliminated_depth_player_still_receives_real_subsequent_checks(tmp_path)
         slate_date=? AND stage='CONFIRMED' AND game_id='5001' AND player_id='1012'""",
         (DATE,)).fetchall()
     by_gate={x["gate"]:x for x in rows}
-    assert all(g in by_gate for g in MASTER+OVERLAY)
+    assert set(by_gate)==set(MASTER)
+    recorded=[fn["step"] for row in rows
+              for fn in (json.loads(row["details"])["evidence"]
+                         .get("originalFunctionEvidence") or [])]
+    assert set(recorded)==set(OVERLAY)
     ordered=sorted(rows,key=lambda row:json.loads(row["details"])["executionIndex"])
     assert [row["gate"] for row in ordered]==EXECUTION_ORDER
     assert ordered[-1]["gate"]=="G18"
