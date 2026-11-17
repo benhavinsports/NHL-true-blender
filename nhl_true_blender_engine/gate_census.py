@@ -7,7 +7,7 @@ selects or replaces a Core, and never changes a gate's disposition.
 from __future__ import annotations
 import json
 from collections import Counter,defaultdict
-from .engine import MASTER,OVERLAY,SCORER_GATE_ORDER,EXECUTION_ORDER
+from .engine import MASTER,OVERLAY,SCORER_GATE_ORDER,EXECUTION_ORDER,STEPS_BY_GATE
 from .storage import get_card
 from .semantic_certification import audit_gate
 
@@ -28,7 +28,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
     # but are NOT G0-authorized scorer-candidate matrices; including them
     # in source-certified skater PASS/FAIL totals inflated the selection
     # denominator and mislabeled branch research as full candidate passes.
-    # Never discard their 36 individual receipts: count them separately.
+    # Retain branch research as original gate receipts, not duplicate steps.
     research=defaultdict(dict)
     researched_official=set()
     for row in rows:
@@ -54,8 +54,10 @@ def certify_gates(con,date,stage,expected_game_count=None):
     attempted_by_gate=Counter()
     order_by_key={}
     order_mismatches=[]
+    functions_by_key={}
     for key,matrix in skaters.items():
         if set(matrix)!=required:missing.update(required-set(matrix))
+        functions_by_key[key]={}
         indexed=[]
         for gate,row in matrix.items():
             detail=json.loads(row["details"])
@@ -88,28 +90,59 @@ def certify_gates(con,date,stage,expected_game_count=None):
                             "gate":gate,"missingProof":gaps})
                 else:
                     independently_proven_by_gate[gate]+=1
-            if gate in OVERLAY and not(
-                    evidence.get("independentOverlayEvaluation") is True and
-                    evidence.get("checkedBeforeG18") is True and
-                    evidence.get("masterGateVerdictCopied") is False):
-                overlay_copies.append({"gameId":key[0],"playerId":key[1],"gate":gate})
+            # The old Step names are source-function metadata inside this
+            # canonical gate row, never additional database gate rows.
+            embedded=evidence.get("originalFunctionEvidence") or []
+            by_step={x.get("step"):x for x in embedded
+                     if isinstance(x,dict)}
+            for step in STEPS_BY_GATE.get(gate,[]):
+                fn=by_step.get(step)
+                if fn is None:
+                    overlay_copies.append({"gameId":key[0],"playerId":key[1],
+                        "gate":gate,"function":step,"reason":"MISSING_FUNCTION_EVIDENCE"})
+                    distributions[step]["MISSING"]+=1
+                    continue
+                functions_by_key[key][step]=fn
+                status=fn.get("disposition")
+                ev=fn.get("evidence") or {}
+                ids=fn.get("sourceIds") or []
+                distributions[step][status]+=1
+                attempted_by_gate[step]+=1
+                if not (ev.get("independentOverlayEvaluation") is True
+                        and ev.get("checkedBeforeG18") is True
+                        and ev.get("masterGateVerdictCopied") is False):
+                    overlay_copies.append({"gameId":key[0],"playerId":key[1],
+                        "gate":gate,"function":step,"reason":"COPIED_OR_UNEXECUTED_FUNCTION"})
+                if status=="PASS":
+                    gaps=audit_gate(step,ev,ids,stage)
+                    if gaps:
+                        semantic_failed_by_gate[step]+=1
+                        if len(semantic_failed_examples)<40:
+                            semantic_failed_examples.append({
+                                "gameId":key[0],"playerId":key[1],
+                                "gate":gate,"function":step,"missingProof":gaps})
+                    else:
+                        independently_proven_by_gate[step]+=1
+                if status=="NOT_EXECUTED" and len(missing_gate_evidence[step])<8:
+                    missing_gate_evidence[step].append({
+                        "gameId":key[0],"playerId":key[1],
+                        "owningGate":gate,"sourceCount":len(ids)})
+                if step=="Step8" and status!="PASS":
+                    match=ev.get("matchingArea")
+                    shift_count=ev.get("actualMatchingAreaShiftEvents") or 0
+                    urls=ev.get("officialShiftChartSourceCount") or 0
+                    reason=("NO_PLAYER_OWN_SCORING_ORIGIN" if not match else
+                            "NO_MATCHED_HISTORICAL_DEFENSIVE_SHIFT_IN_OWN_AREA"
+                            if not shift_count else
+                            "NO_OFFICIAL_SHIFT_CHART_PROVENANCE" if not urls else
+                            "NONPASSING_OTHER")
+                    step8_missing.append({"gameId":key[0],"playerId":key[1],
+                        "owningGate":gate,"matchingArea":match,"reason":reason,
+                        "observedShiftEvents":shift_count,"sourceCount":len(ids)})
             if row["disposition"]=="NOT_EXECUTED":
                 if len(missing_gate_evidence[gate])<8:
                     missing_gate_evidence[gate].append({"gameId":key[0],
                         "playerId":key[1],"sourceCount":len(detail.get("sourceIds") or [])})
-            if gate=="Step8" and row["disposition"]!="PASS":
-                match=evidence.get("matchingArea")
-                shift_count=evidence.get("actualMatchingAreaShiftEvents") or 0
-                urls=evidence.get("officialShiftChartSourceCount") or 0
-                reason=("NO_PLAYER_OWN_SCORING_ORIGIN" if not match else
-                        "NO_MATCHED_HISTORICAL_DEFENSIVE_SHIFT_IN_OWN_AREA"
-                        if not shift_count else
-                        "NO_OFFICIAL_SHIFT_CHART_PROVENANCE" if not urls else
-                        "NONPASSING_OTHER")
-                step8_missing.append({"gameId":key[0],"playerId":key[1],
-                    "matchingArea":match,"reason":reason,
-                    "observedShiftEvents":shift_count,
-                    "sourceCount":len(detail.get("sourceIds") or [])})
             if (gate in PROVENANCE_REQUIRED and row["disposition"]=="PASS" and
                     not detail.get("sourceIds")):
                 source_unattributed.append({"gameId":key[0],"playerId":key[1],"gate":gate})
@@ -125,10 +158,15 @@ def certify_gates(con,date,stage,expected_game_count=None):
             matrix=skaters.get(key,{})
             bad_master=[gate for gate in MASTER
                         if gate not in matrix or matrix[gate]["disposition"]!="PASS"]
-            bad_overlay=[{"gate":gate,"status":
-                    matrix[gate]["disposition"] if gate in matrix else "MISSING"}
-                         for gate in OVERLAY if gate not in matrix or
-                         matrix[gate]["disposition"]!="PASS"]
+            functions=functions_by_key.get(key,{})
+            bad_overlay=[{"function":step,"status":
+                    functions[step].get("disposition") if step in functions else "MISSING"}
+                         for step in OVERLAY
+                         if (step not in functions or (
+                             functions[step].get("disposition")!="PASS"
+                             and not (step=="Step13" and
+                                (functions[step].get("evidence") or {})
+                                .get("nonblocking") is True)))]
             own_source_gaps=[gate for gate in EXECUTION_ORDER
                 if gate in PROVENANCE_REQUIRED and gate in matrix
                 and matrix[gate]["disposition"]=="PASS"
@@ -165,9 +203,10 @@ def certify_gates(con,date,stage,expected_game_count=None):
                 "semanticMissingProof":semantic_gaps,
                 "substantivelyCertified":not semantic_gaps and not bad_master and not bad_overlay,
                 "overlayIndependentlyEvaluated":all(
-                    gate in matrix and
-                    (json.loads(matrix[gate]["details"]).get("evidence") or {})
-                     .get("independentOverlayEvaluation") is True for gate in OVERLAY)})
+                    step in functions and
+                    (functions[step].get("evidence") or {})
+                    .get("independentOverlayEvaluation") is True
+                    for step in OVERLAY)})
     # Count outcomes AFTER the full pool was reviewed. A gate failure for a
     # nonselected skater is the selection process, not a fault in the Core.
     # Keep genuine source gaps in the audit, but don't require every rejected
@@ -238,9 +277,11 @@ def certify_gates(con,date,stage,expected_game_count=None):
     return {
         "slateDate":date,"stage":stage,
         "gateSpecification":{"scorerGateOrder":SCORER_GATE_ORDER,
-                             "masterOrder":MASTER,"overlayOrder":OVERLAY,
+                             "masterOrder":MASTER,"originalFunctionNames":OVERLAY,
                              "executionOrder":EXECUTION_ORDER,
-                             "masterCount":len(MASTER),"overlayCount":len(OVERLAY),
+                             "oneGatePipeline":True,
+                             "masterCount":len(MASTER),
+                             "embeddedFunctionCount":len(OVERLAY),
                              "executionCount":len(EXECUTION_ORDER)},
         "surveyedGoalieDirections":len(goalie_directions),
         "twoDirectionsPerScheduledGameRecorded":directions_complete,
@@ -256,6 +297,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "allSkatersHaveEachGateRecord":all_matrix_present,
         "allSkatersHaveExactExecutionOrder":all_matrix_in_order,
         "executionOrderMismatches":order_mismatches,
+        "allOriginalFunctionsWereCheckedWithinGates":bool(
+            all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsWereIndependentlyChecked":bool(
             all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsSourceCompleteForEveryRejectedSkater":not any(
@@ -263,6 +306,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "nonselectedIncompleteEvidenceRemainsVisible":True,
         "allGateChecksExecutedWithEvidence":not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER),
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
+        "originalFunctionDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "missingMatrixGateRows":{g:missing[g] for g in EXECUTION_ORDER if missing[g]},
         "gateChecksAttempted":{g:attempted_by_gate[g] for g in EXECUTION_ORDER},
