@@ -90,6 +90,9 @@ jobs:
           # default or be silently recycled as a "new" G18 selection.
           # The full subsequent execution uses the current master/overlay
           # evidence rules, including newly repaired G7/G11/G17 source checks.
+          # A new original-rules selection may legitimately have identical
+          # recipients; its actual first-issued timestamp must be newer than
+          # the archived invalid issuance, with a separately saved version.
       - name: Run scheduled autonomous Blender phase
         if: steps.verification.outcome == 'success'
         id: engine
