@@ -29,5 +29,6 @@ jobs:
       - name: Verify dashboard JavaScript parses
         run: |
           node --check site/gate-facts.js
+          node --check site/pool-deck.js
           node --check site/app.js
           node --test site/tests/card-flip.test.cjs
