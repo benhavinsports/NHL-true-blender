@@ -1456,7 +1456,7 @@ def compare_g0_shared_official_pbp(a,b):
             str(db.get('goalieId'))==str(orig_b.get('goalieId'))):
         return None
     wa,wb=da.get('weakZones') or {},db.get('weakZones') or {}
-    if not wa or not wb:return None
+    if not wa and not wb:return None
     def qualified(zones):
         return all(isinstance(v,dict) and type(v.get('shotsAgainst')) is int
                    and v['shotsAgainst']>=20
@@ -1469,6 +1469,24 @@ def compare_g0_shared_official_pbp(a,b):
                    and v['peerGoaliesSampled']>=4
                    for v in zones.values())
     if not qualified(wa) or not qualified(wb):return None
+    if not wa or not wb:
+        one_sided=_g0_pbp_one_sided_weakness(a,b,pa,pb,da,db,wa,wb,qualified)
+        if one_sided is None:return None
+        original,proof=one_sided
+        return {**original,
+            'g0SelectionMethod':'SAME_HISTORICAL_OFFICIAL_PBP_ONE_SIDED_WEAKNESS',
+            'g0SelectedOnlyAfterBothStarterProfiles':True,
+            'g0DecisionProof':{
+                **proof,
+                'reason':'Same pre-slate official PBP peer pool: only one goalie has a peer-qualified weak origin, and the other goalie is better on BOTH goal rate and peer rank from every one of those origins',
+                'samePeerPopulationId':population,
+                'goaliePbpSourceUrls':[pa['sourceUrl'],pb['sourceUrl']],
+                'sourceCoherentIndependentHistoricalSample':True,
+                'opposingGoaliesIndividuallyIdentified':True,
+                'noWeightsOrExternalOdds':True,
+                'notGloveBlockerFiveHole':True,
+                'notGuaranteedTonightGoal':True,
+            }}
     def comparable(original,context,zones):
         g=original['targetGoalies'][0]
         return {**original,'targetGoalies':[{
@@ -1510,6 +1528,63 @@ def compare_g0_shared_official_pbp(a,b):
             'notGloveBlockerFiveHole':True,
             'notGuaranteedTonightGoal':True,
         }}
+
+
+def _g0_pbp_one_sided_weakness(a,b,pa,pb,da,db,wa,wb,qualified):
+    """Same-cohort PBP: one goalie has peer-qualified weak origins, the other none.
+
+    Mirrors the existing EDGE superset rule (a source-reviewed goalie with no
+    weak origin is negative evidence, not missing evidence) but demands more:
+    for EVERY weak origin of the exposed goalie, the other goalie must have a
+    peer-compared row from that SAME origin in the SAME population and be
+    better on BOTH direct goals-per-on-net-shot and peer save rank. Any
+    missing comparator, tie, or disagreement leaves G0 unresolved.
+    """
+    if wa and wb:return None
+    weak_side,weak,other_data=('a',wa,db) if wa else ('b',wb,da)
+    if not weak:return None
+    other_areas=other_data.get('observedAreas') or {}
+    if not (type(other_data.get('fullySourceComparedAreas')) is int
+            and other_data['fullySourceComparedAreas']>0):
+        return None
+    rows=[]
+    for zone in sorted(weak):
+        x=weak[zone];y=other_areas.get(zone)
+        if not isinstance(y,dict) or not qualified_row(y):
+            return None
+        nx,ny=x['shotsAgainst'],y['shotsAgainst']
+        gx,gy=x['goalsAgainst'],y['goalsAgainst']
+        rx,ry=x['samplePeerSavePctgPercentile'],y['samplePeerSavePctgPercentile']
+        if not (rx<ry and gx*ny>gy*nx):
+            return None
+        rows.append({'origin':zone,
+            'exposedGoalieShots':nx,'exposedGoalieGoals':gx,'exposedGoaliePeerRank':rx,
+            'otherGoalieShots':ny,'otherGoalieGoals':gy,'otherGoaliePeerRank':ry})
+    original=a if weak_side=='a' else b
+    other=b if weak_side=='a' else a
+    return original,{
+        'exposedGoalieId':str((da if weak_side=='a' else db).get('goalieId')),
+        'otherGoalieId':str(other_data.get('goalieId')),
+        'otherGoalieWeakOrigins':[],
+        'otherGoalieFullySourceComparedAreas':other_data['fullySourceComparedAreas'],
+        'sameOriginComparisons':rows,
+        'everyExposedOriginDirectlyCompared':True,
+        'oppositeDirectionSourceReviewed':True,
+        'oppositeAttacker':other.get('attacker'),
+    }
+
+
+def qualified_row(v):
+    """Same per-origin floor used by compare_g0_shared_official_pbp."""
+    return (isinstance(v,dict) and type(v.get('shotsAgainst')) is int
+            and v['shotsAgainst']>=20
+            and type(v.get('goalsAgainst')) is int
+            and 0<=v['goalsAgainst']<=v['shotsAgainst']
+            and type(v.get('samplePeerSavePctgPercentile')) in (int,float)
+            and 0<=v['samplePeerSavePctgPercentile']<=1
+            and v.get('peerComparedSameOrigin') is True
+            and type(v.get('peerGoaliesSampled')) is int
+            and v['peerGoaliesSampled']>=4)
 
 
 def compare_g0_consensus_across_starters(a,b):
