@@ -86,6 +86,8 @@ jobs:
           # Archive the rejected card in SQLite before any candidate can
           # advance. The original fingerprint may never become an automatic
           # default or be silently recycled as a "new" G18 selection.
+          # The full subsequent execution uses the current master/overlay
+          # evidence rules, including newly repaired G7/G11/G17 source checks.
       - name: Run scheduled autonomous Blender phase
         if: steps.verification.outcome == 'success'
         id: engine
