@@ -392,35 +392,28 @@ def test_projected_status_cannot_erase_official_dressed_status():
     assert len(player['availabilityAlternatives'])==1
 
 
-def test_real_g9_per_game_coverage_allows_four_game_full_gate_execution_to_core3(con):
-    """Actual G0-G18 gate matrices feed cross-game G18; no old share field."""
+def test_four_survivor_games_keep_all_original_gate_evidence_without_g18_rank(con):
+    """All four complete original gate matrices stay intact; G18 is card only."""
     s=snapshot(4)
-    for i,g in enumerate(s["games"]):
-        # A dated, source-labeled goalie vulnerability percentile is the
-        # actual input G18 can compare across independently screened games.
-        zone=g["goalies"][g["home"]][0]["data"]["weakZones"]["slot"]
-        zone["leagueSavePctgPercentile"]=.05 + i*.12
-        for attacking_team in (g["away"],g["home"]):
-            defense=g["coverage"][attacking_team]["data"]
-            assert defense["comparison"]==(
+    for game in s["games"]:
+        for team in (game["away"],game["home"]):
+            assert game["coverage"][team]["data"]["comparison"]==(
                 "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN")
-            assert "share" not in defense["zoneConcessions"]["slot"]
     result=execute(con,s,DATE,"CONFIRMED")
     assert result["uniqueGameSurvivors"]==4
-    assert result["card"] is not None,result["errors"]
-    legs=result["card"]["current_legs"]
-    assert len(legs)==3
-    assert {x["playerId"] for x in legs}=={"1010","1020","1030"}
-    assert len({x["gameId"] for x in legs})==3
+    # Four legitimate winners require earlier original rule resolution;
+    # G18 cannot arbitrarily take three, regardless of source richness.
+    assert result["card"] is None
+    assert "PRE_CORE_REVIEW" in str(result["errors"])
     assert result["gateRows"]==12*len(EXECUTION_ORDER)+8
-    for leg in legs:
+    for gid,pid in ((str(5000+i),str(1000+i*10)) for i in range(1,5)):
         rows=con.execute("""SELECT gate,disposition,details FROM gates
-           WHERE slate_date=? AND stage='CONFIRMED'
-             AND game_id=? AND player_id=?""",
-           (DATE,leg["gameId"],leg["playerId"])).fetchall()
-        ordered=sorted(rows,key=lambda x:json.loads(x["details"])["executionIndex"])
-        assert [x["gate"] for x in ordered]==EXECUTION_ORDER
-        assert all(x["disposition"]=="PASS" for x in ordered)
+            WHERE slate_date=? AND stage='CONFIRMED'
+              AND game_id=? AND player_id=?""",
+            (DATE,gid,pid)).fetchall()
+        chronological=sorted(rows,key=lambda x:json.loads(x["details"])["executionIndex"])
+        assert [row["gate"] for row in chronological]==EXECUTION_ORDER
+        assert all(row["disposition"]=="PASS" for row in chronological)
 
 
 def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
