@@ -62,7 +62,7 @@ def test_saved_engine_core_passes_one_original_gate_sequence(tmp_path):
         "pathClassificationEvidence"].update({"pathQuotaApplied":True}),
     lambda run,card,g: run["gateCertification"]["gateChecksAttempted"].update(
         {"G0":1}),
-    lambda run,card,g: run["allG18QualifiedSurvivors"].append(
+    lambda run,card,g: run["preCoreQualifiedSurvivors"].append(
         {"gameId":"unreviewed-game","playerId":"unreviewed-player"}),
 ])
 def test_rejects_missing_skipped_aliased_or_relabelled_source_proof(tmp_path,mutate):
@@ -75,7 +75,7 @@ def test_rejects_missing_skipped_aliased_or_relabelled_source_proof(tmp_path,mut
 
 def test_g18_rejects_unreported_extra_survivor(tmp_path):
     run,card,gates=fixture(tmp_path)
-    run["allG18QualifiedSurvivors"].append(
+    run["preCoreQualifiedSurvivors"].append(
         {"gameId":"unreviewed-game","playerId":"unreviewed-player"})
     persist(tmp_path,run,card,gates)
     with pytest.raises(AssertionError,match="silently dropped"):
@@ -92,3 +92,30 @@ def test_run_receipt_distinguishes_final_core_nonselection_from_missing_sources(
     assert nonselected>0
     assert run["missingByGate"].get("G18",0)==0
     assert run["currentRunFullyCertified"] is True
+
+
+def test_new_saved_receipt_uses_only_pre_core_key(tmp_path):
+    run, card, gates = fixture(tmp_path)
+    assert "preCoreQualifiedSurvivors" in run
+    assert "allG18QualifiedSurvivors" not in run
+    assert len(run["preCoreQualifiedSurvivors"]) == 2
+    assert verify_published_core(tmp_path, DATE)["status"] == "ORIGINAL_G0_G18_CORE_VERIFIED"
+
+
+def test_legacy_saved_receipt_remains_readable_without_rewriting_it(tmp_path):
+    run, card, gates = fixture(tmp_path)
+    original = run.pop("preCoreQualifiedSurvivors")
+    run["allG18QualifiedSurvivors"] = original  # Intentional historical read-only fixture.
+    persist(tmp_path, run, card, gates)
+    assert verify_published_core(tmp_path, DATE)["status"] == "ORIGINAL_G0_G18_CORE_VERIFIED"
+    assert "preCoreQualifiedSurvivors" not in run
+
+
+def test_new_key_takes_precedence_over_legacy_fallback():
+    from nhl_true_blender_engine.core_identity import pre_core_survivors
+    current = [{"gameId": "1", "playerId": "A"}]
+    stale = [{"gameId": "2", "playerId": "B"}]
+    assert pre_core_survivors({
+        "preCoreQualifiedSurvivors": current,
+        "allG18QualifiedSurvivors": stale,
+    }) is current

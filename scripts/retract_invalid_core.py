@@ -12,6 +12,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from nhl_true_blender_engine.storage import open_db, transaction
+from nhl_true_blender_engine.core_identity import pre_core_survivors
 
 DATE = "2026-11-17"
 ORIGINAL_FINGERPRINT = "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6"
@@ -87,7 +88,7 @@ def retract(root="state", now=None):
         checkpoint.close()
     run_path = root / "site_runs" / (DATE + ".json")
     source_run = json.loads(run_path.read_text(encoding="utf-8"))
-    observed = source_run.get("allG18QualifiedSurvivors") or []
+    observed = pre_core_survivors(source_run) or []
     actual_ids = {(str(x["gameId"]), str(x["playerId"])) for x in observed}
     manifest_ids = {(str(x["gameId"]), str(x["playerId"]))
                     for x in manifest["upstreamSurvivors"]}

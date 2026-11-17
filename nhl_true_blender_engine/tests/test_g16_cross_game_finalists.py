@@ -115,12 +115,22 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
     try:
         result = execute(con, data, DATE, 'CONFIRMED')
         assert result['uniqueGameSurvivors'] == 4
+        assert 'allG18QualifiedSurvivors' not in result
+        survivors = result['preCoreQualifiedSurvivors']
+        assert {x['playerId'] for x in survivors} == {'100', '110', '120', '130'}
+        # G16 exclusion must not erase a source-backed game survivor.
+        game_pool = next(x for x in result['gameSurvivorPool']
+                         if (x.get('survivor') or {}).get('playerId') == '130')
+        assert game_pool['status'] == 'SURVIVOR'
+        assert game_pool['inCore'] is False
+        assert game_pool['g16Decision'].startswith('EXCLUDED_')
+        assert len(result['gameSurvivorPool']) == 4
         assert result['card'] is not None, result['errors']
         legs = result['card']['current_legs']
         assert {x['playerId'] for x in legs} == {'100', '110', '120'}
         g16 = result['g16FinalistCompetition']
         assert g16['excludedPlayerIds'] == ['130'] and g16['separated'] is True
-        run = {'allG18QualifiedSurvivors': result['allG18QualifiedSurvivors'],
+        run = {'preCoreQualifiedSurvivors': result['preCoreQualifiedSurvivors'],
                'g16FinalistCompetition': g16}
         assert set(expected_core_ids(run)) == {(x['gameId'], x['playerId']) for x in legs}
         # Re-running never issues a second or different card.
@@ -134,11 +144,11 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
 def test_publication_rejects_tampered_g16_receipt():
     retained, receipt = g16_cross_game_finalists(nov17_shape(), 3)
     survivors = [{'gameId': x['gameId'], 'playerId': x['playerId']} for x in receipt['finalists']]
-    run = {'allG18QualifiedSurvivors': survivors, 'g16FinalistCompetition': receipt}
+    run = {'preCoreQualifiedSurvivors': survivors, 'g16FinalistCompetition': receipt}
     assert len(expected_core_ids(run)) == 3
     # Dropping a survivor from the receipt, or claiming an exclusion without
     # a full Core of dominators, must not verify.
-    bad = {**run, 'allG18QualifiedSurvivors': survivors[:3]}
+    bad = {**run, 'preCoreQualifiedSurvivors': survivors[:3]}
     assert expected_core_ids(bad) is None
     forged = {**receipt, 'finalists': [dict(f) for f in receipt['finalists']]}
     forged['finalists'][2]['dominatedBy'] = ['reinhart']
@@ -164,6 +174,8 @@ def test_g18_pass_is_only_final_core_after_cross_game_g16(tmp_path):
             (DATE,)).fetchall()
         g18_pass={r['player_id'] for r in rows if r['disposition']=='PASS'}
         assert g18_pass==chosen=={'100','110','120'}
+        assert {x['playerId'] for x in result['preCoreQualifiedSurvivors']} == (g18_pass | {'130'})
+        assert 'allG18QualifiedSurvivors' not in result
         # Final non-Core decisions are NOT absent source evidence at G18.
         # The older missingByGate count wrongly reported every non-Core
         # player as missing proof of the final Core assembly gate.

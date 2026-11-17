@@ -88,3 +88,8 @@ If the first three lineup sources do not establish both a forward-line assignmen
 ## Final-lock safety note
 
 The engine deliberately does **not** certify a G18 survivor merely because a candidate has a complete gate trace. A trace records what was checked; it is not proof that the evidence passed. Current unresolved areas include current deployment/line access (G6), finisher protection (G15), final candidate competition (G16), and the structured tactical contradiction audit (G17). Until those checks are evidenced and certified, the run reports `NOT VALIDATED` and emits no official locked Core pick. Do not remove the G17 blocker or set `g18Eligible = True` as a workaround; that would create unsupported locks.
+
+
+### Pre-Core survivor receipt
+
+New engine and published-run JSON use `preCoreQualifiedSurvivors` for the complete source-backed game survivor pool, including valid game survivors excluded by cross-game G16 competition. `gameSurvivorPool` preserves each game's survivor and G16 outcome; a G16-excluded survivor is not a G18 PASS. Only final Core recipients receive G18 PASS. Immutable historical `state/` records may still contain the old field; read-only consumers accept it as a fallback, but new output never emits it.

@@ -2138,7 +2138,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'unresolvedG0ResearchExamples':unresolved_branch_analyses[:20],
             'uniqueGameSurvivors':len(qualified),
             'g16FinalistCompetition':g16_receipt,
-            'allG18QualifiedSurvivors':all_survivor_receipts,
+            'preCoreQualifiedSurvivors':all_survivor_receipts,
             'gameSurvivorPool':_finish_pool(games,game_pool,card,g16_receipt),
             'nonselectedGameResearchNotes':nonselected_game_notes,
             'nonselectedGameResearchNeverReplacesLockedCore':True,

@@ -74,7 +74,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'errors':result.get('errors',[])[:20],
         'nonselectedGameResearchNotes':result.get('nonselectedGameResearchNotes',[]),
         'nonselectedGameResearchIsDiagnosticOnly':True,
-        'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors',[]),
+        'preCoreQualifiedSurvivors':result.get('preCoreQualifiedSurvivors',[]),
         'gameSurvivorPool':result.get('gameSurvivorPool',[]),
         'g16FinalistCompetition':result.get('g16FinalistCompetition'),
         'cardSavedByEngine':bool(card),
@@ -155,7 +155,7 @@ def export_run(con, slate_date, stage, result, root='state'):
                           for x in original]
             # Compare with the survivors G16 actually retained for G18.
             qualified_ids=expected_core_ids({
-                'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors'),
+                'preCoreQualifiedSurvivors':result.get('preCoreQualifiedSurvivors'),
                 'g16FinalistCompetition':result.get('g16FinalistCompetition')}) or []
             mismatch=bool(qualified_ids and (
                 len(qualified_ids)!=len(original_ids) or

@@ -24,7 +24,7 @@ def _result(extra=True):
         "card": None, "games": count,
         "errors": ([f"PRE_CORE_REVIEW: {count} qualified; G18 cannot rank"]
                    if extra else []),
-        "allG18QualifiedSurvivors": survivors,
+        "preCoreQualifiedSurvivors": survivors,
         "gateCertification": {
             "scannedSkaters": count,
             "gateChecksAttempted": {gate: count for gate in MASTER + OVERLAY},
