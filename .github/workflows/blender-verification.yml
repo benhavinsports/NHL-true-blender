@@ -29,6 +29,7 @@ jobs:
       - name: Validate accessible browser dashboard and JavaScript syntax
         run: |
           node --check site/gate-facts.js
+          node --check site/pool-deck.js
           node --check site/app.js
           node --test site/tests/card-flip.test.cjs
           python - <<'PY'
@@ -52,11 +53,13 @@ jobs:
           parser=AuditHTML()
           parser.feed(Path('site/index.html').read_text())
           required={'refresh','slate-select','core-cards',
-                    'matchup-list','grade-summary','season-summary',
-                    'system-summary','hero-phase','slate-notice','stat-gates'}
+                    'pool-list','grade-summary','season-summary',
+                    'hero-phase','slate-notice'}
           assert required<=parser.ids, sorted(required-parser.ids)
           assert './styles.css' in parser.styles
           assert './app.js' in parser.scripts
+          assert './pool-deck.js' in parser.scripts
+          assert not {'system-summary','matchup-list','master-gate-deck'} & parser.ids
           assert Path('site/app.js').is_file() and Path('site/styles.css').is_file()
           print('Frontend passed syntax, unique IDs, evidence drilldown and asset linkage')
           PY

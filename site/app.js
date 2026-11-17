@@ -193,19 +193,12 @@ function renderHeader(){
    notice.appendChild(pill(storedProof&&currentIncomplete?
      "SAVED ORIGINAL CORE · CURRENT RECHECK OPEN":s.phase,
      storedProof&&currentIncomplete?"warning":statusClass(s.phase)));
-   notice.appendChild(el("p","",storedProof&&currentIncomplete?
-     "This is the previously source-verified pre-puck saved card, not a fresh certification. The latest research pass is incomplete; its unresolved game and gate evidence remains visible below. No replacement was selected by the dashboard.":
-     s.certified?"One saved Core. Selection and gate records are preserved in the official engine ledger.":
-     "Original Core retained. Check the selected-leg evidence before treating the latest run as fully certified."));
+   if(storedProof&&currentIncomplete)
+     notice.appendChild(el("span","phase-quiet","Saved Core · source recheck open"));
  }else{
-   if(s.today && state.latest?.oldCoreRetractedByRuleCorrection===true){
-     notice.appendChild(pill("OLD CORE RETRACTED","danger"));
-     notice.appendChild(el("p","",
-       "The previous G18-ranked card was withdrawn because it did not represent all upstream survivors. Only a fresh corrected Blender run may publish a replacement Core."));
-   }else{
-     notice.appendChild(pill("WAITING FOR VERIFIED CORE","warning"));
-     notice.appendChild(el("p","","The dashboard never generates a fallback pick. The next Core appears only after the autonomous Blender publishes its verified card."));
-   }
+   if(s.today && state.latest?.oldCoreRetractedByRuleCorrection===true)
+     notice.appendChild(pill("RETRACTED · NEW CORE AWAITED","danger"));
+   else notice.appendChild(pill("AWAITING VERIFIED CORE","warning"));
  }
 }
 function renderPicker(){
@@ -370,74 +363,19 @@ function detailsData(leg){
       &&String(x.playerId)===String(leg.playerId))||null;
 }
 function renderPool(){
- const holder=$("pool-list");if(!holder)return;holder.replaceChildren();
+ const holder=$("pool-list");if(!holder)return;
  const pool=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
- if(!pool.length){
-   holder.appendChild(el("div","empty-state",
-     "Per-game source decisions are only shown for the latest saved live engine run."));
-   return;
- }
  const byId=new Map(pool.map(g=>[String(g.gameId),g]));
  const allGames=state.gateData?.games||[];
- const games=allGames.length?
-   allGames.map(g=>byId.get(String(g.gameId))||{
-     gameId:g.gameId,matchup:g.away+"@"+g.home,
-     gameStartUTC:g.startUTC,status:"SOURCE_RECEIPT_MISSING",
-     reason:"No matching per-game source receipt was published"}):pool;
- const verified=games.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
- const core=games.filter(g=>g.inCore&&g.survivor).length;
- const totals=el("div","pool-counts");
- totals.appendChild(el("strong","",verified+" / "+games.length+" verified game survivors"));
- totals.appendChild(el("span","",core+" saved Core players · "+
-    (games.length-verified)+" matchups still require evidence"));
- holder.appendChild(totals);
- for(const g of games){
-   const panel=el("article","match survivor-match");
-   const head=el("div","match-head");
-   head.appendChild(el("strong","",String(g.matchup||"Unknown game").replace("@"," @ ")));
-   const sv=g.survivor;
-   const hasSurvivor=g.status==="SURVIVOR"&&!!sv;
-   const started=g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION";
-   head.appendChild(pill(g.inCore&&hasSurvivor?"CORE":hasSurvivor?"GAME SURVIVOR":
-       started?"FROZEN":"EVIDENCE OPEN",hasSurvivor?"success":"warning"));
-   panel.appendChild(head);
-   if(g.gameStartUTC)panel.appendChild(el("p","tiny","Puck drop · "+etTime(g.gameStartUTC)));
-   const slot=el("div","game-survivor-slot "+(hasSurvivor?"verified":"pending"));
-   if(hasSurvivor){
-     slot.appendChild(el("strong","",sv.player+" · "+(sv.attackTeam||g.attackTeam||"")));
-     slot.appendChild(el("p","",textRoute(sv)+" · "+
-       (sv.ownRouteZone||"Shot origin unverified")+
-       " · "+number(sv.ownedGoals)+" credited goals / "+
-       number(sv.ownShotsOnGoal)+" own on-net shots in origin"));
-     if(sv.goalieId)slot.appendChild(el("p","tiny",
-       "Opposing goalie NHL ID "+sv.goalieId+" · "+(sv.goalieStatus||"status pending")));
-     if(g.g16Decision)slot.appendChild(el("p","tiny",
-       "G16 cross-game: "+g.g16Decision.replace(/_/g," ")));
-     const a=link(sv.routeSource,"Read original shot-origin evidence");if(a)slot.appendChild(a);
-   }else{
-     slot.appendChild(el("strong","",started?"Game already started — pre-puck selection frozen":
-       "No source-qualified survivor yet"));
-     slot.appendChild(el("p","",g.reason||"Original gate review is not fully evidenced."));
-     // Never present a rejected skater's first failed gate as the one
-     // remaining blocker for the entire game.
-     if(g.currentSourceBlocker)slot.appendChild(el("p","source-gap","Verified remaining blocker: "+
-       g.currentSourceBlocker+" — "+(EXPLAIN[g.currentSourceBlocker]||"original gate evidence")));
-     else if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length)
-       slot.appendChild(el("p","tiny","Candidates stopped at different gates; no single remaining blocker is source-verified."));
-     if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length){
-       const review=el("details","source-details");
-       review.appendChild(el("summary","","Inspect recorded gate blockers"));
-       const list=el("div","gate-blockers");
-       for(const [gate,n] of Object.entries(g.firstNonPassGateCounts))
-         list.appendChild(el("p","",gate.replace(":",": ")+" · "+n+" skater(s)"));
-       review.appendChild(list);slot.appendChild(review);
-     }
-   }
-   panel.appendChild(slot);holder.appendChild(panel);
- }
-}
-function textRoute(sv){
- return sv.routeLabel||"Path unresolved";
+ const games=allGames.length?allGames.map(g=>byId.get(String(g.gameId))||{
+    gameId:g.gameId,matchup:g.away+"@"+g.home,gameStartUTC:g.startUTC,
+    status:"SOURCE_RECEIPT_MISSING"}):pool;
+ ElitePool.render({
+   holder,games,coreLegs:selectedEntry()?.current_legs||[],
+   latest:isLatest()?state.latest:null,
+   gates:MASTER,gateNames:EXPLAIN,facts:BlenderGateFacts,
+   date:state.selectedDate
+ });
 }
 function renderMatchups(){
  const holder=$("matchup-list");holder.replaceChildren();
@@ -772,8 +710,8 @@ function renderCompleteGateDeck(){
   }
 }
 function renderAll(){
- renderPicker();renderHeader();renderCompleteGateDeck();renderCards();
- renderPool();renderMatchups();renderGrade();renderSeason();renderSystem();
+ renderPicker();renderHeader();renderCards();
+ renderPool();renderGrade();renderSeason();
 }
 async function loadEvidence(date){
  const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;

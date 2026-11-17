@@ -74,7 +74,7 @@ def _unresolved_first_gate_source_receipts(con, date, stage, game_pool):
         proof={}
         for gate in wanted:
             row=con.execute(
-                "SELECT disposition,details FROM gates WHERE slate_date=? "
+                "SELECT disposition,details,evaluated_at FROM gates WHERE slate_date=? "
                 "AND stage=? AND game_id=? AND player_id=? AND gate=?",
                 (date,stage,str(game.get('gameId')),pid,gate)).fetchone()
             if not row:
@@ -111,6 +111,108 @@ def _unresolved_first_gate_source_receipts(con, date, stage, game_pool):
         out.append(item)
     return out
 
+
+def _before_puck(when, start):
+    """Only time-stamped original decisions strictly before this game's puck drop."""
+    try:
+        a=datetime.fromisoformat(str(when).replace('Z','+00:00'))
+        b=datetime.fromisoformat(str(start).replace('Z','+00:00'))
+        return a.tzinfo is not None and b.tzinfo is not None and a<b
+    except (TypeError,ValueError):
+        return False
+
+def _public_survivor_gate_cards(con, slate_date, stage, pool):
+    """Read-only compact actual gate receipts for every saved game survivor.
+
+    The dashboard never certifies, replaces, or selects a scorer. Copy each
+    original gate disposition from the database, and fail closed on missing
+    rows. Trim large telemetry arrays so Pages stays light on mobile.
+    """
+    visible={
+      'G0':('selectedAttacker','selectedDefender','attacker','targetGoalie',
+            'branchStatus','directionSelectedBeforeSkaters','weakZones'),
+      'G1':('venueRestTravel',),
+      'G2':('availability','position','fullPoolSize'),
+      'G3':('goalieWeakZones','goalieSample'),
+      'G4':('archetype','ownRelease'),
+      'G5':('shooterZone','weakZones','goalieStrengthZones'),
+      'G6':('deployment',),
+      'G7':('distinctGoalDates','positiveDatedShotAppearances'),
+      'G8':('contextSourceType','independentContextReview'),
+      'G9':('shooterZone','greenTarget','redAvoid','zoneConcessionEvidence'),
+      'G10':('historicalDirectGoalRecipientVerified',
+             'historicalDirectGoalRecipientVerificationMethod'),
+      'G10.5':('comparisonRows','allAlternativesScanned'),
+      'G11':('shotContinuation',),
+      'G12':('officialGoalCreditsReconciled','datedScoringReconciliation'),
+      'G13':('name','jersey','date'),
+      'G14':('whoAnomalyPhysicallySupported',),
+      'G15':('officialOwnedGoalsInMatchedOrigin','officialDatedSeasonGoals',
+             'matchedOriginOwnOnNetShots','matchedOriginHasHistoricalGoal',
+             'fullSeasonGoalCreditsReconciledAgainstEdgeOrigins',
+             'totalOwnedGoalsFromEveryNhlEdgeOrigin',
+             'directFinisherEvidenceMethod'),
+      'G16':('everyOtherActiveTeammate','includesDepthAndDefense',
+             'crossGameFinalistCompetitionRunsAfterEveryGame'),
+      'G17':('sourceDerivedReviewResolved','goalieBranch'),
+      'G18':('pathClassificationEvidence','G16FinalistDecision',
+             'G18CoreSlotGrantedOnlyAfterG16'),
+    }
+    collected={}
+    for game in pool or []:
+        if game.get('status')!='SURVIVOR' or not game.get('survivor'):
+            continue
+        survivor=game['survivor']
+        game_id=str(game.get('gameId') or '')
+        player_id=str(survivor.get('playerId') or '')
+        if not game_id or not player_id:
+            continue
+        rows=[]
+        for gate in MASTER:
+            record=con.execute(
+                "SELECT disposition,details,evaluated_at FROM gates WHERE slate_date=? "
+                "AND stage=? AND game_id=? AND player_id=? AND gate=?",
+                (slate_date,stage,game_id,player_id,gate)).fetchone()
+            if not record:
+                rows.append({'gate':gate,'status':'NO_RECORDED_DECISION',
+                             'prePuckRecord':False,'sourceIds':[], 'evidence':{}})
+                continue
+            try:
+                original=json.loads(record['details'] or '{}')
+            except (TypeError,ValueError):
+                original={}
+            evidence=original.get('evidence') or {}
+            scoped={k:evidence[k] for k in visible[gate] if k in evidence}
+            if gate=='G4' and isinstance(scoped.get('ownRelease'),dict):
+                scoped['ownRelease']={k:scoped['ownRelease'][k]
+                    for k in ('zone','ownedGoals','attempts','sourceType')
+                    if k in scoped['ownRelease']}
+            if gate=='G10.5':
+                scoped['comparisonRows']=[
+                    {k:row[k] for k in ('status','challengerId')
+                     if k in row}
+                    for row in (evidence.get('comparisonRows') or [])]
+            if gate=='G18' and isinstance(scoped.get('pathClassificationEvidence'),dict):
+                p=scoped['pathClassificationEvidence']
+                scoped['pathClassificationEvidence']={k:p[k]
+                    for k in ('path','scoringLane','rationale')
+                    if k in p}
+            nested=evidence.get('originalFunctionEvidence') or []
+            rows.append({'gate':gate,'status':record['disposition'],
+                # This is a display receipt, not an assertion that a
+                # missing source or post-puck row may be called pre-puck.
+                'prePuckRecord':_before_puck(record['evaluated_at'],
+                    game.get('gameStartUTC')),
+                'sourceIds':list(dict.fromkeys(
+                    x for x in original.get('sourceIds',[])
+                    if isinstance(x,str) and x.startswith('https://')))[:10],
+                'evidence':scoped,
+                'originalFunctions':[{
+                    'step':fn.get('step'),'status':fn.get('disposition')}
+                    for fn in nested if isinstance(fn,dict)]})
+        collected[game_id+':'+player_id]=rows
+    return collected
+
 def export_run(con, slate_date, stage, result, root='state'):
     root = Path(root)
     card = result.get('card')
@@ -141,6 +243,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         'nonselectedGameResearchIsDiagnosticOnly':True,
         'preCoreQualifiedSurvivors':result.get('preCoreQualifiedSurvivors',[]),
         'gameSurvivorPool':result.get('gameSurvivorPool',[]),
+        'gameSurvivorGateReceipts':_public_survivor_gate_cards(
+            con,slate_date,stage,result.get('gameSurvivorPool',[])),
         'sourceGateBlockerReceipts':_unresolved_first_gate_source_receipts(
             con,slate_date,stage,result.get('gameSurvivorPool',[])),
         'g16FinalistCompetition':result.get('g16FinalistCompetition'),

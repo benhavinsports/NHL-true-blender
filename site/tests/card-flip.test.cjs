@@ -16,6 +16,7 @@ const card=JSON.parse(fs.readFileSync(path.join(root,"state/site_cards/2026-11-1
 class FakeNode{
  constructor(tag){
    this.tagName=tag;this.childNodes=[];this.dataset={};this.attributes={};
+   Object.defineProperty(this,'children',{get:()=>this.childNodes});
    this.listeners={};this.hidden=false;this._className="";this._classes=new Set();
    this.classList={
      add:(name)=>this._classes.add(name),
@@ -33,6 +34,19 @@ class FakeNode{
  replaceChildren(...x){this.childNodes=x;}
  setAttribute(k,v){this.attributes[k]=String(v);}
  getAttribute(k){return this.attributes[k];}
+ querySelector(selector){
+   const klass=String(selector).startsWith(".")?String(selector).slice(1):null;
+   if(!klass)return null;
+   const search=node=>{
+     for(const child of node.childNodes){
+       if(child.classList?.contains(klass))return child;
+       const result=search(child);
+       if(result)return result;
+     }
+     return null;
+   };
+   return search(this);
+ }
  addEventListener(event,cb){this.listeners[event]=cb;}
  scrollIntoView(){}
 }
@@ -53,6 +67,7 @@ function appContext(){
  };
  const sandbox={document,BlenderGateFacts:facts,Date,Intl,URL,Set,Map,Promise,console};
  vm.createContext(sandbox);
+ vm.runInContext(fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8"),sandbox);
  const script=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
  assert.ok(script.includes("boot().catch("));
  // The test invokes the same app functions without starting network polling.
@@ -115,36 +130,77 @@ test("tapping Core card toggles physical back with all 20 reasons in place",()=>
  assert.equal(cardNode.getAttribute("aria-expanded"),"false");
 });
 
-test("full slate shows all 11 separate source decisions without invented survivors",()=>{
+test("every scheduled game is a concise two-sided survivor card, not a public audit",()=>{
  const {sandbox,elements}=appContext();
  vm.runInContext("renderPool()",sandbox);
  const board=elements["pool-list"];
- const panels=board.childNodes.filter(n=>n.classList.contains("survivor-match"));
- assert.equal(panels.length,11);
+ const cards=board.childNodes.filter(n=>n.classList.contains("pool-flip-card"));
  const receipts=run.gameSurvivorPool||[];
- assert.equal(panels.length,receipts.length);
- const verified=receipts.filter(g=>g.survivor&&g.status==="SURVIVOR").length;
- assert.ok(verified<=receipts.length);
- assert.equal(board.childNodes[0].childNodes[0].textContent,verified+" / "+receipts.length+" verified game survivors");
- // A fully qualified slate can correctly have ZERO unresolved games.
- // The old unconditional missing-evidence assertion made Pages deployment
- // fail precisely when all eleven matchups produced source-backed survivors.
- for(const [i,receipt] of receipts.entries()){
-   const rendered=descendants(panels[i]).map(n=>n.textContent||"").join(" ");
-   if(receipt.status==="SURVIVOR" && receipt.survivor){
-     assert.ok(rendered.includes(receipt.survivor.player),
-       "Published game survivor must match saved independent engine identity");
-     assert.ok(["PRIMARY","TRANSFER","WHO"].includes(receipt.survivor.routeLabel),
-       "Source-certified game survivor must have an evidence-based path");
-     assert.ok(!rendered.includes("No source-qualified survivor yet"),
-       "Certified game survivor cannot still show an evidence blocker");
+ assert.equal(cards.length,11);
+ assert.equal(cards.length,receipts.length);
+ const count=receipts.filter(g=>g.survivor&&g.status==="SURVIVOR").length;
+ const stats=descendants(board.childNodes[0]).map(n=>n.textContent||"").join(" ");
+ assert.ok(stats.includes(count+" / "+receipts.length));
+ for(let i=0;i<receipts.length;i++){
+   const g=receipts[i],card=cards[i];
+   assert.equal(descendants(card).filter(n=>n.classList.contains("pool-face")).length,2);
+   const front=descendants(card).find(n=>n.classList.contains("pool-front"));
+   const back=descendants(card).find(n=>n.classList.contains("pool-back"));
+   const frontText=descendants(front).map(n=>n.textContent||"").join(" ");
+   const backText=descendants(back).map(n=>n.textContent||"").join(" ");
+   assert.ok(frontText.includes(g.matchup.replace("@"," @ ")));
+   assert.ok(!frontText.includes("Opposing goalie NHL ID"));
+   assert.ok(!frontText.includes("G16 cross-game"));
+   if(g.survivor){
+     assert.ok(frontText.includes(g.survivor.player));
+     assert.ok(frontText.includes(g.survivor.routeLabel));
+     assert.ok(backText.includes("G16"));
+     assert.ok(backText.includes(String(g.survivor.goalieId)));
    }else{
-     assert.match(rendered,/No source-qualified survivor yet|selection frozen|unseparated/i);
+     assert.ok(!frontText.includes("GAME SURVIVOR"));
    }
-   assert.ok(!/faker|placeholder pick/i.test(rendered));
  }
+ const first=cards[0],button=descendants(first).find(n=>n.classList.contains("pool-front-turn"));
+ assert.equal(button.tagName,"button");
+ button.listeners.click();
+ assert.equal(first.classList.contains("is-flipped"),true);
+ const backbutton=descendants(first).find(n=>n.classList.contains("pool-back-turn"));
+ backbutton.listeners.click();
+ assert.equal(first.classList.contains("is-flipped"),false);
 });
 
+test("additional full gate evidence appears only when matching original receipts exist",()=>{
+ const {sandbox,elements}=appContext();
+ // The current run can legitimately have zero survivors after a newer
+ // source check. Use a saved original Core receipt as a UI-only fixture.
+ const first=run.gameSurvivorPool.find(g=>g.survivor)||{
+   gameId:saved.legs[0].gameId,matchup:saved.legs[0].matchup,
+   status:"SURVIVOR",
+   survivor:{player:saved.legs[0].player,playerId:saved.legs[0].playerId,
+     routeLabel:saved.legs[0].originalLockedPath,ownRouteZone:"Low Slot",
+     ownedGoals:1,ownShotsOnGoal:4}
+ };
+ assert.ok(first);
+ const proof=saved.legs[0].gateDetails.map(x=>({
+   ...x, originalFunctions:(x.evidence?.originalFunctionEvidence||[])
+     .map(y=>({step:y.step,status:y.disposition}))
+ }));
+ sandbox.sample.proof=proof;
+ sandbox.sample.first=first;
+ vm.runInContext(
+   'state.latest.gameSurvivorPool=[sample.first];' +
+   'state.latest.gameSurvivorGateReceipts={' +
+   '  [String(sample.first.gameId)+":"+' +
+   'String(sample.first.survivor.playerId)]:sample.proof};',
+   sandbox);
+ vm.runInContext("renderPool()",sandbox);
+ const firstCard=elements["pool-list"].childNodes
+   .find(n=>n.classList.contains("pool-flip-card")&&
+      n.dataset.cardKey===String(first.gameId));
+ assert.equal(descendants(firstCard).filter(n=>n.classList.contains("pool-gate-proof")).length,20);
+ assert.ok(descendants(firstCard).some(n=>n.tagName==="a"&&
+   String(n.href||"").startsWith("https://")));
+});
 test("public HTML never renders the duplicate behind-the-pick audit",()=>{
  const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
  assert.ok(!html.includes('id="evidence"'));
@@ -152,4 +208,10 @@ test("public HTML never renders the duplicate behind-the-pick audit",()=>{
  assert.ok(!html.includes("Behind the pick"));
  assert.ok(!html.includes('href="#evidence"'));
  assert.ok(html.includes('id="core-cards"'));
+ assert.ok(html.includes('id="pool-list"'));
+ assert.ok(html.includes('./pool-deck.js'));
+ assert.ok(!html.includes('id="system"'));
+ assert.ok(!html.includes('id="slate"'));
+ assert.ok(!html.includes('id="master-gate-deck"'));
+
 });
