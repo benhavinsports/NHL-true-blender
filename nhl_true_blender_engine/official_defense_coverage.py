@@ -16,6 +16,7 @@ from .enrichment import ingest
 BIN_SPEC="NHL_RINK_COORDINATE_APPROXIMATION_V1"
 MIN_DEFENSE_SOURCE_SHOTS=120
 MIN_ZONE_SHOTS=16
+MIN_ZONE_ON_NET_SHOTS=12
 
 def conservative_zone(x,y):
     if type(x) not in (float,int) or type(y) not in (float,int):
@@ -137,6 +138,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
             for z in ("Low Slot","High Slot","Point","L Circle","R Circle",
                       "L Point","R Point","Center Point"):
                 peers=[]
+                peer_on_net=[]
                 for peer_id,peer in by_team.items():
                     if peer_id==pid:
                         continue
@@ -145,9 +147,11 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                             or games<minimum_peer_games):
                         continue
                     peers.append(peer["bins"].get(z,0)/games)
-                if len(peers)<6:
+                    peer_on_net.append(peer["onNetBins"].get(z,0)/games)
+                if len(peers)<6 or len(peer_on_net)!=len(peers):
                     continue
                 peer_median=median(peers)
+                peer_on_net_median=median(peer_on_net)
                 attempts=row["bins"].get(z,0)
                 games=len(row["gameIds"])
                 per_game=attempts/games
@@ -161,17 +165,32 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                     "allOnNetShotsAgainst":row["totalShots"],
                     "attemptsPerGame":per_game,
                     "peerMedianAttemptsPerGame":peer_median,
+                    "onNetShotsPerGame":on_net/games,
+                    "peerMedianOnNetShotsPerGame":peer_on_net_median,
                     "attemptShare":attempts/row["totalAttempts"],
                     "gameCount":games,
                     "peerTeamsCompared":len(peers),
                     "classification":BIN_SPEC,
                     "attemptTypes":["goal","shot-on-goal","missed-shot","blocked-shot"],
                 }
+                # G9 has TWO physical, separately measured positive ways an
+                # opponent actually permits shots in the skater's own origin:
+                # all attempted shots OR shots that reached the goalie.
+                # The old one-metric path discarded a real attack lane when
+                # blocked/missed attempts were merely lower than peers, even
+                # though independently recorded on-net concessions were HIGH.
+                # Neither path uses the opposing GOALIE's saves, market odds,
+                # player reputation, or a proxy red/strong-defense verdict.
+                attempt_supported=(attempts>=minimum_zone_attempts and
+                                   per_game>peer_median)
+                on_net_supported=(on_net>=MIN_ZONE_ON_NET_SHOTS and
+                                  on_net/games>peer_on_net_median)
+                info["positiveConcessionBases"]=(
+                    (["ATTEMPTS_AGAINST_PEER"] if attempt_supported else [])+
+                    (["ON_NET_SHOTS_AGAINST_PEER"] if on_net_supported else []))
+                info["independentOnNetConcessionReview"]=True
                 detail[z]=info
-                # Positive concession evidence only: elevated opponent shot
-                # attempts per game versus independent peer clubs. Low volume
-                # is NOT a red/strong-defense verdict and cannot eliminate.
-                if attempts>=minimum_zone_attempts and per_game>peer_median:
+                if attempt_supported or on_net_supported:
                     green[z]=info
             urls=sorted(row["sourceUrls"])
             shift_team=(shift_receipts or {}).get("byDefendingTeamId",{}).get(pid,{})
@@ -182,6 +201,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                 "greenWeakZones":list(green),"redStrongZones":list(red),
                 "zoneConcessions":detail,
                 "comparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+                "additionalPositiveEvidenceMethod":"RECENT_OPPONENT_ON_NET_SHOTS_PER_GAME_VS_OTHER_TEAM_MEDIAN",
                 "method":BIN_SPEC,
                 "derivedCirclePointAreas":True,
                 "derivedAreasNotExactNhlEdgeTrackingPolygons":True,
@@ -217,6 +237,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
             "minimumPeerAttempts":minimum_peer_attempts,
             "minimumPeerGames":minimum_peer_games,
             "minimumZoneAttempts":minimum_zone_attempts,
+             "minimumZoneOnNetShots":MIN_ZONE_ON_NET_SHOTS,
             "failedSources":fail[:15],
             "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
             "zonesAreConservativeDerivedRinkAreas":True,
