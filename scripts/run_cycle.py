@@ -116,7 +116,7 @@ async def execute_cycle(mode, date, root='state'):
                     # An outcome-only mismatch never mutates a source gate.
                     nhl=NHLClient()
                     try:
-                        recipient_audit=await collect_official_recipients(con,date,nhl)
+                        recipient_audit=await collect_official_recipients(con,date,nhl,root=root)
                     except Exception as exc:
                         # Do not lose/undo an already official frozen grade if
                         # an independent postgame source request times out.
