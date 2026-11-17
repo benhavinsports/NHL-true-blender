@@ -70,5 +70,5 @@ def test_true_g0_selected_skaters_not_mixed_with_unselected_necessary_research(t
         census["g0ResearchOnlyBranchMatrices"]*len(EXECUTION_ORDER))
     # Research is a separate diagnostic channel, not extra G18 candidates.
     assert all("G0_RESEARCH:" not in str(row.get("playerId","")) for row
-               in result["allG18QualifiedSurvivors"])
+               in result["preCoreQualifiedSurvivors"])
     con.close()

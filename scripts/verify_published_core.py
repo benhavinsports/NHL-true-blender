@@ -7,7 +7,7 @@ sequence, nested original function evidence, provenance and pre-puck times.
 This is read-only. It never selects, relabels, replaces, or grades a skater.
 """
 from __future__ import annotations
-from nhl_true_blender_engine.core_identity import expected_core_ids
+from nhl_true_blender_engine.core_identity import expected_core_ids, pre_core_survivors
 from nhl_true_blender_engine.engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
 from nhl_true_blender_engine.semantic_certification import audit_gate
 
@@ -142,7 +142,7 @@ def verify_published_core(root: Path, date: str):
     # G18 assembles the Core; it cannot silently discard an upstream survivor.
     # Today's November 17 receipt demonstrated why selected-leg PASS counts
     # alone are insufficient: four qualified, three published.
-    survivors = run.get("allG18QualifiedSurvivors")
+    survivors = pre_core_survivors(run)
     _require(isinstance(survivors, list),
              "saved run omitted the full upstream survivor set")
     # G16's saved cross-game finalist receipt (if any) defines the exact

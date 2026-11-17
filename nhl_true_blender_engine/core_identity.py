@@ -12,10 +12,21 @@ def _ids(rows, key='playerId'):
             if isinstance(x, dict)]
 
 
+def pre_core_survivors(run):
+    """Read a saved pre-Core pool; archived runs use the legacy key.
+
+    The new field takes priority if both exist. This read-only fallback
+    never adds the old key to new engine or publication output.
+    """
+    if 'preCoreQualifiedSurvivors' in run:
+        return run['preCoreQualifiedSurvivors']
+    return run.get('allG18QualifiedSurvivors')
+
+
 def expected_core_ids(run):
     """Return the list of (gameId, playerId) G18 was authorized to assemble,
     or None when the receipt is malformed/inconsistent."""
-    survivors = run.get('allG18QualifiedSurvivors')
+    survivors = pre_core_survivors(run)
     if not isinstance(survivors, list):
         return None
     survivor_ids = _ids(survivors)

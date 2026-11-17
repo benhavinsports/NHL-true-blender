@@ -11,6 +11,7 @@ from scripts.retract_invalid_core import (
 
 
 def fixture(root: Path):
+    # This retraction fixture intentionally models archived legacy run output.
     for directory in ("site_cards", "site_runs", "core_retractions"):
         (root/directory).mkdir(parents=True, exist_ok=True)
     ledger = open_db(str(root / "true_blender.sqlite"))
@@ -171,3 +172,12 @@ def test_original_timestamp_cannot_reenter_after_retraction(tmp_path):
     con.close()
     with pytest.raises(ValueError,match="Retracted original returned"):
         retract(tmp_path)
+
+
+def test_retraction_reads_current_pre_core_key_as_well(tmp_path):
+    fixture(tmp_path)
+    run_path = tmp_path / "site_runs" / f"{DATE}.json"
+    run = json.loads(run_path.read_text())
+    run["preCoreQualifiedSurvivors"] = run.pop("allG18QualifiedSurvivors")
+    run_path.write_text(json.dumps(run))
+    assert retract(tmp_path)["status"] == "ORIGINAL_RETRACTED_FROM_ACTIVE_LEDGER"
