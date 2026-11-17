@@ -1,40 +1,40 @@
 {
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 178,
+  "g0AcceptedSkaterMatrices": 224,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G2": 30,
-    "G6": 38,
-    "G7": 26,
-    "G10": 55,
-    "G10.5": 113,
-    "G11": 26,
-    "G12": 55,
-    "G15": 105,
-    "G16": 114,
-    "G17": 141,
-    "Step4": 26,
-    "Step6": 38,
-    "Step9": 26,
-    "Step10.5": 113,
-    "Step12": 113,
-    "Step14": 141,
-    "G4": 40,
-    "G5": 40,
-    "G9": 76,
-    "Step3": 40,
-    "Step7": 40,
-    "Step10": 40,
-    "G14": 9,
-    "Step5": 9,
+    "G10.5": 201,
+    "G15": 143,
+    "G16": 206,
+    "G17": 214,
+    "Step10.5": 201,
+    "Step12": 201,
+    "Step14": 214,
+    "G4": 44,
+    "G5": 44,
+    "Step3": 44,
+    "Step7": 44,
+    "Step10": 44,
+    "G6": 52,
+    "G2": 38,
+    "Step6": 46,
+    "G9": 39,
+    "G10": 73,
+    "G12": 73,
+    "G7": 32,
+    "G11": 32,
+    "G14": 11,
+    "Step4": 32,
+    "Step5": 11,
+    "Step9": 32,
     "Step11": 3
   },
-  "g18NonselectedNotMissingSource": 202,
-  "g18ActualMissingSourceCount": 110,
+  "g18NonselectedNotMissingSource": 221,
+  "g18ActualMissingSourceCount": 65,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
@@ -50,15 +50,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 38
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G18"
-      ],
-      "overlaySteps": [],
-      "playerCount": 21
+      "playerCount": 52
     },
     {
       "masterGates": [
@@ -72,23 +64,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 16
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 12
+      "playerCount": 43
     },
     {
       "masterGates": [
@@ -105,7 +81,22 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 11
+      "playerCount": 20
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 10
     },
     {
       "masterGates": [
@@ -129,22 +120,84 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 8
+      "playerCount": 9
     },
     {
       "masterGates": [
         "G9",
+        "G10.5",
         "G15",
+        "G16",
+        "G17",
         "G18"
       ],
-      "overlaySteps": [],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
       "playerCount": 7
     },
     {
       "masterGates": [
+        "G16",
         "G18"
       ],
       "overlaySteps": [],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
       "playerCount": 4
     },
     {
@@ -154,9 +207,11 @@
         "G7",
         "G9",
         "G10",
+        "G10.5",
         "G11",
         "G12",
         "G15",
+        "G16",
         "G17",
         "G18"
       ],
@@ -164,6 +219,8 @@
         "Step4",
         "Step6",
         "Step9",
+        "Step10.5",
+        "Step12",
         "Step14"
       ],
       "playerCount": 3
@@ -191,24 +248,12 @@
       "masterGates": [
         "G4",
         "G5",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
+        "G6",
+        "G7",
         "G9",
         "G10",
         "G10.5",
+        "G11",
         "G12",
         "G14",
         "G15",
@@ -218,164 +263,17 @@
       ],
       "overlaySteps": [
         "Step3",
-        "Step5",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G7",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
         "Step4",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
         "Step5",
         "Step6",
         "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step6",
         "Step9",
+        "Step10",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G9",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step14"
-      ],
-      "playerCount": 2
+      "playerCount": 3
     },
     {
       "masterGates": [
@@ -395,15 +293,13 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 3
     },
     {
       "masterGates": [
-        "G6",
-        "G7",
+        "G9",
         "G10",
         "G10.5",
-        "G11",
         "G12",
         "G15",
         "G16",
@@ -411,35 +307,23 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 3
+    },
+    {
+      "masterGates": [],
+      "overlaySteps": [],
+      "playerCount": 3
     },
     {
       "masterGates": [
-        "G6",
-        "G9",
+        "G2",
         "G10",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G9",
         "G10.5",
+        "G12",
         "G15",
         "G16",
         "G17",
@@ -454,19 +338,25 @@
     },
     {
       "masterGates": [
-        "G15",
-        "G18"
-      ],
-      "overlaySteps": [],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10.5",
         "G16",
+        "G17",
         "G18"
       ],
-      "overlaySteps": [],
-      "playerCount": 1
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
     },
     {
       "masterGates": [
@@ -499,7 +389,37 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 1
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
     },
     {
       "masterGates": [
@@ -508,6 +428,92 @@
         "G5",
         "G6",
         "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
         "G10",
         "G10.5",
         "G12",
@@ -525,11 +531,74 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 1
+      "playerCount": 2
     },
     {
       "masterGates": [
-        "G2",
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
         "G6",
         "G10",
         "G10.5",
@@ -545,11 +614,10 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 1
+      "playerCount": 2
     },
     {
       "masterGates": [
-        "G2",
         "G6",
         "G10.5",
         "G15",
@@ -563,82 +631,21 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 1
+      "playerCount": 2
     },
     {
       "masterGates": [
-        "G2",
-        "G6",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G7",
-        "G9",
-        "G11",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G9",
-        "G10.5",
         "G15",
-        "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
         "Step14"
       ],
       "playerCount": 1
     },
     {
       "masterGates": [
-        "G2",
-        "G6",
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G9",
-        "G10",
-        "G12",
         "G15",
         "G18"
       ],
@@ -647,11 +654,11 @@
     },
     {
       "masterGates": [
+        "G2",
         "G4",
         "G5",
-        "G10",
-        "G12",
-        "G15",
+        "G10.5",
+        "G16",
         "G17",
         "G18"
       ],
@@ -659,12 +666,15 @@
         "Step3",
         "Step7",
         "Step10",
+        "Step10.5",
+        "Step12",
         "Step14"
       ],
       "playerCount": 1
     },
     {
       "masterGates": [
+        "G2",
         "G4",
         "G5",
         "G6",
@@ -689,6 +699,7 @@
     },
     {
       "masterGates": [
+        "G2",
         "G4",
         "G5",
         "G6",
@@ -709,6 +720,187 @@
         "Step4",
         "Step5",
         "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10.5",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
         "Step7",
         "Step9",
         "Step10",
@@ -721,152 +913,56 @@
     },
     {
       "masterGates": [
-        "G4",
-        "G5",
         "G6",
-        "G7",
-        "G9",
         "G10",
         "G10.5",
-        "G11",
         "G12",
-        "G14",
         "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step3",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
         "Step4",
-        "Step5",
         "Step6",
-        "Step7",
         "Step9",
-        "Step10",
         "Step10.5",
         "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G7",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G7",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step11",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
         "Step14"
       ],
       "playerCount": 1
@@ -874,8 +970,11 @@
     {
       "masterGates": [
         "G6",
+        "G7",
+        "G9",
         "G10",
         "G10.5",
+        "G11",
         "G12",
         "G15",
         "G16",
@@ -883,7 +982,9 @@
         "G18"
       ],
       "overlaySteps": [
+        "Step4",
         "Step6",
+        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
@@ -893,7 +994,11 @@
     {
       "masterGates": [
         "G6",
+        "G9",
+        "G10",
         "G10.5",
+        "G12",
+        "G15",
         "G16",
         "G17",
         "G18"
@@ -917,139 +1022,77 @@
         "Step9"
       ],
       "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G10",
-        "G12",
-        "G15",
-        "G18"
-      ],
-      "overlaySteps": [],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
     }
   ],
   "oneObservedEvidenceExamplePerGate": {
-    "G2": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
-    "G6": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": {
-        "deployment": null
-      }
-    },
-    "G7": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
-    "G10": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": {
-        "recipient": true,
-        "ownedGoalsInActualAppearances": null,
-        "creditedGoalsVerified": true
-      }
-    },
     "G10.5": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": {
         "comparisonCounts": {
-          "RIVAL_DOMINATES": 9,
-          "DEFEATED": 7,
-          "DIFFERENT_TARGET_LANE": 1
+          "RIVAL_DOMINATES": 10,
+          "NO_DECISIVE_ROUTE_SEPARATION": 4,
+          "DIFFERENT_TARGET_LANE": 2
         },
         "firstDirectContradictions": [
           {
-            "challengerId": "8477935",
+            "challengerId": "8478519",
             "status": "RIVAL_DOMINATES",
             "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 2,
-              "zone": "Low Slot"
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "High Slot"
             },
             "challenger": {
-              "ownedGoals": 3,
-              "shotsOnGoal": 19,
-              "zone": "Low Slot"
+              "ownedGoals": 1,
+              "shotsOnGoal": 4,
+              "zone": "High Slot"
             }
           },
           {
-            "challengerId": "8474189",
-            "status": "RIVAL_DOMINATES",
+            "challengerId": "8483447",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION",
             "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 2,
-              "zone": "Low Slot"
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "High Slot"
             },
             "challenger": {
-              "ownedGoals": 2,
-              "shotsOnGoal": 8,
-              "zone": "Low Slot"
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "High Slot"
             }
           },
           {
-            "challengerId": "8482113",
+            "challengerId": "8476878",
             "status": "RIVAL_DOMINATES",
             "candidate": {
-              "ownedGoals": 1,
-              "shotsOnGoal": 2,
-              "zone": "Low Slot"
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "High Slot"
             },
             "challenger": {
-              "ownedGoals": 4,
-              "shotsOnGoal": 19,
-              "zone": "Low Slot"
+              "ownedGoals": 0,
+              "shotsOnGoal": 3,
+              "zone": "High Slot"
             }
           }
         ]
       }
     },
-    "G11": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
-    "G12": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
     "G15": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": null
     },
     "G16": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": null
     },
     "G17": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": {
         "outcome": "UNRESOLVED_CONTRADICTION",
         "unresolved": true,
@@ -1059,144 +1102,68 @@
           "source": [
             {
               "anatomicalPlacementVerified": false,
-              "goalieId": "8482221",
-              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now",
+              "goalieId": "8480313",
+              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480313/now",
               "observedStrengthAreaNames": [
-                "High Slot",
-                "R Point"
+                "Center Point",
+                "L Circle"
               ],
               "observedStrongerArea": false,
               "observedWeakAreaNames": [
-                "Low Slot"
+                "High Slot",
+                "L Point",
+                "Outside L"
               ],
               "physicalOriginMatch": true,
               "sourceKind": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
               "starterSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
-              "starterStatus": "CONFIRMED"
+              "starterStatus": "EXPECTED"
             }
           ],
           "sourceScope": "GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
           "strongerAreaContradiction": false
         },
         "lineupDisagreementReview": {
-          "availability": "INJURED",
-          "hasProjectedOrConfirmedRole": false,
+          "availability": "PROJECTED_ACTIVE",
+          "hasProjectedOrConfirmedRole": true,
           "isTrulyConfirmed": false,
-          "lineupSourceUrl": null,
-          "projectedOrConfirmedEV": null
+          "lineupSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+          "projectedOrConfirmedEV": {
+            "EV": "D3",
+            "defensePair": 3,
+            "sourceType": "SECONDARY_PROJECTED_LINEUP",
+            "status": "PROJECTED"
+          }
         },
         "strongestRivalReview": {
           "G9OpponentDefenseWeakZonesUsed": [
             "Low Slot",
+            "High Slot",
+            "Point",
             "L Circle",
-            "Center Point"
+            "R Circle",
+            "R Point"
           ],
           "eachSameLaneDefeated": false,
           "everyRivalReviewed": true,
           "matchesG10_5GoalieAndDefenseRouteScope": true,
-          "rivalCompared": 18,
+          "rivalCompared": 17,
           "rivalResults": [
             {
               "allRivalJointlyViableZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 3,
-                "shotsOnGoal": 19,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8477935",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F3",
-                "line": 3,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477935/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 2,
-                "shotsOnGoal": 8,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8474189",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F2",
-                "line": 2,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474189/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
                 "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 1,
                 "shotsOnGoal": 4,
-                "zone": "Low Slot"
+                "zone": "High Slot"
               },
-              "challengerId": "8477903",
+              "challengerId": "8478519",
               "comparisonPriority": [
                 "ownedGoalsFromSameShotOrigin",
                 "onNetShotPressureOnlyWhenGoalsEqual"
@@ -1204,98 +1171,14 @@
               "goalieWeaknessAndDefenseBothRequired": true,
               "independentRecentTieReview": null,
               "jointlyViableRouteTiedZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
-                "EV": "F4",
-                "line": 4,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477903/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 5,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8478147",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F4",
-                "line": 4,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478147/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 4,
-                "shotsOnGoal": 19,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8482113",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F1",
-                "line": 1,
+                "EV": "F2",
+                "line": 2,
                 "powerPlayUnit": 2,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
                 "status": "PROJECTED"
@@ -1304,325 +1187,26 @@
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482113/now"
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478519/now"
               ],
               "status": "RIVAL_DOMINATES"
             },
             {
               "allRivalJointlyViableZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
                 "ownedGoals": 0,
-                "shotsOnGoal": 7,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8480185",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F3",
-                "line": 3,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480185/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 6,
-                "shotsOnGoal": 30,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8477933",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F2",
-                "line": 2,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8481655",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F4",
-                "line": 4,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481655/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 5,
-                "shotsOnGoal": 30,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8480801",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F1",
-                "line": 1,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480801/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 2,
-                "shotsOnGoal": 15,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8479314",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F1",
-                "line": 1,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479314/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 4,
-                "shotsOnGoal": 11,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8477409",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F2",
-                "line": 2,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477409/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 6,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8483771",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "F3",
-                "line": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483771/now"
-              ],
-              "status": "RIVAL_DOMINATES"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
               },
               "challenger": {
                 "ownedGoals": 0,
                 "shotsOnGoal": 1,
-                "zone": "Low Slot"
+                "zone": "High Slot"
               },
-              "challengerId": "8484304",
+              "challengerId": "8483447",
               "comparisonPriority": [
                 "ownedGoalsFromSameShotOrigin",
                 "onNetShotPressureOnlyWhenGoalsEqual"
@@ -1630,7 +1214,2025 @@
               "goalieWeaknessAndDefenseBothRequired": true,
               "independentRecentTieReview": null,
               "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F4",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "line": 3,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8483447-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 4,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483447/now"
+              ],
+              "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 3,
+                "zone": "High Slot"
+              },
+              "challengerId": "8476878",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F2",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476878/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 3,
+                "zone": "High Slot"
+              },
+              "challengerId": "8482201",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F3",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8482201-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 3,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482201/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "High Slot",
+                "L Point",
+                "Outside L"
+              ],
+              "G9DefensiveWeakZones": [
+                "High Slot",
+                "L Circle",
+                "Low Slot",
+                "Point",
+                "R Circle",
+                "R Point"
+              ],
+              "candidateZone": "High Slot",
+              "challengerId": "8476826",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
                 "Low Slot"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476826/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "High Slot",
+                "L Point",
+                "Outside L"
+              ],
+              "G9DefensiveWeakZones": [
+                "High Slot",
+                "L Circle",
+                "Low Slot",
+                "Point",
+                "R Circle",
+                "R Point"
+              ],
+              "candidateZone": "High Slot",
+              "challengerId": "8477404",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Crease",
+                "R Circle",
+                "L Circle",
+                "L Net Side",
+                "Center Point",
+                "Offensive Neutral Zone",
+                "Outside R",
+                "Beyond Red Line",
+                "Outside L"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477404/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 12,
+                "zone": "High Slot"
+              },
+              "challengerId": "8479542",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "line": 2,
+                      "powerPlayUnit": 2,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8479542-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 1,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479542/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challengerId": "8480995",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F2",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8480995-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480995/now"
+              ],
+              "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 2,
+                "shotsOnGoal": 3,
+                "zone": "High Slot"
+              },
+              "challengerId": "8476453",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476453/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challengerId": "8481624",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F2",
+                "conflictingProjectedAssignments": [
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:16:55+00:00",
+                    "observedAt": "2026-11-17T17:16:55+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:18:07+00:00",
+                    "observedAt": "2026-11-17T17:18:07+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:29:18+00:00",
+                    "observedAt": "2026-11-17T17:29:18+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:30:29+00:00",
+                    "observedAt": "2026-11-17T17:30:29+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:39:21+00:00",
+                    "observedAt": "2026-11-17T17:39:21+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:41:11+00:00",
+                    "observedAt": "2026-11-17T17:41:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:47:22+00:00",
+                    "observedAt": "2026-11-17T17:47:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T17:49:01+00:00",
+                    "observedAt": "2026-11-17T17:49:01+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:05:43+00:00",
+                    "observedAt": "2026-11-17T18:05:43+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:07:02+00:00",
+                    "observedAt": "2026-11-17T18:07:02+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:10:05+00:00",
+                    "observedAt": "2026-11-17T18:10:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:12:20+00:00",
+                    "observedAt": "2026-11-17T18:12:20+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:35:28+00:00",
+                    "observedAt": "2026-11-17T18:35:28+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:37:11+00:00",
+                    "observedAt": "2026-11-17T18:37:11+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:42:41+00:00",
+                    "observedAt": "2026-11-17T18:42:41+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:44:24+00:00",
+                    "observedAt": "2026-11-17T18:44:24+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:48:16+00:00",
+                    "observedAt": "2026-11-17T18:48:16+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:49:45+00:00",
+                    "observedAt": "2026-11-17T18:49:45+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:55:35+00:00",
+                    "observedAt": "2026-11-17T18:55:35+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T18:57:22+00:00",
+                    "observedAt": "2026-11-17T18:57:22+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T20:20:05+00:00",
+                    "observedAt": "2026-11-17T20:20:05+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  },
+                  {
+                    "data": {
+                      "EV": "F4",
+                      "line": 4,
+                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                      "status": "PROJECTED"
+                    },
+                    "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8481624-2026-11-17T20:21:34+00:00",
+                    "observedAt": "2026-11-17T20:21:34+00:00",
+                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                  }
+                ],
+                "line": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481624/now"
+              ],
+              "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challengerId": "8484770",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484770/now"
+              ],
+              "status": "NO_DECISIVE_ROUTE_SEPARATION"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 3,
+                "shotsOnGoal": 6,
+                "zone": "High Slot"
+              },
+              "challengerId": "8478010",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478010/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 7,
+                "zone": "High Slot"
+              },
+              "challengerId": "8474590",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "D1",
+                "defensePair": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474590/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 2,
+                "zone": "High Slot"
+              },
+              "challengerId": "8478416",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
               ],
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
@@ -1645,26 +3247,26 @@
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484304/now"
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478416/now"
               ],
-              "status": "DEFEATED"
+              "status": "RIVAL_DOMINATES"
             },
             {
               "allRivalJointlyViableZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
               },
               "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "Low Slot"
+                "ownedGoals": 2,
+                "shotsOnGoal": 5,
+                "zone": "High Slot"
               },
-              "challengerId": "8477932",
+              "challengerId": "8480426",
               "comparisonPriority": [
                 "ownedGoalsFromSameShotOrigin",
                 "onNetShotPressureOnlyWhenGoalsEqual"
@@ -1672,7 +3274,7 @@
               "goalieWeaknessAndDefenseBothRequired": true,
               "independentRecentTieReview": null,
               "jointlyViableRouteTiedZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
@@ -1688,137 +3290,26 @@
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477932/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 1,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8478055",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "D1",
-                "defensePair": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478055/now"
-              ],
-              "status": "DEFEATED"
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "Low Slot"
-              ],
-              "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challengerId": "8477495",
-              "comparisonPriority": [
-                "ownedGoalsFromSameShotOrigin",
-                "onNetShotPressureOnlyWhenGoalsEqual"
-              ],
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "Low Slot"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": {
-                "EV": "D2",
-                "defensePair": 2,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
-              "sameLane": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477495/now"
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480426/now"
               ],
               "status": "RIVAL_DOMINATES"
             },
             {
-              "G0GoalieWeakZones": [
-                "Low Slot"
-              ],
-              "G9DefensiveWeakZones": [
-                "Center Point",
-                "L Circle",
-                "Low Slot"
-              ],
-              "candidateZone": "Low Slot",
-              "challengerId": "8475179",
-              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
-              "notEvidenceRivalCannotScoreTonight": true,
-              "rivalKnownAreas": [
-                "L Point",
-                "Center Point",
-                "Beyond Red Line",
-                "High Slot",
-                "R Circle",
-                "R Net Side"
-              ],
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475179/now"
-              ],
-              "status": "DIFFERENT_TARGET_LANE"
-            },
-            {
               "allRivalJointlyViableZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "candidate": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 2,
-                "zone": "Low Slot"
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
               },
               "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "Low Slot"
+                "ownedGoals": 2,
+                "shotsOnGoal": 4,
+                "zone": "High Slot"
               },
-              "challengerId": "8478859",
+              "challengerId": "8475167",
               "comparisonPriority": [
                 "ownedGoalsFromSameShotOrigin",
                 "onNetShotPressureOnlyWhenGoalsEqual"
@@ -1826,7 +3317,7 @@
               "goalieWeaknessAndDefenseBothRequired": true,
               "independentRecentTieReview": null,
               "jointlyViableRouteTiedZones": [
-                "Low Slot"
+                "High Slot"
               ],
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
@@ -1841,116 +3332,430 @@
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478859/now"
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475167/now"
               ],
-              "status": "DEFEATED"
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "High Slot"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "High Slot"
+              },
+              "challengerId": "8482655",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "High Slot"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "D2",
+                "defensePair": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474151/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482655/now"
+              ],
+              "status": "NO_DECISIVE_ROUTE_SEPARATION"
             }
           ]
         }
       }
     },
-    "Step4": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
-    "Step6": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
-    "Step9": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
-      "reason": null
-    },
     "Step10.5": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": null
     },
     "Step12": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": null
     },
     "Step14": {
-      "gameId": "2026020335",
-      "playerId": "8473419",
+      "gameId": "2026020334",
+      "playerId": "8474151",
       "reason": null
     },
     "G4": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
+      "gameId": "2026020334",
+      "playerId": "8476826",
       "reason": null
     },
     "G5": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
+      "gameId": "2026020334",
+      "playerId": "8476826",
       "reason": {
-        "zone": "L Point",
+        "zone": "Low Slot",
         "goalieWeakZones": [
-          "Low Slot"
+          "High Slot",
+          "L Point",
+          "Outside L"
         ]
       }
     },
-    "G9": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
-      "reason": {
-        "zone": "L Point",
-        "green": [
-          "Low Slot",
-          "L Circle",
-          "Center Point"
-        ],
-        "red": [],
-        "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-        "zoneConcession": {
-          "allAttemptsAgainst": 982,
-          "allOnNetShotsAgainst": 478,
-          "attemptShare": 0.0539714867617108,
-          "attemptTypes": [
-            "goal",
-            "shot-on-goal",
-            "missed-shot",
-            "blocked-shot"
-          ],
-          "attemptsAgainst": 53,
-          "attemptsPerGame": 3.1176470588235294,
-          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-          "gameCount": 17,
-          "goalsAgainst": 0,
-          "onNetShotsAgainst": 32,
-          "peerMedianAttemptsPerGame": 3.888888888888889,
-          "peerTeamsCompared": 31
-        }
-      }
-    },
     "Step3": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
+      "gameId": "2026020334",
+      "playerId": "8476826",
       "reason": null
     },
     "Step7": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
+      "gameId": "2026020334",
+      "playerId": "8476826",
       "reason": null
     },
     "Step10": {
-      "gameId": "2026020335",
-      "playerId": "8475179",
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": null
+    },
+    "G6": {
+      "gameId": "2026020334",
+      "playerId": "8476878",
+      "reason": {
+        "deployment": {
+          "EV": "F2",
+          "conflictingProjectedAssignments": [
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:16:55+00:00",
+              "observedAt": "2026-11-17T17:16:55+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:18:07+00:00",
+              "observedAt": "2026-11-17T17:18:07+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:29:18+00:00",
+              "observedAt": "2026-11-17T17:29:18+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:30:29+00:00",
+              "observedAt": "2026-11-17T17:30:29+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:39:21+00:00",
+              "observedAt": "2026-11-17T17:39:21+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:41:11+00:00",
+              "observedAt": "2026-11-17T17:41:11+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:47:22+00:00",
+              "observedAt": "2026-11-17T17:47:22+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T17:49:01+00:00",
+              "observedAt": "2026-11-17T17:49:01+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:05:43+00:00",
+              "observedAt": "2026-11-17T18:05:43+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:07:02+00:00",
+              "observedAt": "2026-11-17T18:07:02+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:10:05+00:00",
+              "observedAt": "2026-11-17T18:10:05+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:12:20+00:00",
+              "observedAt": "2026-11-17T18:12:20+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:35:28+00:00",
+              "observedAt": "2026-11-17T18:35:28+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:37:11+00:00",
+              "observedAt": "2026-11-17T18:37:11+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:42:41+00:00",
+              "observedAt": "2026-11-17T18:42:41+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:44:24+00:00",
+              "observedAt": "2026-11-17T18:44:24+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:48:16+00:00",
+              "observedAt": "2026-11-17T18:48:16+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:49:45+00:00",
+              "observedAt": "2026-11-17T18:49:45+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:55:35+00:00",
+              "observedAt": "2026-11-17T18:55:35+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T18:57:22+00:00",
+              "observedAt": "2026-11-17T18:57:22+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T20:20:05+00:00",
+              "observedAt": "2026-11-17T20:20:05+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            },
+            {
+              "data": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "evidenceId": "btl-2026-11-17-PROJECTED-2026020334-8476878-2026-11-17T20:21:34+00:00",
+              "observedAt": "2026-11-17T20:21:34+00:00",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+            }
+          ],
+          "line": 2,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      }
+    },
+    "G2": {
+      "gameId": "2026020334",
+      "playerId": "8477149",
+      "reason": null
+    },
+    "Step6": {
+      "gameId": "2026020334",
+      "playerId": "8477149",
+      "reason": null
+    },
+    "G9": {
+      "gameId": "2026020334",
+      "playerId": "8477404",
+      "reason": {
+        "zone": "Outside L",
+        "green": [
+          "Low Slot",
+          "High Slot",
+          "Point",
+          "L Circle",
+          "R Circle",
+          "R Point"
+        ],
+        "red": [],
+        "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "zoneConcession": null
+      }
+    },
+    "G10": {
+      "gameId": "2026020334",
+      "playerId": "8478416",
+      "reason": {
+        "recipient": null,
+        "ownedGoalsInActualAppearances": null,
+        "creditedGoalsVerified": null
+      }
+    },
+    "G12": {
+      "gameId": "2026020334",
+      "playerId": "8478416",
+      "reason": null
+    },
+    "G7": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "G11": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
       "reason": null
     },
     "G14": {
-      "gameId": "2026020335",
-      "playerId": "8481133",
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step4": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
       "reason": null
     },
     "Step5": {
-      "gameId": "2026020335",
-      "playerId": "8481133",
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step9": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
       "reason": null
     },
     "Step11": {
