@@ -19,6 +19,32 @@ def _write(path, value):
     tmp.write_text(json.dumps(value, sort_keys=True, indent=2) + '\n', encoding='utf-8')
     tmp.replace(path)
 
+def _active_saved_card(path):
+    """A retracted old G18 card is an audit record, never a live Core."""
+    if not path.exists():
+        return None
+    old=json.loads(path.read_text(encoding='utf-8'))
+    if (old.get('verified') is False
+            and old.get('status')=='RETRACTED_UNAUTHORIZED_G18'):
+        return None
+    return old
+
+
+def _was_explicitly_retracted(path, root, slate_date):
+    if not path.exists():
+        return False
+    doc=json.loads(path.read_text(encoding='utf-8'))
+    if doc.get('verified') is not False or doc.get('status')!='RETRACTED_UNAUTHORIZED_G18':
+        return False
+    manifest=root/'core_retractions'/f'{slate_date}.json'
+    if not manifest.is_file():
+        raise PublicationConflict('Retracted Core missing immutable original archive')
+    proof=json.loads(manifest.read_text(encoding='utf-8'))
+    if proof.get('cardId')!=doc.get('cardId') or proof.get('originalFingerprint')!=doc.get('fingerprint'):
+        raise PublicationConflict('Retraction original fingerprint or card ID mismatch')
+    return True
+
+
 def export_run(con, slate_date, stage, result, root='state'):
     root = Path(root)
     card = result.get('card')
@@ -77,7 +103,7 @@ def export_run(con, slate_date, stage, result, root='state'):
     )
     if not full_execution:
         prior=root/'site_cards'/f'{slate_date}.json'
-        old=json.loads(prior.read_text(encoding='utf-8')) if prior.exists() else None
+        old=_active_saved_card(prior)
         status.update({
             'currentRunFullyCertified':False,
             'publishedToSite':False,
@@ -101,8 +127,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         # Do not erase or mark that frozen Core unpublished. Keep the prior
         # artifact unchanged, and distinguish an audit from a new selection.
         prior=root/'site_cards'/f'{slate_date}.json'
-        if prior.exists():
-            locked=json.loads(prior.read_text(encoding='utf-8'))
+        locked=_active_saved_card(prior)
+        if locked:
             # A historical card may remain immutable, but it cannot make a
             # newly failed Core assembly count as a successful fresh run.
             # Compare the complete pre-Core survivor set, not just the
@@ -200,7 +226,7 @@ def export_run(con, slate_date, stage, result, root='state'):
     # the new run recertified the original card. No invented PASS/transfer.
     if validation_gaps:
         previous=root/'site_cards'/f'{slate_date}.json'
-        retained=previous.exists()
+        retained=_active_saved_card(previous) is not None
         status.update({
             'currentRunFullyCertified':False,
             'independentOverlaySourceGaps':validation_gaps,
@@ -229,11 +255,15 @@ def export_run(con, slate_date, stage, result, root='state'):
         'eligibleSkaterRows':result.get('eligibleSkaterRows'),
     }
     path=root/'site_cards'/f'{slate_date}.json'
+    original_retracted=_was_explicitly_retracted(path,root,slate_date)
+    # A discredited G18 card is not a baseline for a *new independent*
+    # full-gate execution. Its complete original identity is archived under
+    # core_retractions and SQLite card_retractions, never silently replaced.
     # Record issuance once, at the actual first publication. This is
     # provenance, never a reconstructed timestamp from a later grade/run.
     # A later confirmed pass may retain the original issuance but cannot
     # manufacture an earlier one for a legacy card.
-    if path.exists():
+    if path.exists() and not original_retracted:
         old=json.loads(path.read_text(encoding='utf-8'))
         if old.get('issuedAtUTC'):
             payload['issuedAtUTC']=old['issuedAtUTC']
@@ -257,7 +287,7 @@ def export_run(con, slate_date, stage, result, root='state'):
                 'First card publication occurred at/after a leg puck drop; '
                 'refusing to invent a pre-puck issuance')
         payload['issuedAtUTC']=issued.isoformat(timespec='seconds')
-    if path.exists():
+    if path.exists() and not original_retracted:
         old=json.loads(path.read_text(encoding='utf-8'))
         if old.get('cardId')!=payload['cardId']:
             raise PublicationConflict('Different authoritative card ID already published')
