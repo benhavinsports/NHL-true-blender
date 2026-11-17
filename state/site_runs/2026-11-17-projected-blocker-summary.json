@@ -7,10 +7,10 @@
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G10.5": 137,
+    "G10.5": 136,
     "G15": 123,
-    "G16": 137,
-    "G17": 172,
+    "G16": 136,
+    "G17": 171,
     "G18": 219,
     "Step0": 222,
     "Step1": 222,
@@ -117,7 +117,7 @@
         "Step13",
         "Step14"
       ],
-      "playerCount": 27
+      "playerCount": 26
     },
     {
       "masterGates": [
@@ -626,6 +626,30 @@
     },
     {
       "masterGates": [
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step0",
+        "Step1",
+        "Step2",
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step8",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step13",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
         "G6",
@@ -818,30 +842,6 @@
     {
       "masterGates": [
         "G15",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step0",
-        "Step1",
-        "Step2",
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step8",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step11",
-        "Step12",
-        "Step13",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
         "G18"
       ],
       "overlaySteps": [
@@ -1305,8 +1305,8 @@
       "reason": {
         "comparisonCounts": {
           "RIVAL_DOMINATES": 7,
-          "NO_DECISIVE_ROUTE_SEPARATION": 6,
-          "DIFFERENT_TARGET_LANE": 7
+          "DIFFERENT_TARGET_LANE": 7,
+          "NO_DECISIVE_ROUTE_SEPARATION": 5
         },
         "firstDirectContradictions": [
           {
@@ -1338,8 +1338,8 @@
             }
           },
           {
-            "challengerId": "8477942",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION",
+            "challengerId": "8477960",
+            "status": "RIVAL_DOMINATES",
             "candidate": {
               "ownedGoals": 0,
               "shotsOnGoal": 1,
@@ -1347,7 +1347,7 @@
             },
             "challenger": {
               "ownedGoals": 0,
-              "shotsOnGoal": 1,
+              "shotsOnGoal": 4,
               "zone": "Center Point"
             }
           }
