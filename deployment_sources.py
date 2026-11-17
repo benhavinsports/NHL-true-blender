@@ -270,6 +270,24 @@ def fetch_deployment(team, team_name=None, mode='projected'):
         attempts.append(meta)
         collected.extend(rows)
 
+    # Preserve the fetched document URL, not a parser-local JSON path or a
+    # human-readable provider label. Downstream G6 requires attributable URLs.
+    source_urls={}
+    for attempt in attempts:
+        label=attempt.get('source')
+        url=attempt.get('url')
+        if label and isinstance(url,str) and url.startswith('https://'):
+            source_urls.setdefault(label,set()).add(url)
+    for row in collected:
+        label=row.get('source')
+        path=row.get('sourcePath')
+        if isinstance(path,str) and path.startswith('https://'):
+            row['sourceUrl']=path
+        elif len(source_urls.get(label,set()))==1:
+            row['sourceUrl']=next(iter(source_urls[label]))
+        else:
+            row['sourceUrl']=None
+
     # Aggregate by exact normalized full name. If two sources disagree about a
     # deployment dimension, keep the conflict visible and leave that dimension
     # unresolved rather than using arbitrary source order as a tie-break.
@@ -287,7 +305,7 @@ def fetch_deployment(team, team_name=None, mode='projected'):
         for field, evidence_key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
             value=row.get(field)
             if value is None: continue
-            evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt')}
+            evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt'),'sourceUrl':row.get('sourceUrl')}
             if evidence not in item[evidence_key]: item[evidence_key].append(evidence)
 
     for item in by_player.values():
