@@ -41,6 +41,13 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                 branches=[g0_source_coherent_scorer_goalie(game,decision,b)
                           for b in branches]
             for p in teammates:
+                # A separately sourced, already verified independent G17
+                # review is authoritative. Do not overwrite it just because
+                # another player in this game needs a selected-G0 refresh.
+                prior_review=p.get("contradictions")
+                if (decision and receipt(prior_review) and
+                    (evidence_data(prior_review) or {}).get("sourceType") != SCOPE):
+                    continue
                 # G17 must review the SAME player-owned route that G5 will
                 # evaluate after the goalie-first G0 decision.
                 scoped=release_matched_to_g0_target(p,branches[0],game.get('coverage',{}).get(attacker)) if len(branches)==1 else p
