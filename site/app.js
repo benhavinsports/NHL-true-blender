@@ -343,7 +343,7 @@ function coreCard(leg,i){
  inner.appendChild(back);
  button.appendChild(inner);
  button.addEventListener("click",event=>{
-   if(event.target?.closest?.("a"))return;
+   if(event?.target?.closest?.("a"))return;
    toggleCardFlip(key);
  });
  button.addEventListener("keydown",event=>{
