@@ -206,3 +206,70 @@ def test_source_card_with_unparsed_opponent_retains_only_exact_verified_side():
     assert [(row["team"],row["goalieId"]) for row in rows]==[("LAK","100")]
     assert trace[0]["matchedTeamCount"]==1
     assert trace[0]["teamResearch"]["BOS"]["reason"]=="STARTER_FIELDS_NOT_PARSED"
+
+
+def test_live_display_repeated_surname_and_fullname_resolves_exact_official_ids():
+    # The real page includes text from both its surname link and accessible
+    # full-name label. Flattening the DOM yields "Forsberg Anton Forsberg",
+    # NOT an unknown goalie or two separate players.
+    from nhl_true_blender_engine.dated_goalie_projections import _lookup_goalie
+    duplicated=(HTML
+        .replace("<a>Forsberg</a>", "<a>Forsberg</a><span>Anton Forsberg</span>")
+        .replace("<a>DiPietro</a>", "<a>DiPietro</a><span>Michael DiPietro</span>")
+        .replace("<a>Levi</a>", "<a>Levi</a><span>Devon Levi</span>")
+        .replace("<a>Markstrom</a>", "<a>Markstrom</a><span>Jacob Markstrom</span>"))
+    trace=[]
+    rows,status=parse_dated_projections(duplicated,DATE,schedule(),trace)
+    assert status=="DATED_MATCHUPS_PARSED"
+    assert {(r["team"],r["goalieId"]) for r in rows}=={
+        ("LAK","100"),("BOS","200"),("EDM","300"),("FLA","400")}
+    assert len(rows)==4 and all(r["sourceDisplayNameRepeated"] for r in rows)
+    assert [x["reason"] for x in trace]==["MATCHED","MATCHED"]
+    assert all(x["matchedTeamCount"]==2 for x in trace)
+    assert trace[0]["teamResearch"]["LAK"]["sourceGoalieName"]=="Forsberg Anton Forsberg"
+    # The repeated name provides an EXACT full official identity, but an
+    # isolated surname with two possible officials stays ambiguous.
+    rivals=[{"id":"100","name":"Anton Forsberg"},
+            {"id":"101","name":"Other Forsberg"}]
+    assert _lookup_goalie("Forsberg",rivals) is None
+    assert _lookup_goalie("Forsberg Anton Forsberg",rivals)["id"]=="100"
+    assert _lookup_goalie("Forsberg Anton Somebody",rivals) is None
+    # Two identically named roster entries are never guessed.
+    duplicate_ids=[{"id":"100","name":"Anton Forsberg"},
+                   {"id":"101","name":"Anton Forsberg"}]
+    assert _lookup_goalie("Forsberg Anton Forsberg",duplicate_ids) is None
+
+
+def test_repeated_display_name_is_retained_in_expected_goalie_evidence(tmp_path):
+    from json import loads
+    class Response:
+        text=HTML.replace("<a>Forsberg</a>",
+            "<a>Forsberg</a><span>Anton Forsberg</span>")
+        def raise_for_status(self):
+            pass
+    class Client:
+        def __init__(self,*args,**kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self,*args):
+            pass
+        async def get(self,url):
+            return Response()
+    con=open_db(str(tmp_path/"display.sqlite"))
+    try:
+        with patch("nhl_true_blender_engine.dated_goalie_projections.httpx.AsyncClient",Client):
+            report=asyncio.run(collect_dated_goalie_projections(
+                con,{"games":schedule()},DATE,"PROJECTED"))
+        assert report["projectedGoalieReceipts"]==4
+        assert report["gamesWithBothGoalieProjections"]==2
+        source=con.execute("SELECT payload FROM evidence WHERE kind='GOALIE_STARTER'").fetchall()
+        payloads=[loads(row["payload"]) for row in source]
+        expected=next(x for x in payloads if x["goalieId"]=="100")
+        assert expected["originalSourceDisplayName"]=="Forsberg Anton Forsberg"
+        assert expected["sourceDisplayNameRepeated"] is True
+        assert expected["status"]=="EXPECTED"
+        assert expected["notTeamConfirmed"] is True
+        assert all(x["status"]!="CONFIRMED" for x in payloads)
+    finally:
+        con.close()
