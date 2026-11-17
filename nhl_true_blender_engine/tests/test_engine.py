@@ -366,3 +366,28 @@ def test_gate_time_trace_matches_persisted_decisions(con):
                 receipt=next(row for row in chronological if row[0]==step['step'])
                 assert receipt[1]==step['disposition']
                 assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
+
+
+def test_projected_status_cannot_erase_official_dressed_status():
+    """Confirmed roster identity remains authoritative across source refreshes."""
+    from nhl_true_blender_engine.enrichment import attach
+    con=open_db(':memory:')
+    game={'id':'status-game','away':'NYR','home':'NYI',
+          'rosters':{'NYR':{'data':{'players':[{'id':'100','name':'Test Skater','availability':'DRESSED'}]}},
+                     'NYI':{'data':{'players':[]}}},
+          'goalies':{'NYR':[],'NYI':[]},'coverage':{}}
+    # A later projected update must not erase a source-backed DRESSED record.
+    record_evidence(con,{'evidence_id':'official-dressed','slate_date':DATE,
+        'stage':'OFFICIAL','game_id':'status-game','player_id':'100',
+        'kind':'PLAYER_STATUS','source_url':SRC,'observed_at':'2026-01-01T00:00:00Z',
+        'payload':{'status':'DRESSED'}})
+    record_evidence(con,{'evidence_id':'projected-later','slate_date':DATE,
+        'stage':'CONFIRMED','game_id':'status-game','player_id':'100',
+        'kind':'PLAYER_STATUS','source_url':SRC,'observed_at':'2026-01-01T01:00:00Z',
+        'payload':{'status':'PROJECTED_ACTIVE'}})
+    snap={'games':[game]}
+    attach(con,snap,DATE,'CONFIRMED')
+    player=game['rosters']['NYR']['data']['players'][0]
+    assert player['availability']=='DRESSED'
+    assert player['availabilitySource']['evidenceId']=='official-dressed'
+    assert len(player['availabilityAlternatives'])==1
