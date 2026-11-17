@@ -124,3 +124,82 @@ def test_unrecognized_header_records_matchup_specific_parsing_gap():
     assert not any(x["gameId"]=="2026020333" for x in rows)
     assert any(x["gameId"]=="2026020333" and
       x["reason"]=="OFFICIAL_MATCHUP_HEADING_NOT_PARSED" for x in diagnostics)
+
+
+def test_dated_first_off_eyewitness_source_separates_algorithms_without_confirmation(tmp_path):
+    from nhl_true_blender_engine.engine import all_goalie_branches
+    from nhl_true_blender_engine.enrichment import ingest
+    # The exact DFO card said "Kuemper was the first goalie off..." on
+    # Tuesday 17 Nov. This is an observation, not odds, a model, or
+    # the NHL confirming who will start.
+    html=HTML.replace(
+      '<div>Michael DiPietro</div>',
+      '<p>Kuemper was the first goalie off the ice at Los Angeles morning skate on Tuesday.</p>'
+      '<div>Michael DiPietro</div>')
+    games=fixtures()
+    games[0]["date"]=DATE
+    parsed,_=parse_dfo_starters(html,DATE,games)
+    lak=next(x for x in parsed if x["team"]=="LAK")
+    bos=next(x for x in parsed if x["team"]=="BOS")
+    assert lak["datedEyewitnessMorningSkateFirstOff"] is True
+    assert lak["sourceReportDate"]==DATE
+    assert lak["status"]=="EXPECTED"
+    assert bos["datedEyewitnessMorningSkateFirstOff"] is False
+
+    class Reply:
+        text=html
+        def raise_for_status(self):pass
+    class Client:
+        def __init__(self,*args,**kwargs):pass
+        async def __aenter__(self):return self
+        async def __aexit__(self,*args):pass
+        async def get(self,url):return Reply()
+    con=open_db(str(tmp_path/"goalies.sqlite"))
+    # Previously sourced algorithmic projected #102 conflicts with direct
+    # first-goalie-off #101. Preserve BOTH source records and status.
+    ingest(con,{"evidence_id":"other-independent-goalie-projection",
+      "slate_date":DATE,"stage":"PROJECTED","game_id":"2026020333",
+      "kind":"GOALIE_STARTER","source_url":"https://daily.hockey/starting-goalies/"+DATE,
+      "observed_at":"2026-11-17T12:00:00Z",
+      "payload":{"team":"LAK","goalieId":"102","status":"EXPECTED",
+        "projectedPreferred":True}})
+    with patch("nhl_true_blender_engine.dfo_dated_starters.httpx.AsyncClient",Client):
+        report=asyncio.run(collect_dfo_goalies(con,{"games":games},DATE,"PROJECTED"))
+    assert report["matchedStarterIds"]==3
+    attach(con,{"games":games},DATE,"PROJECTED")
+    branches=all_goalie_branches(games[0],"PROJECTED")["LAK"]
+    assert [x["data"]["goalieId"] for x in branches]==["101"]
+    assert branches[0]["data"]["status"]=="EXPECTED"
+    assert branches[0]["data"]["datedEyewitnessMorningSkateFirstOff"] is True
+    assert branches[0]["data"]["morningSkateSourceUrls"]==[
+        "https://www.dailyfaceoff.com/starting-goalies/"+DATE]
+    # The historical alternative remains attached for audits.
+    assert {x["data"]["goalieId"] for x in games[0]["goalies"]["LAK"]}=={"101","102"}
+    con.close()
+
+def test_first_off_unverified_stale_or_conflicting_source_remains_unresolved():
+    from nhl_true_blender_engine.engine import all_goalie_branches
+    html=HTML.replace('<div>Michael DiPietro</div>',
+         '<p>Kuemper was the first goalie off the ice today.</p>'
+         '<div>Michael DiPietro</div>')
+    games=fixtures()
+    games[0]["date"]=DATE
+    stale=html.replace("2026-11-17T16:30:00.000Z","2026-11-16T16:30:00.000Z")
+    result,_=parse_dfo_starters(stale,DATE,games)
+    assert not next(x for x in result if x["team"]=="LAK")[
+        "datedEyewitnessMorningSkateFirstOff"]
+    source="https://www.dailyfaceoff.com/starting-goalies/"+DATE
+    games[0]["goalies"]["LAK"]=[
+      {"sourceUrl":source,"observedAt":"2026-11-17T12:00:00Z",
+       "data":{"goalieId":"101","status":"EXPECTED","projectedPreferred":True,
+          "datedEyewitnessMorningSkateFirstOff":True,"sourceReportDate":DATE,
+          "morningSkateSourceUrls":[source]}},
+      {"sourceUrl":source,"observedAt":"2026-11-17T12:00:00Z",
+       "data":{"goalieId":"102","status":"EXPECTED","projectedPreferred":True,
+          "datedEyewitnessMorningSkateFirstOff":True,"sourceReportDate":DATE,
+          "morningSkateSourceUrls":[source]}}]
+    # Two real eyewitness claims conflict => NEVER choose on order.
+    assert len(all_goalie_branches(games[0],"PROJECTED")["LAK"])==2
+    for x in games[0]["goalies"]["LAK"]:
+        x["data"]["sourceReportDate"]="2026-11-16"
+    assert len(all_goalie_branches(games[0],"PROJECTED")["LAK"])==2

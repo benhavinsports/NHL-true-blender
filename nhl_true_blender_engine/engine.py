@@ -126,13 +126,31 @@ def all_goalie_branches(game, stage):
         if confirmed:
             branches=confirmed
         else:
-            # Restrict generic EXPECTED candidates only when a dated NHL.com
-            # projected first-goalie listing resolves to one official ID.
-            # Disagreeing projected sources leave ALL branches eligible.
-            preferred=[b for b in branches if
-                       b['data'].get('projectedPreferred') is True]
-            if len({str(b['data'].get('goalieId')) for b in preferred})==1:
-                branches=preferred
+            # A dated first-hand morning-skate FIRST-GOALIE-OFF report is
+            # direct rink observation, stronger evidence than an independent
+            # algorithmic probability prediction or a generic roster-first
+            # ordering. Never call this CONFIRMED or use a secondhand
+            # report from another slate date. If eyewitness observations
+            # conflict with each other, preserve every branch.
+            first_off=[b for b in branches if
+                b['data'].get('status')=='EXPECTED' and
+                b['data'].get('datedEyewitnessMorningSkateFirstOff') is True and
+                b['data'].get('sourceReportDate')==game.get('date') and
+                bool(b['data'].get('morningSkateSourceUrls'))]
+            first_off_ids={str(b['data'].get('goalieId')) for b in first_off}
+            if len(first_off_ids)==1:
+                # The same goalie ID may carry multiple dated independent
+                # reports; no manual selection of a source or goalie.
+                reported=next(iter(first_off_ids))
+                branches=[b for b in branches if str(b['data'].get('goalieId'))==reported]
+            else:
+                # Without independent FIRST-OFF evidence, the original
+                # conservative rule is unchanged: disagreeing projected
+                # sources leave ALL eligible starter branches intact.
+                preferred=[b for b in branches if
+                           b['data'].get('projectedPreferred') is True]
+                if len({str(b['data'].get('goalieId')) for b in preferred})==1:
+                    branches=preferred
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
         by_team[team]=[b for b in branches if str(b['data'].get('goalieId')) not in superseded]

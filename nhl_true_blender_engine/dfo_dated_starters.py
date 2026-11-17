@@ -154,10 +154,29 @@ def parse_dfo_starters(html,date,games,diagnostics=None):
                 continue
             status=STARTER_LABELS.get(label)
             if not status:continue
+            # A dated eyewitness REPORT of the exact rostered starter
+            # being first off at THAT morning skate is not the same evidence
+            # as a source's algorithmic "likely" percentage. It can resolve
+            # stale generic expected-branch disagreements, but remains
+            # PROJECTED/EXPECTED until real team confirmation. Bind prose
+            # to this candidate's own card ONLY, never another goalie.
+            finish=order[idx+1][0] if idx+1<len(order) else len(section)
+            own_card=section[pos:finish]
+            surname=str(goalie["name"]).split()[-1]
+            direct_first_off=bool(
+                status=="EXPECTED" and
+                re.search(r"\b"+re.escape(surname)+
+                          r"\b.{0,180}?\bfirst (?:goalie|goaltender) off(?: the ice)?\b",
+                          " ".join(own_card.split()),re.I))
+            own_date=bool(re.search(re.escape(date)+r"T\d\d:\d\d:\d\d",
+                    own_card))
+            eyewitness=bool(direct_first_off and own_date)
             found.append({"gameId":game_id,"team":team,
                 "goalieId":str(goalie["id"]),"goalieName":str(goalie["name"]),
                 "status":status,"sourceLabel":label,
                 "projectedPreferred":status=="EXPECTED",
+                "datedEyewitnessMorningSkateFirstOff":eyewitness,
+                "sourceReportDate":date if eyewitness else None,
                 "identityMatched":True})
             diagnostics.append({"gameId":game_id,"team":team,
                 "reason":"EXACT_DATED_NHL_ROSTER_STARTER_MATCH","status":status})
@@ -192,6 +211,9 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
                 "projectedPreferred":row["projectedPreferred"],
                 "starterSourceStatus":"DAILY_FACEOFF_"+row["sourceLabel"].upper(),
                 "sourceLabel":row["sourceLabel"],"identityMatched":True,
+                "datedEyewitnessMorningSkateFirstOff":row["datedEyewitnessMorningSkateFirstOff"],
+                "sourceReportDate":row["sourceReportDate"],
+                "morningSkateSourceUrls":[url] if row["datedEyewitnessMorningSkateFirstOff"] else [],
                 "confirmedOnlyWhenSourceReportsConfirmed":True,
                 "publishedAsOfSlateDate":date,
                 "noSoleSourceGuaranteeOfFutureGoalieAppearance":True}})
