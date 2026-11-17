@@ -82,6 +82,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'edgeSourceCoverage':result.get('edgeSourceCoverage',{}),
         'lineupSourceCoverage':result.get('lineupSourceCoverage',{}),
         'datedGoalieSourceCoverage':result.get('datedGoalieSourceCoverage',{}),
+        'datedIndependentGoalieSourceCoverage':result.get('datedIndependentGoalieSourceCoverage',{}),
         'g0RinkOriginResearch':result.get('g0RinkOriginResearch',[]),
         'g0TwoGoalieDirectionDecisions':result.get('g0TwoGoalieDirectionDecisions',{}),
         'g0OfficialPbpFallback':result.get('g0OfficialPbpFallback',{}),
