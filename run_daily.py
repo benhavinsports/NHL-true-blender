@@ -1,39 +1,31 @@
-"""Compatibility entrypoint: the integrated True Blender is the only selector.
+"""Compatibility CLI: one authoritative NHL True Blender selection engine.
 
-Historically this script invoked the legacy root engine.py, independently
-built a Core, and wrote state/authoritative_core_*.json. That could conflict
-with the canonical SQLite-backed nhl_true_blender_engine run and site card.
-Retain the old CLI, but delegate all decisions and persistence to the single
-integrated entrypoint. No legacy selection or publication occurs here.
+Legacy callers may still invoke run_daily.py, but it must never run the
+separate root-level engine.run_slate / gate_executor / core_publication
+selection pipeline. The integrated collector and G0..G18 engine own every
+selection, saved card, and site export.
 """
 from __future__ import annotations
 
 import argparse
-import subprocess
-import sys
+import asyncio
 from datetime import datetime
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from run_true_blender import run
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--date", default=datetime.now(
-        ZoneInfo("America/New_York")).date().isoformat())
-    parser.add_argument("--mode", choices=("projected", "confirmed"),
-                        default="projected")
-    # Accepted for compatibility; the integrated collector owns history
-    # and output locations, so neither option changes selection logic.
-    parser.add_argument("--history", type=int, default=8)
+
+def main():
+    parser = argparse.ArgumentParser(description="Run the canonical NHL True Blender")
+    parser.add_argument("--date", default=None)
+    parser.add_argument("--mode", choices=("projected", "confirmed"), default="projected")
+    parser.add_argument("--history", type=int, default=8,
+                        help="Legacy CLI compatibility; no alternate selection logic")
     parser.add_argument("--out", default="runs")
     args = parser.parse_args()
-
-    runner = Path(__file__).resolve().with_name("run_true_blender.py")
-    subprocess.run(
-        [sys.executable, str(runner), "--date", args.date,
-         "--mode", args.mode],
-        check=True,
-    )
+    date = args.date or datetime.now(ZoneInfo("America/New_York")).date().isoformat()
+    datetime.strptime(date, "%Y-%m-%d")
+    asyncio.run(run(date, args.mode.upper(), output_dir=args.out))
 
 
 if __name__ == "__main__":
