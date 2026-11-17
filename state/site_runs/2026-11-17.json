@@ -376,7 +376,7 @@
         "unknownIsNotAPath": true,
         "whoPhysicalMechanism": null
       },
-      "player": "Tim Stützle",
+      "player": "Tim St\u00fctzle",
       "playerId": "8482116",
       "routeLabel": "PRIMARY",
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
@@ -507,7 +507,7 @@
           "blocked-shot"
         ],
         "attemptsAgainst": 119,
-        "attemptsPerGame": 7,
+        "attemptsPerGame": 7.0,
         "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
         "gameCount": 17,
         "goalsAgainst": 8,
@@ -566,11 +566,11 @@
   ],
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
-  "cardId": null,
   "cardSavedByEngine": false,
+  "coreEligibleSkaterMatrices": 222,
   "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T13:25:05+00:00",
+    "asOf": "2026-11-17T13:47:45+00:00",
     "gamesWithBothGoalieProjections": 0,
     "noProjectedGoalieCalledConfirmed": true,
     "originalSourceLabelsPreserved": true,
@@ -592,10 +592,10 @@
     "PRE_CORE_REVIEW: 4 independently qualified game recipients, but Core 3 requires exactly 3; G18 cannot rank, preselect, or eliminate any of them"
   ],
   "firstNonpassingGateAudit": {
-    "allGateRowsPresent": 267,
+    "allGateRowsPresent": 222,
     "firstNonpassingGateCounts": {
       "FULL_G0_G18_PASS": 4,
-      "G0": 69,
+      "G0": 24,
       "G10": 16,
       "G10.5": 67,
       "G15": 1,
@@ -605,6 +605,9 @@
       "G6": 29,
       "G9": 35
     },
+    "g0ResearchNeverCountedAsSurvivingSkater": true,
+    "g0ResearchOnlyBranchMatrices": 45,
+    "g0ResearchOnlyGateRows": 1620,
     "notAScorerRanking": true,
     "samplesByFirstGate": {
       "FULL_G0_G18_PASS": [
@@ -630,20 +633,20 @@
       "G0": [
         {
           "firstNonpassingGate": "G0",
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "gameId": "2026020342",
+          "playerId": "8473994",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G0",
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "gameId": "2026020342",
+          "playerId": "8474102",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G0",
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "gameId": "2026020342",
+          "playerId": "8474574",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -784,7 +787,7 @@
         }
       ]
     },
-    "scannedSkaters": 267
+    "scannedSkaters": 222
   },
   "g0Complete": 22,
   "g0Directions": 22,
@@ -814,6 +817,9 @@
     "status": "OFFICIAL_PBP_FALLBACK_COLLECTED",
     "unresolved": []
   },
+  "g0ResearchOnlyBranchMatrices": 45,
+  "g0ResearchOnlyGateRows": 1620,
+  "g0ResearchOnlyOfficialSkaters": 45,
   "g0RinkOriginResearch": [
     {
       "anatomicalWeaknessCertified": false,
@@ -1021,7 +1027,7 @@
                   "area": "Low Slot",
                   "goalsAgainst": 5,
                   "savePctg": 0.931507,
-                  "savePctgPercentile": 1,
+                  "savePctgPercentile": 1.0,
                   "shotsAgainst": 73
                 },
                 {
@@ -1126,8 +1132,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1,
-                  "savePctgPercentile": 1,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
                   "shotsAgainst": 33
                 },
                 {
@@ -1225,8 +1231,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1,
-                  "savePctgPercentile": 1,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
                   "shotsAgainst": 33
                 },
                 {
@@ -1437,8 +1443,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1,
-                  "savePctgPercentile": 1,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
                   "shotsAgainst": 30
                 },
                 {
@@ -1586,8 +1592,8 @@
                 {
                   "area": "L Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1,
-                  "savePctgPercentile": 1,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
                   "shotsAgainst": 30
                 },
                 {
@@ -1909,6 +1915,7 @@
   "games": 11,
   "gateCertification": {
     "allGateChecksExecutedWithEvidence": false,
+    "allOfficialSkatersReviewedIncludingG0Research": 267,
     "allOverlayStepsSourceCompleteForEveryRejectedSkater": false,
     "allOverlayStepsWereIndependentlyChecked": true,
     "allSkatersHaveEachGateRecord": true,
@@ -1918,7 +1925,7 @@
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
     "firstFailureClassificationCounts": {
-      "EVIDENCE_INCOMPLETE": 228,
+      "EVIDENCE_INCOMPLETE": 183,
       "SOURCE_ELIMINATED": 35
     },
     "firstFailureExamples": [
@@ -2072,105 +2079,110 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8474151"
+        "firstGate": "Step4",
+        "gameId": "2026020335",
+        "playerId": "8473419"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8474590"
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8474189"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G5",
+        "gameId": "2026020335",
+        "playerId": "8475179"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G5",
+        "gameId": "2026020335",
+        "playerId": "8475462"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8475167"
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8477409"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8476453"
+        "firstGate": "Step4",
+        "gameId": "2026020335",
+        "playerId": "8477493"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8476826"
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8477495"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8476878"
+        "firstGate": "G10",
+        "gameId": "2026020335",
+        "playerId": "8477903"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8477149"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8477404"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G0",
-        "gameId": "2026020334",
-        "playerId": "G0_RESEARCH:TBL:8480313:8478010"
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8477932"
       }
     ],
-    "fullIndependentCardCertification": true,
+    "fullIndependentCardCertification": false,
+    "g0ResearchExcludedFromCoreCandidateAndPassDenominator": true,
+    "g0ResearchOnlyBranchMatrices": 45,
+    "g0ResearchOnlyGateRows": 1620,
+    "g0ResearchOnlyOfficialSkaters": 45,
+    "g0ResearchPreservedAsIndependentSourceEvidence": true,
     "gateChecksAttempted": {
-      "G0": 267,
-      "G1": 267,
-      "G10": 267,
-      "G10.5": 267,
-      "G11": 267,
-      "G12": 267,
-      "G13": 267,
-      "G14": 267,
-      "G15": 267,
-      "G16": 267,
-      "G17": 267,
-      "G18": 267,
-      "G2": 267,
-      "G3": 267,
-      "G4": 267,
-      "G5": 267,
-      "G6": 267,
-      "G7": 267,
-      "G8": 267,
-      "G9": 267,
-      "Step0": 267,
-      "Step1": 267,
-      "Step10": 267,
-      "Step10.5": 267,
-      "Step11": 267,
-      "Step12": 267,
-      "Step13": 267,
-      "Step14": 267,
-      "Step2": 267,
-      "Step3": 267,
-      "Step4": 267,
-      "Step5": 267,
-      "Step6": 267,
-      "Step7": 267,
-      "Step8": 267,
-      "Step9": 267
+      "G0": 222,
+      "G1": 222,
+      "G10": 222,
+      "G10.5": 222,
+      "G11": 222,
+      "G12": 222,
+      "G13": 222,
+      "G14": 222,
+      "G15": 222,
+      "G16": 222,
+      "G17": 222,
+      "G18": 222,
+      "G2": 222,
+      "G3": 222,
+      "G4": 222,
+      "G5": 222,
+      "G6": 222,
+      "G7": 222,
+      "G8": 222,
+      "G9": 222,
+      "Step0": 222,
+      "Step1": 222,
+      "Step10": 222,
+      "Step10.5": 222,
+      "Step11": 222,
+      "Step12": 222,
+      "Step13": 222,
+      "Step14": 222,
+      "Step2": 222,
+      "Step3": 222,
+      "Step4": 222,
+      "Step5": 222,
+      "Step6": 222,
+      "Step7": 222,
+      "Step8": 222,
+      "Step9": 222
     },
     "gateRows": 9634,
     "gateSpecification": {
@@ -2280,81 +2292,81 @@
     "goalieDirectionsWithPass": 22,
     "masterGateDispositions": {
       "G0": {
-        "NOT_EXECUTED": 69,
+        "NOT_EXECUTED": 24,
         "PASS": 198
       },
       "G1": {
-        "PASS": 267
+        "PASS": 222
       },
       "G10": {
-        "NOT_EXECUTED": 81,
-        "PASS": 186
+        "NOT_EXECUTED": 68,
+        "PASS": 154
       },
       "G10.5": {
-        "NOT_EXECUTED": 161,
-        "PASS": 106
+        "NOT_EXECUTED": 140,
+        "PASS": 82
       },
       "G11": {
-        "NOT_EXECUTED": 21,
-        "PASS": 246
+        "NOT_EXECUTED": 16,
+        "PASS": 206
       },
       "G12": {
-        "NOT_EXECUTED": 81,
-        "PASS": 186
+        "NOT_EXECUTED": 68,
+        "PASS": 154
       },
       "G13": {
-        "PASS": 267
+        "PASS": 222
       },
       "G14": {
-        "NOT_EXECUTED": 35,
-        "PASS": 232
+        "NOT_EXECUTED": 34,
+        "PASS": 188
       },
       "G15": {
-        "NOT_EXECUTED": 148,
-        "PASS": 119
+        "NOT_EXECUTED": 126,
+        "PASS": 96
       },
       "G16": {
-        "NOT_EXECUTED": 161,
-        "PASS": 106
+        "NOT_EXECUTED": 140,
+        "PASS": 82
       },
       "G17": {
-        "NOT_EXECUTED": 217,
-        "PASS": 50
+        "NOT_EXECUTED": 189,
+        "PASS": 33
       },
       "G18": {
-        "NOT_EXECUTED": 263,
+        "NOT_EXECUTED": 218,
         "PASS": 4
       },
       "G2": {
-        "PASS": 267
+        "PASS": 222
       },
       "G3": {
-        "NOT_EXECUTED": 69,
+        "NOT_EXECUTED": 24,
         "PASS": 198
       },
       "G4": {
-        "NOT_EXECUTED": 15,
-        "PASS": 252
+        "NOT_EXECUTED": 14,
+        "PASS": 208
       },
       "G5": {
-        "ELIMINATED": 37,
-        "NOT_EXECUTED": 35,
-        "PASS": 195
+        "ELIMINATED": 35,
+        "NOT_EXECUTED": 34,
+        "PASS": 153
       },
       "G6": {
-        "NOT_EXECUTED": 56,
-        "PASS": 211
+        "NOT_EXECUTED": 46,
+        "PASS": 176
       },
       "G7": {
-        "NOT_EXECUTED": 21,
-        "PASS": 246
+        "NOT_EXECUTED": 16,
+        "PASS": 206
       },
       "G8": {
-        "PASS": 267
+        "PASS": 222
       },
       "G9": {
-        "NOT_EXECUTED": 112,
-        "PASS": 155
+        "NOT_EXECUTED": 87,
+        "PASS": 135
       }
     },
     "missingMatrixGateRows": {},
@@ -2364,43 +2376,43 @@
     "otherMissingSourceExamples": {
       "G0": [
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "gameId": "2026020342",
+          "playerId": "8473994",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "gameId": "2026020342",
+          "playerId": "8474102",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "gameId": "2026020342",
+          "playerId": "8474574",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476453",
+          "gameId": "2026020342",
+          "playerId": "8475168",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "gameId": "2026020342",
+          "playerId": "8475794",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476878",
+          "gameId": "2026020342",
+          "playerId": "8476278",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "gameId": "2026020342",
+          "playerId": "8476889",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477404",
+          "gameId": "2026020342",
+          "playerId": "8476902",
           "sourceCount": 2
         }
       ],
@@ -2421,28 +2433,28 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8479705",
+          "gameId": "2026020335",
+          "playerId": "8477493",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8481719",
+          "gameId": "2026020335",
+          "playerId": "8477903",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482201",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482655",
+          "gameId": "2026020335",
+          "playerId": "8478147",
           "sourceCount": 1
         }
       ],
@@ -2490,31 +2502,6 @@
       ],
       "G11": [
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
-          "sourceCount": 1
-        },
-        {
           "gameId": "2026020335",
           "playerId": "8473419",
           "sourceCount": 1
@@ -2528,6 +2515,31 @@
           "gameId": "2026020335",
           "playerId": "8479981",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
+          "sourceCount": 1
         }
       ],
       "G12": [
@@ -2547,28 +2559,28 @@
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8479705",
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8477903",
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8481719",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482201",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482655",
+          "gameId": "2026020335",
+          "playerId": "8478147",
           "sourceCount": 3
         }
       ],
@@ -2576,11 +2588,6 @@
         {
           "gameId": "2026020333",
           "playerId": "8481532",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
           "sourceCount": 2
         },
         {
@@ -2611,6 +2618,11 @@
         {
           "gameId": "2026020338",
           "playerId": "8474013",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020339",
+          "playerId": "8478873",
           "sourceCount": 2
         }
       ],
@@ -2784,43 +2796,43 @@
       ],
       "G3": [
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "gameId": "2026020342",
+          "playerId": "8473994",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "gameId": "2026020342",
+          "playerId": "8474102",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "gameId": "2026020342",
+          "playerId": "8474574",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476453",
+          "gameId": "2026020342",
+          "playerId": "8475168",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "gameId": "2026020342",
+          "playerId": "8475794",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476878",
+          "gameId": "2026020342",
+          "playerId": "8476278",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "gameId": "2026020342",
+          "playerId": "8476889",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477404",
+          "gameId": "2026020342",
+          "playerId": "8476902",
           "sourceCount": 2
         }
       ],
@@ -2831,11 +2843,6 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
-          "sourceCount": 1
-        },
-        {
           "gameId": "2026020335",
           "playerId": "8481133",
           "sourceCount": 1
@@ -2864,17 +2871,17 @@
           "gameId": "2026020338",
           "playerId": "8474013",
           "sourceCount": 1
+        },
+        {
+          "gameId": "2026020339",
+          "playerId": "8478873",
+          "sourceCount": 1
         }
       ],
       "G5": [
         {
           "gameId": "2026020333",
           "playerId": "8481532",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
           "sourceCount": 3
         },
         {
@@ -2905,6 +2912,11 @@
         {
           "gameId": "2026020338",
           "playerId": "8474013",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020339",
+          "playerId": "8478873",
           "sourceCount": 3
         }
       ],
@@ -2925,57 +2937,32 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478010",
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "gameId": "2026020335",
+          "playerId": "8477493",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478519",
+          "gameId": "2026020335",
+          "playerId": "8479981",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "gameId": "2026020335",
+          "playerId": "8481133",
           "sourceCount": 1
         }
       ],
       "G7": [
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
-          "sourceCount": 0
-        },
         {
           "gameId": "2026020335",
           "playerId": "8473419",
@@ -2989,6 +2976,31 @@
         {
           "gameId": "2026020335",
           "playerId": "8479981",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
           "sourceCount": 0
         }
       ],
@@ -3019,19 +3031,19 @@
           "sourceCount": 16
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477404",
-          "sourceCount": 16
+          "gameId": "2026020335",
+          "playerId": "8475179",
+          "sourceCount": 17
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
-          "sourceCount": 16
+          "gameId": "2026020335",
+          "playerId": "8475462",
+          "sourceCount": 17
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8471214",
-          "sourceCount": 16
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 17
         }
       ],
       "Step0": [
@@ -3098,23 +3110,23 @@
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "gameId": "2026020335",
+          "playerId": "8475179",
           "sourceCount": 2
         },
         {
           "gameId": "2026020335",
-          "playerId": "8475179",
+          "playerId": "8475462",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8475151",
           "sourceCount": 2
         }
       ],
@@ -3278,52 +3290,27 @@
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
-          "sourceCount": 3
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "gameId": "2026020335",
+          "playerId": "8475179",
           "sourceCount": 3
         },
         {
           "gameId": "2026020335",
-          "playerId": "8475179",
+          "playerId": "8475462",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8475151",
           "sourceCount": 3
         }
       ],
       "Step4": [
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
-          "sourceCount": 0
-        },
         {
           "gameId": "2026020335",
           "playerId": "8473419",
@@ -3338,17 +3325,37 @@
           "gameId": "2026020335",
           "playerId": "8479981",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
+          "sourceCount": 0
         }
       ],
       "Step5": [
         {
           "gameId": "2026020333",
           "playerId": "8481532",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
           "sourceCount": 1
         },
         {
@@ -3380,6 +3387,11 @@
           "gameId": "2026020338",
           "playerId": "8474013",
           "sourceCount": 1
+        },
+        {
+          "gameId": "2026020339",
+          "playerId": "8478873",
+          "sourceCount": 1
         }
       ],
       "Step6": [
@@ -3399,28 +3411,28 @@
           "sourceCount": 0
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 0
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478010",
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 0
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "gameId": "2026020335",
+          "playerId": "8477493",
           "sourceCount": 0
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8478519",
+          "gameId": "2026020335",
+          "playerId": "8479981",
           "sourceCount": 0
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "gameId": "2026020335",
+          "playerId": "8481133",
           "sourceCount": 0
         }
       ],
@@ -3446,52 +3458,27 @@
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
-          "sourceCount": 2
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "gameId": "2026020335",
+          "playerId": "8475179",
           "sourceCount": 2
         },
         {
           "gameId": "2026020335",
-          "playerId": "8475179",
+          "playerId": "8475462",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8475151",
           "sourceCount": 2
         }
       ],
       "Step9": [
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
-          "sourceCount": 1
-        },
         {
           "gameId": "2026020335",
           "playerId": "8473419",
@@ -3506,69 +3493,94 @@
           "gameId": "2026020335",
           "playerId": "8479981",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
+          "sourceCount": 1
         }
       ]
     },
     "overlayGateDispositions": {
       "Step0": {
         "NOT_EXECUTED": 24,
-        "PASS": 243
+        "PASS": 198
       },
       "Step1": {
-        "PASS": 267
+        "PASS": 222
       },
       "Step10": {
-        "NOT_EXECUTED": 72,
-        "PASS": 195
+        "NOT_EXECUTED": 69,
+        "PASS": 153
       },
       "Step10.5": {
-        "NOT_EXECUTED": 161,
-        "PASS": 106
+        "NOT_EXECUTED": 140,
+        "PASS": 82
       },
       "Step11": {
         "NOT_EXECUTED": 2,
-        "PASS": 265
+        "PASS": 220
       },
       "Step12": {
-        "NOT_EXECUTED": 161,
-        "PASS": 106
+        "NOT_EXECUTED": 140,
+        "PASS": 82
       },
       "Step13": {
-        "PASS": 267
+        "PASS": 222
       },
       "Step14": {
-        "NOT_EXECUTED": 217,
-        "PASS": 50
+        "NOT_EXECUTED": 189,
+        "PASS": 33
       },
       "Step2": {
-        "PASS": 267
+        "PASS": 222
       },
       "Step3": {
-        "NOT_EXECUTED": 72,
-        "PASS": 195
+        "NOT_EXECUTED": 69,
+        "PASS": 153
       },
       "Step4": {
-        "NOT_EXECUTED": 21,
-        "PASS": 246
+        "NOT_EXECUTED": 16,
+        "PASS": 206
       },
       "Step5": {
-        "NOT_EXECUTED": 15,
-        "PASS": 252
+        "NOT_EXECUTED": 14,
+        "PASS": 208
       },
       "Step6": {
-        "NOT_EXECUTED": 56,
-        "PASS": 211
+        "NOT_EXECUTED": 46,
+        "PASS": 176
       },
       "Step7": {
-        "NOT_EXECUTED": 72,
-        "PASS": 195
+        "NOT_EXECUTED": 69,
+        "PASS": 153
       },
       "Step8": {
-        "PASS": 267
+        "PASS": 222
       },
       "Step9": {
-        "NOT_EXECUTED": 21,
-        "PASS": 246
+        "NOT_EXECUTED": 16,
+        "PASS": 206
       }
     },
     "recordedPassProofGapExamples": [],
@@ -3610,72 +3622,23 @@
       "Step8": 0,
       "Step9": 0
     },
-    "scannedSkaters": 267,
-    "selectedCoreOnlyFullyCertified": true,
+    "scannedSkaters": 222,
+    "selectedCoreOnlyFullyCertified": false,
     "selectedExecutionOrderGaps": [],
-    "selectedLegs": [
-      {
-        "executionOrderGaps": [],
-        "executionOrderVerified": true,
-        "gameId": "2026020335",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
-        "missingProvenanceForPassingGates": [],
-        "overlayAllPass": true,
-        "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [],
-        "player": "Sam Reinhart",
-        "playerId": "8477933",
-        "savedPath": "PRIMARY",
-        "semanticMissingProof": [],
-        "substantivelyCertified": true
-      },
-      {
-        "executionOrderGaps": [],
-        "executionOrderVerified": true,
-        "gameId": "2026020341",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
-        "missingProvenanceForPassingGates": [],
-        "overlayAllPass": true,
-        "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [],
-        "player": "Tim Stützle",
-        "playerId": "8482116",
-        "savedPath": "PRIMARY",
-        "semanticMissingProof": [],
-        "substantivelyCertified": true
-      },
-      {
-        "executionOrderGaps": [],
-        "executionOrderVerified": true,
-        "gameId": "2026020343",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
-        "missingProvenanceForPassingGates": [],
-        "overlayAllPass": true,
-        "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [],
-        "player": "Will Smith",
-        "playerId": "8484227",
-        "savedPath": "PRIMARY",
-        "semanticMissingProof": [],
-        "substantivelyCertified": true
-      }
-    ],
-    "selectedMasterGatesAllPass": true,
-    "selectedOverlayGatesAllPass": true,
+    "selectedLegs": [],
+    "selectedMasterGatesAllPass": false,
+    "selectedOverlayGatesAllPass": false,
     "selectedSourceAttributionGaps": [],
     "selectionFunnel": {
       "allNonselectedRetainGateAudit": true,
-      "lockedCoreRecipients": 3,
+      "lockedCoreRecipients": 0,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 226,
+      "notQualifiedIncompleteEvidence": 183,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 1,
-      "sourceEliminated": 37,
-      "surveyedEligibleSkaters": 267
+      "qualifiedButNotChosen": 4,
+      "sourceEliminated": 35,
+      "surveyedEligibleSkaters": 222
     },
     "slateDate": "2026-11-17",
     "sourceUnattributedPassingGateCount": 0,
@@ -3685,46 +3648,47 @@
     "step8MissingReasons": {},
     "substantivelyCertifiedPasses": {
       "G0": 198,
-      "G1": 267,
-      "G10": 186,
-      "G10.5": 106,
-      "G11": 246,
-      "G12": 186,
-      "G13": 267,
-      "G14": 232,
-      "G15": 119,
-      "G16": 106,
-      "G17": 50,
+      "G1": 222,
+      "G10": 154,
+      "G10.5": 82,
+      "G11": 206,
+      "G12": 154,
+      "G13": 222,
+      "G14": 188,
+      "G15": 96,
+      "G16": 82,
+      "G17": 33,
       "G18": 4,
-      "G2": 267,
+      "G2": 222,
       "G3": 198,
-      "G4": 252,
-      "G5": 195,
-      "G6": 211,
-      "G7": 246,
-      "G8": 267,
-      "G9": 155,
-      "Step0": 243,
-      "Step1": 267,
-      "Step10": 195,
-      "Step10.5": 106,
-      "Step11": 265,
-      "Step12": 106,
-      "Step13": 267,
-      "Step14": 50,
-      "Step2": 267,
-      "Step3": 195,
-      "Step4": 246,
-      "Step5": 252,
-      "Step6": 211,
-      "Step7": 195,
-      "Step8": 267,
-      "Step9": 246
+      "G4": 208,
+      "G5": 153,
+      "G6": 176,
+      "G7": 206,
+      "G8": 222,
+      "G9": 135,
+      "Step0": 198,
+      "Step1": 222,
+      "Step10": 153,
+      "Step10.5": 82,
+      "Step11": 220,
+      "Step12": 82,
+      "Step13": 222,
+      "Step14": 33,
+      "Step2": 222,
+      "Step3": 153,
+      "Step4": 206,
+      "Step5": 208,
+      "Step6": 176,
+      "Step7": 153,
+      "Step8": 222,
+      "Step9": 206
     },
     "surveyedGoalieDirections": 22,
     "twoDirectionsPerScheduledGameRecorded": true
   },
   "gateRows": 9634,
+  "goalieResearchCannotBeCountedAsCertifiedCoreSkaters": true,
   "historicalShiftCoverage": {
     "attemptedGames": 121,
     "chartedGames": 115,
@@ -3825,28 +3789,22 @@
     "targetSides": 22,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "RETRACTED_UNAUTHORIZED_G18_LEGACY_CARD_CORRECTED_RUN_HAS_FOUR_SURVIVORS",
+  "publicationDecision": "NO_ELIGIBLE_G18_CARD",
   "publishedToSite": false,
-  "retainedOriginalLockedCard": false,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
-    "lockedCoreRecipients": 3,
+    "lockedCoreRecipients": 0,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 226,
+    "notQualifiedIncompleteEvidence": 183,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 1,
-    "sourceEliminated": 37,
-    "surveyedEligibleSkaters": 267
+    "qualifiedButNotChosen": 4,
+    "sourceEliminated": 35,
+    "surveyedEligibleSkaters": 222
   },
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
-  "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T13:26:51+00:00",
-  "fingerprint": null,
-  "historicalCardIsNotCurrentRunCertification": true,
-  "oldCoreRetractedByRuleCorrection": true,
-  "qualifiedSurvivorCount": 4,
-  "retractionAuditPath": "state/core_retractions/2026-11-17.json"
+  "survivorOnlyCertification": false,
+  "updatedUTC": "2026-11-17T13:49:37+00:00"
 }
