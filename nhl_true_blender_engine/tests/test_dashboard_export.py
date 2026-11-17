@@ -99,3 +99,30 @@ def test_incomplete_confirmed_review_preserves_projected_card_gate_evidence(tmp_
         assert selected["separatePhaseReviews"]["CONFIRMED"]["nonpassingGates"]["G6"]=="NOT_EXECUTED"
     assert get_card(con,DATE)==before
     con.close()
+
+
+
+def test_archived_original_pre_puck_receipts_survive_later_post_puck_refresh(tmp_path):
+    """Recover the actual coherent historic selection matrix, never infer PASSes."""
+    from datetime import datetime, timedelta, timezone
+    con=open_db(str(tmp_path/"ledger.sqlite"))
+    slate=snapshot(3)
+    first=execute(con,slate,DATE,"CONFIRMED")
+    assert first["card"] is not None, first["errors"]
+    locked=get_card(con,DATE)
+    # A late diagnostic run legitimately clears active pregame skater rows.
+    late=datetime.now(timezone.utc)+timedelta(days=30)
+    execute(con,slate,DATE,"CONFIRMED",now=late)
+    export_dashboard(con,DATE,"CONFIRMED",slate,tmp_path/"state")
+    doc=json.loads((tmp_path/"state"/"site_gates"/f"{DATE}.json").read_text())
+    assert doc["fingerprint"]==locked["fingerprint"]
+    assert len(doc["legs"])==3
+    for selected in doc["legs"]:
+        assert selected["sourceGateArchive"] is True
+        assert selected["stageOfGateRecords"]=="CONFIRMED"
+        assert selected["executionOrderVerified"] is True
+        assert selected["masterPassed"]==20
+        assert selected["overlayPassed"]==16
+        assert all(record["prePuckRecord"] for record in selected["gateDetails"])
+    assert get_card(con,DATE)==locked
+    con.close()
