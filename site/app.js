@@ -253,29 +253,31 @@ function coreCard(leg,i){
  if(key===state.flippedLeg)button.classList.add("is-flipped");
  const inner=el("div","card-flip-inner");
  const front=el("div","card-face card-front");
- const suit=path.display==="TRANSFER"?"♦":path.display==="WHO"?"♣":"♠";
  const top=el("div","card-head");
- top.appendChild(el("span","card-index","CORE "+String(i+1).padStart(2,"0")));
+ top.appendChild(el("span","card-index","SELECTION "+String(i+1).padStart(2,"0")));
  top.appendChild(pill(path.display,pathClass(path.display)));
  front.appendChild(top);
+ // Editorial scouting-card typography replaces poker suits and rink cartoons.
+ // The visual number is an index only; every player and outcome stays sourced.
  const artwork=el("div","card-illustration");
- artwork.appendChild(el("span","face-corner top",suit));
- const rink=el("div","rink-center");rink.appendChild(el("span","card-emblem","◉"));
- artwork.appendChild(rink);
- artwork.appendChild(el("span","face-corner bottom",suit));front.appendChild(artwork);
+ artwork.appendChild(el("span","card-profile-caption","TRUE BLENDER / NHL"));
+ artwork.appendChild(el("strong","card-profile-number",String(i+1).padStart(2,"0")));
+ artwork.appendChild(el("span","card-profile-rule"));
+ front.appendChild(artwork);
  const plate=el("div","card-nameplate");
  plate.appendChild(el("div","player-name",leg.player));
  plate.appendChild(el("div","card-match",String(leg.matchup||"Game source unavailable").replace("@"," @ ")));
  front.appendChild(plate);
  const metadata=el("div","card-meta");
  metadata.appendChild(el("div","","PUCK DROP · "+etTime(leg.startUTC)));
- metadata.appendChild(el("div","","GOAL ROUTE · "+(leg.directRoute||"See recorded gate details")));
+ const origin=String(leg.directRoute||"").split("/").pop().trim();
+ metadata.appendChild(el("div","","SHOT ORIGIN · "+(origin||"Inspect source evidence")));
  if(path.review&&path.display!==path.original)
    metadata.appendChild(el("div","tiny","Original frozen label: "+path.original));
  front.appendChild(metadata);
  const bottom=el("div","card-bottom");
- bottom.appendChild(el("span","","FLIP • READ EVERY GATE"));
- bottom.appendChild(el("span","tiny-arrow","↻"));front.appendChild(bottom);
+ bottom.appendChild(el("span","","VIEW SOURCE EVIDENCE"));
+ bottom.appendChild(el("span","tiny-arrow","↗"));front.appendChild(bottom);
  inner.appendChild(front);
  const back=el("div","card-face card-back");
  const backHead=el("div","flip-back-heading");

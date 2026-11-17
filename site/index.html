@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#101b42">
-  <meta name="description" content="NHL True Blender: interactive card-table interface for the one authoritative Core 3, real G0–G18 evidence, and official frozen-card results.">
-  <title>NHL True Blender · The Core Deck</title>
+  <meta name="theme-color" content="#080e16">
+  <meta name="description" content="NHL True Blender: premium scouting interface for the one authoritative Core 3, real G0–G18 evidence, and official frozen-card results.">
+  <title>True Blender | NHL Scouting Intelligence</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./gate-facts.js"></script>
   <script defer src="./pool-deck.js"></script>
@@ -16,7 +16,7 @@
   <div class="wrap header-content">
     <a href="#top" class="brand" aria-label="True Blender home">
       <span class="brand-mark" aria-hidden="true">TB</span>
-      <span class="brand-copy"><strong>TRUE BLENDER</strong><span>THE NHL CORE DECK</span></span>
+      <span class="brand-copy"><strong>TRUE BLENDER</strong><span>NHL SCOUTING INTELLIGENCE</span></span>
     </a>
     <nav class="main-nav" aria-label="Dashboard sections">
       <a href="#core">CORE</a>
@@ -34,12 +34,12 @@
 <main id="top" class="wrap game-main">
   <section id="core" class="game-shell" aria-label="NHL True Blender interactive card table">
     <aside class="game-rail run-rail" aria-label="Current NHL slate and execution information">
-      <div class="arcade-header"><span>SLATE</span><span class="corner-suit" aria-hidden="true">✦</span></div>
+      
       <div class="rail-body">
         <div class="slate-name">
           <span class="eyebrow">THE SLATE</span>
           <strong id="hero-date">Loading…</strong>
-          <span class="rail-caption">NEW YORK · EASTERN TIME</span>
+          <span class="rail-caption">EASTERN TIME</span>
         </div>
         <div class="round-objective">
           <span class="eyebrow">ENGINE STATUS</span>
@@ -57,59 +57,38 @@
 
     <div class="game-table" aria-label="Scorer card table">
       <div class="table-header">
-        <span class="eyebrow">YOUR SAVED CORE · 3 DIFFERENT GAMES</span>
-        <span class="table-glimmer" aria-hidden="true">✧ ✦ ✧</span>
-        <span class="table-header-label">REAL PATHS ONLY</span>
+        <span class="eyebrow">THE AUTHORITATIVE SELECTION</span>
+        <span class="table-header-label">SAVED CORE · READ ONLY</span>
       </div>
       <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
         <span class="pill neutral">Loading verified engine data</span>
       </div>
       <div class="play-stage">
         <div class="play-stage-heading">
-          <span aria-hidden="true">♠</span>
           <div>
-            <span class="eyebrow">THE MAIN HAND</span>
-            <h1>CORE <em>3</em></h1>
+            <span class="eyebrow">THE MAIN SELECTION</span>
+            <h1>Core <em>3</em></h1>
           </div>
-          <span aria-hidden="true">♠</span>
+          <span class="core-readonly-mark">LOCKED SELECTION</span>
         </div>
-        <p class="table-instruction">TAP TO FLIP · EVERY GATE ON THE BACK</p>
+        <p class="table-instruction">SELECT A CARD TO REVIEW THE EVIDENCE</p>
         <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core scorer cards">
           <div class="loading"></div><div class="loading"></div><div class="loading"></div>
         </div>
       </div>
       <div class="hand-tray">
-        <div class="tray-marker"><span class="eyebrow">SCORING PATHS</span><span>PRIMARY / TRANSFER / WHO — FOUND, NEVER FORCED</span></div>
-        <div class="hand-ornament" aria-hidden="true"><span>♠</span><span>♥</span><span>♦</span><span>♣</span><span>♠</span></div>
+        <div class="tray-marker"><span class="eyebrow">FULL SOURCE TRAIL</span><span>Original G0–G18 decisions available on each card</span></div>
         <button id="flip-from-tray" type="button" class="table-link">FLIP THE SELECTED CARD <span aria-hidden="true">↻</span></button>
       </div>
     </div>
 
-    <aside class="game-rail deck-rail" aria-label="Core deck and source evidence navigation">
-      <div class="arcade-header"><span>CORE DECK</span><span class="corner-suit" aria-hidden="true">♠</span></div>
-      <div class="rail-body deck-rail-body">
-        <div class="deck-stage" aria-hidden="true">
-          <div class="deck-layer deck-layer-back"></div>
-          <div class="deck-layer deck-layer-mid"></div>
-          <div class="deck-layer deck-layer-top">
-            <span class="deck-corner">T<span>B</span></span>
-            <div class="deck-center-mark"><span>✦</span><b>CORE</b></div>
-            <span class="deck-corner bottom">T<span>B</span></span>
-          </div>
-        </div>
-        <div class="deck-counter"><strong id="stat-legs">—</strong><span>CARDS LOCKED</span></div>
-        <div class="deck-navigation">
-          <button id="flip-selected-card" type="button" class="game-button cyan">FLIP THE CARD <span aria-hidden="true">↻</span></button>
-          <a class="game-button gold" href="#slate">VIEW ALL GAMES <span aria-hidden="true">↓</span></a>
-        </div>
-      </div>
-    </aside>
+
   </section>
 
   <section id="pool" class="section" aria-labelledby="pool-title">
     <div class="section-heading">
-      <div><span class="eyebrow">THE QUALIFIED DECK</span><h2 id="pool-title">Game survivors</h2>
-        <p class="pool-subtitle">One card per matchup. Flip for the original evidence.</p>
+      <div><span class="eyebrow">THE QUALIFIED COLLECTION</span><h2 id="pool-title">Game survivors</h2>
+        <p class="pool-subtitle">Every qualified matchup. Evidence on the reverse.</p>
       </div>
     </div>
     <div class="section-panel">
@@ -119,8 +98,8 @@
 
   <section id="results" class="section" aria-labelledby="results-title">
     <div class="section-heading">
-      <div><span class="eyebrow">THE FINAL HAND</span><h2 id="results-title">Grade & season record</h2>
-        <p>Only official NHL goal credit determines WIN or LOSS. Frozen Core cards never change after puck drop.</p>
+      <div><span class="eyebrow">OFFICIAL PERFORMANCE</span><h2 id="results-title">Results & record</h2>
+        
       </div>
     </div>
     <div class="panel-grid">
@@ -134,7 +113,7 @@
   </section>
 
   <footer class="footer">
-    <span>TRUE BLENDER <span aria-hidden="true">✦</span> AUTOMATED · READ-ONLY</span>
+    <span>TRUE BLENDER · AUTOMATED · READ-ONLY</span>
     <span id="hero-sync">Checking saved feed…</span>
   </footer>
 </main>
