@@ -1155,14 +1155,46 @@ def g18_select_by_evidence(items,required,scope):
             return [],[f'G18 {scope}: comparative evidence missing for one or more fully passing routes'],[]
         key,proof=computed
         enriched.append((key,item,proof))
-    enriched.sort(key=lambda row:row[0],reverse=True)
-    if enriched[required-1][0]==enriched[required][0]:
-        return [],[f'G18 {scope}: verified source evidence tied at decisive slot boundary'],[
-            e[2] for e in enriched]
-    selected=enriched[:required]
-    audit=[{**proof,'selection':'G18_SELECTED' if idx<required else 'G18_SOURCE_SEPARATED',
-            'comparedAgainst':len(items)-1}
-           for idx,(_,item,proof) in enumerate(enriched)]
+    # No assistant-invented lexicographic priority of scoring goals over
+    # goalie weakness, defense exposure, or direct-shot pressure. The old
+    # sort() silently forced one contender ahead even when another had
+    # better independently sourced evidence on the other physical gates.
+    # Only an evidence-dominant route can suppress a rival; genuinely
+    # incomparable routes retain their full G18 evidence for further audit.
+    def dominates(a,b):
+        return (all(x>=y for x,y in zip(a,b)) and
+                any(x>y for x,y in zip(a,b)))
+
+    remaining=list(enriched)
+    selected=[]
+    frontiers=[]
+    while remaining and len(selected)<required:
+        frontier=[entry for entry in remaining
+                  if not any(dominates(other[0],entry[0])
+                             for other in remaining if other is not entry)]
+        if not frontier:
+            raise ValueError('G18 source dominance analysis has no frontier')
+        frontiers.append(frontier)
+        if len(frontier)>required-len(selected):
+            audit=[{**proof,
+                    'selection':'G18_UNSEPARATED_SOURCE_FRONTIER'
+                    if any(entry is item for item in frontier) else
+                    'G18_SOURCE_SEPARATED',
+                    'comparedAgainst':len(items)-1,
+                    'noInventedMetricPriority':True}
+                   for item,(_,_,proof) in [(v,v) for v in enriched]]
+            return [],[f'G18 {scope}: {len(frontier)} incomparable or tied source routes at final boundary; no evidence-based priority'],audit
+        selected+=frontier
+        remaining=[entry for entry in remaining
+                   if not any(entry is member for member in frontier)]
+    selected_ids={id(x) for x in selected}
+    audit=[{**proof,
+            'selection':'G18_SELECTED' if id(entry) in selected_ids
+                        else 'G18_SOURCE_SEPARATED',
+            'comparedAgainst':len(items)-1,
+            'noInventedMetricPriority':True,
+            'dominanceMethod':'ALL_FOUR_SOURCE_DIMENSIONS_MUST_NOT_CONTRADICT'}
+           for entry,(_,_,proof) in [(v,v) for v in selected+remaining]]
     return [entry[1] for entry in selected],[],audit
 
 
