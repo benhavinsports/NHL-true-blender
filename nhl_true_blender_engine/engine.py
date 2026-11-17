@@ -543,8 +543,11 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         if (rival_primary.get('ownedGoals',0)>0 and
             type(rival_direct.get('ownedGoals'))==int and
             type(base_direct.get('ownedGoals'))==int and
-            (base_direct['ownedGoals'],base_direct.get('shotsOnGoal',0))>
-            (rival_direct['ownedGoals'],rival_direct.get('shotsOnGoal',0))):
+            # G10.5 can use shot volume to separate competing shooters,
+            # but it cannot claim a direct PRIMARY goal recipient was
+            # displaced by a TRANSFER when their observed OWN goals tie.
+            # Historical on-net shot pressure is not credited goal ownership.
+            base_direct['ownedGoals']>rival_direct['ownedGoals']):
             approved_rivals.append({
                 'displacedDirectPrimaryPlayerId':rid,
                 'sameLane':zone,
