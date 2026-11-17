@@ -23,9 +23,26 @@ def certify_gates(con,date,stage,expected_game_count=None):
     goalie_directions=[r for r in rows
         if str(r["player_id"]).startswith("GOALIE_DIRECTION:") and r["gate"]=="G0"]
     skaters=defaultdict(dict)
+    # G0 investigations use namespaced database IDs to preserve both
+    # unseparated goalie branches. They ARE real official roster players,
+    # but are NOT G0-authorized scorer-candidate matrices; including them
+    # in source-certified skater PASS/FAIL totals inflated the selection
+    # denominator and mislabeled branch research as full candidate passes.
+    # Never discard their 36 individual receipts: count them separately.
+    research=defaultdict(dict)
+    researched_official=set()
     for row in rows:
-        if str(row["player_id"]).startswith("GOALIE_DIRECTION:"):continue
-        key=(str(row["game_id"]),str(row["player_id"]))
+        pid=str(row["player_id"])
+        if pid.startswith("GOALIE_DIRECTION:"):
+            continue
+        key=(str(row["game_id"]),pid)
+        if pid.startswith("G0_RESEARCH:"):
+            research[key][row["gate"]]=row
+            details=json.loads(row["details"])
+            official=details.get("actualOfficialPlayerId")
+            if official is not None:
+                researched_official.add((str(row["game_id"]),str(official)))
+            continue
         skaters[key][row["gate"]]=row
     required=set(EXECUTION_ORDER)
     distributions=defaultdict(Counter);missing=Counter()
@@ -229,6 +246,13 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "twoDirectionsPerScheduledGameRecorded":directions_complete,
         "goalieDirectionsWithPass":sum(x["disposition"]=="PASS" for x in goalie_directions),
         "scannedSkaters":len(skaters),"gateRows":len(rows),
+        "g0ResearchOnlyBranchMatrices":len(research),
+        "g0ResearchOnlyOfficialSkaters":len(researched_official),
+        "g0ResearchOnlyGateRows":sum(len(m) for m in research.values()),
+        "g0ResearchPreservedAsIndependentSourceEvidence":True,
+        "g0ResearchExcludedFromCoreCandidateAndPassDenominator":True,
+        "allOfficialSkatersReviewedIncludingG0Research":
+            len(skaters)+len(researched_official),
         "allSkatersHaveEachGateRecord":all_matrix_present,
         "allSkatersHaveExactExecutionOrder":all_matrix_in_order,
         "executionOrderMismatches":order_mismatches,
