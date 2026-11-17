@@ -667,7 +667,16 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     route_direct=all(direct.values())
     original=(release or {}).get('originalPrimaryOrigin')
     changed_lane=bool(original and original!=zone)
-    primary_source_lane=not changed_lane and not (release or {}).get('primaryWasTiedBeforeG0',False)
+    # An originally tied EDGE lane can become source-distinct AFTER G0 and
+    # independently verified G9; dated PBP resolution is also retained.
+    # Do not force a label from an unresolved tie, but do not veto a genuinely
+    # separated direct PRIMARY route just because the pre-G0 source was tied.
+    matched_direct_lane=bool(
+        (release or {}).get('g0MatchedOwnOriginRoute') is True and
+        (release or {}).get('g9DefensiveLaneIndependentlyMatched') is True)
+    primary_source_lane=bool(not changed_lane and (
+        not (release or {}).get('primaryWasTiedBeforeG0',False) or
+        matched_direct_lane))
     approved_rivals=[]
     defeated={str(x.get('challengerId')):x for x in challenger_rows
               if x.get('status')=='DEFEATED' and x.get('sameLane')}
@@ -741,8 +750,9 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         rationale='Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5'
     elif off_lane_transfer:
         path='TRANSFER'
-        rationale=('Goalie-first G0 moved this player off his usual lane into the goalie weak lane, '
-                   'where he owns goals and beat every same-lane teammate under G10.5/G16')
+        rationale=('Goalie-first G0 moved this independent historical goal recipient into a '
+                   'sourced weak shooting lane with own on-net attempts and verified '
+                   'G10.5/G16 separation; no historical goal in that lane is inferred')
     elif route_direct and primary_source_lane and not tdata.get('directRouteDisplaced'):
         path='PRIMARY'
         rationale='Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger'
