@@ -396,7 +396,92 @@ def adjudicate_misses(con, slate_date, root=None):
         "noUnprovenRuleChange":True,
         "originalCardUntouched":True}
 
-def season_history(con,season_start_year,through_date):
+
+def official_route_calibration(root, frozen_cards):
+    """Aggregate verified postgame G0/G10.5 errors without hindsight selection.
+
+    Counts only signed-by-card-identity official recipient-audit receipts.
+    The counters are observations, NOT weights, new gates or future filters.
+    """
+    from pathlib import Path
+    report={
+        "source":"PRESERVED_ORIGINAL_CORES_PLUS_OFFICIAL_NHL_SCORER_COMPARISONS",
+        "officiallyComparedSlates":0,
+        "originalLegsCompared":0,
+        "scorerMissesCompared":0,
+        "missesWithDefeatedTeammateScorer":0,
+        "missesWithOppositeG0SideScoringMore":0,
+        "observations":[],
+        "postgameOutcomesAreNotPregamePatchProof":True,
+        "noOddsWeightsOrAutomaticRecipientOverride":True,
+    }
+    if root is None:
+        return report
+    root=Path(root)
+    for saved in frozen_cards:
+        date=saved["date"]
+        path=root/"site_runs"/f"{date}-recipient-audit.json"
+        if not path.is_file():
+            continue
+        try:
+            audit=json.loads(path.read_text(encoding="utf-8"))
+        except (OSError,ValueError):
+            continue
+        recipients=saved["recipients"]
+        rows=audit.get("selectedLegs") or []
+        identities={(str(x.get("gameId")),str(x.get("lockedPlayerId")))
+                    for x in rows}
+        if (audit.get("status")!="OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON"
+                or audit.get("cardId")!=saved["cardId"]
+                or audit.get("originalFingerprint")!=saved["fingerprint"]
+                or audit.get("originalRevision")!=saved["revision"]
+                or identities!=recipients or len(rows)!=len(recipients)
+                or not audit.get("officialSourceUrls")
+                or not all(isinstance(url,str)
+                    and url.startswith("https://api-web.nhle.com/v1/")
+                    for url in audit["officialSourceUrls"])):
+            continue
+        report["officiallyComparedSlates"]+=1
+        report["originalLegsCompared"]+=len(rows)
+        for item in rows:
+            goals=item.get("chosenGoals")
+            same=item.get("sameAttackSideGoals")
+            other=item.get("oppositeAttackSideGoals")
+            if type(goals) is not int or goals<0:
+                continue
+            if goals>0:
+                continue
+            rivals=[{
+                "player":s.get("player"),"playerId":s.get("playerId"),
+                "goals":s.get("goals")}
+                for s in item.get("officialScorers",[])
+                if s.get("sameAttackDirectionAsCore") is True
+                and s.get("pregameG105Verdict")=="DEFEATED"
+                and type(s.get("goals")) is int and s["goals"]>0]
+            opposite=bool(type(same) is int and type(other) is int
+                          and other>same)
+            report["scorerMissesCompared"]+=1
+            if rivals:
+                report["missesWithDefeatedTeammateScorer"]+=1
+            if opposite:
+                report["missesWithOppositeG0SideScoringMore"]+=1
+            report["observations"].append({
+                "slateDate":date,"gameId":item.get("gameId"),
+                "playerId":item.get("lockedPlayerId"),
+                "originalPlayer":item.get("lockedPlayer"),
+                "originalPath":item.get("lockedPath"),
+                "G0selectedSide":item.get("lockedTeam"),
+                "sameAttackSideGoals":same,
+                "oppositeAttackSideGoals":other,
+                "oppositeSideScoredMore":opposite,
+                "G10_5DefeatedTeammatesWhoScored":rivals,
+                "officialSourceUrls":item.get("officialSources") or [],
+                "calibrationOnlyNoCausalRuleClaim":True,
+            })
+    return report
+
+
+def season_history(con,season_start_year,through_date,root=None):
     """Graded cards from October of start year; up to three real slates/month."""
     setup(con)
     start=f"{season_start_year}-10-01"
@@ -408,7 +493,7 @@ def season_history(con,season_start_year,through_date):
                 WHERE g.slate_date BETWEEN ? AND ?
                 ORDER BY g.slate_date,g.card_id""",
                 (start,min(end,through_date))).fetchall()
-    month=defaultdict(list);all_slates=[]
+    month=defaultdict(list);all_slates=[];frozen_cards=[]
     for row in rows:
         graded=json.loads(row["legs"])
         legs=json.loads(row["current_legs"])
@@ -427,6 +512,10 @@ def season_history(con,season_start_year,through_date):
             "officialSources":source_urls}
         month[row["slate_date"][:7]].append(slate)
         all_slates.append(slate)
+        frozen_cards.append({
+            "date":row["slate_date"],"cardId":row["card_id"],
+            "fingerprint":row["fingerprint"],"revision":row["revision"],
+            "recipients":saved})
     month_reports={}
     for key,items in sorted(month.items()):
         n=len(items)
@@ -453,6 +542,7 @@ def season_history(con,season_start_year,through_date):
         "legOpportunities":total,
         "winDefinition":"ALL_ORIGINAL_CORE_LEGS_SCORE",
         "monthlyThreeSlateCalibration":month_reports,
+        "officialRouteCalibration":official_route_calibration(root,frozen_cards),
         "allOfficialGrades":all_slates,
         "verifiedAutomaticGuardPatches":applied,
         "postgameDecisionsWritten":len(decisions),
