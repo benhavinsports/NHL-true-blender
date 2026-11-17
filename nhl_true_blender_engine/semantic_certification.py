@@ -140,7 +140,8 @@ def audit_gate(gate, evidence, source_ids, stage):
         # player historically scored from every own release lane. Never
         # convert zero credited goals in the matched route into >0.
         origin=e.get('officialOwnedGoalsInMatchedOrigin')
-        exact_lane=type(origin) is int and origin>0
+        exact_lane=(type(origin) is int and origin>0 and
+                    e.get('matchedOriginHasHistoricalGoal') is not False)
         season_crosscheck=(
              type(origin) is int and origin==0 and
              type(e.get('matchedOriginOwnOnNetShots')) is int and
