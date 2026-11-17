@@ -336,7 +336,7 @@ jobs:
       - name: Verify dashboard is deployment entry point
         run: |
           test -s site/index.html
-          grep -q '<title>NHL True Blender' site/index.html
+          grep -q '<title>True Blender | NHL Scouting Intelligence</title>' site/index.html
           grep -q 'id="core-cards"' site/index.html
           ! grep -q 'id="leg-detail"' site/index.html
           grep -q 'id="slate-select"' site/index.html
