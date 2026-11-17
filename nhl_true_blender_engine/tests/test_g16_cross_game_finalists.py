@@ -120,6 +120,11 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
         assert {x['playerId'] for x in legs} == {'100', '110', '120'}
         g16 = result['g16FinalistCompetition']
         assert g16['excludedPlayerIds'] == ['130'] and g16['separated'] is True
+        # Renaming the receipt must not change the four game survivors or
+        # the three final G18 recipients after cross-game G16.
+        pre_core = result['preCoreQualifiedSurvivors']
+        assert len(pre_core) == 4
+        assert {x['playerId'] for x in pre_core} == {'100', '110', '120', '130'}
         run = {'preCoreQualifiedSurvivors': result['preCoreQualifiedSurvivors'],
                'g16FinalistCompetition': g16}
         assert set(expected_core_ids(run)) == {(x['gameId'], x['playerId']) for x in legs}
