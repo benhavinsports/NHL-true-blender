@@ -1131,6 +1131,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     edge_routes=(release.get('allRoutes') or []) if release else []
     edge_full_own_goal_reconciliation=bool(
         verified_season_goals and receipt(player.get('release')) and
+        isinstance(release,dict) and
         release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
         isinstance(edge_routes,list) and len(edge_routes)>0 and
         all(isinstance(row,dict) and bool(row.get('zone')) and
