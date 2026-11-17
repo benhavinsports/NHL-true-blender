@@ -336,6 +336,27 @@ function renderDetails(){
  compliance.appendChild(pill(data?passedAll?"ALL 36 PASSED · ORDER VERIFIED":"EVIDENCE REVIEW":"AWAITING EXPORT",
      data?passedAll?"success":"warning":"neutral"));
  body.appendChild(compliance);
+ // These are independent source reviews, not two different Core cards.
+ // A later incomplete confirmation must never hide the original verified
+ // projected receipt or visually promote a projected lineup to confirmed.
+ if(data?.separatePhaseReviews){
+   const reviews=el("div","fact-row");
+   for(const phase of ["PROJECTED","CONFIRMED"]){
+     const r=data.separatePhaseReviews[phase];
+     if(!r)continue;
+     const label=phase+(data.stageOfGateRecords===phase?" · SHOWN ABOVE":" · REVIEW ONLY");
+     const status=!r.available?"NOT COLLECTED":
+       r.fullOriginalOrderPass?"36/36 SOURCE PASSES":
+       r.masterPassed+" / 20 master · "+r.overlayPassed+" / 16 overlay";
+     reviews.appendChild(fact(label,status));
+   }
+   body.appendChild(reviews);
+   if(data.latestReviewStage==="CONFIRMED" &&
+      data.stageOfGateRecords==="PROJECTED"){
+     body.appendChild(el("div","notice warning",
+       "Confirmed-source review has unresolved gates. The card and gate details above retain the earlier verified projected evidence; no new Core was issued."));
+   }
+ }
  if(!data){
    body.appendChild(el("div","notice warning",state.gateLoadError||
      "Selected-player source receipts are not available in the deployed evidence export. A PASS is not assumed."));
