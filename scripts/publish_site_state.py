@@ -170,7 +170,7 @@ def _public_survivor_gate_cards(con, slate_date, stage, pool):
         rows=[]
         for gate in MASTER:
             record=con.execute(
-                "SELECT disposition,details FROM gates WHERE slate_date=? "
+                "SELECT disposition,details,evaluated_at FROM gates WHERE slate_date=? "
                 "AND stage=? AND game_id=? AND player_id=? AND gate=?",
                 (slate_date,stage,game_id,player_id,gate)).fetchone()
             if not record:
