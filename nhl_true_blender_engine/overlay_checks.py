@@ -8,6 +8,7 @@ qualitative and nonblocking. Step 8 never invents shift-by-shift metrics.
 from __future__ import annotations
 
 from .semantic_certification import audit_gate
+from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 
 STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
@@ -29,6 +30,8 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     raw_release=player.get('release')
     pressure=player.get('pressure')
     pres=evidence_data(pressure) or {}
+    observed_shots=observed_own_shot_appearances(pres)
+    dated_recurrence=observed_dated_recurrence(recurrence,observed_shots)
     own=player.get('finishOwnership')
     own_data=evidence_data(own) or {}
     c=player.get('contradictions')
@@ -90,13 +93,15 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'goalMouthAnatomyNotInferred':True},
          src(raw_release,goalie,coverage),
          contradiction=bool(zone and zone in red and receipt(coverage)))
-    emit('Step4',bool(recurrence and isinstance(recurrence.get('appearanceDates'),int)
-                      and recurrence['appearanceDates']>0),
+    # Step4 separately reviews the SAME dated pregame observations but
+    # does not copy master G7's disposition or mark a single attempt recurring.
+    emit('Step4',dated_recurrence['datedScoringOrShotRecurrence'],
          {'datedActualAppearances':recurrence.get('appearanceDates') if recurrence else None,
           'datedCreditedGoalDates':recurrence.get('distinctGoalDates') if recurrence else None,
-          'noMissedGameZeroFilled':True,'multigoalDateCountedOnce':True},
+          'noMissedGameZeroFilled':True,'multigoalDateCountedOnce':True,
+          **dated_recurrence},
          src(player.get('gameLog'),player.get('mappedGoals'),
-             player.get('officialGoalTotal')))
+             player.get('officialGoalTotal'),pressure))
     own_mechanism=bool(receipt(raw_release) and release and release.get('archetype')
                       and isinstance(release.get('ownedGoals'),int)
                       and isinstance(release.get('attempts'),int)
@@ -167,11 +172,14 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'cannotInferShiftMatchupsFromShotOrigins':not bool(area_shifts)},
          sorted(set(src(coverage)+shift_urls)))
     recent=pres.get('recentAppearanceShots')
-    good_shots=(isinstance(recent,int) and recent>=0 or
-                isinstance(recent,list) and bool(recent) and
-                all(type(x) is int and x>=0 for x in recent))
-    emit('Step9',bool(receipt(pressure) and good_shots),
-         {'dateSampleShotsOnNet':recent,'recentRouteContinuationMeasured':good_shots,
+    # Step9: check the actual per-appearance pressure observation, not the
+    # presence of a nonnegative list or any previously recorded G11 PASS.
+    measured=bool(receipt(pressure) and observed_shots['valid'] and
+                  observed_shots['repeatedOwnShotPressure'])
+    emit('Step9',measured,
+         {'dateSampleShotsOnNet':recent,
+          'recentRouteContinuationMeasured':measured,
+          'ownShotContinuationEvidence':observed_shots,
           'notWeightedOrMarketSelected':True},src(pressure))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
          {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,
