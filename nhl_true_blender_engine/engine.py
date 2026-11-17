@@ -1691,7 +1691,46 @@ def compare_g0_different_weak_origins(a,b):
         return None
     score_a=weakest_a[0];score_b=weakest_b[0]
     if score_a==score_b:
-        return None  # no arbitrary alphabetical or star tiebreaker
+        # NHL EDGE and some sampled PBP peer ranks are rounded into discrete
+        # percentile bands. Equal *published* percentiles do NOT mean equal
+        # measured direct scoring vulnerability if the official goal/on-net
+        # shot fractions are independently different. Compare those ACTUAL
+        # source observations, not goalie fame, shot volume, home/away status,
+        # team goal forecasts, or an invented numerical weight.
+        #
+        # Both goalies must have a UNIQUE weakest peer-ranked origin. If
+        # either goalie has multiple tied origins, the raw-rate selection
+        # would arbitrarily pick an area and MUST remain unresolved.
+        for profile,weakest_row in ((pa,weakest_a),(pb,weakest_b)):
+            all_weak=profile.get('weakZones') or {}
+            if sum(type(z.get(key)) in (int,float) and
+                   z.get(key)==weakest_row[0] for z in all_weak.values())!=1:
+                return None
+        _,zone_a,na,ga,_=weakest_a
+        _,zone_b,nb,gb,_=weakest_b
+        if ga*nb==gb*na:
+            return None  # a real empirical tie, not an unresolved round-off
+        chosen,other=(a,b) if ga*nb>gb*na else (b,a)
+        win,lose=(weakest_a,weakest_b) if ga*nb>gb*na else (weakest_b,weakest_a)
+        return {**chosen,
+            'g0SelectionMethod':'TIED_PUBLISHED_PEER_PERCENTILE_DIRECT_OBSERVED_GOAL_RATE',
+            'g0SelectedOnlyAfterBothStarterProfiles':True,
+            'g0DecisionProof':{
+                'reason':'Official peer percentiles tied, but independently observed direct goals per on-net shot differed at each goalie’s uniquely weakest source-supported origin',
+                'winnerWeakOrigin':win[1],'oppositeWeakOrigin':lose[1],
+                'winnerGoalieOnNetShots':win[2],'winnerGoalsAllowedFromOrigin':win[3],
+                'oppositeGoalieOnNetShots':lose[2],'oppositeGoalsAllowedFromOrigin':lose[3],
+                'publishedEqualPeerSavePercentile':score_a,
+                'directRateComparedByExactIntegerCrossProduct':True,
+                'uniqueWeakestOriginForEachGoalie':True,
+                'sourceClassSameForBothGoalies':src_a,
+                'noWeightsOrExternalOdds':True,
+                'notGloveBlockerFiveHole':True,
+                'oppositeDirectionSourceReviewed':True,
+                'goalieSourceUrls':[pa.get('goalieProfileSourceUrl') or pa.get('sourceUrl'),
+                                    pb.get('goalieProfileSourceUrl') or pb.get('sourceUrl')],
+                'noScorerOrTeamPopularityComparison':True,
+            }}
     chosen,other=(a,b) if score_a<score_b else (b,a)
     win,lose=(weakest_a,weakest_b) if score_a<score_b else (weakest_b,weakest_a)
     return {**chosen,

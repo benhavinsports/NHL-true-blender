@@ -68,3 +68,30 @@ def test_local_historical_pbp_peers_must_be_compared_only_with_same_method():
     comparison=compare_g0_different_weak_origins(a,b)
     assert comparison["attacker"]=="A"
     assert comparison["g0SelectionMethod"]=="NHL_PBP_SAMPLED_PEER_RANK_CROSS_ORIGIN_G0"
+
+
+def test_equal_rounded_edge_peer_percentile_is_not_equal_actual_scoring_vulnerability():
+    # Independently measured official goalie-area shots vs own goals:
+    # published lowest league-percentile ties, but integer goal fractions
+    # differ. This is an additional physical goalie observation, not a
+    # fabricated tie-breaker, scorer weight, or market favorite.
+    a=direction("WSH","TBL","L Circle",.1509,38,6)
+    b=direction("TBL","WSH","High Slot",.1509,31,7)
+    choice=compare_g0_different_weak_origins(a,b)
+    assert choice is not None
+    assert choice["attacker"]=="TBL"
+    assert choice["g0SelectionMethod"]=="TIED_PUBLISHED_PEER_PERCENTILE_DIRECT_OBSERVED_GOAL_RATE"
+    assert choice["g0DecisionProof"]["publishedEqualPeerSavePercentile"]==.1509
+    assert choice["g0DecisionProof"]["directRateComparedByExactIntegerCrossProduct"] is True
+    assert choice["g0DecisionProof"]["winnerGoalsAllowedFromOrigin"]==7
+
+def test_exact_empirical_tie_or_multiple_tied_weak_origins_remains_unresolved():
+    a=direction("WSH","TBL","L Circle",.1509,38,6)
+    b=direction("TBL","WSH","High Slot",.1509,31,7)
+    b["targetGoalies"][0]["weakZones"]["R Circle"]={
+      "leagueSavePctgPercentile":.1509,"shotsAgainst":44,"goalsAgainst":8}
+    assert compare_g0_different_weak_origins(a,b) is None
+    b["targetGoalies"][0]["weakZones"].pop("R Circle")
+    b["targetGoalies"][0]["weakZones"]["High Slot"]["goalsAgainst"]=3
+    b["targetGoalies"][0]["weakZones"]["High Slot"]["shotsAgainst"]=19
+    assert compare_g0_different_weak_origins(a,b) is None
