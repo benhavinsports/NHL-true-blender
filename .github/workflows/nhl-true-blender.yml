@@ -1,5 +1,7 @@
 name: NHL True Blender - independent scheduled engine
 # Engine dispatch: run the full evidence pipeline after the Pages feed connection.
+# Nov 17 live validation: rerun current original G7/G11/Step4/Step9 eliminations
+# and G0 nonselected research classification with G18 as final assembly only.
 on:
   # Source-code pushes already receive the separate end-to-end CI check.
   # Spawning a lengthy live engine on EVERY edit caused runs to be repeatedly
