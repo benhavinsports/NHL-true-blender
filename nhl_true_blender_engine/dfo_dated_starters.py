@@ -213,6 +213,7 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
                 "sourceLabel":row["sourceLabel"],"identityMatched":True,
                 "datedEyewitnessMorningSkateFirstOff":row["datedEyewitnessMorningSkateFirstOff"],
                 "sourceReportDate":row["sourceReportDate"],
+                "morningSkateSourceUrls":[url] if row["datedEyewitnessMorningSkateFirstOff"] else [],
                 "confirmedOnlyWhenSourceReportsConfirmed":True,
                 "publishedAsOfSlateDate":date,
                 "noSoleSourceGuaranteeOfFutureGoalieAppearance":True}})
