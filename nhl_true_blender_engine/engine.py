@@ -23,20 +23,18 @@ SCORER_GATE_ORDER = ([f'G{i}' for i in range(1,11)] +
 MASTER = ['G0'] + SCORER_GATE_ORDER
 OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] +
            [f'Step{i}' for i in range(11,15)])
-# One integrated chronological gate trace. The legacy Step checks are
-# evidence observations at their corresponding master gate, not a second
-# selection phase after G17. Step10.5 belongs with G10.5.
-# Keep each observation identifiable for historical audit compatibility.
-STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G3','Step3':'G5',
-              'Step4':'G4','Step5':'G7','Step6':'G6','Step7':'G9',
-              'Step8':'G8','Step9':'G9','Step10':'G10',
-              'Step10.5':'G10.5','Step11':'G11','Step12':'G16',
+# The historical Step descriptions are functions WITHIN the original gates,
+# never a second gate sequence, an independent pass, or 16 more selections.
+# Keep their observation names solely to preserve evidence provenance.
+STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G1','Step3':'G5',
+              'Step4':'G7','Step5':'G4','Step6':'G6','Step7':'G4',
+              'Step8':'G9','Step9':'G11','Step10':'G5',
+              'Step10.5':'G10.5','Step11':'G14','Step12':'G16',
               'Step13':'G13','Step14':'G17'}
 STEPS_BY_GATE = {gate:[step for step in OVERLAY if STEP_OWNER[step]==gate]
                  for gate in MASTER}
-EXECUTION_ORDER = [item for gate in MASTER
-                   for item in [gate]+STEPS_BY_GATE[gate]]
-if MASTER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
+EXECUTION_ORDER = MASTER[:]
+if EXECUTION_ORDER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
     raise RuntimeError('Authoritative NHL gate order was altered')
 PATCH_IDS = (
     'PATCH_PROVENANCE_V1','PATCH_START_TIME_V1','PATCH_OFFICIAL_SCORERS_V1',
@@ -96,7 +94,6 @@ def gate_record(game, player, gate, disposition, detail, source_ids=None):
         raise ValueError(f'Unknown gate outside the authoritative execution order: {gate}')
     index=EXECUTION_ORDER.index(gate)
     phase=('G0_GOALIE_FIRST' if gate=='G0' else
-           'OVERLAY' if gate in OVERLAY else
            'G18_FINAL' if gate=='G18' else 'MASTER')
     return {'gameId':str(game['id']),'playerId':str(player),'gate':gate,
             'disposition':disposition,
@@ -670,33 +667,46 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             deficient.append(g)
         # Evaluate only the source observations owned by this gate, now,
         # before recording its authoritative disposition.
+        # Step-named functions run as source checks inside their owning gate.
+        # They do NOT write independent gate rows or create a 36-gate pipeline.
+        # An observation is an intermediate value, not a stored gate receipt.
+        def observation_record(_game,_player,step,status,evidence,ids):
+            return {'gate':step,'disposition':status,
+                    'details':{'evidence':evidence,'sourceIds':list(ids)}}
         observations=(independent_overlay(
             game,attack_team,player,teammates,goalie_profile,release,rec,
-            rows,stage,receipt,evidence_data,gate_record,
+            rows,stage,receipt,evidence_data,observation_record,
             only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
         overlay.extend(observations)
         if observations:
-            # Master and overlay are independent verdicts. Do not replace a
-            # master's decision with a merged overlay disposition.
-            detail_evidence=[{
+            function_evidence=[{
                 'step':item['gate'],'disposition':item['disposition'],
                 'sourceIds':item['details'].get('sourceIds',[]),
                 'evidence':item['details'].get('evidence',{})}
                 for item in observations]
-            content={**content,'independentOverlayEvidence':detail_evidence}
-            for item in observations:
-                step=item['gate']
-                if item['disposition']=='NOT_EXECUTED':
-                    deficient.append(step)
-                elif item['disposition']=='ELIMINATED':
+            content={**content,'originalFunctionEvidence':function_evidence,
+                     # Historical consumers can read the same nested evidence.
+                     'independentOverlayEvidence':function_evidence}
+            mandatory=[item for item in observations
+                       if item['disposition']!='PASS'
+                       and item['details'].get('evidence',{}).get('nonblocking') is not True]
+            for item in mandatory:
+                deficient.append(g+':'+item['gate'])
+            if mandatory and disp=='PASS':
+                # The original function is part of THIS gate's result, not
+                # another veto stage operating after the master sequence.
+                disp=('ELIMINATED' if any(
+                    x['disposition']=='ELIMINATED' for x in mandatory)
+                    else 'NOT_EXECUTED')
+                content['ownFunctionDispositions']={
+                    x['gate']:x['disposition'] for x in mandatory}
+                if disp=='ELIMINATED':
                     eliminated=True
-                    if first_elimination_gate is None:
-                        first_elimination_gate=step
+                    if first_elimination_gate is None:first_elimination_gate=g
         d[g]={'disposition':disp,'details':content}
         record=gate_record(game,player['id'],g,disp,content,list(source_ids))
         proof.append(record)
         execution_trace.append(record)
-        execution_trace.extend(observations)
     # G0's per-skater record must point to an attack direction already
     # adjudicated from BOTH goalies. A shared goalie profile is not itself
     # a completed first-gate decision.
@@ -998,7 +1008,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         'candidateEligibleForCrossGameFinal':passed,
         'pathClassificationEvidence':path_proof,
         'classificationOccursAfterAllSourceGates':True,
-        'overlayPassedBeforeG18':overlay_passed,
+        'originalFunctionsReviewedBeforeG18':overlay_passed,
         'notPresetOneOfEach':True},
         source_ids=path_proof['sourceUrls'])
     master_trace=[row['gate'] for row in proof]
@@ -1008,7 +1018,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     if set(overlay_trace)!=set(OVERLAY) or len(overlay_trace)!=len(OVERLAY):
         raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
     if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
-        raise ValueError('Combined execution trace does not match the authoritative gate order')
+        raise ValueError('Single original gate trace does not match G0–G18')
     # G18 itself must survive its independent semantic/source audit.  An
     # earlier bool may say "passed" even if emit('G18') correctly downgraded
     # the recorded disposition for missing route proof. No such recipient can
@@ -1023,7 +1033,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
 
 
 def verify_complete_matrix(games, records, scan, now=None, selected_directions=None):
-    """Patch: 2026-11-05 complete every eligible player and overlay before G18."""
+    """Verify each original gate and its internal source functions before G18."""
     errors=[]
     now=now or datetime.now(timezone.utc)
     expected_set=set(EXECUTION_ORDER)
@@ -1055,7 +1065,7 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
             actual=[r['gate'] for r in candidate_records]
             if set(actual)!=expected_set:
                 missing=[gate for gate in EXECUTION_ORDER if gate not in set(actual)]
-                errors.append(f"{game['id']} player {pid} missing gate/overlay records {missing}")
+                errors.append(f"{game['id']} player {pid} missing original gate records {missing}")
             if actual!=EXECUTION_ORDER:
                 errors.append(
                     f"{game['id']} player {pid} wrong gate execution order; "
@@ -1066,17 +1076,26 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
                     errors.append(
                         f"{game['id']} player {pid} gate {entry['gate']} "
                         f"has execution index {metadata.get('executionIndex')} not {index}")
-            # A filled row is not proof of a gate's own evidence review.
-            # Each overlay must have its own pre-G18 source observation.
-            for entry in records:
-                if (entry['gameId']!=str(game['id']) or entry['playerId']!=pid
-                    or entry['gate'] not in OVERLAY):
-                    continue
-                ev=entry.get('details',{}).get('evidence',{})
-                if not (ev.get('independentOverlayEvaluation') is True and
-                        ev.get('checkedBeforeG18') is True and
-                        ev.get('masterGateVerdictCopied') is False):
-                    errors.append(f"{game['id']} player {pid} overlay {entry['gate']} is a copied verdict rather than an independent source check")
+            # Source functions are evidence within each original gate; they
+            # cannot be skipped, copied from its verdict, or stored as gates.
+            for entry in candidate_records:
+                gate=entry['gate']
+                expected=STEPS_BY_GATE[gate]
+                content=(entry.get('details') or {}).get('evidence') or {}
+                functions=content.get('originalFunctionEvidence') or []
+                actual_steps=[x.get('step') for x in functions]
+                if actual_steps!=expected:
+                    errors.append(
+                        f"{game['id']} player {pid} gate {gate} missing original functions "
+                        f"{expected}: got {actual_steps}")
+                for fn in functions:
+                    ev=fn.get('evidence') or {}
+                    if not (ev.get('independentOverlayEvaluation') is True
+                            and ev.get('checkedBeforeG18') is True
+                            and ev.get('masterGateVerdictCopied') is False):
+                        errors.append(
+                            f"{game['id']} player {pid} gate {gate} "
+                            f"function {fn.get('step')} lacks independent evidence")
         count=sum(1 for r in records if r['gameId']==str(game['id']) and r['gate']=='G0'
                   and r['playerId'].startswith('GOALIE_DIRECTION:'))
         if count!=2:errors.append(f"{game['id']} G0 source directions saved {count} not 2")
