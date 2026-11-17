@@ -234,7 +234,12 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                 if player is None:
                     unmatched.append({'team':team,'name':row.get('playerName')})
                     continue
-                url=row.get('lineSourcePath') or row.get('lineSource')
+                urls={item.get('sourceUrl') for item in row.get('lineEvidence',[])
+                      if isinstance(item.get('sourceUrl'),str)
+                      and item['sourceUrl'].startswith('https://')}
+                # Ambiguous attribution cannot be certified by arbitrary
+                # provider preference.
+                url=next(iter(urls)) if len(urls)==1 else None
                 if not isinstance(url,str) or not url.startswith('https://'):
                     continue
                 line=row['line']
