@@ -210,8 +210,15 @@ def attach(con, snapshot, date, stage):
                 if kind=='PLAYER_STATUS':
                     # A projected roster report is not a confirmation.
                     if data.get('status') in ('DRESSED','CONFIRMED','PROJECTED_ACTIVE','OUT','SCRATCHED','INJURED'):
-                        p['availability']=data['status']
-                        p['availabilitySource']=wrapper
+                        # Projected activity cannot overwrite a verified
+                        # dressed/confirmed official roster status.
+                        prior_status=p.get('availability')
+                        if (data['status']=='PROJECTED_ACTIVE' and
+                            prior_status in ('DRESSED','CONFIRMED','OUT','SCRATCHED','INJURED')):
+                            p.setdefault('availabilityAlternatives',[]).append(wrapper)
+                        else:
+                            p['availability']=data['status']
+                            p['availabilitySource']=wrapper
                 else:
                     fld=KIND_TO_FIELD.get(kind)
                     if fld:
