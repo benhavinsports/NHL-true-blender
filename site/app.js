@@ -193,8 +193,14 @@ function renderHeader(){
      "One saved Core. Selection and gate records are preserved in the official engine ledger.":
      "Original Core retained. Check the selected-leg evidence before treating the latest run as fully certified."));
  }else{
-   notice.appendChild(pill("WAITING FOR VERIFIED CORE","warning"));
-   notice.appendChild(el("p","","The dashboard never generates a fallback pick. The next Core appears only after the autonomous Blender publishes its verified card."));
+   if(s.today && state.latest?.oldCoreRetractedByRuleCorrection===true){
+     notice.appendChild(pill("OLD CORE RETRACTED","danger"));
+     notice.appendChild(el("p","",
+       "The previous G18-ranked card was withdrawn because it did not represent all upstream survivors. Only a fresh corrected Blender run may publish a replacement Core."));
+   }else{
+     notice.appendChild(pill("WAITING FOR VERIFIED CORE","warning"));
+     notice.appendChild(el("p","","The dashboard never generates a fallback pick. The next Core appears only after the autonomous Blender publishes its verified card."));
+   }
  }
 }
 function renderPicker(){
