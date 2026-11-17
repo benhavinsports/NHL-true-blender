@@ -244,6 +244,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             for k in ('status','deploymentRecords','goalieReports','error')}
         result['datedGoalieSourceCoverage']=source_research.get(
             'datedGoalieProjections',{})
+        # Persist parser/source diagnostics so G0 cannot silently remain
+        # ambiguous when the additional dated source failed or conflicted.
+        # Read-only evidence: never a gate verdict or goalie confirmation.
+        result['datedIndependentGoalieSourceCoverage']=source_research.get(
+            'datedIndependentStartingGoalies',{})
         result['g0RinkOriginResearch']=edge_g0_review
         result['g0OfficialPbpFallback']=goalie_pbp_fallback
         # Source-verified Core JSON is produced independently by the engine.
