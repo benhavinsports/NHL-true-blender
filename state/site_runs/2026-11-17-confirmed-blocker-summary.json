@@ -1,12 +1,1533 @@
 {
   "slateDate": "2026-11-17",
   "stage": "CONFIRMED",
-  "g0AcceptedSkaterMatrices": 0,
+  "g0AcceptedSkaterMatrices": 246,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
-  "nonpassingGateCounts": {},
-  "exactFailedGateIntersections": [],
-  "oneObservedEvidenceExamplePerGate": {}
+  "nonpassingGateCounts": {
+    "G2": 246,
+    "G6": 246,
+    "G10": 77,
+    "G10.5": 222,
+    "G12": 77,
+    "G15": 77,
+    "G16": 222,
+    "G17": 246,
+    "Step6": 246,
+    "Step10.5": 222,
+    "Step12": 222,
+    "Step14": 234,
+    "G9": 40,
+    "G4": 42,
+    "G5": 42,
+    "Step3": 42,
+    "Step7": 42,
+    "Step10": 42,
+    "G7": 32,
+    "G11": 32,
+    "G14": 11,
+    "Step4": 32,
+    "Step5": 11,
+    "Step9": 32,
+    "Step11": 3
+  },
+  "g18NonselectedNotMissingSource": 246,
+  "g18ActualMissingSourceCount": 0,
+  "g18FinalCoreAssemblyNotSourceCollection": true,
+  "exactFailedGateIntersections": [
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 126
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 31
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 15
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 10
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6"
+      ],
+      "playerCount": 10
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 10
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6"
+      ],
+      "playerCount": 1
+    }
+  ],
+  "oneObservedEvidenceExamplePerGate": {
+    "G2": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "G6": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": {
+        "deployment": {
+          "EV": "F4",
+          "line": 4,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      }
+    },
+    "G10": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": {
+        "recipient": null,
+        "ownedGoalsInActualAppearances": null,
+        "creditedGoalsVerified": null
+      }
+    },
+    "G10.5": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": {
+        "comparisonCounts": {
+          "DIFFERENT_TARGET_LANE": 2,
+          "RIVAL_DOMINATES": 15
+        },
+        "firstDirectContradictions": [
+          {
+            "challengerId": "8479987",
+            "status": "RIVAL_DOMINATES",
+            "candidate": {
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "L Circle"
+            },
+            "challenger": {
+              "ownedGoals": 2,
+              "shotsOnGoal": 7,
+              "zone": "L Circle"
+            }
+          },
+          {
+            "challengerId": "8479661",
+            "status": "RIVAL_DOMINATES",
+            "candidate": {
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "L Circle"
+            },
+            "challenger": {
+              "ownedGoals": 0,
+              "shotsOnGoal": 3,
+              "zone": "L Circle"
+            }
+          },
+          {
+            "challengerId": "8480355",
+            "status": "RIVAL_DOMINATES",
+            "candidate": {
+              "ownedGoals": 0,
+              "shotsOnGoal": 1,
+              "zone": "L Circle"
+            },
+            "challenger": {
+              "ownedGoals": 0,
+              "shotsOnGoal": 2,
+              "zone": "L Circle"
+            }
+          }
+        ]
+      }
+    },
+    "G12": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "G15": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "G16": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "G17": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": {
+        "outcome": "UNRESOLVED_CONTRADICTION",
+        "unresolved": true,
+        "goalieStrengthReview": {
+          "matchedWeakAreas": 1,
+          "opposingBranchesReviewed": 1,
+          "source": [
+            {
+              "anatomicalPlacementVerified": false,
+              "goalieId": "8475311",
+              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475311/now",
+              "observedStrengthAreaNames": [
+                "R Circle"
+              ],
+              "observedStrongerArea": false,
+              "observedWeakAreaNames": [
+                "Center Point",
+                "High Slot",
+                "L Circle",
+                "Low Slot"
+              ],
+              "physicalOriginMatch": true,
+              "sourceKind": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
+              "starterSourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season",
+              "starterStatus": "EXPECTED"
+            }
+          ],
+          "sourceScope": "GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
+          "strongerAreaContradiction": false
+        },
+        "lineupDisagreementReview": {
+          "availability": "PROJECTED_ACTIVE",
+          "hasProjectedOrConfirmedRole": true,
+          "isTrulyConfirmed": false,
+          "lineupSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+          "projectedOrConfirmedEV": {
+            "EV": "F4",
+            "line": 4,
+            "sourceType": "SECONDARY_PROJECTED_LINEUP",
+            "status": "PROJECTED"
+          }
+        },
+        "strongestRivalReview": {
+          "G9OpponentDefenseWeakZonesUsed": [
+            "Point",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "Center Point"
+          ],
+          "eachSameLaneDefeated": false,
+          "everyRivalReviewed": true,
+          "matchesG10_5GoalieAndDefenseRouteScope": true,
+          "rivalCompared": 17,
+          "rivalResults": [
+            {
+              "G0GoalieWeakZones": [
+                "Center Point",
+                "High Slot",
+                "L Circle",
+                "Low Slot"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Circle",
+                "L Point",
+                "Point",
+                "R Circle"
+              ],
+              "candidateZone": "L Circle",
+              "challengerId": "8479591",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "R Circle",
+                "Behind the Net",
+                "Crease",
+                "Outside L",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479591/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 2,
+                "shotsOnGoal": 7,
+                "zone": "L Circle"
+              },
+              "challengerId": "8479987",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F2",
+                "line": 2,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479987/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 3,
+                "zone": "L Circle"
+              },
+              "challengerId": "8479661",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479661/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 2,
+                "zone": "L Circle"
+              },
+              "challengerId": "8480355",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480355/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Center Point",
+                "High Slot",
+                "L Circle",
+                "Low Slot"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Circle",
+                "L Point",
+                "Point",
+                "R Circle"
+              ],
+              "candidateZone": "L Circle",
+              "challengerId": "8482177",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Crease",
+                "High Slot",
+                "R Circle",
+                "Beyond Red Line",
+                "L Point",
+                "Outside L",
+                "R Net Side"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482177/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 2,
+                "zone": "Center Point"
+              },
+              "challengerId": "8477496",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477496/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 2,
+                "zone": "Center Point"
+              },
+              "challengerId": "8483489",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "line": 2,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8483489/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 2,
+                "shotsOnGoal": 4,
+                "zone": "L Circle"
+              },
+              "challengerId": "8479999",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479999/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 9,
+                "zone": "L Circle"
+              },
+              "challengerId": "8477956",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477956/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 8,
+                "zone": "L Circle"
+              },
+              "challengerId": "8482175",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482175/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 2,
+                "shotsOnGoal": 5,
+                "zone": "L Circle"
+              },
+              "challengerId": "8478401",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "L Circle"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": false,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": true,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478401/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 2,
+                "zone": "Center Point"
+              },
+              "challengerId": "8478840",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D2",
+                "defensePair": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478840/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 2,
+                "zone": "Center Point"
+              },
+              "challengerId": "8477365",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D3",
+                "defensePair": 3,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477365/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 1,
+                "shotsOnGoal": 5,
+                "zone": "Center Point"
+              },
+              "challengerId": "8476854",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D1",
+                "defensePair": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476854/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 5,
+                "zone": "Center Point"
+              },
+              "challengerId": "8482511",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D3",
+                "defensePair": 3,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482511/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 7,
+                "zone": "Center Point"
+              },
+              "challengerId": "8479325",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D1",
+                "defensePair": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479325/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            },
+            {
+              "allRivalJointlyViableZones": [
+                "Center Point",
+                "L Circle"
+              ],
+              "candidate": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 1,
+                "zone": "L Circle"
+              },
+              "challenger": {
+                "ownedGoals": 0,
+                "shotsOnGoal": 4,
+                "zone": "Center Point"
+              },
+              "challengerId": "8477507",
+              "comparisonPriority": [
+                "ownedGoalsFromSameShotOrigin",
+                "onNetShotPressureOnlyWhenGoalsEqual"
+              ],
+              "goalieWeaknessAndDefenseBothRequired": true,
+              "independentRecentTieReview": null,
+              "jointlyViableRouteTiedZones": [
+                "Center Point"
+              ],
+              "noFameOddsOrPPShortcut": true,
+              "noSeasonTotalInvented": true,
+              "rivalAlternateGoalieWeakLane": true,
+              "rivalEVRole": {
+                "EV": "D2",
+                "defensePair": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
+              "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
+              "sameLane": false,
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476374/now",
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477507/now"
+              ],
+              "status": "RIVAL_DOMINATES"
+            }
+          ]
+        }
+      }
+    },
+    "Step6": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "Step10.5": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "Step12": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "Step14": {
+      "gameId": "2026020333",
+      "playerId": "8476374",
+      "reason": null
+    },
+    "G9": {
+      "gameId": "2026020333",
+      "playerId": "8479591",
+      "reason": {
+        "zone": "Low Slot",
+        "green": [
+          "Point",
+          "L Circle",
+          "R Circle",
+          "L Point",
+          "Center Point"
+        ],
+        "red": [],
+        "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "zoneConcession": {
+          "allAttemptsAgainst": 923,
+          "allOnNetShotsAgainst": 440,
+          "attemptShare": 0.28602383531960995,
+          "attemptTypes": [
+            "goal",
+            "shot-on-goal",
+            "missed-shot",
+            "blocked-shot"
+          ],
+          "attemptsAgainst": 264,
+          "attemptsPerGame": 16.5,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+          "gameCount": 16,
+          "goalsAgainst": 16,
+          "independentOnNetConcessionReview": true,
+          "onNetShotsAgainst": 113,
+          "onNetShotsPerGame": 7.0625,
+          "peerMedianAttemptsPerGame": 17.470588235294116,
+          "peerMedianOnNetShotsPerGame": 7.8125,
+          "peerTeamsCompared": 31,
+          "positiveConcessionBases": []
+        }
+      }
+    },
+    "G4": {
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": null
+    },
+    "G5": {
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": {
+        "zone": "Low Slot",
+        "goalieWeakZones": [
+          "High Slot",
+          "L Point",
+          "Outside L"
+        ]
+      }
+    },
+    "Step3": {
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": null
+    },
+    "Step7": {
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": null
+    },
+    "Step10": {
+      "gameId": "2026020334",
+      "playerId": "8476826",
+      "reason": null
+    },
+    "G7": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "G11": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "G14": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step4": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step5": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step9": {
+      "gameId": "2026020334",
+      "playerId": "8482929",
+      "reason": null
+    },
+    "Step11": {
+      "gameId": "2026020337",
+      "playerId": "8476891",
+      "reason": null
+    }
+  }
 }
