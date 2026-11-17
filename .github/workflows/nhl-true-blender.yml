@@ -315,6 +315,30 @@ jobs:
                   from scripts.verify_published_core import verify_published_core
                   result=verify_published_core(Path('state'),date)
                   print('INDEPENDENT CORE CONTRACT:',json.dumps(result))
+                  # A previously withdrawn card can be independently
+                  # reissued only by a genuinely later source execution.
+                  # Enforce its ledger issuance clock rather than guessing
+                  # identity from player names or the unchanged fingerprint.
+                  import sqlite3
+                  from datetime import datetime
+                  con=sqlite3.connect('state/true_blender.sqlite')
+                  try:
+                      archived=con.execute(
+                          "SELECT retracted_at_utc FROM card_retractions "
+                          "WHERE slate_date=?",(date,)).fetchone()
+                      if archived:
+                          issued=con.execute(
+                              "SELECT first_issued_at FROM cards "
+                              "WHERE slate_date=?",(date,)).fetchone()
+                          if (not issued or
+                              datetime.fromisoformat(issued[0].replace('Z','+00:00')) <=
+                              datetime.fromisoformat(archived[0].replace('Z','+00:00'))):
+                              problems.append('Revoked Core reappeared without a later independent G18 issuance')
+                  except sqlite3.OperationalError as exc:
+                      if 'no such table: card_retractions' not in str(exc):
+                          raise
+                  finally:
+                      con.close()
               except Exception as exc:
                   problems.append('Full 36-gate published Core verification failed: '+str(exc))
           print('Scheduled Blender phase:',date,mode)
