@@ -195,7 +195,8 @@ test("additional full gate evidence appears only when matching original receipts
    sandbox);
  vm.runInContext("renderPool()",sandbox);
  const firstCard=elements["pool-list"].childNodes
-   .find(n=>n.classList.contains("pool-flip-card"));
+   .find(n=>n.classList.contains("pool-flip-card")&&
+      n.dataset.cardKey===String(first.gameId));
  assert.equal(descendants(firstCard).filter(n=>n.classList.contains("pool-gate-proof")).length,20);
  assert.ok(descendants(firstCard).some(n=>n.tagName==="a"&&
    String(n.href||"").startsWith("https://")));
