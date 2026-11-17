@@ -1304,7 +1304,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     previous_gates_passed=master_passed and overlay_passed
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
-    passed=previous_gates_passed and route is not None
+    # A game survivor has passed the ENTIRE original G0-G17 source process.
+    # Do NOT turn G18 path-label classification into a hidden pre-Core gate:
+    # G18 is the final shared Core assembly, not another game eliminator.
+    pre_core_qualified=previous_gates_passed
+    passed=pre_core_qualified and route is not None
     # In the scheduled full-slate run G18 is deferred until G16 finishes
     # cross-game competition. A game finalist is NOT yet a Core recipient.
     if not defer_g18:
@@ -1328,7 +1332,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     final_g18_passed=(passed if defer_g18 else
                       passed and d['G18']['disposition']=='PASS')
     return {'player':player,'dispositions':d,'complete':final_g18_passed,
-            'preCoreQualified':passed,'g18Deferred':defer_g18,
+            'preCoreQualified':pre_core_qualified,'pathClassificationCertified':route is not None,
+            'g18Deferred':defer_g18,
             'deficientGates':deficient,'route':route,'pathEvidence':path_proof,
             'pressure':evidence_data(shots),
             'release':release,'challengers':rows},execution_trace
@@ -2433,7 +2438,10 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                     furthest.setdefault(MASTER.index(stop),[]).append({
                         'playerId':str(result['player']['id']),
                         'player':result['player'].get('name'),'stoppedAt':stop_label})
-                if result['complete']:
+                if result['preCoreQualified']:
+                    # G18 has not run yet. Qualified G0-G17 players cannot be
+                    # discarded because G18's final-card path label is still
+                    # unclassified. Keep the exact evidence deficit visible.
                     all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
                                          'candidate':result})
                     z=result['release']['zone']
@@ -2448,6 +2456,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                         'attackTeam':team,'opponentTeam':opponent,
                         'playerId':str(own['id']),'player':own.get('name'),
                         'routeLabel':result['route'],
+                        'pathClassificationStatus':('G18_PATH_SOURCE_CERTIFIED'
+                            if result['route'] else 'G18_PATH_NOT_YET_CERTIFIED'),
                         'pathClassificationEvidence':result.get('pathEvidence',{}),
                         'ownRouteZone':z,
                         'ownedGoals':result['release']['ownedGoals'],
@@ -2530,7 +2540,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                         row['disposition']='ELIMINATED'
                         candidate['dispositions']['G16']['disposition']='ELIMINATED'
                     break
-        selected=key in final_keys and candidate['complete']
+        # Only the actual G16-selected recipient may be G18 certified;
+        # per-game G0-G17 qualification is NOT conditional on a G18 label.
+        # Missing final path evidence fails G18 with explicit audit gaps,
+        # rather than vanishing a real pre-Core survivor at G10.5.
+        selected=key in final_keys and candidate['preCoreQualified']
         proof={
             'candidateEligibleForCrossGameFinal':bool(candidate['preCoreQualified']),
             'pathClassificationEvidence':candidate['pathEvidence'],
