@@ -65,6 +65,10 @@ def fixture(root):
         "allOverlayStepsWereIndependentlyChecked": True,
         "copiedOverlayReceiptCount": 0, "executionOrderMismatches": [],
         "fullIndependentCardCertification": True,
+        "scannedSkaters": 2,
+        "g0ResearchOnlyOfficialSkaters": 0,
+        "g0ResearchOnlyBranchMatrices": 0,
+        "g0ResearchOnlyGateRows": 0,
         "gateChecksAttempted": {x: 2 for x in ORDER},
         "masterGateDispositions": {x: {"PASS": 2} for x in MASTER},
         "overlayGateDispositions": {x: {"PASS": 2} for x in OVERLAY},
@@ -82,7 +86,7 @@ def fixture(root):
         "cardId": "SYNTHETIC-CORE", "fingerprint": "fixture-evidence-fingerprint",
         "currentRunFullyCertified": True, "publishedToSite": True,
         "cardSavedByEngine": True, "errors": [], "eligibleSkaterRows": 2,
-        "gateRows": 76, "gateCertification": cert,
+        "gateRows": 76, "g0Directions": 4, "gateCertification": cert,
         "allG18QualifiedSurvivors": [
             {"gameId": game, "playerId": player} for game, player, _ in pairs
         ],
