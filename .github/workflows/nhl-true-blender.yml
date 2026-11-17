@@ -52,9 +52,14 @@ on:
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
+# The authoritative ledger remains serialized, but a source-code push must
+# supersede an old engine run that would otherwise replay stale G0-G18 code
+# during its persistence step. Scheduled/watch/grade jobs never preempt a run.
+# Only the newest push-run restarts on the newest source; the locked Core
+# remains guarded by the storage replacement and puck-drop rules.
 concurrency:
   group: nhl-true-blender-authoritative
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 jobs:
   evidence:
     runs-on: ubuntu-latest
