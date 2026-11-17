@@ -1038,179 +1038,27 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
     return errors
 
 
-def g18_source_vector(item):
-    """Evidence-complete G18 route-to-goalie match, without invented weights.
-
-    Each finalist already PASSED every G0-G17/overlay gate. For incomparable
-    games we separate documented DIRECT OWN goals from the same lane, NHL
-    EDGE goalie peer save percentile at that exact lane, independently
-    measured opponent team conceded shot share above peer median, then OWN
-    shots from the lane. This is an ordered categorical evidence comparison,
-    not a model of guaranteed goals, odds, star status, or a weighted score.
-    Missing/tied source data cannot be used to break a tie.
-    """
-    c=item['candidate']
-    route=c.get('release') or {}
-    g=item.get('targetGoalie') or {}
-    gd=g.get('data') or {}
-    game=item.get('game') or {}
-    zone=route.get('zone')
-    if not zone or not isinstance(route.get('ownedGoals'),int):
-        return None
-    if not isinstance(route.get('attempts'),int) or route['attempts']<=0:
-        return None
-    if route['ownedGoals']<0 or route['ownedGoals']>route['attempts']:
-        return None
-    if route['ownedGoals']==0:
-        # No G18 direct scorer credit in this exact attack lane. WHO can only
-        # enter on a separately documented direct-independent route.
-        who=evidence_data(c['player'].get('whoAnomaly'))
-        if not who or who.get('directIndependentRoute') is not True:
-            return None
-    goalie_area=(gd.get('weakZones') or {}).get(zone)
-    if not isinstance(goalie_area,dict):
-        return None
-    cover=(game.get('coverage') or {}).get(item.get('attackTeam'))
-    cd=evidence_data(cover)
-    # G9's actual authoritative NHL PBP method is *attempts PER GAME*,
-    # compared with an independent peer-team median.  The former G18
-    # comparator expected obsolete "share"/"peerMedianShare" fields that the
-    # real collector never emits; >3 fully qualified games therefore could
-    # not produce a Core regardless of their verified G0-G17 evidence.
-    if not cd or cd.get('sourceType')!='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY':
-        return None
-    if cd.get('comparison')!='RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN':
-        return None
-    if cd.get('lowShotVolumeIsNotEvidenceOfDefensiveStrength') is not True:
-        return None
-    if zone not in (cd.get('greenWeakZones') or []):
-        return None
-    defense_zone=(cd.get('zoneConcessions') or {}).get(zone)
-    if not isinstance(defense_zone,dict):
-        return None
-    if (type(defense_zone.get('attemptsAgainst')) is not int
-            or defense_zone['attemptsAgainst']<16
-            or type(defense_zone.get('gameCount')) is not int
-            or defense_zone['gameCount']<6
-            or type(defense_zone.get('peerTeamsCompared')) is not int
-            or defense_zone['peerTeamsCompared']<6):
-        return None
-    try:
-        pct=Decimal(str(goalie_area['leagueSavePctgPercentile']))
-        per_game=Decimal(str(defense_zone['attemptsPerGame']))
-        median=Decimal(str(defense_zone['peerMedianAttemptsPerGame']))
-    except (KeyError,InvalidOperation,TypeError,ValueError):
-        return None
-    if not (pct.is_finite() and per_game.is_finite() and median.is_finite()
-            and Decimal(0)<=pct<=Decimal(1)
-            and Decimal(0)<=median<per_game):
-        return None
-    # Each independently observed evidence family must supply its own HTTPS
-    # provenance. An expected starter can use its time-stamped goalie
-    # branch receipt; no invented "goalieProfileSourceUrl" is necessary.
-    source_urls=[
-        (c['player'].get('release') or {}).get('sourceUrl'),
-        gd.get('goalieProfileSourceUrl') or g.get('sourceUrl'),
-        cover.get('sourceUrl'),
-        (c['player'].get('deployment') or {}).get('sourceUrl')]
-    if any(not isinstance(u,str) or not u.startswith('https://')
-           for u in source_urls):
-        return None
-    # Existing original G18 evidence priority, WITHOUT synthetic weights:
-    # credited OWN goals -> independently observed goalie weakness ->
-    # opponent's above-peer shot-attempt rate -> OWN on-net attempts.
-    key=(int(route['ownedGoals']),Decimal(1)-pct,
-         per_game-median,int(route['attempts']))
-    proof={
-        'gameId':str(game['id']),'playerId':str(c['player']['id']),
-        'player':c['player'].get('name'),'attackingTeam':item.get('attackTeam'),
-        'goalieId':gd.get('goalieId'),'goalieStarterStatus':gd.get('status'),
-        'ownScoringRoute':zone,'directOwnedGoals':int(route['ownedGoals']),
-        'ownOnNetShots':int(route['attempts']),
-        'goalieLeagueSavePctgPercentile':str(pct),
-        'independentDefenseAttemptsPerGame':str(per_game),
-        'independentDefensePeerMedianAttemptsPerGame':str(median),
-        'independentDefenseExcessAttemptsPerGame':str(per_game-median),
-        'defenseSampleGames':defense_zone['gameCount'],
-        'defensePeerTeamsCompared':defense_zone['peerTeamsCompared'],
-        'sourceUrls':sorted(set(source_urls)),
-        'priorityWithoutWeights':['directOwnGoalsFromExactScoringLane',
-           'goaliePeerSaveWeaknessInMatchingLane',
-           'opponentDefenseAttemptsPerGameAboveIndependentPeerMedian',
-           'ownShotPressureFromMatchingLane'],
-        'method':'G18_VERIFIED_DIRECT_ROUTE_SOURCE_COMPARISON',
-        'notAMarketOrChalkScore':True,
-    }
-    return key,proof
-
-
-def g18_select_by_evidence(items,required,scope):
-    """Return uniquely source-separated recipients; never break exact ties."""
-    if len(items)<required:
-        return [],[f'G18 {scope}: {len(items)} qualified recipients; {required} required'],[]
-    if len(items)==required:
-        return items,[],[]
-    enriched=[]
-    for item in items:
-        computed=g18_source_vector(item)
-        if computed is None:
-            return [],[f'G18 {scope}: comparative evidence missing for one or more fully passing routes'],[]
-        key,proof=computed
-        enriched.append((key,item,proof))
-    # No assistant-invented lexicographic priority of scoring goals over
-    # goalie weakness, defense exposure, or direct-shot pressure. The old
-    # sort() silently forced one contender ahead even when another had
-    # better independently sourced evidence on the other physical gates.
-    # Only an evidence-dominant route can suppress a rival; genuinely
-    # incomparable routes retain their full G18 evidence for further audit.
-    def dominates(a,b):
-        return (all(x>=y for x,y in zip(a,b)) and
-                any(x>y for x,y in zip(a,b)))
-
-    remaining=list(enriched)
-    selected=[]
-    while remaining and len(selected)<required:
-        frontier=[entry for entry in remaining
-                  if not any(dominates(other[0],entry[0])
-                             for other in remaining if other is not entry)]
-        if not frontier:
-            raise ValueError('G18 source dominance analysis has no frontier')
-        if len(frontier)>required-len(selected):
-            audit=[{**entry[2],
-                    'selection':'G18_UNSEPARATED_SOURCE_FRONTIER'
-                    if any(entry is item for item in frontier) else
-                    'G18_SOURCE_SEPARATED',
-                    'comparedAgainst':len(items)-1,
-                    'noInventedMetricPriority':True}
-                   for entry in enriched]
-            return [],[f'G18 {scope}: {len(frontier)} incomparable or tied source routes at final boundary; no evidence-based priority'],audit
-        selected+=frontier
-        remaining=[entry for entry in remaining
-                   if not any(entry is member for member in frontier)]
-    selected_ids={id(x) for x in selected}
-    audit=[{**entry[2],
-            'selection':'G18_SELECTED' if id(entry) in selected_ids
-                        else 'G18_SOURCE_SEPARATED',
-            'comparedAgainst':len(items)-1,
-            'noInventedMetricPriority':True,
-            'dominanceMethod':'ALL_FOUR_SOURCE_DIMENSIONS_MUST_NOT_CONTRADICT'}
-           for entry in selected+remaining]
-    return [entry[1] for entry in selected],[],audit
-
-
 def cross_game_winners(winners, slate_size):
-    """One Core 2/3 only; fully passed candidates from distinct games.
+    """G18 ONLY ASSEMBLES THE CORE produced by prior independent gates.
 
-    No arbitrary 'take first three' or popularity/odds shortcut. Source-rich
-    candidates may be adjudicated using direct physical-route proof from G18;
-    fixture/incomplete source cases still refuse a made-up top three.
+    G0-G17, G10.5 and the complete independent overlay decide who survives.
+    G18 never runs another rank, weighted/lexicographic/dominance score,
+    goalie-percentile comparison, or source-evidence threshold. It merely
+    places three distinct-game survivors (two on a two-game slate) onto
+    the one canonical card.
+
+    If earlier gates have not uniquely settled that Core, the solution is
+    to resolve their actual source evidence, not for G18 to invent a winner.
     """
     required=2 if slate_size==2 else 3
-    if len(winners)<=required:
-        return (winners,[]) if len(winners)==required else (
-            [],[f'G18 only {len(winners)} fully evidenced games; {required} required'])
-    selected,errors,audit=g18_select_by_evidence(winners,required,'cross-game')
-    return selected,errors
+    game_ids=[str(item['game']['id']) for item in winners]
+    if len(game_ids)!=len(set(game_ids)):
+        return [],['PRE_CORE_REVIEW: multiple survivors from one game; G10.5/G17 must separate recipients before final Core assembly']
+    if len(winners)!=required:
+        return [],[f'PRE_CORE_REVIEW: {len(winners)} independently qualified game recipients, '
+                   f'but Core {required} requires exactly {required}; G18 cannot '
+                   'rank, preselect, or eliminate any of them']
+    return list(winners),[]
 
 
 def build_verified_replacement(con, existing, legs, selected, date, stage):
@@ -1759,13 +1607,12 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
-            winner,comparison_errors,review=g18_select_by_evidence(
-                all_per_game,1,'one-survivor-game-'+str(match['id']))
-            if winner:
-                qualified.extend(winner)
-            else:
-                errors += comparison_errors or [
-                    f"{match['id']} G18 multiple source-unseparated recipients"]
+            # G18 is the final Core CARD, not a new game-level scorer ranker.
+            # Keep all fully qualified source receipts; require the original
+            # G10.5/G17 comparison to actually separate same-game rivals.
+            errors.append(
+                f"{match['id']} PRE_CORE_REVIEW: {len(all_per_game)} qualified same-game "
+                "recipients remain after G10.5/G17; no arbitrary final pick")
     pool_size+=unresolved_unique_pool
     save_gates(con,date,stage,records)
     chosen,selection_errors=cross_game_winners(qualified,len(games))
