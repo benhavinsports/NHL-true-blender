@@ -61,3 +61,41 @@ def test_post_puck_gate_update_is_not_passed_off_as_original_evidence(tmp_path):
     assert selected["masterPassed"]==19
     assert get_card(con,DATE)["card_id"]==card["card_id"]
     con.close()
+
+
+
+def test_incomplete_confirmed_review_preserves_projected_card_gate_evidence(tmp_path):
+    """A later incomplete phase cannot rewrite a certified projected Core as 16/20."""
+    con=open_db(str(tmp_path/"ledger.sqlite"))
+    slate=snapshot(3)
+    result=execute(con,slate,DATE,"CONFIRMED")
+    card=result["card"]
+    assert card is not None,result["errors"]
+    before=get_card(con,DATE)
+
+    # The official original projected selection was fully evidenced.
+    # A subsequent confirmed check misses fresh G6 deployment proof.
+    for leg in card["current_legs"]:
+        con.execute("""INSERT INTO gates
+            (slate_date,stage,game_id,player_id,gate,disposition,details,evaluated_at)
+            SELECT slate_date,'PROJECTED',game_id,player_id,gate,disposition,details,evaluated_at
+            FROM gates WHERE slate_date=? AND stage='CONFIRMED'
+                AND game_id=? AND player_id=?""",
+            (DATE,str(leg["gameId"]),str(leg["playerId"])))
+        con.execute("""UPDATE gates SET disposition='NOT_EXECUTED'
+            WHERE slate_date=? AND stage='CONFIRMED'
+                AND game_id=? AND player_id=? AND gate='G6'""",
+            (DATE,str(leg["gameId"]),str(leg["playerId"])))
+    export_dashboard(con,DATE,"CONFIRMED",slate,tmp_path/"state")
+    doc=json.loads((tmp_path/"state"/"site_gates"/f"{DATE}.json").read_text())
+    assert len(doc["legs"])==3
+    for selected in doc["legs"]:
+        assert selected["stageOfGateRecords"]=="PROJECTED"
+        assert selected["latestReviewStage"]=="CONFIRMED"
+        assert selected["masterPassed"]==20
+        assert selected["overlayPassed"]==16
+        assert selected["separatePhaseReviews"]["PROJECTED"]["fullOriginalOrderPass"] is True
+        assert selected["separatePhaseReviews"]["CONFIRMED"]["fullOriginalOrderPass"] is False
+        assert selected["separatePhaseReviews"]["CONFIRMED"]["nonpassingGates"]["G6"]=="NOT_EXECUTED"
+    assert get_card(con,DATE)==before
+    con.close()
