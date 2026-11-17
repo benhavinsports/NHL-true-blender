@@ -567,11 +567,10 @@
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
   "cardId": "NHL-2026-11-17-CANONICAL",
-  "cardPath": "state/site_cards/2026-11-17.json",
-  "cardSavedByEngine": true,
+  "cardSavedByEngine": false,
   "currentRunFullyCertified": true,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T13:13:41+00:00",
+    "asOf": "2026-11-17T13:25:05+00:00",
     "gamesWithBothGoalieProjections": 0,
     "noProjectedGoalieCalledConfirmed": true,
     "originalSourceLabelsPreserved": true,
@@ -589,9 +588,9 @@
   },
   "eligibleSkaterRows": 267,
   "errors": [
-    "2026020334 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction"
+    "2026020334 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction",
+    "PRE_CORE_REVIEW: 4 independently qualified game recipients, but Core 3 requires exactly 3; G18 cannot rank, preselect, or eliminate any of them"
   ],
-  "fingerprint": "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6",
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 267,
     "firstNonpassingGateCounts": {
@@ -3826,8 +3825,9 @@
     "targetSides": 22,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
+  "publicationDecision": "PRESERVED_FROZEN_CORE_NO_NEW_SELECTION",
   "publishedToSite": true,
+  "retainedOriginalLockedCard": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
@@ -3843,5 +3843,5 @@
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T13:14:48+00:00"
+  "updatedUTC": "2026-11-17T13:26:51+00:00"
 }
