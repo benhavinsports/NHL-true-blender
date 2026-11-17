@@ -1,12 +1,14 @@
 name: NHL True Blender - independent scheduled engine
 # Engine dispatch: run the full evidence pipeline after the Pages feed connection.
 on:
+  # Source-code pushes already receive the separate end-to-end CI check.
+  # Spawning a lengthy live engine on EVERY edit caused runs to be repeatedly
+  # superseded in the single authoritative concurrency queue before execution.
+  # Run the live engine on its independent schedule, explicit dispatch, or
+  # a deliberate workflow configuration edit only. Never overlap card writers.
   push:
     branches: [main]
     paths:
-      - 'run_true_blender.py'
-      - 'nhl_true_blender_engine/**'
-      - 'scripts/**'
       - '.github/workflows/nhl-true-blender.yml'
   workflow_dispatch:
     inputs:
