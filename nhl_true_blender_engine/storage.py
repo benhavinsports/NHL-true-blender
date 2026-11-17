@@ -156,6 +156,11 @@ def save_gates(con, date, stage, records):
     results remain immutable in gate_history; only this run's records
     participate in live G0-G18 certification.
     """
+    # One precise timestamp identifies all 36 source checks in THIS complete
+    # execution cohort. Per-row second-resolution clocks could flip halfway
+    # through a skater's gates, making genuine original receipts impossible to
+    # recover as one run after a later diagnostic overwrite.
+    batch_timestamp=datetime.now(ET).isoformat(timespec='microseconds')
     with transaction(con):
         previous=con.execute(
             """SELECT slate_date,stage,game_id,player_id,gate,disposition,
@@ -179,7 +184,8 @@ def save_gates(con, date, stage, records):
         for x in records:
             con.execute('''INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)''',
                 (date,stage,x['gameId'],str(x.get('playerId','GOALIE_ATTACK')),
-                 x['gate'],x['disposition'],encode(x.get('details',{})),stamp()))
+                 x['gate'],x['disposition'],encode(x.get('details',{})),
+                 batch_timestamp))
 
 
 
