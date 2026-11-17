@@ -157,7 +157,151 @@ def apply_active_guards(candidate,traces,guards):
         candidate.setdefault("patchGuardRejections",[]).extend(fired)
     return candidate,traces,fired
 
-def adjudicate_misses(con, slate_date):
+
+def _original_slate_gate_proof(root, slate_date, card, leg):
+    """Read actual immutable selected-card evidence, never stitch multiple runs.
+
+    A saved original projected receipt is superior to whichever current gate
+    matrix happened to survive after confirmation/grade. Identity, 36-row order,
+    timestamps and source attribution must agree with the one frozen card.
+    """
+    if root is None:
+        return None
+    from pathlib import Path
+    from .engine import MASTER, OVERLAY, EXECUTION_ORDER
+
+    root=Path(root)
+    original=root/"site_gates"/f"{slate_date}-original-projected.json"
+    current=root/"site_gates"/f"{slate_date}.json"
+    old_order=list(MASTER[:-1])+list(OVERLAY)+["G18"]
+    expected={(str(x["gameId"]),str(x["playerId"]))
+              for x in card["current_legs"]}
+    for path in (original,current):
+        if not path.is_file():
+            continue
+        try:
+            snapshot=json.loads(path.read_text(encoding="utf-8"))
+            if (snapshot.get("cardId")!=card["card_id"]
+                    or snapshot.get("fingerprint")!=card["fingerprint"]
+                    or snapshot.get("revision")!=card["revision"]
+                    or snapshot.get("readOnly") is not True
+                    or snapshot.get("doesNotSelectOrReplaceScorers") is not True):
+                continue
+            legs=snapshot.get("legs") or []
+            if {(str(x["gameId"]),str(x["playerId"])) for x in legs}!=expected:
+                continue
+            order=snapshot.get("executionOrder")
+            if order!=EXECUTION_ORDER and order!=old_order:
+                continue
+            proof={}
+            for selected in legs:
+                trace=selected.get("gateDetails") or []
+                start=_clock(selected.get("startUTC"))
+                if (not start or len(trace)!=36
+                        or selected.get("executionOrderVerified") is not True):
+                    break
+                entries={}
+                for idx, row in enumerate(trace):
+                    observed=_clock(row.get("evaluatedAt"))
+                    sources=row.get("sourceIds") or []
+                    if (row.get("gate")!=order[idx]
+                            or not observed or observed>=start
+                            or row.get("prePuckRecord") is not True
+                            or row.get("recordedExecutionIndex")!=idx
+                            or row.get("expectedExecutionIndex")!=idx
+                            or row.get("executionOrderVerified") is not True
+                            or not all(isinstance(url,str)
+                                and url.startswith("https://") for url in sources)):
+                        break
+                    entries[row["gate"]]={
+                        "stage":selected.get("stageOfGateRecords") or
+                                 snapshot.get("savedOriginalStage") or
+                                 snapshot.get("stage"),
+                        "evaluated_at":row["evaluatedAt"],
+                        "disposition":row.get("status"),
+                        "details":encode({"evidence":row.get("evidence") or {},
+                                          "sourceIds":sources})
+                    }
+                if len(entries)!=36:
+                    break
+                proof[(str(selected["gameId"]),str(selected["playerId"]))]=entries
+            if len(proof)!=len(expected):
+                continue
+            selected=proof.get((str(leg["gameId"]),str(leg["playerId"])))
+            if selected:
+                return selected,{"receiptType":"ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+                                  "file":path.name,
+                                  "stage":next(iter(selected.values()))["stage"],
+                                  "individualOrderedChecks":36,
+                                  "cardFingerprintMatched":True,
+                                  "noMixedGateRuns":True}
+        except (OSError,ValueError,TypeError,KeyError):
+            continue
+    return None
+
+
+def _stored_pregame_gate_proof(con, slate_date, leg):
+    """Prefer one complete timestamped 36-gate DB cohort over mixed gate rows."""
+    from .engine import MASTER, OVERLAY, EXECUTION_ORDER
+
+    puck=_clock(leg.get("startUTC"))
+    if not puck:
+        return {},{"receiptType":"MISSING_PUCK_DROP_TIME"}
+    args=(slate_date,str(leg["gameId"]),str(leg["playerId"]))
+    active=con.execute("""SELECT stage,gate,disposition,details,evaluated_at
+        FROM gates WHERE slate_date=? AND game_id=? AND player_id=?
+        AND stage IN ('PROJECTED','CONFIRMED')""",args).fetchall()
+    archived=con.execute("""SELECT stage,gate,disposition,details,evaluated_at
+        FROM gate_history WHERE slate_date=? AND game_id=? AND player_id=?
+        AND stage IN ('PROJECTED','CONFIRMED')""",args).fetchall()
+    groups={}
+    for origin,rows in (("CURRENT",active),("HISTORY",archived)):
+        for row in rows:
+            at=_clock(row["evaluated_at"])
+            if at and at<puck:
+                groups.setdefault((origin,row["stage"],row["evaluated_at"]),[]).append(row)
+    legacy=list(MASTER[:-1])+list(OVERLAY)+["G18"]
+    coherent=[]
+    for (origin,stage,when),rows in groups.items():
+        by_gate={row["gate"]:row for row in rows}
+        if len(rows)!=36 or len(by_gate)!=36:
+            continue
+        for order in (EXECUTION_ORDER,legacy):
+            if set(by_gate)!=set(order):
+                continue
+            if all(json.loads(by_gate[g]["details"]).get("executionIndex")==idx
+                   for idx,g in enumerate(order)):
+                coherent.append((stage,when,origin,by_gate))
+                break
+    if coherent:
+        # Preserve the initial projected selection when its historical
+        # matrix exists; never build a synthetic 36/36 from separate runs.
+        coherent.sort(key=lambda x:(x[0]!="PROJECTED",x[1]),reverse=False)
+        stage,when,origin,rows=coherent[0]
+        return rows,{"receiptType":"SAME_EXECUTION_DATABASE_GATE_COHORT",
+                     "stage":stage,"evaluatedAt":when,"databaseOrigin":origin,
+                     "individualOrderedChecks":36,"noMixedGateRuns":True}
+    # Legacy standalone test/diagnostic records can still be inspected, but
+    # explicitly mark that their complete execution is NOT certified.
+    by_gate={}
+    for stage in ("PROJECTED","CONFIRMED"):
+        for row in active:
+            if row["stage"]==stage and _clock(row["evaluated_at"]) and (
+                    _clock(row["evaluated_at"])<puck):
+                by_gate[row["gate"]]=row
+    return by_gate,{"receiptType":"PARTIAL_CURRENT_DATABASE_RECORDS",
+                    "individualOrderedChecks":len(by_gate),
+                    "noMixedGateRuns":False,
+                    "fullOriginalMatrixRecovered":False}
+
+
+def _audit_original_gate_proof(con, slate_date, card, leg, root):
+    original=_original_slate_gate_proof(root,slate_date,card,leg)
+    if original is not None:
+        return original
+    return _stored_pregame_gate_proof(con,slate_date,leg)
+
+def adjudicate_misses(con, slate_date, root=None):
     """Commit deterministic, source-auditable decisions for the original misses."""
     setup(con)
     card=get_card(con,slate_date)
@@ -182,20 +326,11 @@ def adjudicate_misses(con, slate_date):
         leg=legs.get((game_id,pid))
         if not leg:
             raise ValueError("Graded missed player does not belong to locked Core")
-        # Prefer last pre-puck CONFIRMED gate trace over projected without
-        # mutating either. Historical labels/recipients never get replayed.
-        traces=con.execute("""SELECT gate,disposition,details,evaluated_at,stage
-             FROM gates WHERE slate_date=? AND game_id=? AND player_id=?
-             AND stage IN ('CONFIRMED','PROJECTED')""",
-             (slate_date,game_id,pid)).fetchall()
-        before=[x for x in traces if _clock(x["evaluated_at"]) and
-                _clock(leg.get("startUTC")) and
-                _clock(x["evaluated_at"])<=_clock(leg["startUTC"])]
-        by_gate={}
-        for stage in ("PROJECTED","CONFIRMED"):
-            for row in before:
-                if row["stage"]==stage:
-                    by_gate[row["gate"]]=row
+        # Audit the actual locked original source matrix first, followed by
+        # coherent historical DB cohorts. Never treat the latest confirmation
+        # diagnostic as the only available pre-puck evidence.
+        by_gate,gate_provenance=_audit_original_gate_proof(
+            con,slate_date,card,leg,root)
         applicable=[]
         for gate,patch_id in GUARD_POLICIES.items():
             row=by_gate.get(gate)
@@ -214,6 +349,7 @@ def adjudicate_misses(con, slate_date):
                   "status":"NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT",
                   "outcome":"MISS","officialGoals":outcome["goals"],
                   "codeAutomaticallyChanged":False,
+                  "gateAuditProvenance":gate_provenance,
                   "reason":"A scoreless game alone is not contradictory pregame gate evidence.",
                   "officialSources":official_sources}
             decisions.append(note)
@@ -226,6 +362,7 @@ def adjudicate_misses(con, slate_date):
                 "gameId":game_id,"playerId":pid,"gate":gate,
                 "policyId":patch_id,"status":"AUTOMATIC_GUARD_ACTIVATED",
                 "pregameSourceURLs":sources,"officialSources":official_sources,
+                "gateAuditProvenance":gate_provenance,
                 "frozenPregameStage":phase,
                 "provedPreGameDecisionContradiction":defect,
                 "outcomeWasNotUsedAsPatchProof":True,
