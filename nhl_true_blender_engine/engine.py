@@ -22,9 +22,15 @@ SCORER_GATE_ORDER = ([f'G{i}' for i in range(1,11)] +
 MASTER = ['G0'] + SCORER_GATE_ORDER
 OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] +
            [f'Step{i}' for i in range(11,15)])
-# Execution order reflects the real dependency: G0, G1-G17 (including G10.5),
-# every independent overlay step in its own exact order, then final G18.
-EXECUTION_ORDER = MASTER[:-1] + OVERLAY + [MASTER[-1]]
+# One integrated chronological gate trace. The legacy Step checks are
+# evidence observations at their corresponding master gate, not a second
+# selection phase after G17. Step10.5 belongs with G10.5.
+# Keep each observation identifiable for historical audit compatibility.
+OVERLAY_AT_GATE = {('G10.5' if step == 'Step10.5' else
+                    'G' + step[4:]): step for step in OVERLAY}
+EXECUTION_ORDER = [item for gate in MASTER
+                   for item in ([gate] + ([OVERLAY_AT_GATE[gate]]
+                       if gate in OVERLAY_AT_GATE else []))]
 if MASTER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
     raise RuntimeError('Authoritative NHL gate order was altered')
 PATCH_IDS = (
@@ -934,7 +940,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
     if overlay_trace!=OVERLAY:
         raise ValueError(f'Independent overlay execution order mismatch: {overlay_trace}')
-    execution_trace=proof[:-1]+overlay+proof[-1:]
+    # Build the chronological integrated trace from the two evidence
+    # collections, rather than appending a second overlay phase.
+    trace_by_gate={row['gate']:row for row in proof+overlay}
+    execution_trace=[trace_by_gate[gate] for gate in EXECUTION_ORDER]
     if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
         raise ValueError('Combined execution trace does not match the authoritative gate order')
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
