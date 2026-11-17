@@ -120,7 +120,7 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
         assert {x['playerId'] for x in legs} == {'100', '110', '120'}
         g16 = result['g16FinalistCompetition']
         assert g16['excludedPlayerIds'] == ['130'] and g16['separated'] is True
-        run = {'allG18QualifiedSurvivors': result['allG18QualifiedSurvivors'],
+        run = {'preCoreQualifiedSurvivors': result['preCoreQualifiedSurvivors'],
                'g16FinalistCompetition': g16}
         assert set(expected_core_ids(run)) == {(x['gameId'], x['playerId']) for x in legs}
         # Re-running never issues a second or different card.
@@ -134,11 +134,11 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
 def test_publication_rejects_tampered_g16_receipt():
     retained, receipt = g16_cross_game_finalists(nov17_shape(), 3)
     survivors = [{'gameId': x['gameId'], 'playerId': x['playerId']} for x in receipt['finalists']]
-    run = {'allG18QualifiedSurvivors': survivors, 'g16FinalistCompetition': receipt}
+    run = {'preCoreQualifiedSurvivors': survivors, 'g16FinalistCompetition': receipt}
     assert len(expected_core_ids(run)) == 3
     # Dropping a survivor from the receipt, or claiming an exclusion without
     # a full Core of dominators, must not verify.
-    bad = {**run, 'allG18QualifiedSurvivors': survivors[:3]}
+    bad = {**run, 'preCoreQualifiedSurvivors': survivors[:3]}
     assert expected_core_ids(bad) is None
     forged = {**receipt, 'finalists': [dict(f) for f in receipt['finalists']]}
     forged['finalists'][2]['dominatedBy'] = ['reinhart']
