@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from nhl_true_blender_engine.engine import MASTER, OVERLAY, STEPS_BY_GATE
 from nhl_true_blender_engine.storage import fingerprint
+from nhl_true_blender_engine.core_identity import expected_core_ids
 
 class PublicationConflict(RuntimeError):
     pass
@@ -72,6 +73,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'nonselectedGameResearchNotes':result.get('nonselectedGameResearchNotes',[]),
         'nonselectedGameResearchIsDiagnosticOnly':True,
         'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors',[]),
+        'g16FinalistCompetition':result.get('g16FinalistCompetition'),
         'cardSavedByEngine':bool(card),
         'publishedToSite':False,
         'edgeSourceCoverage':result.get('edgeSourceCoverage',{}),
@@ -146,12 +148,12 @@ def export_run(con, slate_date, stage, result, root='state'):
                 original=json.loads(locked.get('legsJson') or '[]')
             except (TypeError,ValueError):
                 original=[]
-            qualified=result.get('allG18QualifiedSurvivors')
             original_ids=[(str(x.get('gameId')),str(x.get('playerId')))
                           for x in original]
-            qualified_ids=(
-                [(str(x.get('gameId')),str(x.get('playerId')))
-                 for x in qualified] if isinstance(qualified,list) else [])
+            # Compare with the survivors G16 actually retained for G18.
+            qualified_ids=expected_core_ids({
+                'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors'),
+                'g16FinalistCompetition':result.get('g16FinalistCompetition')}) or []
             mismatch=bool(qualified_ids and (
                 len(qualified_ids)!=len(original_ids) or
                 len(set(qualified_ids))!=len(qualified_ids) or

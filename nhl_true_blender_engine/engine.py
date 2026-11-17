@@ -878,9 +878,17 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # Use the actual G9 coverage finding and G4 shooter release, only now.
     wins,rows=challenger_proof(player,rivals,weak,
         (coverage_data or {}).get('greenWeakZones'))
+    # A same-route rival whose OWN direct evidence is strictly stronger owns
+    # the route: that is a genuine G10.5 recipient-separation loss, not an
+    # unresolved source gap. Unresolved rows (missing rival source, exact
+    # ties) remain NOT_EXECUTED so research continues instead of a fake loss.
+    route_owned_by=sorted(str(r['challengerId']) for r in rows
+                          if r.get('status')=='RIVAL_DOMINATES')
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
-          'noGuessTransfer':True},
+          'noGuessTransfer':True,
+          'routeOwnedByStrongerRival':route_owned_by or None},
+         eliminate=bool(route_owned_by),
          source_ids=sorted({url for row in rows for url in row.get('sourceUrls',[])
              if url} | ({player['release']['sourceUrl']} if receipt(player.get('release')) else set())))
     shots=player.get('pressure')
@@ -967,7 +975,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
              if receipt(x))))
     emit('G16',wins is True and len(rows)==len(rivals),
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
-          'includesDepthAndDefense':True},
+          'includesDepthAndDefense':True,
+          'routeOwnedByStrongerRival':route_owned_by or None,
+          'crossGameFinalistCompetitionRunsAfterEveryGame':True},
+         eliminate=bool(route_owned_by),
          source_ids=sorted(set(url for row in rows for url in row.get('sourceUrls',[])
              if isinstance(url,str) and url.startswith('https://'))))
     contradiction=player.get('contradictions')
@@ -1100,6 +1111,103 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
                   and r['playerId'].startswith('GOALIE_DIRECTION:'))
         if count!=2:errors.append(f"{game['id']} G0 source directions saved {count} not 2")
     return errors
+
+
+# G17 evidence-status levels: a source-CONFIRMED goalie/role carries less
+# branch uncertainty than an EXPECTED/PROJECTED one. Ordinal only, never a
+# weight; EXPECTED and PROJECTED are the same (unconfirmed) level.
+_STATUS_LEVEL={'CONFIRMED':2,'EXPECTED':1,'PROJECTED':1}
+
+
+def finalist_route_evidence(item):
+    """The exact G10.5/G11/G17 evidence a per-game survivor carries into G16."""
+    cand=item['candidate']; release=cand.get('release') or {}
+    goalie=(item.get('targetGoalie') or {}).get('data') or {}
+    dep=evidence_data(cand['player'].get('deployment')) or {}
+    return {
+        'gameId':str(item['game']['id']),
+        'playerId':str(cand['player']['id']),
+        'player':cand['player'].get('name'),
+        'routeZone':release.get('zone'),
+        # G10.5 direct-route evidence: own credited goals from the matched
+        # lane, then own on-net shots from that same lane.
+        'ownedGoalsInMatchedLane':release.get('ownedGoals'),
+        'ownShotsOnGoalInMatchedLane':release.get('attempts'),
+        # G17 branch uncertainty.
+        'goalieStatus':goalie.get('status'),
+        'deploymentStatus':dep.get('status'),
+    }
+
+
+def _route_vector(ev):
+    goals=ev['ownedGoalsInMatchedLane']; shots=ev['ownShotsOnGoalInMatchedLane']
+    if type(goals) is not int or type(shots) is not int:
+        return None
+    return (goals,shots,_STATUS_LEVEL.get(ev['goalieStatus'],0),
+            _STATUS_LEVEL.get(ev['deploymentStatus'],0))
+
+
+def _dominates(a,b):
+    """a strictly dominates b: at least as strong on EVERY dimension and
+    stronger on at least one. No sums, weights, rates or tie-breaks."""
+    return all(x>=y for x,y in zip(a,b)) and any(x>y for x,y in zip(a,b))
+
+
+def g16_cross_game_finalists(finalists, required):
+    """G16 FINAL CHALLENGER COMPETITION across every per-game survivor.
+
+    Each finalist already won G0-G17 inside its own game. G16 now compares
+    all meaningful surviving candidates, using only the original direct
+    evidence: G10.5 own goals and own on-net shots from the matched lane,
+    plus G17 goalie/deployment confirmation status.
+
+    A finalist is excluded only when at least ``required`` finalists from
+    OTHER games each strictly dominate it, i.e. a full Core can be built
+    entirely from routes that are at least as strong on every dimension and
+    stronger on one. Nothing is summed, weighted or tie-broken. If more than
+    ``required`` finalists remain unseparated, there is no Core and the
+    receipt says exactly which finalists remain tied.
+    """
+    rows=[]
+    vectors=[]
+    for item in finalists:
+        ev=finalist_route_evidence(item)
+        vectors.append(_route_vector(ev))
+        rows.append(ev)
+    retained=[];excluded=[]
+    for i,(ev,vec) in enumerate(zip(rows,vectors)):
+        if vec is None:
+            ev['g16Decision']='RETAINED_ROUTE_EVIDENCE_NOT_COMPARABLE'
+            ev['dominatedBy']=[]
+            retained.append(i); continue
+        by=[rows[j]['playerId'] for j,other in enumerate(vectors)
+            if j!=i and other is not None and
+            rows[j]['gameId']!=ev['gameId'] and _dominates(other,vec)]
+        ev['dominatedBy']=by
+        if len(by)>=required:
+            ev['g16Decision']='EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE'
+            excluded.append(i)
+        else:
+            ev['g16Decision']='RETAINED'
+            retained.append(i)
+    receipt_out={
+        'gate':'G16','phase':'CROSS_GAME_FINALIST_COMPETITION',
+        'requiredCoreSize':required,
+        'finalistCount':len(finalists),
+        'finalists':rows,
+        'retainedPlayerIds':[rows[i]['playerId'] for i in retained],
+        'excludedPlayerIds':[rows[i]['playerId'] for i in excluded],
+        'comparisonDimensions':['G10.5 ownedGoalsInMatchedLane',
+            'G10.5/G11 ownShotsOnGoalInMatchedLane',
+            'G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)',
+            'G17 deploymentStatus (CONFIRMED > PROJECTED)'],
+        'rule':('Exclude a finalist only if >= requiredCoreSize finalists from '
+                'other games strictly dominate it on every dimension'),
+        'noWeightsSumsRatesOrTieBreaks':True,
+        'noStarPP1OrOddsPreference':True,
+        'separated':len(retained)==required,
+    }
+    return [finalists[i] for i in retained],receipt_out
 
 
 def cross_game_winners(winners, slate_size):
@@ -1669,7 +1777,18 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 "recipients remain after G10.5/G17; no arbitrary final pick")
     pool_size+=unresolved_unique_pool
     save_gates(con,date,stage,records)
-    chosen,selection_errors=cross_game_winners(qualified,len(games))
+    required_core=2 if len(games)==2 else 3
+    g16_receipt=None
+    finalists=qualified
+    if len(qualified)>required_core and len(
+            {str(x['game']['id']) for x in qualified})==len(qualified):
+        finalists,g16_receipt=g16_cross_game_finalists(qualified,required_core)
+    chosen,selection_errors=cross_game_winners(finalists,len(games))
+    if g16_receipt and not g16_receipt['separated']:
+        selection_errors.insert(0,
+            f"G16 cross-game finalist competition left {len(finalists)} "
+            f"unseparated finalists for a Core {required_core}: "
+            f"{', '.join(g16_receipt['retainedPlayerIds'])}; no ranking or tie-break applied")
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
     # A game that has already started cannot be newly picked. Such a game is
     # excluded from the candidate pool above, but does not veto later games.
@@ -1746,6 +1865,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'unresolvedG0ResearchDoesNotSelect':True,
             'unresolvedG0ResearchExamples':unresolved_branch_analyses[:20],
             'uniqueGameSurvivors':len(qualified),
+            'g16FinalistCompetition':g16_receipt,
             'allG18QualifiedSurvivors':all_survivor_receipts,
             'nonselectedGameResearchNotes':nonselected_game_notes,
             'nonselectedGameResearchNeverReplacesLockedCore':True,

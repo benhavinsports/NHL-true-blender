@@ -756,6 +756,15 @@ function renderSystem(){
    ". Insufficient evidence: "+number(funnel.notQualifiedIncompleteEvidence)+
    ". Qualified but not selected: "+number(funnel.qualifiedButNotChosen)+
    ". Rejected-player failures do not invalidate the certified Core."));
+ const g16=x.g16FinalistCompetition;
+ if(g16&&Array.isArray(g16.finalists)){
+   details.appendChild(el("p","","G16 cross-game finalist competition ("+
+     g16.finalistCount+" per-game survivors for Core "+g16.requiredCoreSize+"): "+
+     g16.finalists.map(f=>f.player+" "+f.ownedGoalsInMatchedLane+"G/"+
+       f.ownShotsOnGoalInMatchedLane+"SOG "+f.routeZone+" — "+
+       (String(f.g16Decision||"").startsWith("RETAINED")?"retained":
+        "excluded (dominated by "+(f.dominatedBy||[]).length+")")).join(" • ")));
+ }
  if(x.errors?.length)details.appendChild(el("p","",
    "Actual execution errors: "+x.errors.join(" • ")));
  if(x.nonselectedGameResearchNotes?.length)details.appendChild(el("p","",
