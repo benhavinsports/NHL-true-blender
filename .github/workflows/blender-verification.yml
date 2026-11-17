@@ -28,7 +28,9 @@ jobs:
         run: python -m compileall -q nhl_true_blender_engine run_true_blender.py postgame_grade.py postgame_audit.py
       - name: Validate accessible browser dashboard and JavaScript syntax
         run: |
+          node --check site/gate-facts.js
           node --check site/app.js
+          node --test site/tests/card-flip.test.cjs
           python - <<'PY'
           from pathlib import Path
           from html.parser import HTMLParser

@@ -47,7 +47,7 @@ const EXPLAIN={
 };
 const state={
  latest:null,archive:[],season:null,selectedDate:null,selectedLeg:null,
- gateFilter:"all",gateData:null,gateLoadError:null,requestId:0,
+ gateFilter:"all",gateData:null,gateLoadError:null,requestId:0,flippedLeg:null,
 };
 const $=id=>document.getElementById(id);
 const el=(tag,className,textValue)=>{
@@ -219,60 +219,106 @@ function renderPicker(){
  }
  select.value=state.selectedDate||days[0];
 }
+function toggleCardFlip(key){
+ if(!key)return;
+ state.selectedLeg=key;
+ state.flippedLeg=state.flippedLeg===key?null:key;
+ state.gateFilter="all";
+ for(const card of document.querySelectorAll("#core-cards .core-card")){
+   const active=card.dataset.leg===state.flippedLeg;
+   card.classList.toggle("is-flipped",active);
+   card.setAttribute("aria-expanded",String(active));
+   card.setAttribute("aria-pressed",String(card.dataset.leg===key));
+   const player=card.dataset.player||"player";
+   card.setAttribute("aria-label",(active?"Return to front of ":"Flip ")+player+" card");
+ }
+ renderDetails();
+}
+function flipSelectedFromNavigation(){
+ const key=state.selectedLeg||(
+   selectedEntry()?.current_legs?.[0]?
+   String(selectedEntry().current_legs[0].gameId)+":"+
+   String(selectedEntry().current_legs[0].playerId):null);
+ if(!key)return;
+ toggleCardFlip(key);
+ const core=$("core");
+ if(core)core.scrollIntoView({behavior:"smooth",block:"start"});
+}
 function coreCard(leg,i){
- // Player names, paths, game, puck drop, source route and card identity
- // all come from the ONE saved Blender Core. This styling never picks.
- const path=auditedPath(leg);
+ // This real 3-D flip is only an evidence viewer. The saved engine selects.
+ const path=auditedPath(leg),key=String(leg.gameId)+":"+String(leg.playerId);
  const button=el("button","core-card "+pathClass(path.display));
- button.type="button";
- const key=String(leg.gameId)+":"+String(leg.playerId);
+ button.type="button";button.dataset.leg=key;button.dataset.player=leg.player;
  button.setAttribute("aria-pressed",String(key===state.selectedLeg));
- button.setAttribute("aria-label","Flip "+leg.player+
-   " card to inspect the original G0–G18 gate evidence and sources");
- // A playing-card suit is decorative, never a scorer rank or calculated chance.
+ button.setAttribute("aria-expanded",String(key===state.flippedLeg));
+ button.setAttribute("aria-label",(key===state.flippedLeg?"Return to front of ":"Flip ")+leg.player+" card");
+ if(key===state.flippedLeg)button.classList.add("is-flipped");
+ const inner=el("div","card-flip-inner");
+ const front=el("div","card-face card-front");
  const suit=path.display==="TRANSFER"?"♦":path.display==="WHO"?"♣":"♠";
  const top=el("div","card-head");
  top.appendChild(el("span","card-index","CORE "+String(i+1).padStart(2,"0")));
  top.appendChild(pill(path.display,pathClass(path.display)));
- button.appendChild(top);
+ front.appendChild(top);
  const artwork=el("div","card-illustration");
  artwork.appendChild(el("span","face-corner top",suit));
- const rink=el("div","rink-center");
- rink.appendChild(el("span","card-emblem","◉"));
+ const rink=el("div","rink-center");rink.appendChild(el("span","card-emblem","◉"));
  artwork.appendChild(rink);
- artwork.appendChild(el("span","face-corner bottom",suit));
- button.appendChild(artwork);
+ artwork.appendChild(el("span","face-corner bottom",suit));front.appendChild(artwork);
  const plate=el("div","card-nameplate");
  plate.appendChild(el("div","player-name",leg.player));
- plate.appendChild(el("div","card-match",
-   String(leg.matchup||"Game source unavailable").replace("@"," @ ")));
- button.appendChild(plate);
+ plate.appendChild(el("div","card-match",String(leg.matchup||"Game source unavailable").replace("@"," @ ")));
+ front.appendChild(plate);
  const metadata=el("div","card-meta");
  metadata.appendChild(el("div","","PUCK DROP · "+etTime(leg.startUTC)));
- metadata.appendChild(el("div","","GOAL ROUTE · "+(leg.directRoute||"Open source details")));
+ metadata.appendChild(el("div","","GOAL ROUTE · "+(leg.directRoute||"See recorded gate details")));
  if(path.review&&path.display!==path.original)
    metadata.appendChild(el("div","tiny","Original frozen label: "+path.original));
- button.appendChild(metadata);
+ front.appendChild(metadata);
  const bottom=el("div","card-bottom");
- bottom.appendChild(el("span","","FLIP • INSPECT G0–G18"));
- bottom.appendChild(el("span","tiny-arrow","↻"));
- button.appendChild(bottom);
- button.addEventListener("click",()=>{
-   state.selectedLeg=key;state.gateFilter="all";
-   renderCards();renderDetails();
-   const detail=$("evidence");
-   if(detail)detail.scrollIntoView({behavior:"smooth",block:"start"});
- });
+ bottom.appendChild(el("span","","FLIP • READ EVERY GATE"));
+ bottom.appendChild(el("span","tiny-arrow","↻"));front.appendChild(bottom);
+ inner.appendChild(front);
+ const back=el("div","card-face card-back");
+ const backHead=el("div","flip-back-heading");
+ backHead.appendChild(el("strong","",leg.player));
+ backHead.appendChild(el("span","",path.display+" · G0–G18"));
+ back.appendChild(backHead);
+ const note=el("div","flip-back-intro",
+   "Original gate decisions • actual recorded reasons and evidence");
+ back.appendChild(note);
+ const data=detailsData(leg);
+ if(!data||!Array.isArray(data.gateDetails)){
+   back.appendChild(el("p","flip-gate-unavailable",
+     state.gateLoadError||"Loading source gate evidence. No gate is presumed passed."));
+ }else{
+   const byGate=new Map(data.gateDetails.map(x=>[x.gate,x]));
+   for(const gate of MASTER){
+     const rec=byGate.get(gate)||{gate,status:"NO_PREPUCK_RECEIPT",prePuckRecord:false,evidence:{},sourceIds:[]};
+     const row=el("div","flip-gate-row "+(rec.status==="PASS"?"verified":"unresolved"));
+     const rowTop=el("div","flip-gate-title");
+     rowTop.appendChild(el("strong","",gate+" · "+(EXPLAIN[gate]||"Original source check")));
+     rowTop.appendChild(el("span","",rec.status==="PASS"?"✓":"!"));
+     row.appendChild(rowTop);
+     row.appendChild(el("p","",BlenderGateFacts.explanation(rec)));
+     const sources=BlenderGateFacts.sourceCount(rec);
+     if(sources)row.appendChild(el("small","",sources+" source link"+(sources===1?"":"s")+" in full gate report"));
+     back.appendChild(row);
+   }
+ }
+ back.appendChild(el("div","flip-back-end","TAP TO TURN OVER · FULL SOURCE LINKS BELOW"));
+ inner.appendChild(back);
+ button.appendChild(inner);
+ button.addEventListener("click",()=>toggleCardFlip(key));
  return button;
 }
-
 function renderCards(){
  const holder=$("core-cards");holder.replaceChildren();
  const saved=selectedEntry();
  if(!saved?.current_legs?.length){
-   holder.appendChild(el("div","empty-state","No source-verified Core is available for this slate. The engine must publish the authoritative card first."));
-   $("leg-detail").hidden=true;
-   return;
+   holder.appendChild(el("div","empty-state",
+     "No source-verified Core is available for this slate. The engine must publish the authoritative card first."));
+   $("leg-detail").hidden=true;return;
  }
  $("leg-detail").hidden=false;
  for(const [i,leg] of saved.current_legs.entries())holder.appendChild(coreCard(leg,i));
@@ -412,6 +458,7 @@ function gateRow(record){
  summary.appendChild(el("span","gate-code",
    "#"+(Number.isInteger(record.expectedExecutionIndex)?record.expectedExecutionIndex+1:"?")+" "+record.gate));
  summary.appendChild(el("span","gate-title",EXPLAIN[record.gate]||"Verified source review"));
+ summary.appendChild(el("span","gate-short-reason",BlenderGateFacts.explanation(record)));
  summary.appendChild(pill(record.status||"UNKNOWN",statusClass(record.status)));
  summary.appendChild(el("span","gate-chevron","›"));
  details.appendChild(summary);
@@ -422,6 +469,7 @@ function gateRow(record){
     "Recorded before puck drop · "+(record.evaluatedAt?etTime(record.evaluatedAt):"time unavailable")+
       " · "+sources.length+" attributed source"+(sources.length===1?"":"s"):
     "No matching pre-puck receipt available; this gate is NOT represented as passed."));
+ inner.appendChild(el("p","gate-plain-explanation",BlenderGateFacts.explanation(record)));
  const evidence=record.evidence||{};
  const originalFunctions=evidence.originalFunctionEvidence||[];
  if(originalFunctions.length){
@@ -480,41 +528,67 @@ function renderPool(){
  const holder=$("pool-list");if(!holder)return;holder.replaceChildren();
  const pool=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
  if(!pool.length){
-   holder.appendChild(el("div","empty-state","The per-game survivor pool appears after the next engine run."));
+   holder.appendChild(el("div","empty-state",
+     "Per-game source decisions are only shown for the latest saved live engine run."));
    return;
  }
- for(const g of pool){
-   const panel=el("article","match");
+ const byId=new Map(pool.map(g=>[String(g.gameId),g]));
+ const allGames=state.gateData?.games||[];
+ const games=allGames.length?
+   allGames.map(g=>byId.get(String(g.gameId))||{
+     gameId:g.gameId,matchup:g.away+"@"+g.home,
+     gameStartUTC:g.startUTC,status:"SOURCE_RECEIPT_MISSING",
+     reason:"No matching per-game source receipt was published"}):pool;
+ const verified=games.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
+ const core=games.filter(g=>g.inCore&&g.survivor).length;
+ const totals=el("div","pool-counts");
+ totals.appendChild(el("strong","",verified+" / "+games.length+" verified game survivors"));
+ totals.appendChild(el("span","",core+" saved Core players · "+
+    (games.length-verified)+" matchups still require evidence"));
+ holder.appendChild(totals);
+ for(const g of games){
+   const panel=el("article","match survivor-match");
    const head=el("div","match-head");
-   head.appendChild(el("strong","",(g.matchup||"").replace("@"," @ ")));
+   head.appendChild(el("strong","",String(g.matchup||"Unknown game").replace("@"," @ ")));
    const sv=g.survivor;
-   head.appendChild(pill(g.inCore?"IN CORE":sv?"SURVIVOR":g.status==="UNSEPARATED_SAME_GAME_SURVIVORS"?"UNSEPARATED":
-     g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?"STARTED":"NO SURVIVOR",
-     g.inCore?"success":sv?"neutral":"warning"));
+   const hasSurvivor=g.status==="SURVIVOR"&&!!sv;
+   const started=g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION";
+   head.appendChild(pill(g.inCore&&hasSurvivor?"CORE":hasSurvivor?"GAME SURVIVOR":
+       started?"FROZEN":"EVIDENCE OPEN",hasSurvivor?"success":"warning"));
    panel.appendChild(head);
-   if(g.gameStartUTC)panel.appendChild(el("p","","Puck drop · "+etTime(g.gameStartUTC)));
-   if(sv){
-     panel.appendChild(el("p","",sv.player+" ("+(g.attackTeam||sv.attackTeam)+") vs goalie "+(sv.goalieId||"?")+
-       " · "+(sv.routeLabel||"")+" route, "+(sv.ownRouteZone||"?")+" · "+number(sv.ownedGoals)+"G / "+
-       number(sv.ownShotsOnGoal)+" SOG in that lane"));
-     if(g.g16Decision)panel.appendChild(el("p","muted","G16 cross-game: "+
-       (String(g.g16Decision).startsWith("RETAINED")?"retained":"excluded — dominated by "+(g.g16DominatedBy||[]).length+" other survivor(s)")));
-     const a=link(sv.routeSource,"Route source");if(a)panel.appendChild(a);
-   }else if(g.survivors?.length){
-     panel.appendChild(el("p","","Same-game survivors not separated by G10.5/G17: "+g.survivors.map(x=>x.player).join(", ")));
+   if(g.gameStartUTC)panel.appendChild(el("p","tiny","Puck drop · "+etTime(g.gameStartUTC)));
+   const slot=el("div","game-survivor-slot "+(hasSurvivor?"verified":"pending"));
+   if(hasSurvivor){
+     slot.appendChild(el("strong","",sv.player+" · "+(sv.attackTeam||g.attackTeam||"")));
+     slot.appendChild(el("p","",textRoute(sv)+" · "+
+       (sv.ownRouteZone||"Shot origin unverified")+
+       " · "+number(sv.ownedGoals)+" credited goals / "+
+       number(sv.ownShotsOnGoal)+" own on-net shots in origin"));
+     if(sv.goalieId)slot.appendChild(el("p","tiny",
+       "Opposing goalie NHL ID "+sv.goalieId+" · "+(sv.goalieStatus||"status pending")));
+     if(g.g16Decision)slot.appendChild(el("p","tiny",
+       "G16 cross-game: "+g.g16Decision.replace(/_/g," ")));
+     const a=link(sv.routeSource,"Read original shot-origin evidence");if(a)slot.appendChild(a);
    }else{
-     panel.appendChild(el("p","","Stopped at "+(g.stoppedAt||"—")+(g.reason?" · "+g.reason:"")));
-     if(g.furthestCandidatesDiagnosticOnly?.length)panel.appendChild(el("p","muted",
-       "Furthest-reaching candidates (diagnostic, not picks): "+
-       g.furthestCandidatesDiagnosticOnly.map(x=>x.player+" "+x.stoppedAt).join(", ")));
+     slot.appendChild(el("strong","",started?"Game already started — pre-puck selection frozen":
+       "No source-qualified survivor yet"));
+     slot.appendChild(el("p","",g.reason||"Original gate review is not fully evidenced."));
+     if(g.stoppedAt)slot.appendChild(el("p","source-gap","Current source blocker: "+
+       g.stoppedAt+" — "+(EXPLAIN[g.stoppedAt]||"original gate evidence")));
+     if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length){
+       const review=el("details","source-details");
+       review.appendChild(el("summary","","Inspect recorded gate blockers"));
+       const list=el("div","gate-blockers");
+       for(const [gate,n] of Object.entries(g.firstNonPassGateCounts))
+         list.appendChild(el("p","",gate.replace(":",": ")+" · "+n+" skater(s)"));
+       review.appendChild(list);slot.appendChild(review);
+     }
    }
-   if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length){
-     const d=el("details");d.appendChild(el("summary","","Where the other "+number(g.candidatesEvaluated)+" candidates stopped"));
-     d.appendChild(el("p","",Object.entries(g.firstNonPassGateCounts).map(([k,v])=>k+" ×"+v).join(" · ")));
-     panel.appendChild(d);
-   }
-   holder.appendChild(panel);
+   panel.appendChild(slot);holder.appendChild(panel);
  }
+}
+function textRoute(sv){
+ return sv.routeLabel||"Path unresolved";
 }
 function renderMatchups(){
  const holder=$("matchup-list");holder.replaceChildren();
@@ -879,7 +953,7 @@ function chooseDate(date){
  state.selectedDate=date;
  const first=selectedEntry()?.current_legs?.[0];
  state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
- state.gateFilter="all";
+ state.gateFilter="all";state.flippedLeg=null;
  renderAll();
  loadEvidence(date);
  const url=new URL(window.location.href);
@@ -891,6 +965,7 @@ function publishedSignature(latest,archived,season){
    publishedAt:latest?.publishedAt,cardId:latest?.card?.cardId,
    stage:latest?.stage,grade:latest?.postgameGrade?.result,
    archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
+    perGame:(latest?.gameSurvivorPool||[]).map(g=>[g.gameId,g.status,g.survivor?.playerId]),
    seasonSize:season?.officiallyGradedSlates,
    patchCount:season?.verifiedAutomaticGuardPatches?.length,
  });
@@ -898,6 +973,7 @@ function publishedSignature(latest,archived,season){
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
  $("slate-select").addEventListener("change",e=>chooseDate(e.target.value));
+ for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
    json("./data/latest.json"),json("./data/cards-archive.json"),
    json("./data/season-history.json")

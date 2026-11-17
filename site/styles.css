@@ -758,3 +758,84 @@ a{color:#70eff5}
   .mini-gate-title{font-size:8.5px}
   .gate-deck-footnote{font-size:10px}
 }
+
+
+/* True rotating card faces; a tap does not redirect away from the playing card.
+   Both faces display engine data only. The back scrolls through every gate. */
+.core-card{
+  display:block;height:395px;min-height:395px;padding:0;perspective:1100px;
+  overflow:hidden;cursor:pointer;
+}
+.card-flip-inner{
+  position:absolute;inset:0;display:block;transform-style:preserve-3d;
+  transition:transform .65s cubic-bezier(.2,.7,.2,1);
+}
+.core-card.is-flipped .card-flip-inner{transform:rotateY(180deg)}
+.card-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:5px;overflow:hidden;
+}
+.card-front{display:flex;flex-direction:column;background:linear-gradient(160deg,var(--paper-light),var(--paper-shadow));}
+.card-front .card-illustration{flex:1;min-height:0}
+.card-front .card-nameplate{flex:0 0 auto}
+.card-front .card-meta{display:grid;align-content:center}
+.card-front .card-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.card-back{
+  transform:rotateY(180deg);text-align:left;overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;padding:11px 11px 14px;
+  background:linear-gradient(155deg,#fffef6,#e9f3f2);color:#17334f;
+  scrollbar-color:#528dab #f1f1e1;scrollbar-width:thin;
+}
+.flip-back-heading{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px;
+  align-items:center;padding:3px 2px 7px;border-bottom:2px solid var(--ink-accent);
+}
+.flip-back-heading strong{font-size:14px;color:#14375c;line-height:1.2}
+.flip-back-heading span{font-size:9px;color:var(--ink-accent);font-weight:950}
+.flip-back-intro{font-size:10px;line-height:1.4;color:#50677a;padding:8px 2px}
+.flip-gate-row{margin:5px 0;padding:8px 7px;border:1px solid #bfd3d9;border-radius:7px;background:#fffef9;}
+.flip-gate-row.unresolved{background:#fff0e6;border-color:#c68b73}
+.flip-gate-title{display:flex;justify-content:space-between;align-items:start;gap:4px}
+.flip-gate-title strong{font-size:10px;font-weight:1000;line-height:1.3;color:#174a6e}
+.flip-gate-title span{font-size:12px;font-weight:950;color:#1a846a}
+.flip-gate-row.unresolved .flip-gate-title span{color:#b66c30}
+.flip-gate-row p{font-size:10px;font-weight:600;line-height:1.45;color:#31495d;margin:5px 0 0;overflow-wrap:anywhere}
+.flip-gate-row small{display:block;font-size:9px;color:#57727d;margin-top:5px}
+.flip-gate-unavailable{font-size:12px;line-height:1.6;color:#5d4d37;padding:9px}
+.flip-back-end{margin-top:12px;font-size:9px;color:#236f85;font-weight:1000;text-align:center}
+.gate-row>summary{flex-wrap:wrap;align-content:center}
+.gate-row>summary .gate-short-reason{
+  width:100%;flex-basis:100%;padding-left:76px;margin-top:2px;
+  color:#c2e1f0;font-size:11px;font-weight:550;line-height:1.5;
+  text-transform:none;letter-spacing:0;overflow-wrap:anywhere;
+}
+.gate-plain-explanation{color:#e7f6fd!important;font-size:13px!important;font-weight:700}
+.pool-counts{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;background:#102b57;border:2px solid #4879ab;
+  border-radius:10px;padding:12px 14px;
+}
+.pool-counts strong{color:#f8e7bb;font-size:16px}
+.pool-counts span{color:#a5d6ea;font-size:12px}
+.game-survivor-slot{margin-top:9px;padding:12px;border-radius:9px;min-height:105px}
+.game-survivor-slot.verified{background:#133e56;border:1px solid #4fa99c}
+.game-survivor-slot.pending{background:#283550;border:1px solid #7285b0}
+.game-survivor-slot>strong{display:block;color:#fbf5d8;font-size:14px;line-height:1.35}
+.game-survivor-slot p{margin:6px 0;color:#c8dff1;font-size:11px;line-height:1.5}
+.game-survivor-slot .source-gap{color:#ffd298;font-weight:850}
+.game-survivor-slot .tiny{font-size:10px}
+.gate-blockers{padding:3px 7px 7px}
+.gate-blockers p{font-family:ui-monospace,monospace;font-size:10px;margin:2px 0}
+.table-link{border:0;background:transparent;cursor:pointer;padding:4px;font-family:ui-monospace,monospace}
+@media(max-width:650px){
+ .core-card{height:400px;min-height:400px;padding:0}
+ .card-front .card-illustration{min-height:0}
+ .gate-row>summary .gate-short-reason{padding-left:0}
+ .pool-counts{align-items:flex-start}
+}
+@media(max-width:360px){
+ .core-card{height:394px;min-height:394px;padding:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .card-flip-inner{transition:none}
+}

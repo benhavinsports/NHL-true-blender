@@ -7,6 +7,7 @@
   <meta name="description" content="NHL True Blender: interactive card-table interface for the one authoritative Core 3, real G0–G18 evidence, and official frozen-card results.">
   <title>NHL True Blender · The Core Deck</title>
   <link rel="stylesheet" href="./styles.css">
+  <script defer src="./gate-facts.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
@@ -97,7 +98,7 @@
           </div>
           <span aria-hidden="true">♠</span>
         </div>
-        <p class="table-instruction">TAP A PLAYER CARD TO INSPECT THE ORIGINAL GATES</p>
+        <p class="table-instruction">TAP A CARD TO FLIP · SCROLL THE BACK TO READ ALL GATE DECISIONS</p>
         <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core scorer cards">
           <div class="loading"></div><div class="loading"></div><div class="loading"></div>
         </div>
@@ -105,7 +106,7 @@
       <div class="hand-tray">
         <div class="tray-marker"><span class="eyebrow">SCORING PATHS</span><span>PRIMARY / TRANSFER / WHO — FOUND, NEVER FORCED</span></div>
         <div class="hand-ornament" aria-hidden="true"><span>♠</span><span>♥</span><span>♦</span><span>♣</span><span>♠</span></div>
-        <a href="#evidence" class="table-link">EXPLORE THE CARD BACKS <span aria-hidden="true">↓</span></a>
+        <button id="flip-from-tray" type="button" class="table-link">FLIP THE SELECTED CARD <span aria-hidden="true">↻</span></button>
       </div>
     </div>
 
@@ -128,7 +129,7 @@
           <div><span>ENGINE</span><strong>AUTOMATIC</strong></div>
         </div>
         <div class="deck-navigation">
-          <a class="game-button cyan" href="#evidence">FLIP THE CARD <span aria-hidden="true">↓</span></a>
+          <button id="flip-selected-card" type="button" class="game-button cyan">FLIP THE CARD <span aria-hidden="true">↻</span></button>
           <a class="game-button gold" href="#slate">VIEW ALL GAMES <span aria-hidden="true">↓</span></a>
         </div>
       </div>
@@ -150,7 +151,7 @@
   <section id="pool" class="section" aria-labelledby="pool-title">
     <div class="section-heading">
       <div><span class="eyebrow">EVERY GAME'S BLENDER SURVIVOR</span><h2 id="pool-title">Core player pool</h2>
-        <p>Each game's own G0–G18 result: the attacked goalie and the one skater who survived every gate, or the gate where that game stopped. Core 3 is chosen only from these survivors by the G16 cross-game comparison and G18.</p>
+        <p>Every scheduled matchup has a source decision. A player appears as a verified game survivor only after the original gates qualify that player; unresolved goalie, lineup, defense, or recipient evidence remains visible instead of a forced pick. The Core comes from separately verified game survivors.</p>
       </div>
     </div>
     <div class="section-panel">
