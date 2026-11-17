@@ -667,16 +667,15 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     route_direct=all(direct.values())
     original=(release or {}).get('originalPrimaryOrigin')
     changed_lane=bool(original and original!=zone)
-    # An originally tied EDGE lane can become source-distinct AFTER G0 and
-    # independently verified G9; dated PBP resolution is also retained.
-    # Do not force a label from an unresolved tie, but do not veto a genuinely
-    # separated direct PRIMARY route just because the pre-G0 source was tied.
-    matched_direct_lane=bool(
-        (release or {}).get('g0MatchedOwnOriginRoute') is True and
-        (release or {}).get('g9DefensiveLaneIndependentlyMatched') is True)
-    primary_source_lane=bool(not changed_lane and (
-        not (release or {}).get('primaryWasTiedBeforeG0',False) or
-        matched_direct_lane))
+    # A tie in the player's PRE-G0 usual-lane origin is not an additional
+    # gate AFTER a fully source-certified goalie-first attack. G0/G4/G5/G9,
+    # G10.5 and G17 have already tested the exact own route and rival paths.
+    # If that source-supported route did not change lane and every direct
+    # gate passed, classify the direct recipient PRIMARY rather than
+    # silently rejecting the game's survivor at G18. Incomplete or
+    # contradictory paths still have route_direct=False and cannot pass.
+    # No new ranking, player preference, historical goal or shot is inferred.
+    primary_source_lane=bool(not changed_lane and route_direct)
     approved_rivals=[]
     defeated={str(x.get('challengerId')):x for x in challenger_rows
               if x.get('status')=='DEFEATED' and x.get('sameLane')}
