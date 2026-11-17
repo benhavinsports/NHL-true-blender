@@ -17,6 +17,7 @@ import httpx
 
 from .enrichment import ingest
 from .secondary_sources import TEAM_SLUGS
+from .club_morning_skate import collect_linked_club_reports
 
 URL="https://www.dailyfaceoff.com/starting-goalies/{date}"
 STARTER_LABELS={"Confirmed":"CONFIRMED","Likely":"EXPECTED","Projected":"EXPECTED"}
@@ -197,6 +198,10 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
                 "error":type(exc).__name__,
                 "noStarterWasInferredFromFetchFailure":True}
     matches,status=parse_dfo_starters(html,date,snapshot.get("games",[]),diagnostics)
+    # A dated, independently linked club morning-skate eyewitness report can
+    # resolve stale DFO-vs-algorithmic projections without ANY manual goalie.
+    # The exact reporter source is persisted independently as EXPECTED only.
+    club_report=await collect_linked_club_reports(con,snapshot,date,stage,html)
     observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
     for row in matches:
         # Evidence is immutable. The original identity-only receipt from
@@ -229,5 +234,6 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
         "matchesByGame":{str(g["id"]):sum(x["gameId"]==str(g["id"]) for x in matches)
                          for g in snapshot.get("games",[])},
         "diagnostics":diagnostics,
+        "independentClubMorningSkate":club_report,
         "originalSourceStatusPreserved":True,
         "noManualGoalieSelection":True}
