@@ -251,6 +251,7 @@ jobs:
                   'gateCertification':status.get('gateCertification',{}),
                   'selectionFunnel':status.get('selectionFunnel',{}),
                   'g16FinalistCompetition':status.get('g16FinalistCompetition'),
+                  'gameSurvivorPool':status.get('gameSurvivorPool',[]),
                   'survivorOnlyCertification':status.get('survivorOnlyCertification'),
                   'nonselectedGateAuditIsDiagnosticOnly':True,
                   'historicalShiftCoverage':status.get('historicalShiftCoverage',{}),

@@ -47,7 +47,14 @@ def test_isolated_one_game_shot_and_no_recent_goals_does_not_pass_recurrence(tmp
             assert rows[gate]=='ELIMINATED', (gate,rows[gate])
         assert rows['G18']=='NOT_EXECUTED'
         assert set(EXECUTION_ORDER).issubset(rows)
-        assert result['card'] is None
+        # 1010 is permanently eliminated and never reopened. An eliminated
+        # teammate is not a meaningful G10.5/G16 challenger, so the game's
+        # own Blender survivor is the teammate who passed every gate.
+        legs={l['gameId']:l['playerId'] for l in result['card']['initial_legs']}
+        assert '1010' not in legs.values()
+        assert legs['5001']=='1011'
+        survivor=_evidence(con,'1011')
+        assert all(survivor[g]=='PASS' for g in EXECUTION_ORDER if g in survivor)
     finally:
         con.close()
 

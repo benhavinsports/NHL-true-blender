@@ -5,6 +5,7 @@ Neutral WHO/market checks remain neutral; no labels or weights are forced.
 This module does not alter picks, persisted historical cards, or source data.
 """
 from __future__ import annotations
+from .rival_scope import g17_resolved_without_eliminated_rivals
 
 PROVENANCE_REQUIRED = frozenset((
     'G0','G1','G2','G3','G4','G5','G6','G7','G9','G10',
@@ -135,7 +136,13 @@ def audit_gate(gate, evidence, source_ids, stage):
              'G16_RIVAL_COMPETITION_NOT_RESOLVED')
     elif gate=='G17':
         c=e.get('counterevidence') or {}
-        need(isinstance(c,dict) and c.get('unresolved') is False and
+        # The only accepted reading of an unresolved stored review is one
+        # whose remaining open rows all belong to the listed teammates the
+        # gates already ELIMINATED; re-verify that here, independently.
+        ignored=e.get('eliminatedRivalsIgnoredInRivalReview') or []
+        live_ok=bool(isinstance(c,dict) and c.get('unresolved') is True and ignored and
+                     g17_resolved_without_eliminated_rivals(c,ignored)['resolved'])
+        need(isinstance(c,dict) and (c.get('unresolved') is False or live_ok) and
              bool(c.get('goalieStrengthReview')) and
              bool(c.get('lineupDisagreementReview')) and
              bool(c.get('strongestRivalReview')),

@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint
 from .overlay_checks import independent_overlay, STEP_ORDER
+from .rival_scope import g17_resolved_without_eliminated_rivals
 from .semantic_certification import audit_gate
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 
@@ -629,8 +630,54 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     }
 
 
-def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage):
+
+def stopped_before_g10_5(results):
+    """Map playerId -> first non-PASS gate before G10.5 from a first pass.
+
+    G0-G10 are individual checks that never consult teammates, so their
+    dispositions are identical in both passes; only G10.5/G16 change.
+    """
+    before=MASTER[:MASTER.index('G10.5')]
+    out={}
+    for result in results:
+        d=result['dispositions']
+        stop=next((g for g in before if (d.get(g) or {}).get('disposition')!='PASS'),None)
+        if stop is not None:
+            out[str(result['player']['id'])]=f"{stop}:{d[stop]['disposition']}"
+    return out
+
+
+def _finish_pool(games,game_pool,card,g16_receipt):
+    """Every slate game in schedule order, marked with its Core outcome."""
+    core={(str(x['gameId']),str(x['playerId'])) for x in (card or {}).get('current_legs') or []}
+    g16={str(f.get('playerId')):f for f in (g16_receipt or {}).get('finalists') or []}
+    out=[]
+    for match in games:
+        e=dict(game_pool.get(str(match['id'])) or {'gameId':str(match['id']),
+               'matchup':match['away']+'@'+match['home'],'status':'NOT_EVALUATED'})
+        sv=e.get('survivor') or {}
+        e['inCore']=(e['gameId'],str(sv.get('playerId')))in core if sv else False
+        if sv and str(sv.get('playerId')) in g16:
+            f=g16[str(sv['playerId'])]
+            e['g16Decision']=f.get('g16Decision'); e['g16DominatedBy']=f.get('dominatedBy')
+        e['poolIsDiagnosticAndNeverSelects']=True
+        out.append(e)
+    return out
+
+
+def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
+                    stopped_before_g10_5=None):
     d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
+    # Teammates who passed G0-G10 (see stopped_before_g10_5). Only these are
+    # meaningful G10.5/G16 challengers, for the master gate and its overlay.
+    stopped=dict(stopped_before_g10_5 or {})
+    # Only source-verified ELIMINATED teammates leave the challenger pool.
+    # Unresolved (NOT_EXECUTED) teammates are still compared: they cannot
+    # eliminate anyone, but while unresolved they keep the decision open.
+    eliminated_before={k for k,v in stopped.items() if v.endswith(':ELIMINATED')}
+    unresolved_before={k for k,v in stopped.items() if not v.endswith(':ELIMINATED')}
+    live_teammates=[x for x in teammates if str(x['id'])==str(player['id'])
+                    or str(x['id']) not in eliminated_before]
     weak=goalie_profile['data'].get('weakZones',{})
     strong=goalie_profile['data'].get('strengthZones',{})
     release=player_releases(player)
@@ -674,9 +721,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             return {'gate':step,'disposition':status,
                     'details':{'evidence':evidence,'sourceIds':list(ids)}}
         observations=(independent_overlay(
-            game,attack_team,player,teammates,goalie_profile,release,rec,
+            game,attack_team,player,live_teammates,goalie_profile,release,rec,
             rows,stage,receipt,evidence_data,observation_record,
-            only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
+            only_steps=set(STEPS_BY_GATE[g]),
+            eliminated_rivals=eliminated_before) if STEPS_BY_GATE[g] else [])
         overlay.extend(observations)
         if observations:
             function_evidence=[{
@@ -873,7 +921,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          source_ids=sorted(set(x['sourceUrl'] for x in
              (ownership, season_history if verified_season_goals else None)
              if receipt(x))))
-    rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
+    # G10.5/G16 compare against MEANINGFUL challengers only. A teammate
+    # already ELIMINATED before G10.5 cannot own a route (G18 never reopens
+    # eliminated candidates). An unresolved teammate is still compared but
+    # cannot eliminate; it can only keep the decision NOT_EXECUTED.
+    rivals=[x for x in live_teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     # Use the actual G9 coverage finding and G4 shooter release, only now.
     wins,rows=challenger_proof(player,rivals,weak,
@@ -883,10 +935,18 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # unresolved source gap. Unresolved rows (missing rival source, exact
     # ties) remain NOT_EXECUTED so research continues instead of a fake loss.
     route_owned_by=sorted(str(r['challengerId']) for r in rows
-                          if r.get('status')=='RIVAL_DOMINATES')
+                          if r.get('status')=='RIVAL_DOMINATES'
+                          and str(r['challengerId']) not in unresolved_before)
+    unresolved_dominators=sorted(str(r['challengerId']) for r in rows
+                          if r.get('status')=='RIVAL_DOMINATES'
+                          and str(r['challengerId']) in unresolved_before)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True,
+          'challengersStoppedBeforeG10_5':{k:v for k,v in sorted(stopped.items())
+                                           if k!=str(player['id'])} or None,
+          'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
+          'unresolvedChallengersCannotEliminate':unresolved_dominators or None,
           'routeOwnedByStrongerRival':route_owned_by or None},
          eliminate=bool(route_owned_by),
          source_ids=sorted({url for row in rows for url in row.get('sourceUrls',[])
@@ -977,10 +1037,16 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True,
           'routeOwnedByStrongerRival':route_owned_by or None,
-          'crossGameFinalistCompetitionRunsAfterEveryGame':True},
+          'crossGameFinalistCompetitionRunsAfterEveryGame':True,
+          'challengersStoppedBeforeG10_5':stopped or None,
+          'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
+          'unresolvedChallengersCannotEliminate':unresolved_dominators or None},
          eliminate=bool(route_owned_by),
-         source_ids=sorted(set(url for row in rows for url in row.get('sourceUrls',[])
-             if isinstance(url,str) and url.startswith('https://'))))
+         # The candidate side of every comparison is its own official release
+         # record, so it is cited even when no live challenger remains.
+         source_ids=sorted(set([url for row in rows for url in row.get('sourceUrls',[])
+             if isinstance(url,str) and url.startswith('https://')]+
+             ([player['release']['sourceUrl']] if receipt(player.get('release')) else []))))
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
@@ -991,13 +1057,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # non-DERIVED source with unresolved=True was silently marked PASS.
     # Require a positive resolved outcome, not merely a source label.
     cross_source_resolved=bool(cdata and cdata.get('unresolved') is False)
+    # The pregame review compared every teammate, including teammates the
+    # gates already ELIMINATED. Like G10.5/G16, such a teammate is not a
+    # meaningful rival and cannot keep this candidate's G17 unresolved. Every
+    # other stored review condition (goalie branch, weak-area match, stronger
+    # area contradiction, lineup role, unresolved live rivals) still applies.
+    g17_live=g17_resolved_without_eliminated_rivals(cdata,eliminated_before)
+    if not cross_source_resolved and g17_live['resolved']:
+        cross_source_resolved=True
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
                      cdata.get('lineupDisagreementReview') is not None and
                      cdata.get('strongestRivalReview') is not None and
                      cross_source_resolved),
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True,
-          'sourceDerivedReviewResolved':cross_source_resolved},
+          'sourceDerivedReviewResolved':cross_source_resolved,
+          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # Both independent tracks must pass. Neither may overwrite the other's
     # original verdict or masquerade as a completed source check.
@@ -1750,14 +1825,18 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             branches=all_goalie_branches(match,stage).get(defender,[])
             for branch in branches:
                 goalie_id=str(branch['data'].get('goalieId') or 'UNKNOWN')
-                for player in players:
-                    scoped=release_matched_to_g0_target(
-                        player,branch,match.get('coverage',{}).get(attacker))
+                scoped_players=[release_matched_to_g0_target(
+                    player,branch,match.get('coverage',{}).get(attacker)) for player in players]
+                stopped=stopped_before_g10_5([
+                    evaluate_skater(match,attacker,x,players,branch,stage)[0]
+                    for x in scoped_players])
+                for player,scoped in zip(players,scoped_players):
                     # No _g0SelectedDirection: these are NOT proposed Core
                     # paths. Every gate is physically checked with the real
                     # source branch, but G0 and G18 must remain nonpassing.
                     candidate,trace=evaluate_skater(
-                        match,attacker,scoped,players,branch,stage)
+                        match,attacker,scoped,players,branch,stage,
+                        stopped_before_g10_5=stopped)
                     if candidate['dispositions']['G0']['disposition']=='PASS' or candidate['complete']:
                         raise ValueError('G0 research cannot become a certified scorer')
                     research_id=f'G0_RESEARCH:{attacker}:{goalie_id}:{player["id"]}'
@@ -1779,14 +1858,24 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                         'cannotEnterG18Card':True})
     # Missing G0 direction remains a hard selection blocker. It is NOT
     # permission to skip the rest of the physical-evidence investigation.
+    # game_pool: every game's own Blender outcome (the Core player pool).
+    # Display/receipt only; it never selects, ranks or reopens anyone.
+    game_pool={}
+    def pool_entry(match,status,**extra):
+        game_pool[str(match['id'])]={'gameId':str(match['id']),
+            'matchup':match['away']+'@'+match['home'],
+            'gameStartUTC':match.get('startUTC'),'status':status,**extra}
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
         if is_started:
             # Not eligible for new selection; frozen cards remain in storage.
+            pool_entry(match,'STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION')
             continue
         direction=selected_directions.get(str(match['id']))
         if direction is None:
+            pool_entry(match,'NO_SURVIVOR',stoppedAt='G0',
+                       reason='G0 did not decide which goalie is attacked')
             continue
         team=direction['attacker']
         opponent=direction['defender']
@@ -1803,14 +1892,29 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G0-selected opposing goalie branch missing for {opponent}")
             continue
         all_per_game=[]
+        first_stops=defaultdict(int); furthest={}
         for branch in branches:
-            for player in players:
-                scoped=release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
+            scoped_game={**match,'_g0SelectedDirection':direction}
+            scoped_players=[release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
+                            for player in players]
+            # Pass 1 only establishes who passed G0-G10 (teammate-independent).
+            stopped=stopped_before_g10_5([
+                evaluate_skater(scoped_game,team,x,players,branch,stage)[0]
+                for x in scoped_players])
+            for scoped in scoped_players:
                 # Bind the G0 direction receipt to every skater checked after
                 # goalie-first selection; never infer direction from a PASS.
-                scoped_game={**match,'_g0SelectedDirection':direction}
-                result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage)
+                result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage,
+                                              stopped_before_g10_5=stopped)
                 records+=traces
+                stop=next((g for g in MASTER if
+                           (result['dispositions'].get(g) or {}).get('disposition')!='PASS'),None)
+                if stop:
+                    stop_label=f"{stop}:{result['dispositions'][stop]['disposition']}"
+                    first_stops[stop_label]+=1
+                    furthest.setdefault(MASTER.index(stop),[]).append({
+                        'playerId':str(result['player']['id']),
+                        'player':result['player'].get('name'),'stoppedAt':stop_label})
                 if result['complete']:
                     all_per_game.append({'game':match,'attackTeam':team,'targetGoalie':branch,
                                          'candidate':result})
@@ -1841,6 +1945,25 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                         'deploymentSourceUrl':(own.get('deployment') or {}).get('sourceUrl'),
                         'nonRankingDiagnosticOnly':True,
                     })
+        far=furthest.get(max(furthest)) if furthest else []
+        base=dict(attackTeam=team,opponentTeam=opponent,
+                  targetGoalieIds=[b['data'].get('goalieId') for b in branches],
+                  candidatesEvaluated=len(players),
+                  firstNonPassGateCounts=dict(sorted(first_stops.items())),
+                  furthestCandidatesDiagnosticOnly=far[:5] if len(all_per_game)==0 else [])
+        if len(all_per_game)==1:
+            own=all_per_game[0]['candidate']['player']
+            pool_entry(match,'SURVIVOR',**base,survivor=next(
+                (r for r in all_survivor_receipts if r['gameId']==str(match['id'])
+                 and r['playerId']==str(own['id'])),{'playerId':str(own['id']),'player':own.get('name')}))
+        elif len(all_per_game)>1:
+            pool_entry(match,'UNSEPARATED_SAME_GAME_SURVIVORS',**base,
+                       survivors=[{'playerId':str(x['candidate']['player']['id']),
+                                   'player':x['candidate']['player'].get('name')} for x in all_per_game])
+        else:
+            pool_entry(match,'NO_SURVIVOR',**base,
+                       stoppedAt=MASTER[max(furthest)] if furthest else None,
+                       reason='no candidate passed every gate G0-G18')
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
@@ -1942,6 +2065,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'uniqueGameSurvivors':len(qualified),
             'g16FinalistCompetition':g16_receipt,
             'allG18QualifiedSurvivors':all_survivor_receipts,
+            'gameSurvivorPool':_finish_pool(games,game_pool,card,g16_receipt),
             'nonselectedGameResearchNotes':nonselected_game_notes,
             'nonselectedGameResearchNeverReplacesLockedCore':True,
             'retroactiveCardMutation':False,

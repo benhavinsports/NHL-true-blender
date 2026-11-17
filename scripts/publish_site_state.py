@@ -73,6 +73,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'nonselectedGameResearchNotes':result.get('nonselectedGameResearchNotes',[]),
         'nonselectedGameResearchIsDiagnosticOnly':True,
         'allG18QualifiedSurvivors':result.get('allG18QualifiedSurvivors',[]),
+        'gameSurvivorPool':result.get('gameSurvivorPool',[]),
         'g16FinalistCompetition':result.get('g16FinalistCompetition'),
         'cardSavedByEngine':bool(card),
         'publishedToSite':False,
