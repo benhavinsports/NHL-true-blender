@@ -229,7 +229,7 @@ def test_archived_coherent_matrix_checked_when_current_receipts_have_been_replac
     provenance=result["decisions"][0]["gateAuditProvenance"]
     assert provenance["receiptType"]=="SAME_EXECUTION_DATABASE_GATE_COHORT"
     assert provenance["databaseOrigin"]=="HISTORY"
-    assert provenance["individualOrderedChecks"]==36
+    assert provenance["individualOrderedChecks"]==len(EXECUTION_ORDER)
     con.close()
 
 
