@@ -142,7 +142,7 @@ def parse_dfo_starters(html,date,games,diagnostics=None):
             status=STARTER_LABELS.get(label)
             if not status:continue
             found.append({"gameId":game_id,"team":team,
-                "goalieId":str(goalie["id"]),"goalieName":name,
+                "goalieId":str(goalie["id"]),"goalieName":str(goalie["name"]),
                 "status":status,"sourceLabel":label,
                 "projectedPreferred":status=="EXPECTED",
                 "identityMatched":True})
