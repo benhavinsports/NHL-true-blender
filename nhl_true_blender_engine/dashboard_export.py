@@ -120,18 +120,57 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
             # goalies; do not automatically promote that source to CONFIRMED.
             stages=("CONFIRMED","PROJECTED") if stage=="CONFIRMED" else (
                 "PROJECTED","CONFIRMED")
-            sourceStage=None;realRows=[]
-            for selectedStage in stages:
+            # The saved card is the authority.  A later CONFIRMED review
+            # may have source gaps, but must not replace the original 36/36
+            # PROJECTED selection receipts with an incomplete phase.
+            # Keep both phase outcomes separately; choose the strongest
+            # *actual pre-puck* certified trace for the published card.
+            phase_rows={}
+            phase_reviews={}
+            for selectedStage in ("PROJECTED","CONFIRMED"):
                 candidates=con.execute("""
                     SELECT gate,disposition,details,evaluated_at
                     FROM gates WHERE slate_date=? AND stage=?
                         AND game_id=? AND player_id=?""",
                     (date,selectedStage,gameId,playerId)).fetchall()
-                if not candidates:
-                    continue
-                sourceStage=selectedStage
-                realRows=candidates
-                break
+                phase_rows[selectedStage]=candidates
+                pre_puck={}
+                for row in candidates:
+                    checked=_datetime(row["evaluated_at"])
+                    if checked and (puck is None or checked<puck):
+                        pre_puck[row["gate"]]=row
+                complete=(set(pre_puck)==set(EXECUTION_ORDER)
+                    and all(pre_puck[gate]["disposition"]=="PASS"
+                        and json.loads(pre_puck[gate]["details"]).get(
+                            "executionIndex")==index
+                        for index,gate in enumerate(EXECUTION_ORDER)))
+                phase_reviews[selectedStage]={
+                    "available":bool(candidates),
+                    "prePuckGateRows":len(pre_puck),
+                    "masterPassed":sum(gate in MASTER and
+                        row["disposition"]=="PASS"
+                        for gate,row in pre_puck.items()),
+                    "overlayPassed":sum(gate in OVERLAY and
+                        row["disposition"]=="PASS"
+                        for gate,row in pre_puck.items()),
+                    "fullOriginalOrderPass":complete,
+                    "nonpassingGates":{gate:pre_puck[gate]["disposition"]
+                        if gate in pre_puck else "NO_PREPUCK_RECEIPT"
+                        for gate in EXECUTION_ORDER
+                        if gate not in pre_puck or
+                        pre_puck[gate]["disposition"]!="PASS"},
+                }
+            # Prefer fully evidenced CONFIRMED when available, then fully
+            # evidenced PROJECTED. Never equate a newer incomplete trace
+            # with a replacement or promotion of original source evidence.
+            stages_to_check=(("CONFIRMED","PROJECTED") if stage=="CONFIRMED"
+                             else ("PROJECTED","CONFIRMED"))
+            sourceStage=next((s for s in stages_to_check
+                if phase_reviews[s]["fullOriginalOrderPass"]),None)
+            if sourceStage is None:
+                sourceStage=next((s for s in stages_to_check
+                    if phase_reviews[s]["available"]),None)
+            realRows=phase_rows.get(sourceStage,[])
             mapping={}
             for row in realRows:
                 evaluated=row["evaluated_at"]
@@ -170,6 +209,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                 "gameId":gameId,"playerId":playerId,"player":leg["player"],
                 "originalLockedPath":leg["path"],
                 "stageOfGateRecords":sourceStage,
+                "latestReviewStage":stage,
+                "separatePhaseReviews":phase_reviews,
                 "startUTC":leg.get("startUTC"),
                 "executionOrderVerified":order_verified,
                 "masterPassed":sum(r["gate"] in MASTER and r["status"]=="PASS"
