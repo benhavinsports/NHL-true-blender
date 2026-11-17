@@ -1132,3 +1132,6 @@ body{
 /* Compact slate title: no decorative box colliding with its typography. */
 .run-rail .slate-name{border:0;box-shadow:none;text-align:left;min-width:0;padding:0;background:none}
 .run-rail .slate-name strong{white-space:normal;overflow-wrap:anywhere}
+
+/* Proven historical pre-puck cohort stays identifiable when current recheck is open. */
+.pool-snapshot-note{grid-column:1/-1;margin-top:7px;padding:9px 3px 1px;border-top:1px solid #99acc13c;text-align:center;font-size:9px;letter-spacing:.095em;font-weight:850;color:#90d6c5}
