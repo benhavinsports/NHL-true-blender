@@ -57,7 +57,7 @@ def test_g18_does_not_choose_a_scorer_from_two_same_game_survivors():
     finalists=[survivor(100,1),survivor(100,2),survivor(200,3)]
     core,errors=cross_game_winners(finalists,3)
     assert core==[]
-    assert "same game" in str(errors)
+    assert "one game" in str(errors)
 
 
 def test_g18_does_not_fabricate_missing_third_leg():
