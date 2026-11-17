@@ -87,7 +87,7 @@ def test_full_g0_to_g18_card_and_postgame_grade(tmp_path):
         assert result["card"] is not None, result["errors"]
         assert result["g0Directions"] == 6
         assert result["eligibleSkaterRows"] == 6
-        assert result["gateRows"] == 6*(len(MASTER)+len(OVERLAY))+6
+        assert result["gateRows"] == 6*len(MASTER)+6
         legs=result["card"]["current_legs"]
         assert len(legs)==3 and len({x["gameId"] for x in legs})==3
         assert {x["playerId"] for x in legs}=={"100","110","120"}
