@@ -101,6 +101,7 @@ def parse_first_off_club_article(article_html,source_url,date,game,team):
         return None
     return {"gameId":str(game["id"]),"team":team,
         "goalieId":str(hits[0]["id"]),"goalieName":hits[0]["name"],
+        "identityMatched":True,
         "status":"EXPECTED","projectedPreferred":True,
         "datedEyewitnessMorningSkateFirstOff":True,
         "sourceReportDate":date,
