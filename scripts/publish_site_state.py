@@ -103,14 +103,46 @@ def export_run(con, slate_date, stage, result, root='state'):
         prior=root/'site_cards'/f'{slate_date}.json'
         if prior.exists():
             locked=json.loads(prior.read_text(encoding='utf-8'))
-            status.update({
-                'cardId':locked.get('cardId'),
-                'publishedToSite':True,
-                'retainedOriginalLockedCard':True,
-                'currentRunFullyCertified':bool(
-                    (result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified')),
-                'publicationDecision':'PRESERVED_FROZEN_CORE_NO_NEW_SELECTION',
-            })
+            # A historical card may remain immutable, but it cannot make a
+            # newly failed Core assembly count as a successful fresh run.
+            # Compare the complete pre-Core survivor set, not just the
+            # subset that was previously locked.
+            try:
+                original=json.loads(locked.get('legsJson') or '[]')
+            except (TypeError,ValueError):
+                original=[]
+            qualified=result.get('allG18QualifiedSurvivors')
+            original_ids=[(str(x.get('gameId')),str(x.get('playerId')))
+                          for x in original]
+            qualified_ids=(
+                [(str(x.get('gameId')),str(x.get('playerId')))
+                 for x in qualified] if isinstance(qualified,list) else [])
+            mismatch=bool(qualified_ids and (
+                len(qualified_ids)!=len(original_ids) or
+                len(set(qualified_ids))!=len(qualified_ids) or
+                set(qualified_ids)!=set(original_ids)))
+            unresolved=any('PRE_CORE_REVIEW:' in str(x)
+                           for x in (result.get('errors') or []))
+            if mismatch or unresolved:
+                status.update({
+                    'cardId':locked.get('cardId'),
+                    'publishedToSite':False,
+                    'retainedOriginalLockedCard':True,
+                    'currentRunFullyCertified':False,
+                    'publicationDecision':'G18_UPSTREAM_SURVIVORS_UNRESOLVED',
+                    'qualifiedSurvivorCount':len(qualified_ids),
+                    'historicalLockedLegCount':len(original_ids),
+                    'historicalCardIsNotCurrentRunCertification':True,
+                })
+            else:
+                status.update({
+                    'cardId':locked.get('cardId'),
+                    'publishedToSite':True,
+                    'retainedOriginalLockedCard':True,
+                    'currentRunFullyCertified':bool(
+                        (result.get('gateCertification') or {}).get('selectedCoreOnlyFullyCertified')),
+                    'publicationDecision':'PRESERVED_FROZEN_CORE_NO_NEW_SELECTION',
+                })
         else:
             status['publicationDecision']='NO_ELIGIBLE_G18_CARD'
             status['currentRunFullyCertified']=False
