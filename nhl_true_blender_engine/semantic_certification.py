@@ -8,7 +8,7 @@ from __future__ import annotations
 
 PROVENANCE_REQUIRED = frozenset((
     'G0','G1','G2','G3','G4','G5','G6','G7','G9','G10',
-    'G10.5','G11','G12','G15','G16','G17','G18'))
+    'G10.5','G11','G12','G15','G16','G17'))
 
 def audit_gate(gate, evidence, source_ids, stage):
     """Return independent reasons the alleged PASS is not certified."""
@@ -153,11 +153,14 @@ def audit_gate(gate, evidence, source_ids, stage):
                 need((c.get('lineupDisagreementReview') or {}).get('isTrulyConfirmed') is True,
                      'G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED')
     elif gate=='G18':
+        # This is only a carry-through receipt for final Core assembly.
+        # The original earlier gates already certify each source; G18 never
+        # demands a new goalie/defense threshold or independently ranks.
         p=e.get('pathClassificationEvidence') or {}
         need(e.get('candidateEligibleForCrossGameFinal') is True and
              p.get('path') in ('PRIMARY','TRANSFER','WHO') and
              p.get('selectionIndependentOfLabel') is True,
-             'G18_SOURCE_PATH_NOT_ADJUDICATED')
+             'G18_UPSTREAM_CORE_RECIPIENT_NOT_READY')
     elif gate.startswith('Step'):
         need(e.get('independentOverlayEvaluation') is True and
              e.get('checkedBeforeG18') is True and
