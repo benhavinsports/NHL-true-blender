@@ -45,6 +45,7 @@ jobs:
           python - <<'PY'
           import json, pathlib, datetime
           root=pathlib.Path('state')
+          from scripts.preserved_core_receipt import verified_original_receipt
           status_files=sorted((root/'site_runs').glob('????-??-??.json'))
           card_files=sorted((root/'site_cards').glob('????-??-??.json'))
           dates=sorted({p.stem for p in status_files+card_files})
@@ -73,6 +74,9 @@ jobs:
                      for x in legs]
               return (len(before)==len(after) and
                       len(set(before))==len(before) and set(before)==set(after))
+          def saved_original_proof(date,card):
+              return verified_original_receipt(root,date,card) if card else None
+
           for saved_path in card_files:
               saved=json.loads(saved_path.read_text(encoding='utf-8'))
               if not (saved.get('verified') is True and saved.get('status')
@@ -82,9 +86,17 @@ jobs:
               if not isinstance(saved_legs,list) or not saved_legs:
                   continue
               saved_date=saved_path.stem
-              if not same_upstream_core(saved_date,saved_legs):
-                  print('::warning::Not displaying falsely certified G18 survivor subset for '+saved_date)
+              current_match=same_upstream_core(saved_date,saved_legs)
+              original_proof=saved_original_proof(saved_date,saved)
+              # A later incomplete projected/confirmed research pass must not
+              # REMOVE an independently certified earlier, still-locked card.
+              # The archived gate receipts must independently prove EVERY
+              # original gate before the old selection is visible.
+              if not current_match and original_proof is None:
+                  print('::warning::Saved Core has no independent source proof for '+saved_date)
                   continue
+              if not current_match:
+                  print('::warning::Current research incomplete; retaining only source-verified prior G18 receipt for '+saved_date)
               grade=json.loads(saved.get('gradeJson') or '{}')
               entry={
                   'date':saved_date,'cardId':saved.get('cardId'),
@@ -95,6 +107,8 @@ jobs:
                   'current_legs':saved_legs,
                   'grade':grade or None,
                   'verified':True,
+                  'savedOriginalEvidenceVerified':bool(original_proof),
+                  'currentRunSourceMatch':current_match,
               }
               raw_gates=root/'site_gates'/f'{saved_date}.json'
               if raw_gates.exists():
@@ -164,10 +178,15 @@ jobs:
                   else:
                       raise ValueError('Refusing unverified Core card')
               legs=json.loads(card['legsJson']) if card else []
-              if card and not same_upstream_core(date,legs):
-                  print('::warning::Latest saved Core omitted upstream G18 survivors for '+date)
-                  card=None
-                  legs=[]
+              saved_proof=saved_original_proof(date,card)
+              current_match=same_upstream_core(date,legs) if card else False
+              if card and not current_match:
+                  if saved_proof is None:
+                      print('::warning::Latest Core conflicts with source run AND has no independent saved pre-puck receipt for '+date)
+                      card=None
+                      legs=[]
+                  else:
+                      print('::warning::Latest runner is unresolved; independently verified prior G18 card is preserved, not recertified by this run: '+date)
               grade_report=None
               if card and card.get('gradeJson'):
                   grade_report=json.loads(card['gradeJson'])
@@ -261,7 +280,9 @@ jobs:
                       (root/'core_retractions'/f'{date}.json').is_file()
                       and (root/'site_cards'/f'{date}.json').is_file()
                       and not bool(card and card.get('verified') is True)),
-                  'retainedOriginalLockedCard':status.get('retainedOriginalLockedCard',False),
+                  'retainedOriginalLockedCard':bool(card and saved_proof) or status.get('retainedOriginalLockedCard',False),
+                  'savedOriginalGateEvidenceVerified':bool(card and saved_proof),
+                  'currentReviewMatchesSavedCore':bool(card and current_match),
                   'independentOverlaySourceGaps':status.get('independentOverlaySourceGaps',[]),
                   'errors':status.get('errors',[]),
                   'nonselectedGameResearchNotes':status.get('nonselectedGameResearchNotes',[]),
@@ -293,7 +314,9 @@ jobs:
           grep -q 'id="slate-select"' site/index.html
           test -s site/styles.css
           test -s site/app.js
+          node --check site/gate-facts.js
           node --check site/app.js
+          node --test site/tests/card-flip.test.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
