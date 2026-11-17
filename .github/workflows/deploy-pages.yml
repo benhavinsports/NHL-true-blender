@@ -54,6 +54,22 @@ jobs:
           archive=[]
           slate_dir=pathlib.Path('site/data/slates')
           slate_dir.mkdir(parents=True,exist_ok=True)
+          def same_upstream_core(date, legs):
+              # G18 only assembles actual survivors: never display three of
+              # four source-qualified players as a verified card.
+              run_path=root/'site_runs'/f'{date}.json'
+              if not run_path.exists():
+                  return True
+              run=json.loads(run_path.read_text(encoding='utf-8'))
+              survivors=run.get('allG18QualifiedSurvivors')
+              if not isinstance(survivors,list) or not survivors:
+                  return True  # Grade-only or older receipts are not reparsed.
+              before=[(str(x.get('gameId')),str(x.get('playerId')))
+                      for x in survivors]
+              after=[(str(x.get('gameId')),str(x.get('playerId')))
+                     for x in legs]
+              return (len(before)==len(after) and
+                      len(set(before))==len(before) and set(before)==set(after))
           for saved_path in card_files:
               saved=json.loads(saved_path.read_text(encoding='utf-8'))
               if not (saved.get('verified') is True and saved.get('status')
@@ -63,6 +79,9 @@ jobs:
               if not isinstance(saved_legs,list) or not saved_legs:
                   continue
               saved_date=saved_path.stem
+              if not same_upstream_core(saved_date,saved_legs):
+                  print('::warning::Not displaying falsely certified G18 survivor subset for '+saved_date)
+                  continue
               grade=json.loads(saved.get('gradeJson') or '{}')
               entry={
                   'date':saved_date,'cardId':saved.get('cardId'),
@@ -130,6 +149,10 @@ jobs:
                   card.get('status') in ('G18_SOURCE_VERIFIED','FROZEN_GRADED')):
                   raise ValueError('Refusing unverified Core card')
               legs=json.loads(card['legsJson']) if card else []
+              if card and not same_upstream_core(date,legs):
+                  print('::warning::Latest saved Core omitted upstream G18 survivors for '+date)
+                  card=None
+                  legs=[]
               grade_report=None
               if card and card.get('gradeJson'):
                   grade_report=json.loads(card['gradeJson'])
