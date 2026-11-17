@@ -134,12 +134,36 @@ def audit_gate(gate, evidence, source_ids, stage):
               e.get('neutralNoWhoAnomaly') is True),
              'G14_WHO_ANOMALY_UNRESOLVED')
     elif gate=='G15':
+        # G5 already certified a genuine own-shot lane through the goalie's
+        # independently observed weakness. G15 proves the *GOAL RECIPIENT*
+        # from actual historical credit in a SEPARATE source, not that the
+        # player historically scored from every own release lane. Never
+        # convert zero credited goals in the matched route into >0.
+        origin=e.get('officialOwnedGoalsInMatchedOrigin')
+        exact_lane=type(origin) is int and origin>0
+        season_crosscheck=(
+             type(origin) is int and origin==0 and
+             type(e.get('matchedOriginOwnOnNetShots')) is int and
+             e['matchedOriginOwnOnNetShots']>0 and
+             type(e.get('officialDatedSeasonGoals')) is int and
+             e['officialDatedSeasonGoals']>0 and
+             type(e.get('totalOwnedGoalsFromEveryNhlEdgeOrigin')) is int and
+             e['totalOwnedGoalsFromEveryNhlEdgeOrigin']==
+                 e['officialDatedSeasonGoals'] and
+             e.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
+             e.get('matchedOriginHasHistoricalGoal') is False and
+             e.get('sameLaneGoalsNotInferredFromScoringElsewhere') is True and
+             isinstance(e.get('independentSeasonLogSource'),str) and
+             e['independentSeasonLogSource'].startswith('https://') and
+             e['independentSeasonLogSource'] in sources and
+             e.get('directFinisherEvidenceMethod')==
+                 'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS')
         need(e.get('independentHistoricalGoalFinishingEvidence') is True and
              e.get('separateOfficialShotOriginSource') is True and
-             type(e.get('officialOwnedGoalsInMatchedOrigin')) is int and
-             e.get('officialOwnedGoalsInMatchedOrigin')>0,
+             (exact_lane or season_crosscheck),
              'G15_FINISHER_PROOF_NOT_INDEPENDENT')
-        need(len(sources)>=2,'G15_MISSING_SEPARATE_GOAL_CREDIT_AND_RELEASE_SOURCES')
+        need(len(set(sources))>=2,
+             'G15_MISSING_SEPARATE_GOAL_CREDIT_AND_RELEASE_SOURCES')
     elif gate=='G16':
         rows=e.get('challengerRows')
         need(isinstance(rows,list) and e.get('includesDepthAndDefense') is True
