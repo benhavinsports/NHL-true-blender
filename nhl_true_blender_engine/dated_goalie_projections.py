@@ -52,7 +52,13 @@ def _lookup_goalie(surname, roster):
     matches=[]
     for p in roster or []:
         name=normalized(p.get("name"))
-        if name==token or name.endswith(" "+token):
+        pieces=name.split()
+        # Actual daily.hockey card HTML can contain the surname link AND an
+        # accessible full-name label: "Forsberg Anton Forsberg".
+        # Match ONLY the exact official full name prefixed by ITS surname,
+        # not an arbitrary substring or a guessed name. Preserve ambiguity.
+        doubled=(len(pieces)>1 and token==pieces[-1]+" "+name)
+        if name==token or name.endswith(" "+token) or doubled:
             matches.append(p)
     return matches[0] if len(matches)==1 else None
 
@@ -116,16 +122,23 @@ def parse_dated_projections(html, date, games, diagnostics=None):
                     candidate_research[team]={"reason":"INVALID_SOURCE_CONFIDENCE"}
                     continue
                 label=got.group(3).upper()
+                official_name=normalized(player["name"])
+                parts=official_name.split()
+                doubled=bool(len(parts)>1 and
+                             normalized(source_name)==parts[-1]+" "+official_name)
                 # This is starter projection metadata, NEVER a scoring
                 # probability or NHL/team confirmation.
                 picks.append({
                     "gameId":str(game["id"]),"team":team,
                     "goalieId":str(player["id"]),"goalieName":player["name"],
+                    "sourceDisplayName":source_name,
+                    "sourceDisplayNameRepeated":doubled,
                     "sourceLabel":label,"sourceProbability":probability,
                     "projectedPreferred":label in ("LIKELY","LEANING"),
                 })
                 candidate_research[team]={
                     "reason":"MATCHED","sourceGoalieName":source_name,
+                    "sourceDisplayNameRepeated":doubled,
                     "officialGoalieId":str(player["id"])}
             # Never discard an independently verified opponent starter
             # because the other team's ID is absent/ambiguous. The engine
@@ -188,6 +201,8 @@ async def collect_dated_goalie_projections(con, snapshot, date, stage):
             "payload":{
                 "team":item["team"],"goalieId":item["goalieId"],
                 "goalieName":item["goalieName"],"status":"EXPECTED",
+                "originalSourceDisplayName":item["sourceDisplayName"],
+                "sourceDisplayNameRepeated":item["sourceDisplayNameRepeated"],
                 "identityMatched":True,
                 "projectedPreferred":item["projectedPreferred"],
                 "starterSourceStatus":"DATED_SECONDARY_ALGORITHMIC_PROJECTION",
