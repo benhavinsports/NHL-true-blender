@@ -2244,7 +2244,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         for g in games if str(g['id']) in selected_directions and
         g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
         (not g.get('startUTC') or
-         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now)
+         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now) and
+        any(not receipt(p.get('contradictions')) or
+            (evidence_data(p.get('contradictions')) or {}).get('sourceType') ==
+                'DERIVED_CROSS_SOURCE_G17'
+            for p in complete_roster(g,selected_directions[str(g['id'])]['attacker']))
     }
     if eligible_g17_directions:
         from .contradiction_review import review_all_candidates
