@@ -127,3 +127,46 @@ def test_post_puck_gate_receipt_is_not_presented_as_original_pregame(tmp_path):
     assert result["evidence"]["stage"]=="PROJECTED"
     assert result["prePuckOnly"] is True
     con.close()
+
+
+def test_postgame_scorer_review_prioritizes_original_committed_projected_gate(tmp_path):
+    """A frozen, pre-puck original beats later CONFIRMED diagnostics."""
+    from nhl_true_blender_engine.engine import MASTER, OVERLAY
+    from nhl_true_blender_engine.tests.test_postgame_recalibration import (
+        insert_card_and_grade, BEFORE, PREGAME, PUCK)
+    con=open_db(str(tmp_path/"receipt.sqlite"))
+    insert_card_and_grade(con,DATE)
+    con.execute("""INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)""",(
+        DATE,"CONFIRMED","8888","888","G10.5","NOT_EXECUTED",
+        json.dumps({"evidence":{"stage":"CONFIRMED","allAlternativesScanned":False},
+                    "sourceIds":[PREGAME]}),BEFORE))
+    order=list(MASTER[:-1])+list(OVERLAY)+["G18"]
+    original=[]
+    for i,g in enumerate(order):
+        original.append({
+            "gate":g,"status":"PASS","prePuckRecord":True,
+            "recordedExecutionIndex":i,"expectedExecutionIndex":i,
+            "executionOrderVerified":True,"evaluatedAt":BEFORE,
+            "sourceIds":[PREGAME],
+            "evidence":{"stage":"PROJECTED","allAlternativesScanned":True}})
+    folder=tmp_path/"site_gates"
+    folder.mkdir()
+    (folder/f"{DATE}-original-projected.json").write_text(json.dumps({
+        "cardId":f"NHL-{DATE}-CANONICAL",
+        "fingerprint":"synthetic-fingerprint","revision":1,
+        "stage":"PROJECTED","readOnly":True,
+        "doesNotSelectOrReplaceScorers":True,
+        "executionOrder":order,
+        "legs":[{"gameId":"8888","playerId":"888","startUTC":PUCK,
+                 "stageOfGateRecords":"PROJECTED",
+                 "executionOrderVerified":True,"gateDetails":original}]
+    }))
+    leg={"gameId":"8888","playerId":"888","startUTC":PUCK}
+    result=pregame_gate(con,DATE,leg,"G10.5",root=tmp_path)
+    assert result["status"]=="PASS"
+    assert result["stage"]=="PROJECTED"
+    assert result["evidence"]["stage"]=="PROJECTED"
+    assert result["originalGateAuditProvenance"]["receiptType"]=="ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT"
+    assert result["originalGateAuditProvenance"]["individualOrderedChecks"]==36
+    assert con.execute("SELECT disposition FROM gates WHERE gate='G10.5'").fetchone()[0]=="NOT_EXECUTED"
+    con.close()
