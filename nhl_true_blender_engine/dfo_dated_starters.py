@@ -38,7 +38,9 @@ class _Text(HTMLParser):
             self.chunks.append("\n")
     def handle_data(self,value):
         if not self.hidden and value.strip():
-            self.chunks.append(value.strip())
+            # Inline source tags split words (\"Kings\" / \"at\" / \"Bruins\").
+            # Keep a word separator so a real header is searchable.
+            self.chunks.append(" "+value.strip()+" ")
 
 def _normalize(value):
     text=unicodedata.normalize("NFKD",str(value or ""))
@@ -67,7 +69,7 @@ def parse_dfo_starters(html,date,games,diagnostics=None):
         return [],"EMPTY_SOURCE"
     parser=_Text()
     parser.feed(html)
-    content="\n".join(v.strip() for v in "".join(parser.chunks).splitlines() if v.strip())
+    content="\n".join(" ".join(v.split()) for v in "".join(parser.chunks).splitlines() if v.strip())
     try:
         day=datetime.strptime(date,"%Y-%m-%d")
     except ValueError:
@@ -84,9 +86,20 @@ def parse_dfo_starters(html,date,games,diagnostics=None):
         if not away or not home:
             diagnostics.append({"gameId":str(game.get("id")),"reason":"UNSUPPORTED_TEAM"})
             continue
-        header=away+" at "+home
-        for match in re.finditer(r"(?m)^\s*"+re.escape(header)+r"\s*$",content):
+        # Match exact official team pair even where inline HTML tags break
+        # a heading into several strings, and don't require a bare text line.
+        # Its own official puck-time receipt must STILL follow inside the
+        # same bounded game block before any goalie identity can attach.
+        pattern=(r"(?<![A-Za-z])"+re.escape(away)+
+                 r"\s+(?:at|@|vs\.?)\s+"+re.escape(home)+r"(?![A-Za-z])")
+        found_heading=False
+        for match in re.finditer(pattern,content,re.I):
             headings.append((match.start(),match.end(),game))
+            found_heading=True
+        if not found_heading:
+            diagnostics.append({"gameId":str(game.get("id")),
+                "reason":"OFFICIAL_MATCHUP_HEADING_NOT_PARSED",
+                "matchup":str(game.get("away"))+"@"+str(game.get("home"))})
     headings.sort()
     found=[]
     for i,(start,end,game) in enumerate(headings):
