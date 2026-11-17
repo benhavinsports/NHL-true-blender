@@ -147,7 +147,19 @@ jobs:
               # publishable while rejecting fabricated grade assertions.
               if card and not (card.get('verified') is True and
                   card.get('status') in ('G18_SOURCE_VERIFIED','FROZEN_GRADED')):
-                  raise ValueError('Refusing unverified Core card')
+                  manifest_path=root/'core_retractions'/f'{date}.json'
+                  if (card.get('verified') is False and
+                      card.get('status')=='RETRACTED_UNAUTHORIZED_G18' and
+                      manifest_path.is_file()):
+                      original=json.loads(manifest_path.read_text(encoding='utf-8'))
+                      if (original.get('originalFingerprint')!=card.get('fingerprint')
+                          or original.get('cardId')!=card.get('cardId')):
+                          raise ValueError('Retraction identity does not match immutable evidence')
+                      # The bad card is visible only in the audit artifact,
+                      # never rendered as the current Core or fake verified pick.
+                      card=None
+                  else:
+                      raise ValueError('Refusing unverified Core card')
               legs=json.loads(card['legsJson']) if card else []
               if card and not same_upstream_core(date,legs):
                   print('::warning::Latest saved Core omitted upstream G18 survivors for '+date)
@@ -240,6 +252,10 @@ jobs:
                   'historicalShiftCoverage':status.get('historicalShiftCoverage',{}),
                   'currentRunFullyCertified':status.get('currentRunFullyCertified'),
                   'publicationDecision':status.get('publicationDecision'),
+                  'oldCoreRetractedByRuleCorrection':(
+                      (root/'core_retractions'/f'{date}.json').is_file()
+                      and (root/'site_cards'/f'{date}.json').is_file()
+                      and not bool(card and card.get('verified') is True)),
                   'retainedOriginalLockedCard':status.get('retainedOriginalLockedCard',False),
                   'independentOverlaySourceGaps':status.get('independentOverlaySourceGaps',[]),
                   'errors':status.get('errors',[]),
