@@ -318,3 +318,25 @@ def test_matrix_verifier_rejects_reordered_gate_rows(con):
         now=datetime.now(timezone.utc),selected_directions=directions)
     assert any('1010' in error and 'wrong gate execution order' in error
                for error in errors)
+
+
+def test_integrated_gate_evidence_uses_semantic_owners(con):
+    """Step observations must affect the gate that consumes their evidence."""
+    result=execute(con,snapshot(),DATE,'CONFIRMED')
+    assert result['card'] is not None,result['errors']
+    rows=con.execute(
+        "SELECT gate,details FROM gates WHERE slate_date=? AND stage='CONFIRMED' "
+        "AND game_id='5001' AND player_id='1010'",(DATE,)).fetchall()
+    details={gate:json.loads(raw) for gate,raw in rows}
+    expected={'G0':{'Step0'},'G2':{'Step1'},'G3':{'Step2'},
+              'G5':{'Step3'},'G4':{'Step4'},'G7':{'Step5'},
+              'G6':{'Step6'},'G9':{'Step7','Step9'},'G8':{'Step8'},
+              'G10':{'Step10'},'G10.5':{'Step10.5'},
+              'G11':{'Step11'},'G16':{'Step12'},
+              'G13':{'Step13'},'G17':{'Step14'}}
+    for gate,steps in expected.items():
+        proof=details[gate]['evidence']
+        observations=proof['integratedStepEvidence']
+        assert {item['step'] for item in observations}==steps
+        assert proof['integratedDisposition']=='PASS'
+        assert all(item['disposition']=='PASS' for item in observations)
