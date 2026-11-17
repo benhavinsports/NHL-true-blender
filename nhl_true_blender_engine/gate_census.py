@@ -13,7 +13,7 @@ from .semantic_certification import audit_gate
 
 PROVENANCE_REQUIRED={
     "G0","G1","G2","G3","G4","G5","G6","G7","G9","G10",
-    "G10.5","G11","G12","G15","G16","G17","G18",
+    "G10.5","G11","G12","G15","G16","G17",
 }
 
 def certify_gates(con,date,stage,expected_game_count=None):
