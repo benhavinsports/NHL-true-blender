@@ -35,6 +35,17 @@ def retract(root="state", now=None):
             or len({(str(x["gameId"]),str(x["playerId"]))
                     for x in manifest["upstreamSurvivors"]}) != 4):
         raise ValueError("Retraction manifest identity/evidence mismatch")
+    run_path = root / "site_runs" / (DATE + ".json")
+    source_run = json.loads(run_path.read_text(encoding="utf-8"))
+    observed = source_run.get("allG18QualifiedSurvivors") or []
+    actual_ids = {(str(x["gameId"]), str(x["playerId"])) for x in observed}
+    manifest_ids = {(str(x["gameId"]), str(x["playerId"]))
+                    for x in manifest["upstreamSurvivors"]}
+    if (len(observed) != 4 or actual_ids != manifest_ids
+            or source_run.get("slateDate") != DATE
+            or not any("PRE_CORE_REVIEW:" in str(x)
+                       for x in source_run.get("errors", []))):
+        raise ValueError("Refuse retraction without same-slate four-survivor proof")
     published = json.loads(public_path.read_text(encoding="utf-8"))
     if (published.get("cardId") != CARD_ID
             or published.get("fingerprint") != ORIGINAL_FINGERPRINT
@@ -42,8 +53,20 @@ def retract(root="state", now=None):
             or published.get("status") != "RETRACTED_UNAUTHORIZED_G18"):
         # A later corrected, independently issued verified card must be
         # preserved, never retracted by this one-shot historical manifest.
-        if published.get("verified") is True and published.get("fingerprint") != ORIGINAL_FINGERPRINT:
-            return {"status": "NEW_CORRECTED_CARD_EXISTS"}
+        if published.get("verified") is True and (root / "core_retractions" / (DATE + ".json")).exists():
+            # Once the original has been archived, a subsequent card can
+            # independently earn the same exact recipients under new rules.
+            check = open_db(str(root / "true_blender.sqlite"))
+            try:
+                row = check.execute(
+                    "SELECT 1 FROM card_retractions WHERE slate_date=?", (DATE,)
+                ).fetchone()
+            except Exception:
+                row = None
+            finally:
+                check.close()
+            if row:
+                return {"status": "NEW_CORRECTED_CARD_EXISTS"}
         raise ValueError("Retraction requires matching explicit JSON tombstone")
     con = open_db(str(root / "true_blender.sqlite"))
     try:
