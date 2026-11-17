@@ -638,13 +638,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     release=player_releases(player)
     rec=reconcile_logs(player)
     position=player.get('position')
-    # Shared challenger evidence is computed before the first gate. G10.5
-    # consumes this same immutable comparison rather than recomputing it.
-    precoverage=evidence_data(game.get('coverage',{}).get(attack_team)) or {}
-    rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
-            x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
-    wins,rows=challenger_proof(player,rivals,weak,
-        precoverage.get('greenWeakZones'))
+    # G10.5 is the first gate allowed to adjudicate same-lane recipients.
+    # Earlier gates must not silently precompute or preselect a winner.
+    rows=[]
+    wins=None
     overlay=[]
     execution_trace=[]
     def emit(g, ok, detail, eliminate=False, source_ids=()):
@@ -854,6 +851,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
              if receipt(x))))
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
+    # Use the actual G9 coverage finding and G4 shooter release, only now.
+    wins,rows=challenger_proof(player,rivals,weak,
+        (coverage_data or {}).get('greenWeakZones'))
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True},
