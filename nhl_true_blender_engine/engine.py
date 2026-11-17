@@ -2118,38 +2118,26 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route")
             continue
         errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
-    # G17 independently re-reviews the EXACT G0-decided goalie profile and
-    # source-coherent G5/9 shot lane, not an outdated pre-G0 generic branch.
-    # Before goalie direction was established, initial G17 research necessarily
-    # reviewed generic projected goalies; that left source-derived PBP routes
-    # with an empty/mismatched G17 counterevidence receipt. Complete this
-    # gate's genuine source research now, while the original G0 decision is
-    # frozen, BEFORE evaluating G10.5/G16/G17 on this selected attack side.
-    # Do not emit an artificial PASS: a contradiction still stays unresolved.
+    # Always refresh G17 AFTER G0 identifies the attack side and exact goalie.
+    # A pre-G0 review may be source-backed yet tied to another goalie branch
+    # or an unscoped rival cohort. The old conditional only retried when the
+    # receipt was absent, silently reusing an outdated contradictory review.
+    # The reviewer records a NEW immutable source receipt; it never copies a
+    # PASS from G0, and unresolved contradictions still fail G17.
     eligible_g17_directions={
         str(g['id']):selected_directions[str(g['id'])]
         for g in games if str(g['id']) in selected_directions and
         g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
         (not g.get('startUTC') or
-         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now) and
-        # Do not overwrite another verified G17 in the ordinary case.
-        # Recheck only when a sourced skater who can shoot lacks an
-        # independent G17 receipt, or the G0 source-coherent goalie
-        # profile differs from the earlier pre-G0 research branch.
-        (any(receipt(p.get('release')) and
-                 not receipt(p.get('contradictions'))
-                 for p in complete_roster(g,selected_directions[str(g['id'])]['attacker']))
-         or any(g0_source_coherent_scorer_goalie(
-                 g,selected_directions[str(g['id'])],branch) is not branch
-                for branch in all_goalie_branches(g,stage).get(
-                    selected_directions[str(g['id'])]['defender'],[])))}
+         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now)
+    }
     if eligible_g17_directions:
         from .contradiction_review import review_all_candidates
         from .enrichment import attach
         review_all_candidates(con,snapshot,date,stage,
                               selected_directions=eligible_g17_directions)
-        # Rebind independently sourced and versioned review receipts onto the
-        # actual original skater identities. A scorer cannot self-certify G17.
+        # Re-attach the latest independent G17 source to the G0-selected
+        # official player IDs before any scorer gate is evaluated.
         attach(con,snapshot,date,stage)
     # A G0 failure MUST NOT silently short-circuit all 36 source checks.
     # Investigate each available goalie branch against each official skater
@@ -2311,7 +2299,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                                    'player':x['candidate']['player'].get('name')} for x in all_per_game])
         else:
             pool_entry(match,'NO_SURVIVOR',**base,
-                       stoppedAt=MASTER[max(furthest)] if furthest else None,
+                       # The furthest first failure of any REJECTED skater is
+                       # not a uniquely remaining game-wide source blocker.
+                       furthestFirstNonPassGate=MASTER[max(furthest)] if furthest else None,
                        reason='no candidate passed every pre-Core gate G0-G17')
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
