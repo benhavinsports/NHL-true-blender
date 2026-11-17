@@ -10,6 +10,7 @@ from nhl_true_blender_engine.engine import (
     execute)
 from nhl_true_blender_engine.core_identity import expected_core_ids
 from nhl_true_blender_engine.storage import open_db
+from nhl_true_blender_engine.gate_census import certify_gates
 from nhl_true_blender_engine.tests.test_end_to_end_contract import (
     fixture, player, DATE)
 
@@ -130,6 +131,13 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
         assert {x['playerId'] for x in legs} == {'100', '110', '120'}
         g16 = result['g16FinalistCompetition']
         assert g16['excludedPlayerIds'] == ['130'] and g16['separated'] is True
+        census = certify_gates(con, DATE, 'CONFIRMED', 4)
+        funnel = census['selectionFunnel']
+        assert funnel['qualifiedButNotChosen'] == 1
+        assert funnel['lockedCoreRecipients'] == 3
+        assert census['firstFailureClassificationCounts']['CROSS_GAME_NOT_SELECTED'] == 1
+        # The G16-excluded 130 remains qualified at GAME level despite
+        # not receiving G18 PASS; no new ranking or player replacement.
         run = {'preCoreQualifiedSurvivors': result['preCoreQualifiedSurvivors'],
                'g16FinalistCompetition': g16}
         assert set(expected_core_ids(run)) == {(x['gameId'], x['playerId']) for x in legs}
