@@ -675,23 +675,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
         overlay.extend(observations)
         if observations:
-            states=[disp]+[item['disposition'] for item in observations]
-            disp=('ELIMINATED' if 'ELIMINATED' in states else
-                  'NOT_EXECUTED' if 'NOT_EXECUTED' in states else 'PASS')
+            # Master and overlay are independent verdicts. Do not replace a
+            # master's decision with a merged overlay disposition.
             detail_evidence=[{
                 'step':item['gate'],'disposition':item['disposition'],
                 'sourceIds':item['details'].get('sourceIds',[]),
                 'evidence':item['details'].get('evidence',{})}
                 for item in observations]
-            content={**content,'integratedStepEvidence':detail_evidence,
-                     'integratedDisposition':disp}
-            source_ids=list(dict.fromkeys(list(source_ids)+[
-                url for item in detail_evidence for url in item['sourceIds']]))
-            if disp=='NOT_EXECUTED' and g not in deficient:
-                deficient.append(g)
-            if disp=='ELIMINATED':
-                eliminated=True
-                if first_elimination_gate is None:first_elimination_gate=g
+            content={**content,'independentOverlayEvidence':detail_evidence}
+            for item in observations:
+                step=item['gate']
+                if item['disposition']=='NOT_EXECUTED':
+                    deficient.append(step)
+                elif item['disposition']=='ELIMINATED':
+                    eliminated=True
+                    if first_elimination_gate is None:
+                        first_elimination_gate=step
         d[g]={'disposition':disp,'details':content}
         record=gate_record(game,player['id'],g,disp,content,list(source_ids))
         proof.append(record)
@@ -956,13 +955,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
-    # Classification must consume the integrated verdicts, not the
-    # pre-merge master-only PASS labels.
-    previous_gates_passed=all(d[gate]['disposition']=='PASS'
-                              for gate in MASTER[:-1])
+    # Both independent tracks must pass. Neither may overwrite the other's
+    # original verdict or masquerade as a completed source check.
+    master_passed=all(d[gate]['disposition']=='PASS'
+                      for gate in MASTER[:-1])
+    overlay_passed=all(row['disposition']=='PASS' for row in overlay)
+    previous_gates_passed=master_passed and overlay_passed
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
-    overlay_passed=previous_gates_passed
     passed=previous_gates_passed and route is not None
     emit('G18',passed,{
         'candidateEligibleForCrossGameFinal':passed,
