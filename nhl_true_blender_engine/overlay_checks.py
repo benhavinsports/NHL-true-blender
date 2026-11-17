@@ -235,6 +235,7 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'preservesUnresolvedEvidence':True},
          sources)
     actual=[r['gate'] for r in records]
-    if actual!=STEP_ORDER:
-        raise ValueError('Phase-1 overlay order or individual check missing')
+    expected=STEP_ORDER if only_steps is None else [step for step in STEP_ORDER if step in only_steps]
+    if actual!=expected:
+        raise ValueError('Requested gate-time source observations missing or reordered')
     return records
