@@ -181,6 +181,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             steps=tuple(row.get('failedOverlayGates') or ())
             overlapping[(gates,steps)]+=1
             for gate in gates+steps:
+                # G18 is final Core assembly, not another data acquisition
+                # gate. Preserve its individual disposition in the full
+                # matrix, but do not call non-Core decisions source blockers.
+                if gate=="G18":
+                    continue
                 gate_causes[gate]+=1
                 # Source-grounded example, not a skater shortlist.
                 if gate not in samples:
@@ -195,6 +200,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             'notScorerSelectionOrRanking':True,
             'fullActualCandidateGateMatrixStoredSeparately':True,
             'nonpassingGateCounts':dict(gate_causes),
+            'g18NonselectedNotMissingSource':
+                result.get('g18IntentionallyNotSelectedNotMissingSource',0),
+            'g18ActualMissingSourceCount':
+                result.get('missingByGate',{}).get('G18',0),
+            'g18FinalCoreAssemblyNotSourceCollection':True,
             'exactFailedGateIntersections':[{
                 'masterGates':list(master),'overlaySteps':list(overlay),
                 'playerCount':count}
