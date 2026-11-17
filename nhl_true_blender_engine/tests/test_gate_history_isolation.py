@@ -41,3 +41,32 @@ def test_full_prior_run_archived_when_new_run_has_no_eligible_games(tmp_path):
         assert count2>=history_count
     finally:
         con.close()
+
+
+def test_full_36_gate_cohort_has_one_precise_execution_timestamp(tmp_path):
+    """Chronological gate archive cannot be split when seconds tick mid-run."""
+    from nhl_true_blender_engine.engine import EXECUTION_ORDER
+    con=open_db(str(tmp_path/"timestamp.sqlite"))
+    try:
+        slate=snapshot()
+        result=execute(con,slate,DATE,"CONFIRMED")
+        assert result["card"] is not None,result["errors"]
+        for leg in result["card"]["current_legs"]:
+            values=con.execute("""SELECT gate,evaluated_at FROM gates
+                WHERE slate_date=? AND stage='CONFIRMED'
+                  AND game_id=? AND player_id=?""",
+                (DATE,leg["gameId"],leg["playerId"])).fetchall()
+            assert len(values)==len(EXECUTION_ORDER)
+            assert len({row["evaluated_at"] for row in values})==1
+            assert len(values[0]["evaluated_at"].rsplit(".",1)[-1])==6
+        later=datetime.now(timezone.utc)+timedelta(days=30)
+        execute(con,slate,DATE,"CONFIRMED",now=later)
+        for leg in result["card"]["current_legs"]:
+            archived=con.execute("""SELECT gate,evaluated_at FROM gate_history
+                WHERE slate_date=? AND stage='CONFIRMED'
+                  AND game_id=? AND player_id=?""",
+                (DATE,leg["gameId"],leg["playerId"])).fetchall()
+            assert len(archived)==len(EXECUTION_ORDER)
+            assert len({row["evaluated_at"] for row in archived})==1
+    finally:
+        con.close()
