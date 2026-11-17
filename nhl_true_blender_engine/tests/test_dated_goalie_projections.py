@@ -61,8 +61,9 @@ def test_unmatched_or_ambiguous_goalie_surname_is_never_a_starter():
         "id":"111","name":"Other Forsberg"})
     rows,status=parse_dated_projections(HTML,DATE,matches)
     assert status=="DATED_MATCHUPS_PARSED"
-    assert len(rows)==2
-    assert {x["team"] for x in rows}=={"EDM","FLA"}
+    assert len(rows)==3
+    assert {x["team"] for x in rows}=={"BOS","EDM","FLA"}
+    assert not any(x["team"]=="LAK" for x in rows)
 
 
 def test_collect_source_labeled_expected_goalies_attaches_not_fake_confirmed(tmp_path):
@@ -110,10 +111,13 @@ def test_unmatched_starting_goalie_is_categorized_as_identity_not_absent_source(
     trace=[]
     rows,status=parse_dated_projections(HTML,DATE,games,trace)
     assert status=="DATED_MATCHUPS_PARSED"
-    assert len(rows)==2
-    by_game={x["gameId"]:x["reason"] for x in trace}
-    assert by_game["2026020333"]=="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
-    assert by_game["2026020335"]=="MATCHED"
+    assert len(rows)==3
+    by_game={x["gameId"]:x for x in trace}
+    assert by_game["2026020333"]["reason"]=="PARTIAL_OFFICIAL_GOALIE_ID_MATCH"
+    assert by_game["2026020333"]["matchedTeamCount"]==1
+    assert by_game["2026020333"]["teamResearch"]["LAK"]["reason"]=="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
+    assert by_game["2026020333"]["teamResearch"]["BOS"]["reason"]=="MATCHED"
+    assert by_game["2026020335"]["reason"]=="MATCHED"
 
 
 def test_recoverable_source_failure_retries_but_keeps_expected_status(tmp_path):
@@ -148,3 +152,57 @@ def test_recoverable_source_failure_retries_but_keeps_expected_status(tmp_path):
     assert all(x["stage"]=="PROJECTED" for x in
                con.execute("SELECT stage FROM evidence"))
     con.close()
+
+
+def test_partial_match_retains_only_verified_goalie_without_inventing_g0_branch(tmp_path):
+    games=schedule()
+    games[0]["rosters"]["LAK"]["data"]["goalies"].append({
+        "id":"111","name":"Other Forsberg"})
+    class Response:
+        text=HTML
+        def raise_for_status(self):
+            pass
+    class Client:
+        def __init__(self,*args,**kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self,*args):
+            pass
+        async def get(self,url):
+            return Response()
+    con=open_db(str(tmp_path/"partial.sqlite"))
+    try:
+        snap={"games":games}
+        with patch("nhl_true_blender_engine.dated_goalie_projections.httpx.AsyncClient",Client):
+            report=asyncio.run(collect_dated_goalie_projections(
+                con,snap,DATE,"PROJECTED"))
+        assert report["projectedGoalieReceipts"]==3
+        assert report["gamesWithBothGoalieProjections"]==1
+        assert report["gamesWithOnlyOneMatchedGoalie"]==1
+        assert report["partialMatchesDoNotEstablishBothG0Directions"] is True
+        assert report["matchupResearchReasons"]=={
+            "MATCHED":1,"PARTIAL_OFFICIAL_GOALIE_ID_MATCH":1}
+        attach(con,snap,DATE,"PROJECTED")
+        # Other team's independent identity survives as EXPECTED; it does
+        # not substitute for an unmatched goalie nor confirm either team.
+        assert not snap["games"][0]["goalies"]["LAK"]
+        assert len(snap["games"][0]["goalies"]["BOS"])==1
+        assert snap["games"][0]["goalies"]["BOS"][0]["data"]["goalieId"]=="200"
+        assert snap["games"][0]["goalies"]["BOS"][0]["data"]["status"]=="EXPECTED"
+        assert len(con.execute("SELECT * FROM evidence WHERE kind='GOALIE_STARTER'").fetchall())==3
+    finally:
+        con.close()
+
+
+def test_source_card_with_unparsed_opponent_retains_only_exact_verified_side():
+    games=schedule()[:1]
+    incomplete=HTML.replace(
+        "<span>BOS · #30</span><a>DiPietro</a><span>82%</span><b>Likely</b>",
+        "<span>BOS starter awaiting publication</span>")
+    trace=[]
+    rows,status=parse_dated_projections(incomplete,DATE,games,trace)
+    assert status=="DATED_MATCHUPS_PARSED"
+    assert [(row["team"],row["goalieId"]) for row in rows]==[("LAK","100")]
+    assert trace[0]["matchedTeamCount"]==1
+    assert trace[0]["teamResearch"]["BOS"]["reason"]=="STARTER_FIELDS_NOT_PARSED"

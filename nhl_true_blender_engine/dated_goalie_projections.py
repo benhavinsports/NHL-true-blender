@@ -85,44 +85,68 @@ def parse_dated_projections(html, date, games, diagnostics=None):
         teams=(game["away"],game["home"])
         header=re.compile(rf"\b{re.escape(teams[0])}\s*@\s*{re.escape(teams[1])}\b")
         reason="SOURCE_MATCHUP_NOT_FOUND"
+        team_research={}
+        matched=[]
         for m in header.finditer(flat):
-            reason="STARTER_FIELDS_NOT_PARSED"
-            # The page includes a navigation menu. Match all starter fields
-            # from a single GAME card, ending at the next fixture header.
+            # Navigation duplicates each matchup heading. Skip a nav-only
+            # section, and only read a card up to the NEXT fixture heading.
             upcoming=re.search(r"\b[A-Z]{2,3}\s*@\s*[A-Z]{2,3}\b",flat[m.end():])
             stop=m.end()+upcoming.start() if upcoming else len(flat)
             section=flat[m.end():min(stop,m.end()+2000)]
+            candidate_research={}
             picks=[]
             for team in teams:
                 pattern=rf"\b{re.escape(team)}\s*[\u00b7\u2022]\s*#\s*\d+\s*([A-Za-z][A-Za-z' -]*?)\s+(\d{{1,3}})\s*%\s*(Likely|Leaning|Toss-up|Confirmed|Started)"
                 got=re.search(pattern,section,re.I)
                 if not got:
-                    break
+                    candidate_research[team]={"reason":"STARTER_FIELDS_NOT_PARSED"}
+                    continue
+                source_name=got.group(1).strip()
                 roster=((game.get("rosters") or {}).get(team) or {}).get("data") or {}
-                player=_lookup_goalie(got.group(1),roster.get("goalies"))
+                goalie_roster=roster.get("goalies") or []
+                player=_lookup_goalie(source_name,goalie_roster)
                 if not player:
-                    reason="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
-                    break
+                    candidate_research[team]={
+                        "reason":"OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS",
+                        "sourceGoalieName":source_name,
+                        "officialRosterGoalieCount":len(goalie_roster)}
+                    continue
                 probability=int(got.group(2))
                 if not 0<=probability<=100:
-                    break
+                    candidate_research[team]={"reason":"INVALID_SOURCE_CONFIDENCE"}
+                    continue
                 label=got.group(3).upper()
-                # Even the source's "confirmed" label is a model/website
-                # claim at this stage; do NOT claim official confirmation.
+                # This is starter projection metadata, NEVER a scoring
+                # probability or NHL/team confirmation.
                 picks.append({
                     "gameId":str(game["id"]),"team":team,
                     "goalieId":str(player["id"]),"goalieName":player["name"],
                     "sourceLabel":label,"sourceProbability":probability,
                     "projectedPreferred":label in ("LIKELY","LEANING"),
                 })
-            if len(picks)==2:
-                found.extend(picks)
-                reason="MATCHED"
+                candidate_research[team]={
+                    "reason":"MATCHED","sourceGoalieName":source_name,
+                    "officialGoalieId":str(player["id"])}
+            # Never discard an independently verified opponent starter
+            # because the other team's ID is absent/ambiguous. The engine
+            # still requires BOTH directions to be researched for G0 PASS.
+            if any(value["reason"]!="STARTER_FIELDS_NOT_PARSED"
+                   for value in candidate_research.values()):
+                team_research=candidate_research
+                matched=picks
                 break
+            reason="STARTER_FIELDS_NOT_PARSED"
+        if team_research:
+            found.extend(matched)
+            reason=("MATCHED" if len(matched)==2 else
+                    "PARTIAL_OFFICIAL_GOALIE_ID_MATCH" if matched else
+                    "OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS")
         if diagnostics is not None:
             diagnostics.append({"gameId":str(game["id"]),
                                 "matchup":teams[0]+"@"+teams[1],
-                                "reason":reason})
+                                "reason":reason,
+                                "matchedTeamCount":len(matched),
+                                "teamResearch":team_research})
     return found,("DATED_MATCHUPS_PARSED" if found else "NO_MATCHED_GOALIES")
 
 
@@ -173,12 +197,19 @@ async def collect_dated_goalie_projections(con, snapshot, date, stage):
                 "publishedAsOfSlateDate":date,
                 "sourceEventDoesNotSelectScorers":True}
         })
+    matched_teams={}
+    for item in candidates:
+        matched_teams.setdefault(item["gameId"],set()).add(item["team"])
+    both=sum(len(teams)==2 for teams in matched_teams.values())
     return {"status":status,"source":url,"asOf":observed,
             "boundedRetryCount":max(0,attempts-1),
             "matchupResearch":diagnostics,
             "matchupResearchReasons":{reason:sum(d["reason"]==reason for d in diagnostics)
                   for reason in sorted({d["reason"] for d in diagnostics})},
             "projectedGoalieReceipts":len(candidates),
-            "gamesWithBothGoalieProjections":len({x["gameId"] for x in candidates}),
+            "gamesWithBothGoalieProjections":both,
+            "gamesWithOnlyOneMatchedGoalie":sum(len(teams)==1
+                                               for teams in matched_teams.values()),
+            "partialMatchesDoNotEstablishBothG0Directions":True,
             "originalSourceLabelsPreserved":True,
             "noProjectedGoalieCalledConfirmed":True}
