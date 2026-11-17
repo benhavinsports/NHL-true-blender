@@ -125,3 +125,49 @@ def test_new_independent_card_can_be_issued_after_retraction(tmp_path):
     assert con.execute("SELECT COUNT(*) FROM card_retractions").fetchone()[0]==1
     assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]==1
     con.close()
+
+
+def test_reissue_of_same_player_fingerprint_after_retraction_is_not_old_card(tmp_path):
+    """No forcing three different names merely to look like a replacement."""
+    from datetime import datetime,timedelta
+    fixture(tmp_path)
+    retract(tmp_path)
+    con=open_db(str(tmp_path/"true_blender.sqlite"))
+    row=con.execute("SELECT * FROM card_retractions WHERE slate_date=?",(DATE,)).fetchone()
+    old=json.loads(row["original_card"])
+    issued=(datetime.fromisoformat(row["retracted_at_utc"])+
+            timedelta(seconds=2)).isoformat()
+    old["first_issued_at"]=issued
+    old["updated_at"]=issued
+    con.execute("""INSERT INTO cards
+        (slate_date,card_id,initial_legs,current_legs,stage,fingerprint,
+         revision,first_issued_at,updated_at,grade)
+        VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        tuple(old[k] for k in (
+            "slate_date","card_id","initial_legs","current_legs","stage",
+            "fingerprint","revision","first_issued_at","updated_at","grade")))
+    con.execute("""INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)""",
+        (CARD_ID+"-v1",DATE,CARD_ID,1,"PROJECTED",ORIGINAL_FINGERPRINT,
+         old["current_legs"],json.dumps({"type":"FIRST_ISSUANCE"}),issued))
+    con.close()
+    result=retract(tmp_path)
+    assert result["status"]=="NEW_CORRECTED_CARD_EXISTS"
+    assert result["identicalPlayersMayBeIndependentlyReissued"] is True
+
+
+def test_original_timestamp_cannot_reenter_after_retraction(tmp_path):
+    fixture(tmp_path)
+    retract(tmp_path)
+    con=open_db(str(tmp_path/"true_blender.sqlite"))
+    row=con.execute("SELECT * FROM card_retractions WHERE slate_date=?",(DATE,)).fetchone()
+    old=json.loads(row["original_card"])
+    con.execute("""INSERT INTO cards
+        (slate_date,card_id,initial_legs,current_legs,stage,fingerprint,
+         revision,first_issued_at,updated_at,grade)
+        VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        tuple(old[k] for k in (
+            "slate_date","card_id","initial_legs","current_legs","stage",
+            "fingerprint","revision","first_issued_at","updated_at","grade")))
+    con.close()
+    with pytest.raises(ValueError,match="Retracted original returned"):
+        retract(tmp_path)
