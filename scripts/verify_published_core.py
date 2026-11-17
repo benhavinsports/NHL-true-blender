@@ -1,31 +1,24 @@
 """Independent acceptance check of the *published* NHL True Blender Core.
 
 Do not trust a workflow's green check, a UI badge, or a single "certified"
-boolean. Cross-check the canonical card against the saved G0-G18/overlay
-receipts, their ordered indices, source provenance, and pre-puck timestamps.
+boolean. Cross-check the canonical card against the one original G0-G18
+sequence, nested original function evidence, provenance and pre-puck times.
 
 This is read-only. It never selects, relabels, replaces, or grades a skater.
 """
 from __future__ import annotations
 from nhl_true_blender_engine.core_identity import expected_core_ids
+from nhl_true_blender_engine.engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
+from nhl_true_blender_engine.semantic_certification import audit_gate
 
 import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
 
-MASTER = tuple([f"G{i}" for i in range(11)] + ["G10.5"] +
-               [f"G{i}" for i in range(11, 19)])
-OVERLAY = tuple([f"Step{i}" for i in range(11)] + ["Step10.5"] +
-                [f"Step{i}" for i in range(11, 15)])
-STEP_OWNER = {"Step0":"G0","Step1":"G2","Step2":"G3","Step3":"G5",
-              "Step4":"G4","Step5":"G7","Step6":"G6","Step7":"G9",
-              "Step8":"G8","Step9":"G9","Step10":"G10",
-              "Step10.5":"G10.5","Step11":"G11","Step12":"G16",
-              "Step13":"G13","Step14":"G17"}
-ORDER = tuple(item for gate in MASTER
-              for item in (gate,)+tuple(step for step in OVERLAY
-                                         if STEP_OWNER[step]==gate))
+# The engine owns the authoritative gate order; never reconstruct a second
+# chronology in the publication verifier.
+ORDER = tuple(EXECUTION_ORDER)
 SOURCE_OPTIONAL_NONELIMINATION = frozenset(("G8", "G13"))
 
 
@@ -69,19 +62,21 @@ def verify_published_core(root: Path, date: str):
              gates.get("fingerprint"), "canonical saved-card fingerprint differs")
     _require(card.get("revision") == gates.get("revision"), "card revision differs")
     _require(gates.get("masterOrder") == list(MASTER) and
-             gates.get("overlayOrder") == list(OVERLAY) and
+             gates.get("originalFunctionNames") == list(OVERLAY) and
+             gates.get("oneOriginalGatePipeline") is True and
              gates.get("executionOrder") == list(ORDER),
-             "wrong/missing/reordered master or overlay gate specification")
+             "saved receipt is not the single original G0-G18 sequence")
     certification = run.get("gateCertification") or {}
     spec = certification.get("gateSpecification") or {}
     _require(spec.get("executionOrder") == list(ORDER) and
-             spec.get("masterCount") == 20 and
-             spec.get("overlayCount") == 16 and
-             spec.get("executionCount") == 36,
-             "runner's actual 36-gate specification does not match master rules")
+             spec.get("oneGatePipeline") is True and
+             spec.get("masterCount") == len(MASTER) and
+             spec.get("embeddedFunctionCount") == len(OVERLAY) and
+             spec.get("executionCount") == len(ORDER),
+             "runner's canonical G0-G18 specification does not match engine")
     _require(certification.get("allSkatersHaveEachGateRecord") is True and
              certification.get("allSkatersHaveExactExecutionOrder") is True and
-             certification.get("allOverlayStepsWereIndependentlyChecked") is True and
+             certification.get("allOriginalFunctionsWereCheckedWithinGates") is True and
              certification.get("copiedOverlayReceiptCount") == 0 and
              certification.get("executionOrderMismatches") == [] and
              certification.get("fullIndependentCardCertification") is True,
@@ -106,18 +101,25 @@ def verify_published_core(root: Path, date: str):
              "actual official player pool was hidden or research was double-counted")
     _require(type(research_branches) is int and research_branches>=0
              and certification.get("g0ResearchOnlyGateRows",0)==research_branches*len(ORDER),
-             "unresolved G0 branches lack their independent 36-gate traces")
+             "unresolved G0 branches lack the original gate investigation")
     for gate in ORDER:
         attempted = (certification.get("gateChecksAttempted") or {}).get(gate)
         _require(attempted == skaters, f"{gate} attempted for {attempted}/{skaters} skaters")
-        outcomes = ((certification.get("masterGateDispositions") or {})
-                    if gate in MASTER else
-                    (certification.get("overlayGateDispositions") or {})).get(gate) or {}
+        outcomes = (certification.get("masterGateDispositions") or {}).get(gate) or {}
         _require(sum(v for v in outcomes.values() if type(v) is int) == skaters,
                  f"{gate} missing saved outcome for some skaters")
+    # All historical source functions must be accounted for, but their
+    # observations must never be counted as additional selection gates.
+    for step in OVERLAY:
+        # Source function observations are nested, not additional gate
+        # executions; their authoritative coverage is reported separately.
+        outcomes=(certification.get("originalFunctionDispositions") or {}).get(step) or {}
+        checked=sum(v for v in outcomes.values() if type(v) is int)
+        _require(checked==skaters,
+                 f"{step} original function reviewed for {checked}/{skaters}")
     _require(run.get("gateRows", 0) >=
              (skaters+research_branches)*len(ORDER)+run.get("g0Directions",0),
-             "full original scorer + researched-goalie branch gate rows incomplete")
+             "full original G0-G18 candidate and goalie branch rows incomplete")
     games = gates.get("games") or []
     required = 2 if len(games) == 2 else 3
     _require(len(games) >= 2 and len(gates.get("legs") or []) == required,
@@ -164,12 +166,11 @@ def verify_published_core(root: Path, date: str):
                  who + " published label differs from original locked card")
         _require(leg.get("executionOrderVerified") is True,
                  who + " did not independently verify gate execution order")
-        _require(leg.get("masterPassed") == 20 and
-                 leg.get("overlayPassed") == 16 and
-                 leg.get("sourceVerifiedPregameGateCount") == 36 and
-                 leg.get("totalMaster") == 20 and
-                 leg.get("totalOverlay") == 16,
-                 who + " did not pass all 20 master and 16 independent overlay checks")
+        _require(leg.get("masterPassed") == len(MASTER) and
+                 leg.get("originalFunctionsPassed") == len(OVERLAY) and
+                 leg.get("sourceVerifiedPregameGateCount") == len(ORDER) and
+                 leg.get("totalMaster") == len(MASTER),
+                 who + " lacks the original G0-G18 gates or embedded functions")
         trace = leg.get("gateDetails") or []
         _require([x.get("gate") for x in trace] == list(ORDER),
                  who + " missing, duplicated, or reordered gate receipts")
@@ -193,19 +194,40 @@ def verify_published_core(root: Path, date: str):
                 _require(any(isinstance(u, str) and u.startswith("https://")
                              for u in source_ids),
                          who + " " + gate + " missing source attribution")
-            if gate in OVERLAY:
-                ev = row.get("evidence") or {}
-                _require(ev.get("independentOverlayEvaluation") is True and
-                         ev.get("checkedBeforeG18") is True and
-                         ev.get("masterGateVerdictCopied") is False,
-                         who + " " + gate + " used a copied/master gate shortcut")
+            # A function named StepN is evidence WITHIN this gate. There
+            # cannot be a second StepN gate row or an aliased PASS label.
+            ev=row.get("evidence") or {}
+            functions=ev.get("originalFunctionEvidence") or []
+            _require([x.get("step") for x in functions]==STEPS_BY_GATE[gate],
+                     who + " " + gate + " skipped/duplicated a required original function")
+            for sub in functions:
+                name=sub.get("step")
+                info=sub.get("evidence") or {}
+                status=sub.get("disposition")
+                neutral=(name=="Step13" and info.get("nonblocking") is True)
+                _require(status=="PASS" or neutral,
+                         who + " " + gate + " source function " + str(name) +
+                         " has a nonpassing result")
+                _require(info.get("independentOverlayEvaluation") is True and
+                         info.get("checkedBeforeG18") is True and
+                         info.get("masterGateVerdictCopied") is False,
+                         who + " " + gate + " source function " + str(name) +
+                         " copied a gate decision")
+                citations=sub.get("sourceIds") or []
+                _require(isinstance(citations,list) and all(
+                    isinstance(x,str) and x.startswith("https://") for x in citations),
+                    who + " " + gate + " source function citations malformed")
+                if status=="PASS":
+                    _require(not audit_gate(name,info,citations,run["stage"]),
+                             who + " " + gate + " source function " + str(name) +
+                             " lacks substantive evidence")
         g18 = trace[-1]["evidence"]
         path = g18.get("pathClassificationEvidence") or {}
         _require(path.get("path") == leg["originalLockedPath"] and
                  path.get("path") in ("PRIMARY", "TRANSFER", "WHO") and
                  path.get("selectionIndependentOfLabel") is True and
                  path.get("pathQuotaApplied") is False and
-                 g18.get("overlayPassedBeforeG18") is True,
+                 g18.get("originalFunctionsReviewedBeforeG18") is True,
                  who + " G18 label not demonstrably derived after all checks")
         proof = certified_legs[identity]
         _require(proof.get("masterAllPass") is True and
@@ -215,7 +237,7 @@ def verify_published_core(root: Path, date: str):
                  proof.get("semanticMissingProof") == [] and
                  proof.get("executionOrderGaps") == [],
                  who + " lacks semantic source certification")
-    return {"slateDate":date,"status":"36_GATE_INDEPENDENT_CORE_VERIFIED",
+    return {"slateDate":date,"status":"ORIGINAL_G0_G18_CORE_VERIFIED",
             "cardId":card["cardId"],"stage":run["stage"],
             "eligibleSkaters":skaters,"gateRows":run["gateRows"],
             "selected": [{"player":x["player"],"path":x["originalLockedPath"],

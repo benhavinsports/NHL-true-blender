@@ -54,6 +54,14 @@ def test_three_certified_survivors_can_publish_while_other_players_fail(tmp_path
     assert status["publicationDecision"]=="SOURCE_CERTIFIED_AND_PUBLISHED"
     assert status["publishedToSite"] is True
     assert (tmp_path/"state"/"site_cards"/(DATE+".json")).is_file()
+    # The independent published-Core contract must accept this exact
+    # verified single-pipeline receipt, not demand 36 duplicate gate rows.
+    from nhl_true_blender_engine.dashboard_export import export_dashboard
+    from scripts.verify_published_core import verify_published_core
+    export_dashboard(con,DATE,"CONFIRMED",slate,tmp_path/"state")
+    verified=verify_published_core(tmp_path/"state",DATE)
+    assert verified["status"]=="ORIGINAL_G0_G18_CORE_VERIFIED"
+    assert all(x["checks"]==len(MASTER) for x in verified["selected"])
     con.close()
 
 def test_missing_selected_gate_is_real_failure_not_overridden_by_other_losses(tmp_path):
