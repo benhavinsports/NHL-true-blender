@@ -15,7 +15,7 @@ def _ids(rows, key='playerId'):
 def expected_core_ids(run):
     """Return the list of (gameId, playerId) G18 was authorized to assemble,
     or None when the receipt is malformed/inconsistent."""
-    survivors = run.get('allG18QualifiedSurvivors')
+    survivors = run.get('preCoreQualifiedSurvivors')
     if not isinstance(survivors, list):
         return None
     survivor_ids = _ids(survivors)
