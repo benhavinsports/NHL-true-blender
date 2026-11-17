@@ -418,8 +418,12 @@ function renderPool(){
      slot.appendChild(el("strong","",started?"Game already started — pre-puck selection frozen":
        "No source-qualified survivor yet"));
      slot.appendChild(el("p","",g.reason||"Original gate review is not fully evidenced."));
-     if(g.stoppedAt)slot.appendChild(el("p","source-gap","Current source blocker: "+
-       g.stoppedAt+" — "+(EXPLAIN[g.stoppedAt]||"original gate evidence")));
+     // Never present a rejected skater's first failed gate as the one
+     // remaining blocker for the entire game.
+     if(g.currentSourceBlocker)slot.appendChild(el("p","source-gap","Verified remaining blocker: "+
+       g.currentSourceBlocker+" — "+(EXPLAIN[g.currentSourceBlocker]||"original gate evidence")));
+     else if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length)
+       slot.appendChild(el("p","tiny","Candidates stopped at different gates; no single remaining blocker is source-verified."));
      if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length){
        const review=el("details","source-details");
        review.appendChild(el("summary","","Inspect recorded gate blockers"));
