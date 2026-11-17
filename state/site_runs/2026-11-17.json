@@ -6,7 +6,7 @@
   "coreEligibleSkaterMatrices": 246,
   "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T20:45:21+00:00",
+    "asOf": "2026-11-17T21:00:45+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 11,
     "gamesWithOnlyOneMatchedGoalie": 0,
@@ -412,8 +412,7 @@
       "G10": 22,
       "G10.5": 107,
       "G16": 6,
-      "G17": 1,
-      "G18": 1,
+      "G18": 2,
       "G2": 48,
       "G4": 29,
       "G6": 11,
@@ -505,19 +504,17 @@
           "reasonDisposition": "ELIMINATED"
         }
       ],
-      "G17": [
-        {
-          "firstNonpassingGate": "G17",
-          "gameId": "2026020342",
-          "playerId": "8484938",
-          "reasonDisposition": "NOT_EXECUTED"
-        }
-      ],
       "G18": [
         {
           "firstNonpassingGate": "G18",
           "gameId": "2026020336",
           "playerId": "8485366",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G18",
+          "gameId": "2026020342",
+          "playerId": "8484938",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -3294,7 +3291,6 @@
       "firstNonPassGateCounts": {
         "G10.5:ELIMINATED": 8,
         "G10:NOT_EXECUTED": 4,
-        "G17:NOT_EXECUTED": 1,
         "G2:ELIMINATED": 6,
         "G4:NOT_EXECUTED": 2,
         "G6:NOT_EXECUTED": 1,
@@ -3303,9 +3299,29 @@
       },
       "furthestCandidatesDiagnosticOnly": [
         {
-          "player": "Arttu Hyry",
-          "playerId": "8484938",
-          "stoppedAt": "G17:NOT_EXECUTED"
+          "player": "Jamie Benn",
+          "playerId": "8473994",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
+        {
+          "player": "Roope Hintz",
+          "playerId": "8478449",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
+        {
+          "player": "Justin Hryckowian",
+          "playerId": "8484829",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
+        {
+          "player": "Wyatt Johnston",
+          "playerId": "8482740",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
+        {
+          "player": "Mikko Rantanen",
+          "playerId": "8478420",
+          "stoppedAt": "G10.5:ELIMINATED"
         }
       ],
       "gameId": "2026020342",
@@ -3316,7 +3332,7 @@
       "poolIsDiagnosticAndNeverSelects": true,
       "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
-      "stoppedAt": "G17",
+      "stoppedAt": "G10.5",
       "targetGoalieIds": [
         "8478499"
       ]
@@ -3840,8 +3856,8 @@
         "PASS": 19
       },
       "G17": {
-        "NOT_EXECUTED": 234,
-        "PASS": 12
+        "NOT_EXECUTED": 233,
+        "PASS": 13
       },
       "G18": {
         "NOT_EXECUTED": 243,
@@ -3911,8 +3927,8 @@
         "PASS": 246
       },
       "Step14": {
-        "NOT_EXECUTED": 234,
-        "PASS": 12
+        "NOT_EXECUTED": 233,
+        "PASS": 13
       },
       "Step2": {
         "PASS": 246
@@ -4564,8 +4580,8 @@
         "PASS": 246
       },
       "Step14": {
-        "NOT_EXECUTED": 234,
-        "PASS": 12
+        "NOT_EXECUTED": 233,
+        "PASS": 13
       },
       "Step2": {
         "PASS": 246
@@ -4824,7 +4840,7 @@
       "G14": 235,
       "G15": 169,
       "G16": 19,
-      "G17": 12,
+      "G17": 13,
       "G18": 3,
       "G2": 198,
       "G3": 246,
@@ -4891,7 +4907,7 @@
     "G14": 11,
     "G15": 77,
     "G16": 11,
-    "G17": 234,
+    "G17": 233,
     "G4": 44,
     "G5": 11,
     "G6": 56,
@@ -6283,9 +6299,9 @@
       "stop": "G10.5"
     },
     {
-      "candidateId": "8484938",
-      "candidateName": "Arttu Hyry",
-      "candidateStoppedAt": "G17:NOT_EXECUTED",
+      "candidateId": "8473994",
+      "candidateName": "Jamie Benn",
+      "candidateStoppedAt": "G10.5:ELIMINATED",
       "gameId": "2026020342",
       "matchup": "DAL@VGK",
       "nonSelectionDiagnosticOnly": true,
@@ -6496,7 +6512,7 @@
           },
           "sourceUrls": [
             "https://api-web.nhle.com/v1/gamecenter/2026020209/boxscore",
-            "https://api-web.nhle.com/v1/player/8484938/game-log/20262027/2"
+            "https://api-web.nhle.com/v1/player/8473994/game-log/20262027/2"
           ],
           "status": "PASS"
         },
@@ -6504,17 +6520,17 @@
           "evidence": {
             "goalSourceReconciledToDatedAppearances": true,
             "independentHistoricalGoalFinishingEvidence": true,
-            "independentSeasonLogSource": "https://api-web.nhle.com/v1/player/8484938/game-log/20262027/2",
-            "officialDatedSeasonGoals": 5,
+            "independentSeasonLogSource": "https://api-web.nhle.com/v1/player/8473994/game-log/20262027/2",
+            "officialDatedSeasonGoals": 4,
             "officialOwnedGoalsInMatchedOrigin": 0,
             "seasonAndReleaseGoalCreditsConsistent": true,
             "separateOfficialShotOriginSource": true
           },
           "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
             "https://api-web.nhle.com/v1/gamecenter/2026020209/boxscore",
             "https://api-web.nhle.com/v1/gamecenter/2026020209/play-by-play",
-            "https://api-web.nhle.com/v1/player/8484938/game-log/20262027/2"
+            "https://api-web.nhle.com/v1/player/8473994/game-log/20262027/2"
           ],
           "status": "PASS"
         },
@@ -6524,90 +6540,97 @@
             "ownRelease": {
               "allRoutes": [
                 {
-                  "ownedGoals": 1,
-                  "sog": 8,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+                  "ownedGoals": 3,
+                  "sog": 5,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
                   "zone": "Low Slot"
                 },
                 {
                   "ownedGoals": 1,
-                  "sog": 8,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "R Circle"
-                },
-                {
-                  "ownedGoals": 1,
-                  "sog": 6,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+                  "sog": 5,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
                   "zone": "L Circle"
                 },
                 {
-                  "ownedGoals": 1,
-                  "sog": 4,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "High Slot"
-                },
-                {
-                  "ownedGoals": 1,
-                  "sog": 4,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "Offensive Neutral Zone"
-                },
-                {
                   "ownedGoals": 0,
-                  "sog": 6,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "R Point"
+                  "sog": 4,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "Outside L"
                 },
                 {
                   "ownedGoals": 0,
                   "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "Center Point"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 2,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
                   "zone": "Crease"
                 },
                 {
                   "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "Outside L"
-                }
-              ],
-              "ambiguousRoutes": [
-                {
-                  "ownedGoals": 1,
-                  "sog": 8,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
-                  "zone": "Low Slot"
+                  "sog": 2,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "High Slot"
                 },
                 {
-                  "ownedGoals": 1,
-                  "sog": 8,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+                  "ownedGoals": 0,
+                  "sog": 2,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
                   "zone": "R Circle"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "Behind the Net"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "Offensive Neutral Zone"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "Outside R"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
+                  "zone": "R Point"
                 }
               ],
               "anatomicalPlacementCertified": false,
               "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
-              "attempts": 6,
-              "canDeterminePrimary": false,
-              "candidateRouteReconstructedFrom": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now",
+              "attempts": 1,
+              "canDeterminePrimary": true,
+              "candidateRouteReconstructedFrom": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now",
               "consideredOwnGoalieWeakRoutes": [
                 "High Slot",
                 "R Point"
               ],
+              "detail": "Shots on goal, not total attempt counts; historical own goals only",
               "g0MatchedOwnOriginRoute": true,
               "g9CoverageSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020051/play-by-play",
               "g9DefensiveLaneIndependentlyMatched": true,
+              "isAnatomicalReleaseClaim": false,
+              "isTotalShotAttempts": false,
               "noPreG0SkaterPreference": true,
-              "originalPrimaryOrigin": null,
+              "originalPrimaryOrigin": "Low Slot",
               "ownedGoals": 0,
-              "primaryWasTiedBeforeG0": true,
+              "primaryWasTiedBeforeG0": false,
               "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
               "zone": "R Point"
             }
           },
           "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484938/now"
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now"
           ],
           "status": "PASS"
         },
@@ -6663,10 +6686,10 @@
         }
       },
       "status": "NO_SURVIVOR",
-      "stop": "G17"
+      "stop": "G10.5"
     }
   ],
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-17T20:47:04+00:00"
+  "updatedUTC": "2026-11-17T21:03:08+00:00"
 }
