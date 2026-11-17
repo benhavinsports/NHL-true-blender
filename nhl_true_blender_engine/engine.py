@@ -337,10 +337,31 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
     top=considered[0]
     tied=[x for x in considered if
           (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
+    tied_origin_evidence=None
     if len(tied)>1:
-        # No arbitrary zone tie break. The original independently sourced
-        # release remains the candidate until another gate separates lanes.
-        return player
+        # Never discard jointly G0/G9-supported strongest OWN scoring lanes
+        # and silently revert to a weaker default EDGE area. Resolve a tie
+        # only from the same player's independently dated OFFICIAL PBP origin
+        # rows, with identical source scope across ALL tied lanes. PBP bins
+        # are approximate rink origins, not NHL EDGE anatomical polygons.
+        observed_ties=[(x,independently_dated_origin_route(player,x['zone']))
+                       for x in tied]
+        if any(observation is None for _,observation in observed_ties):
+            return player  # no unsupported or arbitrary lane winner
+        priority=lambda item:(item[1]['ownedGoals'],item[1]['shotsOnGoal'])
+        best=max(priority(item) for item in observed_ties)
+        winners=[item for item in observed_ties if priority(item)==best]
+        if len(winners)!=1:
+            return player  # exact source tie remains unresolved
+        top=winners[0][0]
+        tied_origin_evidence={
+            'method':'INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN',
+            'matchedTiedNhlEdgeOrigins':[x['zone'] for x in tied],
+            'datedRouteEvidence':[
+                {'zone':x['zone'],**observation} for x,observation in observed_ties],
+            'noArbitraryLaneSelection':True,
+            'notAnatomicalPlacement':True,
+        }
     observed=dict(base)
     observed.update({
         'archetype':base.get('archetype') or 'OBSERVED_OWN_SHOT_ORIGIN',
@@ -354,6 +375,7 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
         'originalPrimaryOrigin':base.get('zone'),
         'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
         'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
+        'datedPbpLaneTieResolution':tied_origin_evidence,
         'anatomicalPlacementCertified':False,
         'noPreG0SkaterPreference':True
     })
