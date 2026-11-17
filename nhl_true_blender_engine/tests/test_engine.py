@@ -421,7 +421,10 @@ def test_four_survivor_games_keep_all_original_gate_evidence_without_g18_rank(co
             (DATE,gid,pid)).fetchall()
         chronological=sorted(rows,key=lambda x:json.loads(x["details"])["executionIndex"])
         assert [row["gate"] for row in chronological]==EXECUTION_ORDER
-        assert all(row["disposition"]=="PASS" for row in chronological)
+        assert all(row["disposition"]=="PASS" for row in chronological[:-1])
+        # Unseparated game finalists are not permitted a final Core G18 PASS.
+        assert chronological[-1]["gate"]=="G18"
+        assert chronological[-1]["disposition"]=="NOT_EXECUTED"
 
 
 def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
@@ -435,7 +438,9 @@ def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
     monkeypatch.setattr(engine,"audit_gate",reject_final)
     result=execute(con,snapshot(3),DATE,"CONFIRMED")
     assert result["card"] is None
-    assert result["uniqueGameSurvivors"]==0
+    # Game-level G0-G17 survivors are still observed; final G18 proof
+    # rejection blocks their promotion into the Core, not their existence.
+    assert result["uniqueGameSurvivors"]==3
     assert "G18" in str(result["errors"])
     rows=con.execute("SELECT disposition FROM gates WHERE gate='G18'").fetchall()
     assert rows and all(x["disposition"]=="NOT_EXECUTED" for x in rows)
