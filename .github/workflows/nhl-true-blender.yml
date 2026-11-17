@@ -191,6 +191,12 @@ jobs:
               # Rebase onto the newest canonical database; do not replay
               # with stale local state after another run saved a Core.
               python scripts/ledger_persistence.py restore
+              # The fetched HEAD may contain newer gate code than the SHA
+              # tested earlier in this run. Verify THAT exact source before
+              # repeating the entire engine; no untested rule version may
+              # certify or persist a new Core.
+              python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
+              python -m pytest -q nhl_true_blender_engine/tests
               if [ -z "${BLENDER_EXECUTED_DATE:-}" ] || [ -z "${BLENDER_EXECUTED_MODE:-}" ]; then
                 echo "Original phase/date missing; preserving saved Core"
                 exit 1
