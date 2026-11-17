@@ -376,7 +376,7 @@
         "unknownIsNotAPath": true,
         "whoPhysicalMechanism": null
       },
-      "player": "Tim St\u00fctzle",
+      "player": "Tim Stützle",
       "playerId": "8482116",
       "routeLabel": "PRIMARY",
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
@@ -507,7 +507,7 @@
           "blocked-shot"
         ],
         "attemptsAgainst": 119,
-        "attemptsPerGame": 7.0,
+        "attemptsPerGame": 7,
         "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
         "gameCount": 17,
         "goalsAgainst": 8,
@@ -566,9 +566,9 @@
   ],
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
-  "cardId": "NHL-2026-11-17-CANONICAL",
+  "cardId": null,
   "cardSavedByEngine": false,
-  "currentRunFullyCertified": true,
+  "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
     "asOf": "2026-11-17T13:25:05+00:00",
     "gamesWithBothGoalieProjections": 0,
@@ -1021,7 +1021,7 @@
                   "area": "Low Slot",
                   "goalsAgainst": 5,
                   "savePctg": 0.931507,
-                  "savePctgPercentile": 1.0,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 73
                 },
                 {
@@ -1126,8 +1126,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 33
                 },
                 {
@@ -1225,8 +1225,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 33
                 },
                 {
@@ -1437,8 +1437,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 30
                 },
                 {
@@ -1586,8 +1586,8 @@
                 {
                   "area": "L Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 30
                 },
                 {
@@ -3640,7 +3640,7 @@
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
         "overlayMissingOrNonpassing": [],
-        "player": "Tim St\u00fctzle",
+        "player": "Tim Stützle",
         "playerId": "8482116",
         "savedPath": "PRIMARY",
         "semanticMissingProof": [],
@@ -3825,9 +3825,9 @@
     "targetSides": 22,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "PRESERVED_FROZEN_CORE_NO_NEW_SELECTION",
-  "publishedToSite": true,
-  "retainedOriginalLockedCard": true,
+  "publicationDecision": "RETRACTED_UNAUTHORIZED_G18_LEGACY_CARD_CORRECTED_RUN_HAS_FOUR_SURVIVORS",
+  "publishedToSite": false,
+  "retainedOriginalLockedCard": false,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
@@ -3843,5 +3843,10 @@
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T13:26:51+00:00"
+  "updatedUTC": "2026-11-17T13:26:51+00:00",
+  "fingerprint": null,
+  "historicalCardIsNotCurrentRunCertification": true,
+  "oldCoreRetractedByRuleCorrection": true,
+  "qualifiedSurvivorCount": 4,
+  "retractionAuditPath": "state/core_retractions/2026-11-17.json"
 }
