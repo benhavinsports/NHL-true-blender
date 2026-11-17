@@ -923,25 +923,34 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # Fold each source-backed Step observation into exactly one canonical
     # gate verdict. Preserve its underlying evidence, but do not allow a
     # PASS from the master check to hide a failed source observation.
-    overlay_by_gate={gate:next((row for row in overlay
-                      if row['gate']==step),None)
-                     for gate,step in OVERLAY_AT_GATE.items()}
+    # Route legacy observations by what they actually test, not by their
+    # numeric Step label. Multiple observations may belong to one gate.
+    step_owner={
+        'Step0':'G0','Step1':'G2','Step2':'G3','Step3':'G5',
+        'Step4':'G4','Step5':'G7','Step6':'G6','Step7':'G9',
+        'Step8':'G8','Step9':'G9','Step10':'G10',
+        'Step10.5':'G10.5','Step11':'G11','Step12':'G16',
+        'Step13':'G13','Step14':'G17'}
+    overlay_by_gate={gate:[] for gate in MASTER[:-1]}
+    for observation in overlay:
+        overlay_by_gate[step_owner[observation['gate']]].append(observation)
     for gate in MASTER[:-1]:
-        observation=overlay_by_gate.get(gate)
-        if observation is None:
+        observations=overlay_by_gate[gate]
+        if not observations:
             continue
-        prior=d[gate]['disposition']
-        observed=observation['disposition']
-        if 'ELIMINATED' in (prior,observed):
+        dispositions=[d[gate]['disposition']]+[
+            item['disposition'] for item in observations]
+        if 'ELIMINATED' in dispositions:
             integrated='ELIMINATED'
-        elif 'NOT_EXECUTED' in (prior,observed):
+        elif 'NOT_EXECUTED' in dispositions:
             integrated='NOT_EXECUTED'
         else:
             integrated='PASS'
-        evidence={
-            'step':observation['gate'],'disposition':observed,
-            'sourceIds':observation['details'].get('sourceIds',[]),
-            'evidence':observation['details'].get('evidence',{})}
+        evidence=[{
+            'step':item['gate'],'disposition':item['disposition'],
+            'sourceIds':item['details'].get('sourceIds',[]),
+            'evidence':item['details'].get('evidence',{})}
+            for item in observations]
         d[gate]['details']['integratedStepEvidence']=evidence
         d[gate]['details']['integratedDisposition']=integrated
         d[gate]['disposition']=integrated
@@ -950,7 +959,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         row['details']['evidence']['integratedStepEvidence']=evidence
         row['details']['evidence']['integratedDisposition']=integrated
         row['details']['sourceIds']=list(dict.fromkeys(
-            row['details'].get('sourceIds',[])+evidence['sourceIds']))
+            row['details'].get('sourceIds',[])+[
+                url for item in evidence for url in item['sourceIds']]))
         if integrated=='NOT_EXECUTED' and gate not in deficient:
             deficient.append(gate)
         if integrated=='ELIMINATED':
