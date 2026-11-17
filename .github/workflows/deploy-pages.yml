@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p site/data
           python - <<'PY'
-          import json, pathlib, datetime
+          import json, pathlib, datetime, sqlite3
           root=pathlib.Path('state')
           from scripts.preserved_core_receipt import verified_original_receipt
           status_files=sorted((root/'site_runs').glob('????-??-??.json'))
@@ -158,6 +158,20 @@ jobs:
               status_path=root/'site_runs'/f'{date}.json'
               card_path=root/'site_cards'/f'{date}.json'
               status=json.loads(status_path.read_text()) if status_path.exists() else {}
+              # Pages can populate the compact backs of every true game
+              # survivor from the restored authoritative SQLite ledger.
+              # This never changes G0-G18 outcomes or selects a scorer.
+              game_gate_receipts=status.get('gameSurvivorGateReceipts') or {}
+              if not game_gate_receipts and status.get('gameSurvivorPool'):
+                  from scripts.publish_site_state import _public_survivor_gate_cards
+                  db_path=root/'true_blender.sqlite'
+                  if db_path.exists():
+                      with sqlite3.connect(str(db_path), timeout=60) as source_db:
+                          source_db.row_factory=sqlite3.Row
+                          game_gate_receipts=_public_survivor_gate_cards(
+                              source_db,date,status.get('stage'),
+                              status.get('gameSurvivorPool',[]))
+                  print('Read-only survivor gate receipts prepared:',len(game_gate_receipts))
               card=json.loads(card_path.read_text()) if card_path.exists() else None
               # A postgame official grade updates the SAME locked Core,
               # never creates a replacement selection. Keep both states
@@ -271,7 +285,7 @@ jobs:
                   'selectionFunnel':status.get('selectionFunnel',{}),
                   'g16FinalistCompetition':status.get('g16FinalistCompetition'),
                   'gameSurvivorPool':status.get('gameSurvivorPool',[]),
-                  'gameSurvivorGateReceipts':status.get('gameSurvivorGateReceipts',{}),
+                  'gameSurvivorGateReceipts':game_gate_receipts,
                   'survivorOnlyCertification':status.get('survivorOnlyCertification'),
                   'nonselectedGateAuditIsDiagnosticOnly':True,
                   'historicalShiftCoverage':status.get('historicalShiftCoverage',{}),
