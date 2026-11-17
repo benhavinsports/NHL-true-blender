@@ -540,5 +540,14 @@ def export_run(con, slate_date, stage, result, root='state'):
     _write(path,payload)
     status.update(publishedToSite=True,cardId=payload['cardId'],
                   fingerprint=payload['fingerprint'],cardPath=str(path))
+    # Publish a separate source-certified full-game cohort snapshot only
+    # after a *real* independent G18 card has been written successfully.
+    # This prevents future incomplete research refreshes from blanking
+    # previously fully evidenced game-survivor cards on the public site.
+    import os
+    from scripts.public_survivor_snapshot import persist_fully_certified_cohort
+    status['qualifiedSurvivorSnapshotSaved']=persist_fully_certified_cohort(
+        root,slate_date,stage,result,os.environ.get('GITHUB_SHA'),
+        os.environ.get('GITHUB_RUN_ID'))
     _write(status_path,status)
     return status

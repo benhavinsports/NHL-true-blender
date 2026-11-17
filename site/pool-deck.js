@@ -98,7 +98,7 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  top.appendChild(backTurn);back.appendChild(top);
  const info=create("div","pool-back-content");
  if(survivor){
-   info.appendChild(create("p","pool-back-subtitle","REAL SCORING PATH · "+String(latest?.stage||"STAGE UNREPORTED")));
+   info.appendChild(create("p","pool-back-subtitle","REAL SCORING PATH · "+String(latest?.gameSurvivorDisplayStage||latest?.stage||"STAGE UNREPORTED")));
    fact(info,"G0 · Target goalie",String(survivor.goalieId||"Unreported")+
        " · "+String(survivor.goalieStatus||"Unconfirmed"));
    fact(info,"G4/G5 · Own release",String(survivor.ownRouteZone||"Not recorded")+
@@ -191,6 +191,12 @@ function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
    item.appendChild(create("strong","",value));
    item.appendChild(create("span","",label));
    stats.appendChild(item);
+ }
+ const cohort=latest?.gameSurvivorDisplayProvenance;
+ if(cohort?.origin==="LAST_FULLY_SOURCE_CERTIFIED_PREPUCK_COHORT"){
+   const note=create("div","pool-snapshot-note",
+     "LAST VERIFIED "+String(cohort.sourceStage||"PROJECTED")+" POOL · NEWER REVIEW NOT YET CERTIFIED");
+   stats.appendChild(note);
  }
  holder.appendChild(stats);
  for(const g of games)card(holder,g,coreKeys,latest,gates,gateNames,facts);
