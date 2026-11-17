@@ -231,3 +231,49 @@ def test_archived_coherent_matrix_checked_when_current_receipts_have_been_replac
     assert provenance["databaseOrigin"]=="HISTORY"
     assert provenance["individualOrderedChecks"]==36
     con.close()
+
+
+def test_season_calibration_records_only_source_verified_original_g0_g105_miss_patterns(tmp_path):
+    """Grade history counts official winner/loser, never infers new future scorer."""
+    con=open_db(str(tmp_path/"calendar.sqlite"))
+    dates=("2026-11-15","2026-11-16")
+    for day in dates:
+        insert_card_and_grade(con,day,miss=True)
+    folder=tmp_path/"site_runs"
+    folder.mkdir()
+    def audit(day,fingerprint="synthetic-fingerprint"):
+        return {
+            "status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",
+            "slateDate":day,"cardId":f"NHL-{day}-CANONICAL",
+            "originalFingerprint":fingerprint,"originalRevision":1,
+            "officialSourceUrls":[SOURCE],
+            "selectedLegs":[{
+                "gameId":"8888","lockedPlayerId":"888",
+                "lockedPlayer":"Synthetic Player","lockedPath":"TRANSFER",
+                "lockedTeam":"TEST","chosenGoals":0,
+                "sameAttackSideGoals":1,"oppositeAttackSideGoals":3,
+                "officialSources":[SOURCE],
+                "officialScorers":[{
+                    "playerId":"999","player":"Synthetic Teammate","team":"TEST",
+                    "goals":1,"sameAttackDirectionAsCore":True,
+                    "pregameG105Verdict":"DEFEATED"}]
+            }]
+        }
+    }
+    (folder/"2026-11-15-recipient-audit.json").write_text(
+        json.dumps(audit("2026-11-15")))
+    # A report from a different original Core must NOT affect the sample.
+    (folder/"2026-11-16-recipient-audit.json").write_text(
+        json.dumps(audit("2026-11-16",fingerprint="OTHER-CARD")))
+    report=season_history(con,2026,"2026-11-16",root=tmp_path)
+    route=report["officialRouteCalibration"]
+    assert report["officiallyGradedSlates"]==2
+    assert route["officiallyComparedSlates"]==1
+    assert route["originalLegsCompared"]==1
+    assert route["scorerMissesCompared"]==1
+    assert route["missesWithDefeatedTeammateScorer"]==1
+    assert route["missesWithOppositeG0SideScoringMore"]==1
+    assert route["observations"][0]["officialSourceUrls"]==[SOURCE]
+    assert route["noOddsWeightsOrAutomaticRecipientOverride"] is True
+    assert con.execute("SELECT COUNT(*) FROM patches").fetchone()[0]==0
+    con.close()
