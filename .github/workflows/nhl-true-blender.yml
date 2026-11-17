@@ -187,8 +187,15 @@ jobs:
               sleep $((attempt * 5))
               continue
             fi
-            if ! git diff --quiet "$GITHUB_SHA" origin/main -- state/; then
-              echo "Newer canonical state; safely replaying this exact phase on its ledger"
+            # Compare against the parent of THIS local state commit, not
+            # the immutable original GITHUB_SHA from the beginning of the
+            # job. After a safe replay, HEAD^ is the newly fetched
+            # authoritative base. Re-using GITHUB_SHA made EVERY retry
+            # rediscover the SAME already-reconciled state change and
+            # repeatedly refetch live NHL sources unnecessarily.
+            state_base="$(git rev-parse HEAD^)"
+            if ! git diff --quiet "$state_base" origin/main -- state/; then
+              echo "Newer canonical state since $state_base; replay this phase on its ledger"
               git reset --hard origin/main
               # Rebase onto the newest canonical database; do not replay
               # with stale local state after another run saved a Core.
