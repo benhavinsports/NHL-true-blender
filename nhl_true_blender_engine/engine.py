@@ -959,8 +959,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # Having a review OBJECT is not proof that its conflicts were resolved.
     # Source-derived cross-checks must explicitly report no unresolved
     # goalie/role/rival contradiction to pass; never force G17 on placeholder.
-    cross_source_resolved=(cdata.get('sourceType')!='DERIVED_CROSS_SOURCE_G17'
-                            or cdata.get('unresolved') is False) if cdata else False
+    # G17's contradiction decision is authoritative regardless of which
+    # independent source supplied the structured review. Previously ANY
+    # non-DERIVED source with unresolved=True was silently marked PASS.
+    # Require a positive resolved outcome, not merely a source label.
+    cross_source_resolved=bool(cdata and cdata.get('unresolved') is False)
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
                      cdata.get('lineupDisagreementReview') is not None and
                      cdata.get('strongestRivalReview') is not None and
