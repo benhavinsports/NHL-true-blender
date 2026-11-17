@@ -205,7 +205,7 @@ def attach(con, snapshot, date, stage):
             for team in (g['away'],g['home']):
                 roster=g.get('rosters',{}).get(team)
                 if not roster:continue
-                p=next((p for p in roster['data']['players'] if p['id']==pid),None)
+                p=next((p for p in roster['data']['players'] if str(p.get('id'))==pid),None)
                 if not p:continue
                 if kind=='PLAYER_STATUS':
                     # A projected roster report is not a confirmation.
