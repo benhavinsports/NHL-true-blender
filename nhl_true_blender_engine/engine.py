@@ -1113,27 +1113,69 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
              receipt(player.get('release')) else []) | set(
              [who['sourceUrl']] if receipt(who) else []) | set(
              [goalie_profile['sourceUrl']] if receipt(goalie_profile) else [])))
-    # G15 must be INDEPENDENT of G10's season goal-credit Boolean.
-    # Cross-check historical credited goal IDs with a separate official
-    # per-origin SHOOTER source. Neither proves tonight's scorer vs feeder.
-    # G15 independently compares credited historical season goals from an
-    # official dated player log to the skater's OWN NHL EDGE shot-origin
-    # finishing observations. No inferred future score or fabricated goal IDs.
+    # G15: own GOAL FINISHER (not the assist provider), independently
+    # corroborated by the official dated season goal log and the skater's
+    # separate NHL EDGE own shot-origin record. G5 already proved which
+    # observed own shooting lane attacks the G0 goalie weakness.
+    #
+    # A player may have actual shots but no historically credited goal in
+    # that SPECIFIC weak lane while independently owning historical goals in
+    # other lanes. Requiring a SAME-LANE goal here wrongly duplicates the
+    # physical-lane G5 check and labels a real historical scorer NOT_EXECUTED
+    # despite independent positive goal credits from both sources.
+    # DO NOT claim any historical goal in the matched lane when there is zero.
     season_release_consistent=bool(
         verified_season_goals and release and
-        type(release.get('ownedGoals')) is int
-        and release['ownedGoals']<=season_data['officialPastSeasonGoals'])
+        type(release.get('ownedGoals')) is int and
+        release['ownedGoals']<=season_data['officialPastSeasonGoals'])
+    edge_routes=(release.get('allRoutes') or []) if release else []
+    edge_full_own_goal_reconciliation=bool(
+        verified_season_goals and receipt(player.get('release')) and
+        release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
+        isinstance(edge_routes,list) and len(edge_routes)>0 and
+        all(isinstance(row,dict) and bool(row.get('zone')) and
+            type(row.get('sog')) is int and row['sog']>=0 and
+            type(row.get('ownedGoals')) is int and
+            0<=row['ownedGoals']<=row['sog'] for row in edge_routes) and
+        len({row.get('zone') for row in edge_routes})==len(edge_routes) and
+        sum(row['ownedGoals'] for row in edge_routes)==
+            season_data['officialPastSeasonGoals'] and
+        release.get('attempts',0)>0 and
+        (season_history or {}).get('sourceUrl') !=
+            player['release']['sourceUrl'] and
+        season_data['officialPastSeasonGoals']>0)
+    # One direct finishing proof already in THIS chosen lane remains the
+    # strongest form of historical route attribution. The independent
+    # full-season cross-origin option is NOT a claim he scored from this
+    # lane; it verifies a goal recipient who shoots from the targeted lane.
+    exact_matched_lane_goal=bool(release and
+        type(release.get('ownedGoals')) is int and
+        release['ownedGoals']>0)
     finish_corrob=bool(
         own and own.get('recipient') is True and
-        receipt(ownership) and rec and (sample_goals or season_release_consistent)
-        and receipt(player.get('release')) and release and
-        type(release.get('ownedGoals')) is int and release['ownedGoals']>0)
+        receipt(ownership) and rec and
+        (sample_goals or season_release_consistent) and
+        receipt(player.get('release')) and release and
+        type(release.get('ownedGoals')) is int and
+        (exact_matched_lane_goal or edge_full_own_goal_reconciliation))
     emit('G15',finish_corrob,
          {'independentHistoricalGoalFinishingEvidence':finish_corrob,
           'goalSourceReconciledToDatedAppearances':bool(rec),
           'separateOfficialShotOriginSource':bool(receipt(player.get('release'))),
           'officialOwnedGoalsInMatchedOrigin':release.get('ownedGoals') if release else None,
+          'matchedOriginOwnOnNetShots':release.get('attempts') if release else None,
+          'matchedOriginHasHistoricalGoal':exact_matched_lane_goal,
           'officialDatedSeasonGoals':season_data.get('officialPastSeasonGoals') if verified_season_goals else None,
+          'totalOwnedGoalsFromEveryNhlEdgeOrigin':sum(
+              row.get('ownedGoals',0) for row in edge_routes
+              if isinstance(row,dict) and type(row.get('ownedGoals')) is int)
+              if edge_routes else None,
+          'fullSeasonGoalCreditsReconciledAgainstEdgeOrigins':edge_full_own_goal_reconciliation,
+          'directFinisherEvidenceMethod':(
+              'POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE' if exact_matched_lane_goal else
+              'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS'
+              if edge_full_own_goal_reconciliation else None),
+          'sameLaneGoalsNotInferredFromScoringElsewhere':True,
           'seasonAndReleaseGoalCreditsConsistent':season_release_consistent if verified_season_goals else None,
           'independentSeasonLogSource':season_history.get('sourceUrl') if verified_season_goals else None,
           'futureGoalVersusAssistRoleNotProven':True,
