@@ -979,7 +979,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
     if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
         raise ValueError('Combined execution trace does not match the authoritative gate order')
-    return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
+    # G18 itself must survive its independent semantic/source audit.  An
+    # earlier bool may say "passed" even if emit('G18') correctly downgraded
+    # the recorded disposition for missing route proof. No such recipient can
+    # ever enter the one-per-game or cross-game finalist pool.
+    final_g18_passed=(passed and d['G18']['disposition']=='PASS')
+    return {'player':player,'dispositions':d,'complete':final_g18_passed,
+            'deficientGates':deficient,
             'route':route,'pathEvidence':path_proof,
             'pressure':evidence_data(shots),
             'release':release,'challengers':rows},execution_trace
