@@ -230,6 +230,32 @@ def _validate_replacement(con, existing, new_legs, audit, now):
                           (audit['triggerEvidenceId'],)).fetchone()
     if not receipt or receipt['slate_date'] != existing['slate_date']:
         raise ValueError('G18 source-backed trigger not stored')
+    # A replay of yesterday's evidence is not a gate-changing source update.
+    # Anchor the trigger to the ACTIVE revision, not the original issuance:
+    # otherwise a later change could be authorized by an older receipt.
+    # The explicitly user-retracted November 17 invalid-G18 fingerprint is
+    # a separate, one-time correction; it must still satisfy the full original
+    # gate evidence, but is not an ordinary pregame source-change event.
+    if audit.get('exceptionScope') != 'NOV17_PREVIOUSLY_RETRACTED_FINGERPRINT_ONLY':
+        previous_version = con.execute(
+            'SELECT created_at FROM card_versions WHERE slate_date=? AND revision=?',
+            (existing['slate_date'], existing['revision'])).fetchone()
+        if not previous_version or not previous_version['created_at']:
+            raise ValueError('G18 replacement has no saved baseline version timestamp')
+        try:
+            baseline_time = datetime.fromisoformat(previous_version['created_at'].replace('Z','+00:00'))
+            source_time = datetime.fromisoformat(receipt['observed_at'].replace('Z','+00:00'))
+            if baseline_time.tzinfo is None or source_time.tzinfo is None:
+                raise ValueError('Missing timezone')
+        except (TypeError, ValueError, AttributeError):
+            raise ValueError('G18 replacement source chronology is not verified')
+        if source_time <= baseline_time:
+            raise ValueError('G18 replacement trigger predates or matches the locked Core revision')
+        if source_time > now:
+            raise ValueError('G18 replacement trigger is future-dated')
+        audit['baselineVersionCreatedAt'] = previous_version['created_at']
+        audit['triggerObservedAt'] = receipt['observed_at']
+        audit['triggerNewerThanBaselineVersion'] = True
     if not audit['priorSurvivorFailure'].get('failedGate'):
         raise ValueError('G18 prior player failure gate missing')
     if not audit['priorSurvivorFailure'].get('sourceIds'):
