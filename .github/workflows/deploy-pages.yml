@@ -10,6 +10,9 @@ on:
       - 'state/site_runs/**'
       - 'state/site_gates/**'
       - 'state/history/**'
+      - 'state/true_blender.sqlite.gz'
+      - 'nhl_true_blender_engine/dashboard_export.py'
+      - 'scripts/refresh_selected_gate_exports.py'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 permissions:
