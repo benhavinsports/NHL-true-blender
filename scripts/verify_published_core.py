@@ -85,8 +85,23 @@ def verify_published_core(root: Path, date: str):
              certification.get("executionOrderMismatches") == [] and
              certification.get("fullIndependentCardCertification") is True,
              "runner did not independently evaluate every gate for every skater")
-    skaters = run.get("eligibleSkaterRows")
-    _require(type(skaters) is int and skaters > 0, "no evaluated skater pool")
+    # G0 direction-UNRESOLVED research is executed against each actual
+    # player/possible goalie branch, but it is NEVER a scorer-eligible
+    # G0-selected player row. The old published contract incorrectly used
+    # all 267 official IDs as the 222 G0-selected matrix denominator.
+    # Preserve every research receipt, certify only the real matrix cohort.
+    skaters = certification.get("scannedSkaters")
+    all_official = run.get("eligibleSkaterRows")
+    research_official = certification.get("g0ResearchOnlyOfficialSkaters",0)
+    research_branches = certification.get("g0ResearchOnlyBranchMatrices",0)
+    _require(type(skaters) is int and skaters > 0,
+             "no scorer-eligible executed G0 player matrices")
+    _require(type(all_official) is int and type(research_official) is int
+             and all_official==skaters+research_official,
+             "actual official player pool was hidden or research was double-counted")
+    _require(type(research_branches) is int and research_branches>=0
+             and certification.get("g0ResearchOnlyGateRows",0)==research_branches*len(ORDER),
+             "unresolved G0 branches lack their independent 36-gate traces")
     for gate in ORDER:
         attempted = (certification.get("gateChecksAttempted") or {}).get(gate)
         _require(attempted == skaters, f"{gate} attempted for {attempted}/{skaters} skaters")
@@ -95,8 +110,9 @@ def verify_published_core(root: Path, date: str):
                     (certification.get("overlayGateDispositions") or {})).get(gate) or {}
         _require(sum(v for v in outcomes.values() if type(v) is int) == skaters,
                  f"{gate} missing saved outcome for some skaters")
-    _require(run.get("gateRows", 0) >= skaters * len(ORDER),
-             "fewer actual gate rows than skaters multiplied by 36")
+    _require(run.get("gateRows", 0) >=
+             (skaters+research_branches)*len(ORDER)+run.get("g0Directions",0),
+             "full original scorer + researched-goalie branch gate rows incomplete")
     games = gates.get("games") or []
     required = 2 if len(games) == 2 else 3
     _require(len(games) >= 2 and len(gates.get("legs") or []) == required,
