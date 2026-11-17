@@ -476,6 +476,46 @@ function gateRow(record){
  details.appendChild(inner);return details;
 }
 function humanKey(s){return String(s).replace(/([a-z])([A-Z])/g,"$1 $2").replace(/[_-]/g," ").replace(/^./,v=>v.toUpperCase());}
+function renderPool(){
+ const holder=$("pool-list");if(!holder)return;holder.replaceChildren();
+ const pool=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
+ if(!pool.length){
+   holder.appendChild(el("div","empty-state","The per-game survivor pool appears after the next engine run."));
+   return;
+ }
+ for(const g of pool){
+   const panel=el("article","match");
+   const head=el("div","match-head");
+   head.appendChild(el("strong","",(g.matchup||"").replace("@"," @ ")));
+   const sv=g.survivor;
+   head.appendChild(pill(g.inCore?"IN CORE":sv?"SURVIVOR":g.status==="UNSEPARATED_SAME_GAME_SURVIVORS"?"UNSEPARATED":
+     g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?"STARTED":"NO SURVIVOR",
+     g.inCore?"success":sv?"neutral":"warning"));
+   panel.appendChild(head);
+   if(g.gameStartUTC)panel.appendChild(el("p","","Puck drop · "+etTime(g.gameStartUTC)));
+   if(sv){
+     panel.appendChild(el("p","",sv.player+" ("+(g.attackTeam||sv.attackTeam)+") vs goalie "+(sv.goalieId||"?")+
+       " · "+(sv.routeLabel||"")+" route, "+(sv.ownRouteZone||"?")+" · "+number(sv.ownedGoals)+"G / "+
+       number(sv.ownShotsOnGoal)+" SOG in that lane"));
+     if(g.g16Decision)panel.appendChild(el("p","muted","G16 cross-game: "+
+       (String(g.g16Decision).startsWith("RETAINED")?"retained":"excluded — dominated by "+(g.g16DominatedBy||[]).length+" other survivor(s)")));
+     const a=link(sv.routeSource,"Route source");if(a)panel.appendChild(a);
+   }else if(g.survivors?.length){
+     panel.appendChild(el("p","","Same-game survivors not separated by G10.5/G17: "+g.survivors.map(x=>x.player).join(", ")));
+   }else{
+     panel.appendChild(el("p","","Stopped at "+(g.stoppedAt||"—")+(g.reason?" · "+g.reason:"")));
+     if(g.furthestCandidatesDiagnosticOnly?.length)panel.appendChild(el("p","muted",
+       "Furthest-reaching candidates (diagnostic, not picks): "+
+       g.furthestCandidatesDiagnosticOnly.map(x=>x.player+" "+x.stoppedAt).join(", ")));
+   }
+   if(g.firstNonPassGateCounts&&Object.keys(g.firstNonPassGateCounts).length){
+     const d=el("details");d.appendChild(el("summary","","Where the other "+number(g.candidatesEvaluated)+" candidates stopped"));
+     d.appendChild(el("p","",Object.entries(g.firstNonPassGateCounts).map(([k,v])=>k+" ×"+v).join(" · ")));
+     panel.appendChild(d);
+   }
+   holder.appendChild(panel);
+ }
+}
 function renderMatchups(){
  const holder=$("matchup-list");holder.replaceChildren();
  const games=state.gateData?.games||[];
@@ -809,7 +849,7 @@ function renderCompleteGateDeck(){
 }
 function renderAll(){
  renderPicker();renderHeader();renderCompleteGateDeck();renderCards();renderDetails();
- renderMatchups();renderGrade();renderSeason();renderSystem();
+ renderPool();renderMatchups();renderGrade();renderSeason();renderSystem();
 }
 async function loadEvidence(date){
  const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;
