@@ -839,3 +839,26 @@ a{color:#70eff5}
 @media(prefers-reduced-motion:reduce){
  .card-flip-inner{transition:none}
 }
+
+
+/* One public gate view: evidence belongs on the back of each playing card.
+   Links are real read-only evidence, not nested controls inside a button. */
+.core-card[role="button"]{cursor:pointer}
+.core-card[role="button"]:focus-visible{outline:3px solid #81fff2;outline-offset:5px}
+.card-back .flip-gate-sources{
+  display:flex;flex-wrap:wrap;gap:4px 9px;margin-top:8px;padding-top:5px;
+  border-top:1px solid #bfd2d9;
+}
+.card-back .flip-gate-sources a{
+  display:inline-flex;align-items:center;min-height:30px;font-size:10px;
+  font-weight:900;color:#115f8c;word-break:break-word;
+  border-radius:4px;padding:2px 5px;background:#e5f2f4;
+}
+.card-back .flip-gate-sources a:hover,
+.card-back .flip-gate-sources a:focus-visible{
+  background:#c6ecf1;color:#143f61;text-decoration:underline;
+}
+.card-back .flip-functions{padding:6px 0;margin-top:6px;border-top:1px dotted #bad0d3}
+.card-back .flip-function-line{padding:4px 0}
+.card-back .flip-function-line strong{display:block;font-size:9px;color:#20668c;line-height:1.45}
+.card-back .flip-function-line p{margin:2px 0;font-size:9px;color:#355d77;line-height:1.35}
