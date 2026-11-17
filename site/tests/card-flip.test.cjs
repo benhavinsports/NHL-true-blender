@@ -171,17 +171,27 @@ test("every scheduled game is a concise two-sided survivor card, not a public au
 
 test("additional full gate evidence appears only when matching original receipts exist",()=>{
  const {sandbox,elements}=appContext();
- const first=run.gameSurvivorPool.find(g=>g.survivor);
+ // The current run can legitimately have zero survivors after a newer
+ // source check. Use a saved original Core receipt as a UI-only fixture.
+ const first=run.gameSurvivorPool.find(g=>g.survivor)||{
+   gameId:saved.legs[0].gameId,matchup:saved.legs[0].matchup,
+   status:"SURVIVOR",
+   survivor:{player:saved.legs[0].player,playerId:saved.legs[0].playerId,
+     routeLabel:saved.legs[0].originalLockedPath,ownRouteZone:"Low Slot",
+     ownedGoals:1,ownShotsOnGoal:4}
+ };
  assert.ok(first);
  const proof=saved.legs[0].gateDetails.map(x=>({
    ...x, originalFunctions:(x.evidence?.originalFunctionEvidence||[])
      .map(y=>({step:y.step,status:y.disposition}))
  }));
  sandbox.sample.proof=proof;
+ sandbox.sample.first=first;
  vm.runInContext(
+   'state.latest.gameSurvivorPool=[sample.first];' +
    'state.latest.gameSurvivorGateReceipts={' +
-   '  [String(sample.run.gameSurvivorPool.find(g=>g.survivor).gameId)+":"+' +
-   'String(sample.run.gameSurvivorPool.find(g=>g.survivor).survivor.playerId)]:sample.proof};',
+   '  [String(sample.first.gameId)+":"+' +
+   'String(sample.first.survivor.playerId)]:sample.proof};',
    sandbox);
  vm.runInContext("renderPool()",sandbox);
  const firstCard=elements["pool-list"].childNodes
