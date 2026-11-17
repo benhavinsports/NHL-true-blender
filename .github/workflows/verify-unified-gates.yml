@@ -22,6 +22,8 @@ jobs:
           pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
       - name: Verify source compiles
         run: python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
+      - name: Run repository-wide unittest suite used in production
+        run: python -m unittest discover -p 'test*.py' -v
       - name: Run existing engine regression suite
         run: python -m pytest -q nhl_true_blender_engine/tests
       - name: Verify dashboard JavaScript parses
