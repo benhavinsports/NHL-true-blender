@@ -142,8 +142,18 @@ jobs:
                       and proof.get('fingerprint')==card.get('fingerprint')
                       and proof.get('slateDate')==date
                       and all(x.get('executionOrderVerified') is True
-                              and x.get('masterPassed')==x.get('totalMaster')
-                              and x.get('overlayPassed')==x.get('totalOverlay')
+                              and x.get('totalMaster')==20
+                              and x.get('totalOverlay')==16
+                              and x.get('masterPassed')==20
+                              and x.get('overlayPassed')==16
+                              and len(x.get('gateDetails') or [])==36
+                              and [g.get('gate') for g in x['gateDetails']]
+                                  == proof.get('executionOrder')
+                              and all(g.get('status')=='PASS'
+                                      and bool(g.get('sourceIds'))
+                                      and isinstance(g.get('evidence'),dict)
+                                      and not g['evidence'].get('semanticProofGaps')
+                                      for g in x['gateDetails'])
                               for x in proof_legs))
                   if not certified:
                       card=None
