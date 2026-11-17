@@ -1012,7 +1012,18 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
         if already_started:continue
         direction=(selected_directions or {}).get(str(game['id']))
         if not direction:
-            continue  # G0 did not authorize this matchup for skater gates
+            # G0 is itself an executed gate, even when its evidence does not
+            # establish a direction. Verify both recorded attack-side reviews
+            # rather than silently treating the matchup as absent.
+            direction_rows=[r for r in records
+                if r['gameId']==str(game['id']) and r['gate']=='G0'
+                and r['playerId'].startswith('GOALIE_DIRECTION:')]
+            expected_attackers={
+                'GOALIE_DIRECTION:'+str(game['away']),
+                'GOALIE_DIRECTION:'+str(game['home'])}
+            if {r['playerId'] for r in direction_rows}!=expected_attackers:
+                errors.append(f"{game['id']} G0 both attack directions not executed")
+            continue  # Skater gates require an evidenced G0 attack direction
         active_roster=complete_roster(game,direction['attacker'])
         for person in active_roster:
             pid=str(person['id'])
