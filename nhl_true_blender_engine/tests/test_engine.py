@@ -194,7 +194,8 @@ def test_sourced_pre_puck_replacement_and_late_rejection(con):
     from nhl_true_blender_engine.storage import fingerprint
     record_evidence(con,{'evidence_id':'trigger-1','slate_date':DATE,'stage':'CONFIRMED',
             'game_id':modified[0]['gameId'],'player_id':modified[0]['playerId'],'kind':'GOALIE_PROFILE',
-            'source_url':SRC,'observed_at':'2026-01-01T05:00:00Z','payload':{'new':'starter'}})
+            'source_url':SRC,'observed_at':datetime.now(timezone.utc).isoformat(),
+            'payload':{'new':'starter'}})
     audit={'baselineFingerprint':c['fingerprint'],'triggerEvidenceId':'trigger-1',
            'oldValue':'old projected starter','newValue':'new confirmed starter',
            'affectedGates':['G0','G3'],'dependentGates':['G5','G10.5','G17'],
@@ -203,6 +204,9 @@ def test_sourced_pre_puck_replacement_and_late_rejection(con):
            'g17Contradictions':{'sourceIds':['trigger-1'],'result':'confirmed different goalie'},
            'newFingerprint':fingerprint(modified)}
     save=save_card(con,DATE,'MIXED',modified,3,audit=audit)
+    assert audit['triggerNewerThanBaselineVersion'] is True
+    assert audit['baselineVersionCreatedAt']
+    assert audit['triggerObservedAt']
     assert save['revision']==2
     assert save['initial_legs'][0]['playerId']!=save['current_legs'][0]['playerId']
     more=[dict(x) for x in modified];more[0]['playerId']='newer'
