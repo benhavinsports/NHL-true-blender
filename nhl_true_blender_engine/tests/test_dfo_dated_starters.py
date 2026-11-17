@@ -98,3 +98,29 @@ def test_collector_ingests_source_status_without_promoting_likely_to_confirmed(t
     assert snapshot["games"][1]["goalies"]["TOR"][0]["data"]["goalieId"]=="301"
     assert not snapshot["games"][1]["goalies"]["CHI"]
     con.close()
+
+
+def test_split_inline_tags_in_real_matchup_heading_still_find_source_ids():
+    # A DFO heading can be built from inline anchors/spans. The old HTML
+    # parser concatenated stripped text into "KingsatBoston" and the exact
+    # line-matcher recorded zero headings for all 11 real scheduled games.
+    split=HTML.replace(
+      "<div>Los Angeles Kings at Boston Bruins</div>",
+      "<div><a>Los Angeles Kings</a><span>at</span><a>Boston Bruins</a><small>Preview</small></div>")
+    diagnostics=[]
+    rows,status=parse_dfo_starters(split,DATE,fixtures(),diagnostics)
+    assert status=="MATCHED_DATED_STARTERS"
+    assert {(x["team"],x["goalieId"]) for x in rows}=={
+      ("LAK","101"),("BOS","201"),("TOR","301")}
+    assert not any(x["gameId"]=="2026020333" and
+      x["reason"]=="OFFICIAL_MATCHUP_HEADING_NOT_PARSED" for x in diagnostics)
+
+def test_unrecognized_header_records_matchup_specific_parsing_gap():
+    split=HTML.replace(
+      "<div>Los Angeles Kings at Boston Bruins</div>",
+      "<div>Unrelated schedule description</div>")
+    diagnostics=[]
+    rows,_=parse_dfo_starters(split,DATE,fixtures(),diagnostics)
+    assert not any(x["gameId"]=="2026020333" for x in rows)
+    assert any(x["gameId"]=="2026020333" and
+      x["reason"]=="OFFICIAL_MATCHUP_HEADING_NOT_PARSED" for x in diagnostics)
