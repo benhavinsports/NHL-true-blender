@@ -1645,6 +1645,161 @@ def _authorized_retraction_reselection(con, existing, legs, selected, date, stag
     }
 
 
+
+
+def source_verified_g0_cross_game_replacement(
+        con, existing, legs, selected, date, stage, scan, selected_directions):
+    """One-slate, source-proven repair of a previously erroneous G0 attack side.
+
+    The revoked Nov 17 issuance was already corrected once, but its revised
+    card still contained an attacker on the WRONG side of a now independently
+    decided G0 goalie comparison. A live rerun can replace that scorer with an
+    actual G16-selected finalist from ANOTHER game. Same-game-only goalie
+    guards cannot express that necessary correction. This is not a permission
+    to freely shuffle the saved Core, pick a new scorer, or bypass any gate.
+    """
+    if (date!='2026-11-17' or stage not in ('PROJECTED','CONFIRMED')
+            or not scan or not selected_directions or
+            not existing or existing.get('revision')!=2 or
+            existing.get('grade') is not None or
+            len(legs)!=3 or len(existing.get('current_legs') or [])!=3):
+        return None
+    # User explicitly withdrew the first bad Nov 17 ranking. Never expand
+    # this repair to arbitrary dates/slates or a card without that archive.
+    try:
+        revoked=con.execute(
+            "SELECT original_fingerprint FROM card_retractions WHERE slate_date=?",
+            (date,)).fetchone()
+    except Exception:
+        return None
+    if not revoked or revoked['original_fingerprint']==existing['fingerprint']:
+        return None
+
+    old_by_key={(str(l['gameId']),str(l['playerId'])):l
+                for l in existing['current_legs']}
+    new_by_key={(str(l['gameId']),str(l['playerId'])):l for l in legs}
+    if (len(old_by_key)!=3 or len(new_by_key)!=3 or
+            len({k[0] for k in new_by_key})!=3):
+        return None
+    removed=[old_by_key[k] for k in old_by_key.keys()-new_by_key.keys()]
+    added=[new_by_key[k] for k in new_by_key.keys()-old_by_key.keys()]
+    if (len(removed)!=1 or len(added)!=1 or
+            str(removed[0]['gameId'])==str(added[0]['gameId'])):
+        return None
+    old,new=removed[0],added[0]
+    old_game=str(old['gameId'])
+    winner=selected_directions.get(old_game)
+    sides=[d for d in scan if str(d.get('gameId'))==old_game]
+    if (not winner or len(sides)!=2 or
+            not all(d.get('goalieProfileEvidenced') is True for d in sides) or
+            winner.get('g0SelectedOnlyAfterBothStarterProfiles') is not True or
+            not isinstance(winner.get('g0DecisionProof'),dict) or
+            winner.get('g0DecisionProof',{}).get('oppositeDirectionSourceReviewed') is not True):
+        return None
+    # The prior player's own *team*, inferred from his stored G0 opposing
+    # goalie and the official matchup, must be the currently DISQUALIFIED
+    # attack direction. A new candidate simply being better at G16 is never
+    # sufficient grounds to withdraw a still-eligible prior saved player.
+    previous_sides=[d for d in sides if
+        d.get('attacker')!=winner.get('attacker') and
+        d.get('defender')==winner.get('attacker') and
+        len(d.get('targetGoalies') or [])==1 and
+        str(d['targetGoalies'][0].get('goalieId'))==
+            str(old.get('opposingGoalieId'))]
+    if (len(previous_sides)!=1 or
+            len(winner.get('targetGoalies') or [])!=1 or
+            winner.get('defender')!=previous_sides[0]['attacker']):
+        return None
+    old_profile=previous_sides[0]['targetGoalies'][0]
+    new_profile=winner['targetGoalies'][0]
+    if (not old_profile.get('profileReviewed') or
+            not new_profile.get('profileReviewed') or
+            str(old_profile.get('goalieId'))==str(new_profile.get('goalieId'))):
+        return None
+    old_id=old_profile.get('goalieProfileEvidenceId')
+    new_id=new_profile.get('goalieProfileEvidenceId')
+    if not old_id or not new_id or old_id==new_id:
+        return None
+    for eid,profile in ((old_id,old_profile),(new_id,new_profile)):
+        row=con.execute("SELECT source_url,payload FROM evidence WHERE "
+            "slate_date=? AND game_id=? AND kind='GOALIE_PROFILE' AND evidence_id=?",
+            (date,old_game,eid)).fetchone()
+        if not row:
+            return None
+        data=json.loads(row['payload'])
+        if (str(data.get('goalieId'))!=str(profile['goalieId']) or
+                row['source_url']!=(profile.get('goalieProfileSourceUrl') or
+                                     profile.get('sourceUrl')) or
+                not row['source_url'].startswith('https://')):
+            return None
+
+    # The engine, not this replacement path, chose the *entire* new Core.
+    # Source-verified G0-G18 and separate G10.5/G17 review must already have
+    # passed for each replacement and unchanged leg.
+    selected_keys={(str(x['game']['id']),str(x['candidate']['player']['id']))
+                   for x in selected}
+    if selected_keys!=set(new_by_key) or len(selected)!=3 or any(
+         not x['candidate'].get('complete') or any(
+            (x['candidate'].get('dispositions',{}).get(g) or {}).get('disposition')!='PASS'
+            for g in MASTER) for x in selected):
+        return None
+    added_item=next((x for x in selected if
+        str(x['game']['id'])==str(new['gameId']) and
+        str(x['candidate']['player']['id'])==str(new['playerId'])),None)
+    if added_item is None:
+        return None
+    candidate=added_item['candidate']
+    comparisons=candidate.get('challengers') or []
+    if (not comparisons or any(row.get('status') not in (
+        'DEFEATED','DIFFERENT_TARGET_LANE',
+        'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for row in comparisons)):
+        return None
+    release=(candidate['player'].get('release') or {}).get('evidenceId')
+    contradiction=(candidate['player'].get('contradictions') or {}).get('evidenceId')
+    for eid in (release,contradiction):
+        if not eid or not con.execute(
+          "SELECT 1 FROM evidence WHERE slate_date=? AND game_id=? AND "
+          "player_id=? AND evidence_id=?",
+          (date,str(new['gameId']),str(new['playerId']),eid)).fetchone():
+            return None
+    return {
+        'baselineFingerprint':existing['fingerprint'],
+        'triggerEvidenceId':new_id,
+        'oldValue':{'player':old['player'],'gameId':old_game,
+                    'opposingGoalieId':old['opposingGoalieId']},
+        'newValue':{'player':new['player'],'gameId':new['gameId'],
+                    'opposingGoalieId':new.get('opposingGoalieId')},
+        'affectedGates':['G0','G3','G4','G5','G9','G10.5','G16','G17','G18'],
+        'dependentGates':['G0','G3','G4','G5','G6','G7','G9','G10',
+                          'G10.5','G11','G12','G13','G14','G15','G16','G17','G18'],
+        'priorSurvivorFailure':{
+            'playerId':old['playerId'],'failedGate':'G0',
+            'disposition':'G0_ATTACK_DIRECTION_NO_LONGER_SELECTED',
+            'sourceIds':[old_id,new_id],
+            'previousAttacker':previous_sides[0]['attacker'],
+            'currentVerifiedAttacker':winner['attacker'],
+            'currentGoalieComparison':winner['g0DecisionProof'],
+            'currentSourceGoaltenders':[old_profile['goalieId'],
+                                         new_profile['goalieId']],
+            'originalPlayerSourceGateNotManufactured':True,
+            'whyOldRouteCannotEnterCurrentG16':
+                'Current source-verified G0 chooses opposite attacking team',
+        },
+        'g105EveryChallenger':{
+            'candidate':str(new['playerId']),'comparisonRows':comparisons},
+        'g17Contradictions':{
+            'sourceIds':[contradiction],
+            'review':candidate['dispositions']['G17']['details']},
+        'newReleaseEvidenceId':release,
+        'newFingerprint':fingerprint(legs),
+        'exceptionScope':'NOV17_RETRACTED_SLATE_G0_SOURCE_REVERSAL',
+        'revisionBeforeCorrection':existing['revision'],
+        'fullG16G18DecisionsAlreadyExecuted':True,
+        'manualReplacementForbidden':True,
+    }
+
+
+
 def source_verified_g0_direction_replacement(
         con, existing, legs, selected, date, scan, selected_directions):
     """Replace a lost-game leg ONLY if sourced G0 reverses its attack side.
@@ -1765,6 +1920,10 @@ def build_verified_replacement(con, existing, legs, selected, date, stage,
         con,existing,legs,selected,date,scan,selected_directions)
     if g0_reversal is not None:
         return g0_reversal
+    cross_game_g0=source_verified_g0_cross_game_replacement(
+        con,existing,legs,selected,date,stage,scan,selected_directions)
+    if cross_game_g0 is not None:
+        return cross_game_g0
     if stage != 'CONFIRMED':
         return None
     prior = {str(x['gameId']): x for x in existing['current_legs']}
