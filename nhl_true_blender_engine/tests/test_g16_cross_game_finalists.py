@@ -145,3 +145,37 @@ def test_publication_rejects_tampered_g16_receipt():
     assert expected_core_ids({**run, 'g16FinalistCompetition': forged}) is None
     unseparated = {**receipt, 'separated': False}
     assert expected_core_ids({**run, 'g16FinalistCompetition': unseparated}) is None
+
+
+def test_g18_pass_is_only_final_core_after_cross_game_g16(tmp_path):
+    """No player can pass G18 and then be thrown out by a later G16."""
+    import json
+    data=fixture(4)
+    away=data['games'][3]['away']
+    data['games'][3]['rosters'][away]['data']['players'][0]=player(130,20,2)
+    con=open_db(str(tmp_path / 'only-final-g18.sqlite'))
+    try:
+        result=execute(con,data,DATE,'CONFIRMED')
+        assert result['card'] is not None, result['errors']
+        chosen={x['playerId'] for x in result['card']['current_legs']}
+        rows=con.execute(
+            "SELECT player_id,disposition,details FROM gates "
+            "WHERE slate_date=? AND stage='CONFIRMED' AND gate='G18'",
+            (DATE,)).fetchall()
+        g18_pass={r['player_id'] for r in rows if r['disposition']=='PASS'}
+        assert g18_pass==chosen=={'100','110','120'}
+        rejected=next(r for r in rows if r['player_id']=='130')
+        assert rejected['disposition']=='NOT_EXECUTED'
+        evidence=json.loads(rejected['details'])
+        assert evidence['evidence']['G18CoreSlotGrantedOnlyAfterG16'] is False
+        g16=con.execute(
+            "SELECT disposition,details FROM gates "
+            "WHERE slate_date=? AND stage='CONFIRMED' AND gate='G16' "
+            "AND player_id='130'",(DATE,)).fetchone()
+        assert g16['disposition']=='ELIMINATED'
+        receipt=json.loads(g16['details'])['evidence']
+        assert receipt['crossGameFinalistCompetition']['decision'].startswith('EXCLUDED_')
+        assert all(json.loads(r['details'])['evidence']['G18FinalAssemblyAfterFullG16']
+                   for r in rows)
+    finally:
+        con.close()
