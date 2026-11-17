@@ -8,13 +8,15 @@ qualitative and nonblocking. Step 8 never invents shift-by-shift metrics.
 from __future__ import annotations
 
 from .semantic_certification import audit_gate
+from .rival_scope import g17_resolved_without_eliminated_rivals
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 
 STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
 
 def independent_overlay(game,attacker,player,teammates,goalie,release,
-                        recurrence,challenger_rows,stage,receipt,evidence_data,gate_record,only_steps=None):
+                        recurrence,challenger_rows,stage,receipt,evidence_data,gate_record,only_steps=None,
+                        eliminated_rivals=()):
     records=[]
     g=goalie.get('data') or {}
     weak=g.get('weakZones') or {}
@@ -240,11 +242,17 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
         contra.get('lineupDisagreementReview') is not None and
         contra.get('strongestRivalReview') is not None and
         contra.get('unresolved') is not True)
+    # Same meaningful-rival scope as G10.5/G16/G17: an ELIMINATED teammate
+    # cannot keep the contradiction review open; nothing else is relaxed.
+    step14_live=g17_resolved_without_eliminated_rivals(contra,eliminated_rivals)
+    if not contradiction_clear and receipt(c) and step14_live['resolved']:
+        contradiction_clear=True
     emit('Step14',contradiction_clear,
          {'reviewedGoalieStrength':contra.get('goalieStrengthReview'),
           'reviewedLineupDisagreement':contra.get('lineupDisagreementReview'),
           'reviewedRivals':bool(contra.get('strongestRivalReview')),
-          'sourceContradictionsUnresolved':contra.get('unresolved') is True,
+          'sourceContradictionsUnresolved':contra.get('unresolved') is True and not step14_live['resolved'],
+          'eliminatedRivalsIgnoredInRivalReview':step14_live['ignoredEliminatedRivals'] or None,
           'preservesUnresolvedEvidence':True},
          sources)
     actual=[r['gate'] for r in records]

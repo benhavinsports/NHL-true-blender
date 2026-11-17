@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint
 from .overlay_checks import independent_overlay, STEP_ORDER
+from .rival_scope import g17_resolved_without_eliminated_rivals
 from .semantic_certification import audit_gate
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 
@@ -722,7 +723,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         observations=(independent_overlay(
             game,attack_team,player,live_teammates,goalie_profile,release,rec,
             rows,stage,receipt,evidence_data,observation_record,
-            only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
+            only_steps=set(STEPS_BY_GATE[g]),
+            eliminated_rivals=eliminated_before) if STEPS_BY_GATE[g] else [])
         overlay.extend(observations)
         if observations:
             function_evidence=[{
@@ -1055,13 +1057,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # non-DERIVED source with unresolved=True was silently marked PASS.
     # Require a positive resolved outcome, not merely a source label.
     cross_source_resolved=bool(cdata and cdata.get('unresolved') is False)
+    # The pregame review compared every teammate, including teammates the
+    # gates already ELIMINATED. Like G10.5/G16, such a teammate is not a
+    # meaningful rival and cannot keep this candidate's G17 unresolved. Every
+    # other stored review condition (goalie branch, weak-area match, stronger
+    # area contradiction, lineup role, unresolved live rivals) still applies.
+    g17_live=g17_resolved_without_eliminated_rivals(cdata,eliminated_before)
+    if not cross_source_resolved and g17_live['resolved']:
+        cross_source_resolved=True
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
                      cdata.get('lineupDisagreementReview') is not None and
                      cdata.get('strongestRivalReview') is not None and
                      cross_source_resolved),
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True,
-          'sourceDerivedReviewResolved':cross_source_resolved},
+          'sourceDerivedReviewResolved':cross_source_resolved,
+          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # Both independent tracks must pass. Neither may overwrite the other's
     # original verdict or masquerade as a completed source check.

@@ -72,3 +72,30 @@ def test_unresolved_rival_cannot_eliminate(tmp_path, monkeypatch):
             assert ev['unresolvedChallengersCannotEliminate']
     finally:
         con.close()
+
+
+def _review(rows, **over):
+    c={'unresolved':True,
+       'goalieStrengthReview':{'opposingBranchesReviewed':1,'matchedWeakAreas':1,
+                               'strongerAreaContradiction':False},
+       'lineupDisagreementReview':{'hasProjectedOrConfirmedRole':True},
+       'strongestRivalReview':{'everyRivalReviewed':True,'rivalResults':rows}}
+    c.update(over)
+    return c
+
+
+def test_g17_ignores_only_eliminated_rivals():
+    from nhl_true_blender_engine.rival_scope import g17_resolved_without_eliminated_rivals as f
+    rows=[{'challengerId':'9','status':'RIVAL_DOMINATES'},
+          {'challengerId':'8','status':'DEFEATED'}]
+    assert f(_review(rows),{'9'})=={'resolved':True,'ignoredEliminatedRivals':['9']}
+    # A live (not eliminated) dominating rival keeps G17 open.
+    assert f(_review(rows),set())['resolved'] is False
+    # Every other condition the review checked still applies.
+    bad=_review(rows); bad['goalieStrengthReview']['strongerAreaContradiction']=True
+    assert f(bad,{'9'})['resolved'] is False
+    bad=_review(rows); bad['lineupDisagreementReview']['hasProjectedOrConfirmedRole']=False
+    assert f(bad,{'9'})['resolved'] is False
+    # Already-resolved or missing reviews are untouched.
+    assert f(_review(rows,unresolved=False),{'9'})['resolved'] is False
+    assert f(None,{'9'})['resolved'] is False
