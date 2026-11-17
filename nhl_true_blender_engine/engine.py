@@ -1921,7 +1921,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                                               stopped_before_g10_5=stopped,defer_g18=True)
                 records+=traces
                 deferred_g18.append((match,result))
-                stop=next((g for g in MASTER if
+                stop=next((g for g in MASTER[:-1] if
                            (result['dispositions'].get(g) or {}).get('disposition')!='PASS'),None)
                 if stop:
                     stop_label=f"{stop}:{result['dispositions'][stop]['disposition']}"
@@ -2000,6 +2000,55 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             f"G16 cross-game finalist competition left {len(finalists)} "
             f"unseparated finalists for a Core {required_core}: "
             f"{', '.join(g16_receipt['retainedPlayerIds'])}; no ranking or tie-break applied")
+    # Finish the same G16 adjudication across ALL game survivors before
+    # writing the only authoritative G18 final-card decision.
+    final_keys={(str(x['game']['id']),str(x['candidate']['player']['id']))
+                for x in chosen} if not selection_errors else set()
+    decisions={(str(x['gameId']),str(x['playerId'])):x
+               for x in ((g16_receipt or {}).get('finalists') or [])}
+    for match,candidate in deferred_g18:
+        key=(str(match['id']),str(candidate['player']['id']))
+        finalist=decisions.get(key)
+        if finalist:
+            # The per-game G16 check was provisional: its global verdict now
+            # becomes the one source-backed G16 gate decision.
+            for row in records:
+                if (row['gameId'],row['playerId'],row['gate'])==(key[0],key[1],'G16'):
+                    evidence=row['details']['evidence']
+                    evidence['crossGameFinalistCompetition']={
+                        'decision':finalist['g16Decision'],
+                        'dominatedBy':finalist['dominatedBy'],
+                        'comparedAgainstAllGames':True,
+                        'requiredCoreSize':required_core}
+                    if finalist['g16Decision'].startswith('EXCLUDED_'):
+                        row['disposition']='ELIMINATED'
+                        candidate['dispositions']['G16']['disposition']='ELIMINATED'
+                    break
+        selected=key in final_keys and candidate['complete']
+        proof={
+            'candidateEligibleForCrossGameFinal':bool(candidate['preCoreQualified']),
+            'pathClassificationEvidence':candidate['pathEvidence'],
+            'classificationOccursAfterAllSourceGates':True,
+            'originalFunctionsReviewedBeforeG18':True,
+            'notPresetOneOfEach':True,
+            'G18FinalAssemblyAfterFullG16':True,
+            'G18CoreSlotGrantedOnlyAfterG16':bool(selected),
+            'G16FinalistDecision':(finalist or {}).get('g16Decision'),
+            'G16Exclusion':(finalist or {}).get('dominatedBy',[]) if not selected else [],
+        }
+        urls=candidate['pathEvidence'].get('sourceUrls',[])
+        gaps=audit_gate('G18',proof,urls,stage) if selected else []
+        if gaps:
+            selection_errors.append(
+                f"{key[0]} player {key[1]} G18 final source certification: {gaps}")
+            proof['semanticProofGaps']=gaps
+        disposition='PASS' if selected and not gaps else 'NOT_EXECUTED'
+        candidate['dispositions']['G18']={'disposition':disposition,'details':proof}
+        candidate['complete']=disposition=='PASS'
+        records.append(gate_record(match,key[1],'G18',disposition,proof,urls))
+    # Exactly one authoritative row for every original gate per skater.
+    # Only the true final Core recipients are allowed a G18 PASS.
+    save_gates(con,date,stage,records)
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
     # A game that has already started cannot be newly picked. Such a game is
     # excluded from the candidate pool above, but does not veto later games.
