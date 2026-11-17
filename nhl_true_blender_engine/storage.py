@@ -247,7 +247,28 @@ def _validate_replacement(con, existing, new_legs, audit, now):
     # The explicitly user-retracted November 17 invalid-G18 fingerprint is
     # a separate, one-time correction; it must still satisfy the full original
     # gate evidence, but is not an ordinary pregame source-change event.
-    if audit.get('exceptionScope') != 'NOV17_PREVIOUSLY_RETRACTED_FINGERPRINT_ONLY':
+    explicit_retraction = audit.get('exceptionScope') == 'NOV17_PREVIOUSLY_RETRACTED_FINGERPRINT_ONLY'
+    if explicit_retraction:
+        # Do not allow callers to bypass chronology by merely supplying the
+        # retraction-exception string. The sole exception is the exact
+        # independently archived invalid G18 card on November 17.
+        if existing['slate_date'] != '2026-11-17':
+            raise ValueError('G18 retraction exception outside authorized slate')
+        try:
+            archived = con.execute(
+                'SELECT original_fingerprint,original_card FROM card_retractions '
+                'WHERE slate_date=?', (existing['slate_date'],)).fetchone()
+            original = json.loads(archived['original_card']) if archived else None
+        except (sqlite3.Error, TypeError, ValueError, KeyError):
+            original = None
+            archived = None
+        if (not archived or not original
+                or original.get('fingerprint') != existing['fingerprint']
+                or archived['original_fingerprint'] != existing['fingerprint']
+                or str(existing['first_issued_at']) <= str(original.get('first_issued_at',''))
+                or audit.get('retractedOriginalFirstIssuedAt') != original.get('first_issued_at')):
+            raise ValueError('G18 retraction exception lacks matching immutable archive')
+    else:
         previous_version = con.execute(
             'SELECT created_at FROM card_versions WHERE slate_date=? AND revision=?',
             (existing['slate_date'], existing['revision'])).fetchone()
@@ -267,6 +288,15 @@ def _validate_replacement(con, existing, new_legs, audit, now):
         audit['baselineVersionCreatedAt'] = previous_version['created_at']
         audit['triggerObservedAt'] = receipt['observed_at']
         audit['triggerNewerThanBaselineVersion'] = True
+        if audit.get('reason') == 'VERIFIED_G0_ATTACK_SIDE_REVERSAL':
+            material=audit.get('g0MaterialSourceChange') or {}
+            if (material.get('reason') not in (
+                    'MEASURED_GOALIE_WEAK_ORIGIN_CHANGED',
+                    'NEW_CONFIRMED_STARTER_IDENTITY')
+                    or material.get('triggerEvidenceId') != audit['triggerEvidenceId']
+                    or material.get('baselineVersionCreatedAt') != previous_version['created_at']
+                    or material.get('triggerObservedAt') != receipt['observed_at']):
+                raise ValueError('G18 G0 reversal lacks a changed post-card goalie source')
     if not audit['priorSurvivorFailure'].get('failedGate'):
         raise ValueError('G18 prior player failure gate missing')
     if not audit['priorSurvivorFailure'].get('sourceIds'):
