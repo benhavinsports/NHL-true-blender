@@ -218,12 +218,27 @@ def certify_gates(con,date,stage,expected_game_count=None):
     first_failure_counts=Counter()
     first_failure_examples=[]
     for key,matrix in skaters.items():
+        # A G16 cross-game exclusion is a legitimate pre-Core GAME survivor,
+        # not a source failure or a loss of game-level qualification.
+        # Independently verify the stored G16 receipt and every other
+        # source gate before giving this classification.
+        g16=matrix.get("G16")
+        cross_game=((json.loads(g16["details"]).get("evidence") or {})
+                    .get("crossGameFinalistCompetition") or {}) if g16 else {}
+        legitimate_cross_game_nonselection=bool(
+            key not in selected_keyset
+            and g16 and g16["disposition"]=="ELIMINATED"
+            and cross_game.get("decision")=="EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE"
+            and matrix.get("G18") and matrix["G18"]["disposition"]=="NOT_EXECUTED"
+            and all(matrix.get(gate) and matrix[gate]["disposition"]=="PASS"
+                    for gate in EXECUTION_ORDER if gate not in ("G16","G18")))
         first=next(((g,matrix[g]["disposition"] if g in matrix else "MISSING")
                     for g in EXECUTION_ORDER
                     if g not in matrix or matrix[g]["disposition"]!="PASS"),None)
         if first:
             gate,disposition=first
-            kind=("EVIDENCE_INCOMPLETE" if disposition in ("NOT_EXECUTED", "MISSING", None)
+            kind=("CROSS_GAME_NOT_SELECTED" if legitimate_cross_game_nonselection else
+                  "EVIDENCE_INCOMPLETE" if disposition in ("NOT_EXECUTED", "MISSING", None)
                   else "SOURCE_ELIMINATED")
             first_failure_counts[kind]+=1
             if len(first_failure_examples)<30:
@@ -232,6 +247,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
                     "classification":kind})
         if key in selected_keyset:
             outcome_counts["SELECTED"]+=1
+        elif legitimate_cross_game_nonselection:
+            outcome_counts["QUALIFIED_NOT_CHOSEN_G18"]+=1
         elif any(r["disposition"]=="ELIMINATED" for r in matrix.values()):
             outcome_counts["GATE_ELIMINATED"]+=1
         elif any(r["disposition"]=="NOT_EXECUTED" for r in matrix.values()):

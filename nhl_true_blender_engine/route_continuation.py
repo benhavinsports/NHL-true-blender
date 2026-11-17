@@ -42,7 +42,10 @@ def observed_own_shot_appearances(pressure):
         'positiveShotAppearances': positive,
         'positiveDatedShotAppearances': positive_dates,
         'datedAppearanceAlignmentVerified': aligned,
-        'repeatedOwnShotPressure': positive >= 2,
+        # Counts without one verified date per actual appearance cannot
+        # establish repeated pressure. Do not invent played/zero-shot games.
+        'repeatedOwnShotPressure': aligned and positive_dates >= 2,
+        'undatedShotCountsNotAppearanceProof': not aligned,
     }
 
 

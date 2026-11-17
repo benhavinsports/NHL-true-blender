@@ -6,6 +6,7 @@ it never invents confirmation, skater deployment, or a scorer selection.
 """
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 import re
@@ -56,7 +57,7 @@ def _lookup_goalie(surname, roster):
     return matches[0] if len(matches)==1 else None
 
 
-def parse_dated_projections(html, date, games):
+def parse_dated_projections(html, date, games, diagnostics=None):
     """Parse only an exact-date matchup block, never a nav link or old slate.
 
     The source presents TEAM · #jersey Surname followed by the source's own
@@ -64,6 +65,9 @@ def parse_dated_projections(html, date, games):
     NHL starter. No manual player/goalie names are embedded in the parser.
     """
     if not isinstance(html,str) or not html:
+        if diagnostics is not None:
+            diagnostics.extend({"gameId":str(g["id"]),"reason":"EMPTY_SOURCE"}
+                               for g in games)
         return [],"EMPTY_SOURCE"
     text_parser=_VisibleText()
     text_parser.feed(html)
@@ -71,12 +75,18 @@ def parse_dated_projections(html, date, games):
     day=datetime.strptime(date,"%Y-%m-%d")
     date_rx=rf"\b{day.strftime('%B')}\s+{day.day},?\s+{day.year}\b"
     if not re.search(date_rx,flat,re.I) or "starting goalies" not in flat.lower():
+        if diagnostics is not None:
+            diagnostics.extend({"gameId":str(g["id"]),
+                                "reason":"SOURCE_SLATE_DATE_UNVERIFIED"}
+                               for g in games)
         return [],"SOURCE_SLATE_DATE_UNVERIFIED"
     found=[]
     for game in games:
         teams=(game["away"],game["home"])
         header=re.compile(rf"\b{re.escape(teams[0])}\s*@\s*{re.escape(teams[1])}\b")
+        reason="SOURCE_MATCHUP_NOT_FOUND"
         for m in header.finditer(flat):
+            reason="STARTER_FIELDS_NOT_PARSED"
             # The page includes a navigation menu. Match all starter fields
             # from a single GAME card, ending at the next fixture header.
             upcoming=re.search(r"\b[A-Z]{2,3}\s*@\s*[A-Z]{2,3}\b",flat[m.end():])
@@ -91,6 +101,7 @@ def parse_dated_projections(html, date, games):
                 roster=((game.get("rosters") or {}).get(team) or {}).get("data") or {}
                 player=_lookup_goalie(got.group(1),roster.get("goalies"))
                 if not player:
+                    reason="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
                     break
                 probability=int(got.group(2))
                 if not 0<=probability<=100:
@@ -106,23 +117,44 @@ def parse_dated_projections(html, date, games):
                 })
             if len(picks)==2:
                 found.extend(picks)
+                reason="MATCHED"
                 break
+        if diagnostics is not None:
+            diagnostics.append({"gameId":str(game["id"]),
+                                "matchup":teams[0]+"@"+teams[1],
+                                "reason":reason})
     return found,("DATED_MATCHUPS_PARSED" if found else "NO_MATCHED_GOALIES")
 
 
 async def collect_dated_goalie_projections(con, snapshot, date, stage):
     url=ROOT+date
+    attempts=0
+    diagnostics=[]
     try:
         async with httpx.AsyncClient(timeout=18,follow_redirects=True,
                 headers={"User-Agent":"Mozilla/5.0 (NHLTrueBlender/1.0)"}) as client:
-            reply=await client.get(url)
-            reply.raise_for_status()
+            for attempt in range(3):
+                attempts=attempt+1
+                try:
+                    reply=await client.get(url)
+                    reply.raise_for_status()
+                    break
+                except (httpx.TimeoutException,httpx.TransportError,
+                        httpx.HTTPStatusError) as exc:
+                    # Retry recoverable transport/rate-limit/server failures,
+                    # not 404, an invalid slate date, or a bad page schema.
+                    transient=(not isinstance(exc,httpx.HTTPStatusError)
+                        or exc.response.status_code in (429,500,502,503,504))
+                    if not transient or attempt==2:
+                        raise
+                    await asyncio.sleep(0.4*(attempt+1))
             candidates,status=parse_dated_projections(
-                reply.text,date,snapshot.get("games",[]))
+                reply.text,date,snapshot.get("games",[]),diagnostics)
     except (httpx.HTTPError,ValueError) as exc:
         return {"status":"SOURCE_UNAVAILABLE","source":url,
                 "error":f"{type(exc).__name__}: {str(exc)[:160]}",
-                "projectedGoalieReceipts":0}
+                "projectedGoalieReceipts":0,
+                "boundedRetryCount":max(0,attempts-1)}
     observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
     for item in candidates:
         ingest(con,{
@@ -142,6 +174,10 @@ async def collect_dated_goalie_projections(con, snapshot, date, stage):
                 "sourceEventDoesNotSelectScorers":True}
         })
     return {"status":status,"source":url,"asOf":observed,
+            "boundedRetryCount":max(0,attempts-1),
+            "matchupResearch":diagnostics,
+            "matchupResearchReasons":{reason:sum(d["reason"]==reason for d in diagnostics)
+                  for reason in sorted({d["reason"] for d in diagnostics})},
             "projectedGoalieReceipts":len(candidates),
             "gamesWithBothGoalieProjections":len({x["gameId"] for x in candidates}),
             "originalSourceLabelsPreserved":True,

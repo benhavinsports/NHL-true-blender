@@ -186,7 +186,9 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'recentRouteContinuationMeasured':measured,
           'ownShotContinuationEvidence':observed_shots,
           'notWeightedOrMarketSelected':True},src(pressure),
+         # An undated count list is unresolved, not a dated one-off loss.
          contradiction=bool(receipt(pressure) and observed_shots['valid']
+                            and observed_shots['datedAppearanceAlignmentVerified']
                             and not observed_shots['repeatedOwnShotPressure']))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
          {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,

@@ -79,7 +79,8 @@ def test_zero_date_alignment_does_not_fake_dated_scoring_recurrence():
         'recentAppearanceShots':[2,0,1]})
     recurrence=observed_dated_recurrence({
         'appearanceDates':3,'distinctGoalDates':0},shots)
-    assert shots['repeatedOwnShotPressure'] is True
+    assert shots['repeatedOwnShotPressure'] is False
+    assert shots['undatedShotCountsNotAppearanceProof'] is True
     assert recurrence['datedOwnShotRecurrence'] is False
     assert recurrence['datedScoringOrShotRecurrence'] is False
 
@@ -92,5 +93,25 @@ def test_g11_and_step9_can_pass_genuinely_repeated_own_onnet_pressure(tmp_path):
         assert result['card'] is not None
         for gate in ('G7','G11','Step4','Step9','G18'):
             assert rows[gate]=='PASS', (gate,rows[gate])
+    finally:
+        con.close()
+
+
+def test_undated_shot_counts_leave_g11_and_step9_unresolved(tmp_path):
+    con=open_db(str(tmp_path/'undated.sqlite'))
+    try:
+        slate=snapshot()
+        active=slate['games'][0]['rosters']['T1A']['data']['players'][0]
+        active['pressure']['data'].pop('appearances',None)
+        result=execute(con,slate,DATE,'CONFIRMED')
+        rows=_evidence(con,'1010')
+        assert rows['G11']=='NOT_EXECUTED', rows
+        assert rows['Step9']=='NOT_EXECUTED', rows
+        # Three credited goals on the SAME date cannot establish separate
+        # dated recurrences when the independent shot dates are absent.
+        assert rows['G7']=='NOT_EXECUTED'
+        assert rows['Step4']=='NOT_EXECUTED'
+        assert '1010' not in {x['playerId'] for x in
+                              (result['card'] or {}).get('current_legs',[])}
     finally:
         con.close()

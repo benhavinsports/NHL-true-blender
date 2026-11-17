@@ -101,3 +101,50 @@ def test_collect_source_labeled_expected_goalies_attaches_not_fake_confirmed(tmp
         for game in snap["games"] for team in (game["away"],game["home"])
         for x in game["goalies"][team])
     con.close()
+
+
+def test_unmatched_starting_goalie_is_categorized_as_identity_not_absent_source():
+    games=schedule()
+    games[0]["rosters"]["LAK"]["data"]["goalies"].append({
+        "id":"111","name":"Another Forsberg"})
+    trace=[]
+    rows,status=parse_dated_projections(HTML,DATE,games,trace)
+    assert status=="DATED_MATCHUPS_PARSED"
+    assert len(rows)==2
+    by_game={x["gameId"]:x["reason"] for x in trace}
+    assert by_game["2026020333"]=="OFFICIAL_GOALIE_ID_UNMATCHED_OR_AMBIGUOUS"
+    assert by_game["2026020335"]=="MATCHED"
+
+
+def test_recoverable_source_failure_retries_but_keeps_expected_status(tmp_path):
+    import httpx
+    from nhl_true_blender_engine.dated_goalie_projections import ROOT
+    calls=[]
+    class Client:
+        def __init__(self,*args,**kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self,*args):
+            pass
+        async def get(self,url):
+            calls.append(url)
+            response=httpx.Response(503 if len(calls)==1 else 200,
+                                    request=httpx.Request("GET",url),
+                                    text=HTML if len(calls)>1 else "retry")
+            return response
+    con=open_db(str(tmp_path/"retry.sqlite"))
+    async def no_wait(*_):
+        pass
+    with patch("nhl_true_blender_engine.dated_goalie_projections.httpx.AsyncClient",Client), \
+         patch("nhl_true_blender_engine.dated_goalie_projections.asyncio.sleep",no_wait):
+        result=asyncio.run(collect_dated_goalie_projections(
+            con,{"games":schedule()},DATE,"PROJECTED"))
+    assert len(calls)==2
+    assert result["boundedRetryCount"]==1
+    assert result["status"]=="DATED_MATCHUPS_PARSED"
+    assert result["matchupResearchReasons"]=={"MATCHED":2}
+    assert result["projectedGoalieReceipts"]==4
+    assert all(x["stage"]=="PROJECTED" for x in
+               con.execute("SELECT stage FROM evidence"))
+    con.close()
