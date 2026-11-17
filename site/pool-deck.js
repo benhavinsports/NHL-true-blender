@@ -61,7 +61,7 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
    "Flip "+(survivor?.player||g.matchup||"game")+" card to inspect original evidence");
  const head=create("div","pool-card-head");
  head.appendChild(create("span","pool-matchup",String(g.matchup||"Matchup unavailable").replace("@"," @ ")));
- head.appendChild(create("span","pool-card-suit","♠"));
+ head.appendChild(create("span","pool-card-series","SCOUTING / NHL"));
  turn.appendChild(head);
  turn.appendChild(create("span","pool-overline",
    savedCore?"IN THE CORE":survivor?"GAME SURVIVOR":"SOURCE REVIEW"));
@@ -83,14 +83,14 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
      g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?"GAME FROZEN":"REVIEW IN PROGRESS"));
  }
  turn.appendChild(player);
- turn.appendChild(create("span","pool-turn-tip","VIEW EVIDENCE  ↻"));
+ turn.appendChild(create("span","pool-turn-tip","EXPLORE EVIDENCE  ↗"));
  turn.addEventListener("click",()=>toggle(holder,gameKey));
  front.appendChild(turn);
  // Back always renders factual, compact original engine evidence first.
  const back=create("div","pool-face pool-back");
  const top=create("div","pool-back-bar");
  top.appendChild(create("strong","",survivor?.player||String(g.matchup||"Matchup")));
- const backTurn=create("button","pool-back-turn","↶ FRONT");
+ const backTurn=create("button","pool-back-turn","← CLOSE");
  backTurn.type="button";
  backTurn.setAttribute("aria-label","Turn "+(survivor?.player||g.matchup||"game")+" back to front");
  backTurn.setAttribute("aria-expanded",String(active));
