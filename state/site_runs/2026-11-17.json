@@ -671,7 +671,7 @@
   "coreEligibleSkaterMatrices": 246,
   "currentRunFullyCertified": true,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T16:05:49+00:00",
+    "asOf": "2026-11-17T16:24:19+00:00",
     "gamesWithBothGoalieProjections": 0,
     "noProjectedGoalieCalledConfirmed": true,
     "originalSourceLabelsPreserved": true,
@@ -693,11 +693,12 @@
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 246,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 5,
+      "FULL_G0_G18_PASS": 3,
       "G0": 24,
       "G10": 12,
       "G10.5": 66,
       "G15": 1,
+      "G16": 2,
       "G4": 47,
       "G6": 34,
       "G7": 5,
@@ -717,14 +718,14 @@
         },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020338",
-          "playerId": "8484144",
+          "gameId": "2026020341",
+          "playerId": "8482116",
           "reasonDisposition": "PASS"
         },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020340",
-          "playerId": "8478864",
+          "gameId": "2026020343",
+          "playerId": "8484227",
           "reasonDisposition": "PASS"
         }
       ],
@@ -794,6 +795,20 @@
           "gameId": "2026020336",
           "playerId": "8485366",
           "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G16": [
+        {
+          "firstNonpassingGate": "G16",
+          "gameId": "2026020338",
+          "playerId": "8484144",
+          "reasonDisposition": "ELIMINATED"
+        },
+        {
+          "firstNonpassingGate": "G16",
+          "gameId": "2026020340",
+          "playerId": "8478864",
+          "reasonDisposition": "ELIMINATED"
         }
       ],
       "G4": [
@@ -2211,7 +2226,7 @@
       "matchup": "LAK@BOS",
       "opponentTeam": "BOS",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G10.5",
       "targetGoalieIds": [
@@ -2464,7 +2479,7 @@
       "matchup": "CBJ@NYI",
       "opponentTeam": "CBJ",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G15",
       "targetGoalieIds": [
@@ -2512,7 +2527,7 @@
       "matchup": "BUF@PHI",
       "opponentTeam": "PHI",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G9",
       "targetGoalieIds": [
@@ -2770,7 +2785,7 @@
       "matchup": "WSH@TBL",
       "opponentTeam": "TBL",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G9",
       "targetGoalieIds": [
@@ -2939,7 +2954,7 @@
       "matchup": "ANA@STL",
       "opponentTeam": "STL",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G9",
       "targetGoalieIds": [
@@ -3108,7 +3123,7 @@
       "matchup": "DAL@VGK",
       "opponentTeam": "VGK",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
+      "reason": "no candidate passed every pre-Core gate G0-G17",
       "status": "NO_SURVIVOR",
       "stoppedAt": "G0",
       "targetGoalieIds": [
@@ -3250,7 +3265,7 @@
     "executionOrderMismatches": [],
     "firstFailureClassificationCounts": {
       "EVIDENCE_INCOMPLETE": 171,
-      "SOURCE_ELIMINATED": 70
+      "SOURCE_ELIMINATED": 72
     },
     "firstFailureExamples": [
       {
@@ -3621,17 +3636,17 @@
         "PASS": 111
       },
       "G16": {
-        "ELIMINATED": 123,
+        "ELIMINATED": 125,
         "NOT_EXECUTED": 17,
-        "PASS": 106
+        "PASS": 104
       },
       "G17": {
         "NOT_EXECUTED": 195,
         "PASS": 51
       },
       "G18": {
-        "NOT_EXECUTED": 241,
-        "PASS": 5
+        "NOT_EXECUTED": 243,
+        "PASS": 3
       },
       "G2": {
         "PASS": 246
@@ -4558,8 +4573,8 @@
       "notQualifiedIncompleteEvidence": 90,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 2,
-      "sourceEliminated": 151,
+      "qualifiedButNotChosen": 0,
+      "sourceEliminated": 153,
       "surveyedEligibleSkaters": 246
     },
     "slateDate": "2026-11-17",
@@ -4578,9 +4593,9 @@
       "G13": 246,
       "G14": 211,
       "G15": 111,
-      "G16": 106,
+      "G16": 104,
       "G17": 51,
-      "G18": 5,
+      "G18": 3,
       "G2": 246,
       "G3": 222,
       "G4": 175,
@@ -4646,7 +4661,7 @@
     "G15": 135,
     "G16": 17,
     "G17": 195,
-    "G18": 241,
+    "G18": 243,
     "G3": 24,
     "G4": 71,
     "G5": 35,
@@ -4693,12 +4708,12 @@
     "notQualifiedIncompleteEvidence": 90,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 2,
-    "sourceEliminated": 151,
+    "qualifiedButNotChosen": 0,
+    "sourceEliminated": 153,
     "surveyedEligibleSkaters": 246
   },
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T16:07:15+00:00"
+  "updatedUTC": "2026-11-17T16:25:43+00:00"
 }
