@@ -643,6 +643,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     wins,rows=challenger_proof(player,rivals,weak,
         precoverage.get('greenWeakZones'))
     overlay=[]
+    execution_trace=[]
     def emit(g, ok, detail, eliminate=False, source_ids=()):
         nonlocal eliminated,first_elimination_gate
         # Every candidate gets an ACTUAL G0-G18 source check. A previous
@@ -689,7 +690,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
                 eliminated=True
                 if first_elimination_gate is None:first_elimination_gate=g
         d[g]={'disposition':disp,'details':content}
-        proof.append(gate_record(game,player['id'],g,disp,content,list(source_ids)))
+        record=gate_record(game,player['id'],g,disp,content,list(source_ids))
+        proof.append(record)
+        execution_trace.append(record)
+        execution_trace.extend(observations)
     # G0's per-skater record must point to an attack direction already
     # adjudicated from BOTH goalies. A shared goalie profile is not itself
     # a completed first-gate decision.
@@ -969,9 +973,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
     if set(overlay_trace)!=set(OVERLAY) or len(overlay_trace)!=len(OVERLAY):
         raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
-    # Actual gate-time trace: no post-hoc sorting or reconstructed order.
-    trace_by_gate={row['gate']:row for row in proof+overlay}
-    execution_trace=[trace_by_gate[gate] for gate in EXECUTION_ORDER]
     if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
         raise ValueError('Combined execution trace does not match the authoritative gate order')
     return {'player':player,'dispositions':d,'complete':passed,'deficientGates':deficient,
