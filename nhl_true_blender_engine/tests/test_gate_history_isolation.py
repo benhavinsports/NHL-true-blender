@@ -58,7 +58,11 @@ def test_full_36_gate_cohort_has_one_precise_execution_timestamp(tmp_path):
                 (DATE,leg["gameId"],leg["playerId"])).fetchall()
             assert len(values)==len(EXECUTION_ORDER)
             assert len({row["evaluated_at"] for row in values})==1
-            assert len(values[0]["evaluated_at"].rsplit(".",1)[-1])==6
+            # Six fractional digits are followed by the explicit UTC offset.
+            from datetime import datetime as parse_datetime
+            timestamp=values[0]["evaluated_at"]
+            assert len(timestamp.split(".",1)[-1][:6])==6
+            assert parse_datetime.fromisoformat(timestamp).tzinfo is not None
         later=datetime.now(timezone.utc)+timedelta(days=30)
         execute(con,slate,DATE,"CONFIRMED",now=later)
         for leg in result["card"]["current_legs"]:
