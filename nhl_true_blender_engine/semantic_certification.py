@@ -59,6 +59,10 @@ def audit_gate(gate, evidence, source_ids, stage):
             need(d.get('status')=='CONFIRMED','G6_PROJECTED_DEPLOYMENT_NOT_CONFIRMED')
     elif gate=='G7':
         need(bool(e.get('eventLogReconciled')),'G7_GAME_LOG_NOT_RECONCILED')
+        need(e.get('datedScoringOrShotRecurrence') is True and
+             (e.get('datedGoalRecurrence') is True or
+              e.get('datedOwnShotRecurrence') is True),
+             'G7_NO_REPEAT_DATED_OWN_SCORING_OR_SHOT_EVIDENCE')
     elif gate=='G8':
         need(e.get('neverRankingShortcut') is True and
              ('neutralWhenAbsent' in e),'G8_NEUTRAL_REVIEW_NOT_RECORDED')
@@ -95,6 +99,12 @@ def audit_gate(gate, evidence, source_ids, stage):
              'G10_5_UNRESOLVED_DIRECT_RIVAL')
     elif gate=='G11':
         need(e.get('recentOwnAttempts') is not None,'G11_RECENT_SHOTS_NOT_PROVED')
+        evidence_review=e.get('shotContinuation') or {}
+        need(evidence_review.get('valid') is True and
+             evidence_review.get('repeatedOwnShotPressure') is True and
+             type(evidence_review.get('positiveShotAppearances')) is int and
+             evidence_review['positiveShotAppearances']>=2,
+             'G11_OWN_SHOT_PRESSURE_DID_NOT_CONTINUE_ACROSS_APPEARANCES')
     elif gate=='G12':
         own=e.get('ownership') or {}
         need(e.get('officialGoalsReconciled') is True and
@@ -176,9 +186,13 @@ def audit_gate(gate, evidence, source_ids, stage):
         elif gate=='Step3': need(e.get('goalieWeakOriginMatch') is True and
                                  e.get('opponentDefenderAvoidZone') is not True,
                                  'STEP3_ATTACK_ZONE_NOT_PROVED')
-        elif gate=='Step4': need(type(e.get('datedActualAppearances')) is int and
-                                 e.get('datedActualAppearances')>0,
-                                 'STEP4_APPEARANCES_NOT_PROVED')
+        elif gate=='Step4':
+            need(type(e.get('datedActualAppearances')) is int and
+                 e.get('datedActualAppearances')>0 and
+                 e.get('datedScoringOrShotRecurrence') is True and
+                 (e.get('datedGoalRecurrence') is True or
+                  e.get('datedOwnShotRecurrence') is True),
+                 'STEP4_DATED_RECURRENCE_NOT_DEMONSTRATED')
         elif gate=='Step5': need(e.get('ownedArchetype') and
                                  e.get('creditedGoalsByOrigin') is not None,
                                  'STEP5_SHOOTER_MECHANISM_NOT_PROVED')
@@ -193,8 +207,13 @@ def audit_gate(gate, evidence, source_ids, stage):
         elif gate=='Step8': need(e.get('actualShiftByShiftObserved') is True and
                                  (e.get('officialShiftChartSourceCount') or 0)>0,
                                  'STEP8_SHIFT_EVIDENCE_NOT_PROVED')
-        elif gate=='Step9': need(e.get('recentRouteContinuationMeasured') is True,
-                                 'STEP9_RECENT_ROUTE_NOT_PROVED')
+        elif gate=='Step9':
+            observed=e.get('ownShotContinuationEvidence') or {}
+            need(e.get('recentRouteContinuationMeasured') is True and
+                 observed.get('repeatedOwnShotPressure') is True and
+                 type(observed.get('positiveShotAppearances')) is int and
+                 observed['positiveShotAppearances']>=2,
+                 'STEP9_RECENT_OWN_SHOT_CONTINUATION_NOT_PROVED')
         elif gate=='Step10': need(bool(e.get('targetGoalieId')) and
                                   bool(e.get('ownRouteArea')),
                                   'STEP10_GOALIE_ROUTE_NOT_PROVED')
