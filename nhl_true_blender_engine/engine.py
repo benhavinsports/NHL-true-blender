@@ -13,6 +13,7 @@ from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .semantic_certification import audit_gate
+from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 
 # The user's 18 numbered scorer gates remain individually named and ordered.
 # G10.5 is the mandatory half-step between G10 and G11. G0 is the
@@ -637,6 +638,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     strong=goalie_profile['data'].get('strengthZones',{})
     release=player_releases(player)
     rec=reconcile_logs(player)
+    # Immutable source observations; G7, G11 and overlays decide independently.
+    shot_review=observed_own_shot_appearances(evidence_data(player.get('pressure')) or {})
+    dated_recurrence=observed_dated_recurrence(rec,shot_review)
     position=player.get('position')
     # G10.5 is the first gate allowed to adjudicate same-lane recipients.
     # Earlier gates must not silently precompute or preselect a winner.
@@ -772,8 +776,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'projectedNotPromoted':bool(dep_data and dep_data.get('status')=='PROJECTED'),
           'deploymentConflict':bool(player.get('deploymentConflict'))},
          source_ids=[dep.get('sourceUrl','') if dep else ''])
-    emit('G7',bool(rec),{'eventLogReconciled':rec,'multiGoalDateOnce':True,'missedGamesExcluded':True},
-         source_ids=[p.get('sourceUrl','') for p in (player.get('gameLog'),player.get('mappedGoals')) if p])
+    # G7: two observed dates are the minimal meaning of recurrence. Compare
+    # credited goals OR dated shooter-owned attempts, not mere log existence.
+    emit('G7',dated_recurrence['datedScoringOrShotRecurrence'],
+         {'eventLogReconciled':rec,'multiGoalDateOnce':True,
+          'missedGamesExcluded':True,**dated_recurrence},
+         source_ids=[p['sourceUrl'] for p in (
+             player.get('gameLog'),player.get('mappedGoals'),player.get('pressure'))
+             if receipt(p)])
     market=player.get('authenticMarket')
     # G8 explicitly neutral when unavailable; never invent market or eliminate a skater.
     emit('G8',True,{'market':evidence_data(market) if receipt(market) else None,
@@ -861,9 +871,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
              if url} | ({player['release']['sourceUrl']} if receipt(player.get('release')) else set())))
     shots=player.get('pressure')
     recent_shots=evidence_data(shots,'recentAppearanceShots')
-    pressure_valid=isinstance(recent_shots,int) and recent_shots>=0 or (isinstance(recent_shots,list) and bool(recent_shots) and all(isinstance(x,int) and x>=0 for x in recent_shots))
-    emit('G11',bool(receipt(shots) and pressure_valid),
-         {'recentOwnAttempts':evidence_data(shots,'recentAppearanceShots') if shots else None},
+    # G11: observed own-shot pressure in separate actual appearances.
+    # [0,0,3] is one isolated active game, not recurring pressure.
+    emit('G11',bool(receipt(shots) and shot_review['valid']
+                    and shot_review['repeatedOwnShotPressure']),
+         {'recentOwnAttempts':recent_shots,
+          'shotContinuation':shot_review,
+          'noOneOffPressureCalledContinuation':True},
          source_ids=[shots['sourceUrl']] if receipt(shots) else [])
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)},
