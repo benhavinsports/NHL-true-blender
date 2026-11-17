@@ -132,7 +132,7 @@ async def execute_cycle(mode, date, root='state'):
                     # A real official grade triggers automatic adjudication,
                     # not a hand-entered patch or a new Core. A missed goal
                     # alone NEVER activates a policy.
-                    adjudication=adjudicate_misses(con,date)
+                    adjudication=adjudicate_misses(con,date,root=root)
                     season_year=int(date[:4]) if int(date[5:7])>=10 else int(date[:4])-1
                     history=season_history(con,season_year,date)
                     _write(root/'history'/f'{history["season"]}.json',history)
