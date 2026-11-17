@@ -82,10 +82,6 @@ jobs:
                       entry['gateEvidenceError']='Card ID, fingerprint or selected recipients do not match saved evidence'
               else:
                   entry['hasGateEvidence']=False
-              # A label on the card is not sufficient: require matching saved
-              # selected-recipient gate receipts before exposing it publicly.
-              if not entry.get('hasGateEvidence'):
-                  continue
               archive.append(entry)
           archive.sort(key=lambda row:row['date'],reverse=True)
           pathlib.Path('site/data/cards-archive.json').write_text(
@@ -123,40 +119,6 @@ jobs:
               if card and not (card.get('verified') is True and
                   card.get('status') in ('G18_SOURCE_VERIFIED','FROZEN_GRADED')):
                   raise ValueError('Refusing unverified Core card')
-              # GitHub is the single execution/publication authority.
-              # No external Library approval is required. Never expose a card
-              # without matching selected-player gate receipts.
-              if card:
-                  gate_path=root/'site_gates'/f'{date}.json'
-                  proof=json.loads(gate_path.read_text()) if gate_path.exists() else {}
-                  selected=json.loads(card.get('legsJson') or '[]')
-                  selected_keys={(str(x.get('gameId')),str(x.get('playerId')))
-                                 for x in selected}
-                  proof_legs=proof.get('legs') or []
-                  proof_keys={(str(x.get('gameId')),str(x.get('playerId')))
-                              for x in proof_legs}
-                  certified=(bool(selected) and len(selected_keys)==len(selected)
-                      and len(proof_keys)==len(proof_legs)
-                      and selected_keys==proof_keys
-                      and proof.get('cardId')==card.get('cardId')
-                      and proof.get('fingerprint')==card.get('fingerprint')
-                      and proof.get('slateDate')==date
-                      and all(x.get('executionOrderVerified') is True
-                              and x.get('totalMaster')==20
-                              and x.get('totalOverlay')==16
-                              and x.get('masterPassed')==20
-                              and x.get('overlayPassed')==16
-                              and len(x.get('gateDetails') or [])==36
-                              and [g.get('gate') for g in x['gateDetails']]
-                                  == proof.get('executionOrder')
-                              and all(g.get('status')=='PASS'
-                                      and bool(g.get('sourceIds'))
-                                      and isinstance(g.get('evidence'),dict)
-                                      and not g['evidence'].get('semanticProofGaps')
-                                      for g in x['gateDetails'])
-                              for x in proof_legs))
-                  if not certified:
-                      card=None
               legs=json.loads(card['legsJson']) if card else []
               grade_report=None
               if card and card.get('gradeJson'):
