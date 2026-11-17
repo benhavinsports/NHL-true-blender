@@ -156,6 +156,7 @@
         "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
         "independentTransferDerivedFromG0AndG10_5": false,
         "laneChangedAfterGoalieFirstG0": false,
+        "offUsualLaneTransferIntoGoalieWeakLane": false,
         "originalScoringLane": "Low Slot",
         "path": "PRIMARY",
         "pathQuotaApplied": false,
@@ -341,6 +342,7 @@
         "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
         "independentTransferDerivedFromG0AndG10_5": false,
         "laneChangedAfterGoalieFirstG0": false,
+        "offUsualLaneTransferIntoGoalieWeakLane": false,
         "originalScoringLane": "Low Slot",
         "path": "PRIMARY",
         "pathQuotaApplied": false,
@@ -380,6 +382,192 @@
       "playerId": "8482116",
       "routeLabel": "PRIMARY",
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+    },
+    {
+      "attackTeam": "CHI",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020338",
+      "gameStartUTC": "2026-11-18T00:30:00Z",
+      "goalieId": "8475683",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 7,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.1887,
+        "savePctg": 0.7878787878787878,
+        "saves": 26,
+        "shotsAgainst": 33,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 936,
+        "allOnNetShotsAgainst": 458,
+        "attemptShare": 0.16452991452991453,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 154,
+        "attemptsPerGame": 9.625,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 9,
+        "onNetShotsAgainst": 59,
+        "peerMedianAttemptsPerGame": 8.8125,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "TOR@CHI",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "TOR",
+      "ownRouteZone": "High Slot",
+      "ownShotsOnGoal": 7,
+      "ownedGoals": 1,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": true,
+        "offUsualLaneTransferIntoGoalieWeakLane": true,
+        "originalScoringLane": "Low Slot",
+        "path": "TRANSFER",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": false,
+        "rationale": "Goalie-first G0 moved this player off his usual lane into the goalie weak lane, where he owns goals and beat every same-lane teammate under G10.5/G16",
+        "scoringLane": "High Slot",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020190/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Connor Bedard",
+      "playerId": "8484144",
+      "routeLabel": "TRANSFER",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now"
+    },
+    {
+      "attackTeam": "MIN",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020340",
+      "gameStartUTC": "2026-11-18T01:00:00Z",
+      "goalieId": "8477424",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 1,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.2642,
+        "savePctg": 0.9629629629629629,
+        "saves": 26,
+        "shotsAgainst": 27,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 985,
+        "allOnNetShotsAgainst": 469,
+        "attemptShare": 0.07411167512690356,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 73,
+        "attemptsPerGame": 4.5625,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 2,
+        "onNetShotsAgainst": 39,
+        "peerMedianAttemptsPerGame": 3.8125,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "NSH@MIN",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "NSH",
+      "ownRouteZone": "R Point",
+      "ownShotsOnGoal": 4,
+      "ownedGoals": 1,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": true,
+        "offUsualLaneTransferIntoGoalieWeakLane": true,
+        "originalScoringLane": "Low Slot",
+        "path": "TRANSFER",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": false,
+        "rationale": "Goalie-first G0 moved this player off his usual lane into the goalie weak lane, where he owns goals and beat every same-lane teammate under G10.5/G16",
+        "scoringLane": "R Point",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478864/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020210/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Kirill Kaprizov",
+      "playerId": "8478864",
+      "routeLabel": "TRANSFER",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478864/now"
     },
     {
       "attackTeam": "SJS",
@@ -440,6 +628,7 @@
         "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
         "independentTransferDerivedFromG0AndG10_5": false,
         "laneChangedAfterGoalieFirstG0": false,
+        "offUsualLaneTransferIntoGoalieWeakLane": false,
         "originalScoringLane": "R Circle",
         "path": "PRIMARY",
         "pathQuotaApplied": false,
@@ -482,7 +671,7 @@
   "coreEligibleSkaterMatrices": 246,
   "currentRunFullyCertified": true,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T15:55:50+00:00",
+    "asOf": "2026-11-17T16:05:49+00:00",
     "gamesWithBothGoalieProjections": 0,
     "noProjectedGoalieCalledConfirmed": true,
     "originalSourceLabelsPreserved": true,
@@ -504,12 +693,11 @@
   "firstNonpassingGateAudit": {
     "allGateRowsPresent": 246,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 3,
+      "FULL_G0_G18_PASS": 5,
       "G0": 24,
       "G10": 12,
       "G10.5": 66,
       "G15": 1,
-      "G18": 2,
       "G4": 47,
       "G6": 34,
       "G7": 5,
@@ -529,14 +717,14 @@
         },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020341",
-          "playerId": "8482116",
+          "gameId": "2026020338",
+          "playerId": "8484144",
           "reasonDisposition": "PASS"
         },
         {
           "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020343",
-          "playerId": "8484227",
+          "gameId": "2026020340",
+          "playerId": "8478864",
           "reasonDisposition": "PASS"
         }
       ],
@@ -605,20 +793,6 @@
           "firstNonpassingGate": "G15",
           "gameId": "2026020336",
           "playerId": "8485366",
-          "reasonDisposition": "NOT_EXECUTED"
-        }
-      ],
-      "G18": [
-        {
-          "firstNonpassingGate": "G18",
-          "gameId": "2026020338",
-          "playerId": "8484144",
-          "reasonDisposition": "NOT_EXECUTED"
-        },
-        {
-          "firstNonpassingGate": "G18",
-          "gameId": "2026020340",
-          "playerId": "8478864",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -1890,7 +2064,107 @@
       "targetGoalieTeam": "CGY"
     }
   },
-  "g16FinalistCompetition": null,
+  "g16FinalistCompetition": {
+    "comparisonDimensions": [
+      "G10.5 ownedGoalsInMatchedLane",
+      "G10.5/G11 ownShotsOnGoalInMatchedLane",
+      "G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)",
+      "G17 deploymentStatus (CONFIRMED > PROJECTED)"
+    ],
+    "excludedPlayerIds": [
+      "8484144",
+      "8478864"
+    ],
+    "finalistCount": 5,
+    "finalists": [
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [],
+        "g16Decision": "RETAINED",
+        "gameId": "2026020335",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 30,
+        "ownedGoalsInMatchedLane": 6,
+        "player": "Sam Reinhart",
+        "playerId": "8477933",
+        "routeZone": "Low Slot"
+      },
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [
+          "8477933"
+        ],
+        "g16Decision": "RETAINED",
+        "gameId": "2026020341",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 14,
+        "ownedGoalsInMatchedLane": 6,
+        "player": "Tim St\u00fctzle",
+        "playerId": "8482116",
+        "routeZone": "Low Slot"
+      },
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [
+          "8477933",
+          "8482116",
+          "8484227"
+        ],
+        "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+        "gameId": "2026020338",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 7,
+        "ownedGoalsInMatchedLane": 1,
+        "player": "Connor Bedard",
+        "playerId": "8484144",
+        "routeZone": "High Slot"
+      },
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [
+          "8477933",
+          "8482116",
+          "8484144",
+          "8484227"
+        ],
+        "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+        "gameId": "2026020340",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 4,
+        "ownedGoalsInMatchedLane": 1,
+        "player": "Kirill Kaprizov",
+        "playerId": "8478864",
+        "routeZone": "R Point"
+      },
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [
+          "8477933",
+          "8482116"
+        ],
+        "g16Decision": "RETAINED",
+        "gameId": "2026020343",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 13,
+        "ownedGoalsInMatchedLane": 3,
+        "player": "Will Smith",
+        "playerId": "8484227",
+        "routeZone": "R Circle"
+      }
+    ],
+    "gate": "G16",
+    "noStarPP1OrOddsPreference": true,
+    "noWeightsSumsRatesOrTieBreaks": true,
+    "phase": "CROSS_GAME_FINALIST_COMPETITION",
+    "requiredCoreSize": 3,
+    "retainedPlayerIds": [
+      "8477933",
+      "8482116",
+      "8484227"
+    ],
+    "rule": "Exclude a finalist only if >= requiredCoreSize finalists from other games strictly dominate it on every dimension",
+    "separated": true
+  },
   "gameSurvivorPool": [
     {
       "attackTeam": "LAK",
@@ -1955,6 +2229,8 @@
         "G7:ELIMINATED": 1
       },
       "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "RETAINED",
+      "g16DominatedBy": [],
       "gameId": "2026020335",
       "gameStartUTC": "2026-11-18T00:00:00Z",
       "inCore": true,
@@ -2118,6 +2394,7 @@
           "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
           "independentTransferDerivedFromG0AndG10_5": false,
           "laneChangedAfterGoalieFirstG0": false,
+          "offUsualLaneTransferIntoGoalieWeakLane": false,
           "originalScoringLane": "Low Slot",
           "path": "PRIMARY",
           "pathQuotaApplied": false,
@@ -2252,6 +2529,10 @@
         "G6:NOT_EXECUTED": 5
       },
       "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "RETAINED",
+      "g16DominatedBy": [
+        "8477933"
+      ],
       "gameId": "2026020341",
       "gameStartUTC": "2026-11-18T00:00:00Z",
       "inCore": true,
@@ -2403,6 +2684,7 @@
           "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
           "independentTransferDerivedFromG0AndG10_5": false,
           "laneChangedAfterGoalieFirstG0": false,
+          "offUsualLaneTransferIntoGoalieWeakLane": false,
           "originalScoringLane": "Low Slot",
           "path": "PRIMARY",
           "pathQuotaApplied": false,
@@ -2501,17 +2783,16 @@
       "firstNonPassGateCounts": {
         "G10.5:ELIMINATED": 12,
         "G10:NOT_EXECUTED": 2,
-        "G18:NOT_EXECUTED": 1,
         "G4:NOT_EXECUTED": 3,
         "G6:NOT_EXECUTED": 3,
         "G9:NOT_EXECUTED": 1
       },
-      "furthestCandidatesDiagnosticOnly": [
-        {
-          "player": "Connor Bedard",
-          "playerId": "8484144",
-          "stoppedAt": "G18:NOT_EXECUTED"
-        }
+      "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+      "g16DominatedBy": [
+        "8477933",
+        "8482116",
+        "8484227"
       ],
       "gameId": "2026020338",
       "gameStartUTC": "2026-11-18T00:30:00Z",
@@ -2519,9 +2800,100 @@
       "matchup": "TOR@CHI",
       "opponentTeam": "TOR",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
-      "status": "NO_SURVIVOR",
-      "stoppedAt": "G18",
+      "status": "SURVIVOR",
+      "survivor": {
+        "attackTeam": "CHI",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+        "deployment": {
+          "EV": "F1",
+          "line": 1,
+          "powerPlayUnit": 1,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        },
+        "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+        "gameId": "2026020338",
+        "gameStartUTC": "2026-11-18T00:30:00Z",
+        "goalieId": "8475683",
+        "goalieObservedZoneStats": {
+          "goalsAgainst": 7,
+          "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+          "leagueSavePctgPercentile": 0.1887,
+          "savePctg": 0.7878787878787878,
+          "saves": 26,
+          "shotsAgainst": 33,
+          "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now"
+        },
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+        "goalieStatus": "EXPECTED",
+        "independentOpponentDefense": {
+          "allAttemptsAgainst": 936,
+          "allOnNetShotsAgainst": 458,
+          "attemptShare": 0.16452991452991453,
+          "attemptTypes": [
+            "goal",
+            "shot-on-goal",
+            "missed-shot",
+            "blocked-shot"
+          ],
+          "attemptsAgainst": 154,
+          "attemptsPerGame": 9.625,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+          "gameCount": 16,
+          "goalsAgainst": 9,
+          "onNetShotsAgainst": 59,
+          "peerMedianAttemptsPerGame": 8.8125,
+          "peerTeamsCompared": 31
+        },
+        "matchup": "TOR@CHI",
+        "nonRankingDiagnosticOnly": true,
+        "opponentTeam": "TOR",
+        "ownRouteZone": "High Slot",
+        "ownShotsOnGoal": 7,
+        "ownedGoals": 1,
+        "pathClassificationEvidence": {
+          "G10_5DisplacedPrimaryEvidence": [],
+          "G14IndependentWhoAnomalyVerified": false,
+          "competingWHOandTRANSFERPathsUnseparated": false,
+          "explicitDisplacementSourceValidated": false,
+          "fallbackToPrimary": false,
+          "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+          "independentTransferDerivedFromG0AndG10_5": false,
+          "laneChangedAfterGoalieFirstG0": true,
+          "offUsualLaneTransferIntoGoalieWeakLane": true,
+          "originalScoringLane": "Low Slot",
+          "path": "TRANSFER",
+          "pathQuotaApplied": false,
+          "positiveDirectGateEvidence": {
+            "G0ThruG17SourcePass": true,
+            "allRelevantChallengersReviewed": true,
+            "goalieWeakAreaDirectlyMatched": true,
+            "historicallyCreditedIndependentGoalRecipient": true,
+            "independentDefenseAreaDirectlyMatched": true,
+            "independentOwnScoringSource": true,
+            "observedOwnedGoalsInSelectedLane": true,
+            "opponentContradictionsReviewed": true,
+            "verifiedEVAccess": true
+          },
+          "primaryOriginIsSourceDistinct": false,
+          "rationale": "Goalie-first G0 moved this player off his usual lane into the goalie weak lane, where he owns goals and beat every same-lane teammate under G10.5/G16",
+          "scoringLane": "High Slot",
+          "selectionIndependentOfLabel": true,
+          "sourceUrls": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020190/boxscore",
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "unknownIsNotAPath": true,
+          "whoPhysicalMechanism": null
+        },
+        "player": "Connor Bedard",
+        "playerId": "8484144",
+        "routeLabel": "TRANSFER",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now"
+      },
       "targetGoalieIds": [
         "8475683"
       ]
@@ -2580,18 +2952,18 @@
       "firstNonPassGateCounts": {
         "G10.5:ELIMINATED": 7,
         "G10:NOT_EXECUTED": 1,
-        "G18:NOT_EXECUTED": 1,
         "G4:NOT_EXECUTED": 3,
         "G6:NOT_EXECUTED": 3,
         "G7:ELIMINATED": 2,
         "G9:NOT_EXECUTED": 4
       },
-      "furthestCandidatesDiagnosticOnly": [
-        {
-          "player": "Kirill Kaprizov",
-          "playerId": "8478864",
-          "stoppedAt": "G18:NOT_EXECUTED"
-        }
+      "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+      "g16DominatedBy": [
+        "8477933",
+        "8482116",
+        "8484144",
+        "8484227"
       ],
       "gameId": "2026020340",
       "gameStartUTC": "2026-11-18T01:00:00Z",
@@ -2599,9 +2971,100 @@
       "matchup": "NSH@MIN",
       "opponentTeam": "NSH",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every gate G0-G18",
-      "status": "NO_SURVIVOR",
-      "stoppedAt": "G18",
+      "status": "SURVIVOR",
+      "survivor": {
+        "attackTeam": "MIN",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+        "deployment": {
+          "EV": "F1",
+          "line": 1,
+          "powerPlayUnit": 1,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        },
+        "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+        "gameId": "2026020340",
+        "gameStartUTC": "2026-11-18T01:00:00Z",
+        "goalieId": "8477424",
+        "goalieObservedZoneStats": {
+          "goalsAgainst": 1,
+          "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+          "leagueSavePctgPercentile": 0.2642,
+          "savePctg": 0.9629629629629629,
+          "saves": 26,
+          "shotsAgainst": 27,
+          "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now"
+        },
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+        "goalieStatus": "EXPECTED",
+        "independentOpponentDefense": {
+          "allAttemptsAgainst": 985,
+          "allOnNetShotsAgainst": 469,
+          "attemptShare": 0.07411167512690356,
+          "attemptTypes": [
+            "goal",
+            "shot-on-goal",
+            "missed-shot",
+            "blocked-shot"
+          ],
+          "attemptsAgainst": 73,
+          "attemptsPerGame": 4.5625,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+          "gameCount": 16,
+          "goalsAgainst": 2,
+          "onNetShotsAgainst": 39,
+          "peerMedianAttemptsPerGame": 3.8125,
+          "peerTeamsCompared": 31
+        },
+        "matchup": "NSH@MIN",
+        "nonRankingDiagnosticOnly": true,
+        "opponentTeam": "NSH",
+        "ownRouteZone": "R Point",
+        "ownShotsOnGoal": 4,
+        "ownedGoals": 1,
+        "pathClassificationEvidence": {
+          "G10_5DisplacedPrimaryEvidence": [],
+          "G14IndependentWhoAnomalyVerified": false,
+          "competingWHOandTRANSFERPathsUnseparated": false,
+          "explicitDisplacementSourceValidated": false,
+          "fallbackToPrimary": false,
+          "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+          "independentTransferDerivedFromG0AndG10_5": false,
+          "laneChangedAfterGoalieFirstG0": true,
+          "offUsualLaneTransferIntoGoalieWeakLane": true,
+          "originalScoringLane": "Low Slot",
+          "path": "TRANSFER",
+          "pathQuotaApplied": false,
+          "positiveDirectGateEvidence": {
+            "G0ThruG17SourcePass": true,
+            "allRelevantChallengersReviewed": true,
+            "goalieWeakAreaDirectlyMatched": true,
+            "historicallyCreditedIndependentGoalRecipient": true,
+            "independentDefenseAreaDirectlyMatched": true,
+            "independentOwnScoringSource": true,
+            "observedOwnedGoalsInSelectedLane": true,
+            "opponentContradictionsReviewed": true,
+            "verifiedEVAccess": true
+          },
+          "primaryOriginIsSourceDistinct": false,
+          "rationale": "Goalie-first G0 moved this player off his usual lane into the goalie weak lane, where he owns goals and beat every same-lane teammate under G10.5/G16",
+          "scoringLane": "R Point",
+          "selectionIndependentOfLabel": true,
+          "sourceUrls": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478864/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020210/boxscore",
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "unknownIsNotAPath": true,
+          "whoPhysicalMechanism": null
+        },
+        "player": "Kirill Kaprizov",
+        "playerId": "8478864",
+        "routeLabel": "TRANSFER",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478864/now"
+      },
       "targetGoalieIds": [
         "8477424"
       ]
@@ -2662,6 +3125,11 @@
         "G6:NOT_EXECUTED": 2
       },
       "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "RETAINED",
+      "g16DominatedBy": [
+        "8477933",
+        "8482116"
+      ],
       "gameId": "2026020343",
       "gameStartUTC": "2026-11-18T03:00:00Z",
       "inCore": true,
@@ -2728,6 +3196,7 @@
           "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
           "independentTransferDerivedFromG0AndG10_5": false,
           "laneChangedAfterGoalieFirstG0": false,
+          "offUsualLaneTransferIntoGoalieWeakLane": false,
           "originalScoringLane": "R Circle",
           "path": "PRIMARY",
           "pathQuotaApplied": false,
@@ -2780,7 +3249,7 @@
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
     "firstFailureClassificationCounts": {
-      "EVIDENCE_INCOMPLETE": 173,
+      "EVIDENCE_INCOMPLETE": 171,
       "SOURCE_ELIMINATED": 70
     },
     "firstFailureExamples": [
@@ -3161,8 +3630,8 @@
         "PASS": 51
       },
       "G18": {
-        "NOT_EXECUTED": 243,
-        "PASS": 3
+        "NOT_EXECUTED": 241,
+        "PASS": 5
       },
       "G2": {
         "PASS": 246
@@ -4086,10 +4555,10 @@
       "allNonselectedRetainGateAudit": true,
       "lockedCoreRecipients": 3,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 92,
+      "notQualifiedIncompleteEvidence": 90,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 0,
+      "qualifiedButNotChosen": 2,
       "sourceEliminated": 151,
       "surveyedEligibleSkaters": 246
     },
@@ -4111,7 +4580,7 @@
       "G15": 111,
       "G16": 106,
       "G17": 51,
-      "G18": 3,
+      "G18": 5,
       "G2": 246,
       "G3": 222,
       "G4": 175,
@@ -4177,7 +4646,7 @@
     "G15": 135,
     "G16": 17,
     "G17": 195,
-    "G18": 243,
+    "G18": 241,
     "G3": 24,
     "G4": 71,
     "G5": 35,
@@ -4221,15 +4690,15 @@
     "allNonselectedRetainGateAudit": true,
     "lockedCoreRecipients": 3,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 92,
+    "notQualifiedIncompleteEvidence": 90,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 0,
+    "qualifiedButNotChosen": 2,
     "sourceEliminated": 151,
     "surveyedEligibleSkaters": 246
   },
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T15:57:45+00:00"
+  "updatedUTC": "2026-11-17T16:07:15+00:00"
 }
