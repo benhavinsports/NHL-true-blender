@@ -1,8 +1,677 @@
 {
-  "allG18QualifiedSurvivors": [],
+  "allG18QualifiedSurvivors": [
+    {
+      "attackTeam": "FLA",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020104/play-by-play",
+      "deployment": {
+        "EV": "F2",
+        "line": 2,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020335",
+      "gameStartUTC": "2026-11-18T00:00:00Z",
+      "goalieId": "8482221",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 15,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.1509,
+        "savePctg": 0.7619047619047619,
+        "saves": 48,
+        "shotsAgainst": 63,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 982,
+        "allOnNetShotsAgainst": 478,
+        "attemptShare": 0.3268839103869654,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 321,
+        "attemptsPerGame": 18.88235294117647,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 17,
+        "goalsAgainst": 24,
+        "onNetShotsAgainst": 139,
+        "peerMedianAttemptsPerGame": 17.4375,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "EDM@FLA",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "EDM",
+      "ownRouteZone": "Low Slot",
+      "ownShotsOnGoal": 30,
+      "ownedGoals": 6,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 3,
+            "displacedDirectPrimaryPlayerId": "8477935",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477935/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 2,
+            "displacedDirectPrimaryPlayerId": "8474189",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474189/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8479981",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479981/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 4,
+            "displacedDirectPrimaryPlayerId": "8482113",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482113/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8473419",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 5,
+            "displacedDirectPrimaryPlayerId": "8480801",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480801/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 2,
+            "displacedDirectPrimaryPlayerId": "8479314",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479314/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 4,
+            "displacedDirectPrimaryPlayerId": "8477409",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477409/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
+            ]
+          }
+        ],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": false,
+        "originalScoringLane": "Low Slot",
+        "path": "PRIMARY",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": true,
+        "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+        "scoringLane": "Low Slot",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473419/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474189/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477409/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477935/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479314/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479981/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480801/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482113/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020104/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020215/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Sam Reinhart",
+      "playerId": "8477933",
+      "routeLabel": "PRIMARY",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
+    },
+    {
+      "attackTeam": "OTT",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020099/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020341",
+      "gameStartUTC": "2026-11-18T00:00:00Z",
+      "goalieId": "8482076",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 11,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.0377,
+        "savePctg": 0.7027027027027027,
+        "saves": 26,
+        "shotsAgainst": 37,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482076/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482076/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 903,
+        "allOnNetShotsAgainst": 442,
+        "attemptShare": 0.3211517165005537,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 290,
+        "attemptsPerGame": 18.125,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 27,
+        "onNetShotsAgainst": 143,
+        "peerMedianAttemptsPerGame": 17.4375,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "OTT@WPG",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "WPG",
+      "ownRouteZone": "Low Slot",
+      "ownShotsOnGoal": 14,
+      "ownedGoals": 6,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 3,
+            "displacedDirectPrimaryPlayerId": "8478020",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478020/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8476393",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476393/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8481528",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481528/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 2,
+            "displacedDirectPrimaryPlayerId": "8482092",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482092/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8478173",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478173/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 5,
+            "displacedDirectPrimaryPlayerId": "8481596",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481596/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          },
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 6,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8482105",
+            "rivalOriginalPrimaryOrigin": "Low Slot",
+            "sameLane": "Low Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482105/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+            ]
+          }
+        ],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": false,
+        "originalScoringLane": "Low Slot",
+        "path": "PRIMARY",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": true,
+        "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+        "scoringLane": "Low Slot",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482076/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476393/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478020/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478173/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481528/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481596/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482092/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482105/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020099/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020212/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Tim St\u00fctzle",
+      "playerId": "8482116",
+      "routeLabel": "PRIMARY",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now"
+    },
+    {
+      "attackTeam": "CHI",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020338",
+      "gameStartUTC": "2026-11-18T00:30:00Z",
+      "goalieId": "8475683",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 7,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.1887,
+        "savePctg": 0.7878787878787878,
+        "saves": 26,
+        "shotsAgainst": 33,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 936,
+        "allOnNetShotsAgainst": 458,
+        "attemptShare": 0.16452991452991453,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 154,
+        "attemptsPerGame": 9.625,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 9,
+        "onNetShotsAgainst": 59,
+        "peerMedianAttemptsPerGame": 8.8125,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "TOR@CHI",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "TOR",
+      "ownRouteZone": "High Slot",
+      "ownShotsOnGoal": 7,
+      "ownedGoals": 1,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [
+          {
+            "G10_5Verdict": "DEFEATED",
+            "directGoalCreditCandidate": 1,
+            "directGoalCreditPrior": 1,
+            "displacedDirectPrimaryPlayerId": "8484783",
+            "rivalOriginalPrimaryOrigin": "High Slot",
+            "sameLane": "High Slot",
+            "sourceUrls": [
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now",
+              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484783/now"
+            ]
+          }
+        ],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": true,
+        "laneChangedAfterGoalieFirstG0": true,
+        "originalScoringLane": "Low Slot",
+        "path": "TRANSFER",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": false,
+        "rationale": "Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5",
+        "scoringLane": "High Slot",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484783/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020190/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Connor Bedard",
+      "playerId": "8484144",
+      "routeLabel": "TRANSFER",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now"
+    },
+    {
+      "attackTeam": "MIN",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+      "deployment": {
+        "EV": "D2",
+        "defensePair": 2,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020340",
+      "gameStartUTC": "2026-11-18T01:00:00Z",
+      "goalieId": "8477424",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 1,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.2642,
+        "savePctg": 0.9629629629629629,
+        "saves": 26,
+        "shotsAgainst": 27,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 985,
+        "allOnNetShotsAgainst": 469,
+        "attemptShare": 0.07411167512690356,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 73,
+        "attemptsPerGame": 4.5625,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 2,
+        "onNetShotsAgainst": 39,
+        "peerMedianAttemptsPerGame": 3.8125,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "NSH@MIN",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "NSH",
+      "ownRouteZone": "R Point",
+      "ownShotsOnGoal": 6,
+      "ownedGoals": 1,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": false,
+        "originalScoringLane": "R Point",
+        "path": "PRIMARY",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": true,
+        "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+        "scoringLane": "R Point",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474716/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020101/play-by-play",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Jared Spurgeon",
+      "playerId": "8474716",
+      "routeLabel": "PRIMARY",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474716/now"
+    },
+    {
+      "attackTeam": "SJS",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020038/play-by-play",
+      "deployment": {
+        "EV": "F1",
+        "line": 1,
+        "powerPlayUnit": 1,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020343",
+      "gameStartUTC": "2026-11-18T03:00:00Z",
+      "goalieId": "8481692",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 8,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.0566,
+        "savePctg": 0.7647058823529411,
+        "saves": 26,
+        "shotsAgainst": 34,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481692/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481692/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 1036,
+        "allOnNetShotsAgainst": 515,
+        "attemptShare": 0.11486486486486487,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 119,
+        "attemptsPerGame": 7.0,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 17,
+        "goalsAgainst": 8,
+        "onNetShotsAgainst": 64,
+        "peerMedianAttemptsPerGame": 5.705882352941177,
+        "peerTeamsCompared": 31
+      },
+      "matchup": "CGY@SJS",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "CGY",
+      "ownRouteZone": "R Circle",
+      "ownShotsOnGoal": 13,
+      "ownedGoals": 3,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [],
+        "G14IndependentWhoAnomalyVerified": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": false,
+        "originalScoringLane": "R Circle",
+        "path": "PRIMARY",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnedGoalsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": true,
+        "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+        "scoringLane": "R Circle",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481692/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484227/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020038/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020222/boxscore",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "player": "Will Smith",
+      "playerId": "8484227",
+      "routeLabel": "PRIMARY",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484227/now"
+    }
+  ],
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
-  "cardId": null,
   "cardSavedByEngine": false,
   "currentRunFullyCertified": false,
   "edgeSourceCoverage": {
@@ -13,46 +682,224 @@
     "status": "EVIDENCE_COLLECTED",
     "totalFailed": 0
   },
-  "eligibleSkaterRows": 492,
+  "eligibleSkaterRows": 267,
   "errors": [
-    "2026020333 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020335 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020336 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020337 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020341 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020334 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020338 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020339 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020340 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020342 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "2026020343 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
-    "G18 only 0 fully evidenced games; 3 required"
+    "2026020334 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction",
+    "G18 cross-game: comparative evidence missing for one or more fully passing routes"
   ],
-  "executionCertificationGaps": {
-    "allGateChecksExecutedWithEvidence": true,
-    "allSkatersHaveEachGateRecord": false,
-    "allSkatersHaveExactExecutionOrder": false,
-    "fullIndependentCardCertification": false,
-    "missingByGate": {
-      "G0": 22
-    },
-    "twoDirectionsPerScheduledGameRecorded": true
-  },
   "firstNonpassingGateAudit": {
-    "allGateRowsPresent": 0,
-    "firstNonpassingGateCounts": {},
+    "allGateRowsPresent": 267,
+    "firstNonpassingGateCounts": {
+      "FULL_G0_G18_PASS": 5,
+      "G0": 69,
+      "G10": 16,
+      "G10.5": 67,
+      "G15": 1,
+      "G4": 21,
+      "G5": 35,
+      "G6": 18,
+      "G9": 35
+    },
     "notAScorerRanking": true,
-    "samplesByFirstGate": {},
-    "scannedSkaters": 0
+    "samplesByFirstGate": {
+      "FULL_G0_G18_PASS": [
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020335",
+          "playerId": "8477933",
+          "reasonDisposition": "PASS"
+        },
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020338",
+          "playerId": "8484144",
+          "reasonDisposition": "PASS"
+        },
+        {
+          "firstNonpassingGate": "FULL_G0_G18_PASS",
+          "gameId": "2026020340",
+          "playerId": "8474716",
+          "reasonDisposition": "PASS"
+        }
+      ],
+      "G0": [
+        {
+          "firstNonpassingGate": "G0",
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G0",
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G0",
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10": [
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020333",
+          "playerId": "8477942",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020335",
+          "playerId": "8477903",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10.5": [
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G15": [
+        {
+          "firstNonpassingGate": "G15",
+          "gameId": "2026020336",
+          "playerId": "8485366",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G4": [
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G4",
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G5": [
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "reasonDisposition": "ELIMINATED"
+        },
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "reasonDisposition": "ELIMINATED"
+        },
+        {
+          "firstNonpassingGate": "G5",
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "reasonDisposition": "ELIMINATED"
+        }
+      ],
+      "G6": [
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020333",
+          "playerId": "8476979",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020333",
+          "playerId": "8478550",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G6",
+          "gameId": "2026020336",
+          "playerId": "8476419",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G9": [
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020333",
+          "playerId": "8479675",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020333",
+          "playerId": "8481732",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G9",
+          "gameId": "2026020333",
+          "playerId": "8482155",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ]
+    },
+    "scannedSkaters": 267
   },
-  "g0Complete": 0,
+  "g0Complete": 22,
   "g0Directions": 22,
   "g0OfficialPbpFallback": {
-    "fallbackProfiles": 0,
-    "goaliesNeedingPbpResearch": 0,
+    "addedIndependentLeaguePeerGames": 103,
+    "anatomicalClaimCertified": false,
+    "clubScheduleGamesRecovered": 0,
+    "clubScheduleNeverImpliesGoaliePlayed": true,
+    "cohortComparatorNotMixedWithEDGE": true,
+    "cohortIndependentOfProjectedStarterRoster": true,
+    "cohortSource": "PRE_SLATE_LEAGUE_WIDE_NHL_PBP",
+    "distinctPeerGoaliesWithOnNetEvents": 87,
+    "distinctPreSlateNhlGamesCompared": 584,
+    "fallbackProfiles": 1,
+    "goaliesNeedingPbpResearch": 1,
+    "goaliesWithOfficialPersonalHistory": 22,
+    "goaliesWithPeerComparedOrigins": 1,
+    "historicalGoalieIdentityEvents": 26302,
+    "historicalNhlGamesFetched": 481,
+    "historicalOnly": true,
+    "independentSameCohortPopulationId": "76601cab71be222456a7",
+    "independentSameCohortProfiles": 22,
+    "independentlyIdentifiedSlateGoaliePeers": 22,
+    "samplePeersNotFullLeaguePercentile": true,
     "sourceFailures": [],
     "sourceType": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
-    "status": "NO_SOURCE_IDENTIFIED_SLATE_GOALIES"
+    "status": "OFFICIAL_PBP_FALLBACK_COLLECTED",
+    "unresolved": []
   },
   "g0RinkOriginResearch": [
     {
@@ -61,12 +908,58 @@
         {
           "attacker": "LAK",
           "defender": "BOS",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8480280",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.897436,
+                  "savePctgPercentile": 0.6415,
+                  "shotsAgainst": 39
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 15,
+                  "savePctg": 0.854369,
+                  "savePctgPercentile": 0.7736,
+                  "shotsAgainst": 103
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.953488,
+                  "savePctgPercentile": 0.9434,
+                  "shotsAgainst": 43
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480280/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "BOS",
           "defender": "LAK",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8476341",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.909091,
+                  "savePctgPercentile": 0.9623,
+                  "shotsAgainst": 44
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476341/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020333",
@@ -79,12 +972,44 @@
         {
           "attacker": "EDM",
           "defender": "FLA",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8474593",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 8,
+                  "savePctg": 0.885714,
+                  "savePctgPercentile": 0.8868,
+                  "shotsAgainst": 70
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8474593/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "FLA",
           "defender": "EDM",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482221",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 15,
+                  "savePctg": 0.761905,
+                  "savePctgPercentile": 0.1509,
+                  "shotsAgainst": 63
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020335",
@@ -97,12 +1022,65 @@
         {
           "attacker": "CBJ",
           "defender": "NYI",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8478009",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 10,
+                  "savePctg": 0.803922,
+                  "savePctgPercentile": 0.2642,
+                  "shotsAgainst": 51
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.934783,
+                  "savePctgPercentile": 0.6415,
+                  "shotsAgainst": 46
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.876404,
+                  "savePctgPercentile": 0.8491,
+                  "shotsAgainst": 89
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.952381,
+                  "savePctgPercentile": 0.9245,
+                  "shotsAgainst": 42
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478009/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "NYI",
           "defender": "CBJ",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8475660",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.810345,
+                  "savePctgPercentile": 0.4717,
+                  "shotsAgainst": 58
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475660/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020336",
@@ -115,12 +1093,57 @@
         {
           "attacker": "BUF",
           "defender": "PHI",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8479361",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 9,
+                  "savePctg": 0.756757,
+                  "savePctgPercentile": 0.1132,
+                  "shotsAgainst": 37
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.931507,
+                  "savePctgPercentile": 1.0,
+                  "shotsAgainst": 73
+                },
+                {
+                  "area": "Outside L",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.939394,
+                  "savePctgPercentile": 0.3208,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.857143,
+                  "savePctgPercentile": 0.2453,
+                  "shotsAgainst": 35
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479361/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "PHI",
           "defender": "BUF",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8479312",
+              "rinkShotOriginAreaRows": [],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479312/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020337",
@@ -133,12 +1156,44 @@
         {
           "attacker": "OTT",
           "defender": "WPG",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482076",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.702703,
+                  "savePctgPercentile": 0.0377,
+                  "shotsAgainst": 37
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482076/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "WPG",
           "defender": "OTT",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8476999",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 7,
+                  "savePctg": 0.885246,
+                  "savePctgPercentile": 0.8679,
+                  "shotsAgainst": 61
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476999/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020341",
@@ -151,12 +1206,93 @@
         {
           "attacker": "WSH",
           "defender": "TBL",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8476883",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 0,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.923077,
+                  "savePctgPercentile": 0.8679,
+                  "shotsAgainst": 39
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 6,
+                  "savePctg": 0.842105,
+                  "savePctgPercentile": 0.1509,
+                  "shotsAgainst": 38
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 20,
+                  "savePctg": 0.784946,
+                  "savePctgPercentile": 0.2453,
+                  "shotsAgainst": 93
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.952381,
+                  "savePctgPercentile": 0.9245,
+                  "shotsAgainst": 42
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476883/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "TBL",
           "defender": "WSH",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8480313",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 7,
+                  "savePctg": 0.774194,
+                  "savePctgPercentile": 0.1509,
+                  "shotsAgainst": 31
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.969697,
+                  "savePctgPercentile": 0.9623,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 16,
+                  "savePctg": 0.802469,
+                  "savePctgPercentile": 0.3585,
+                  "shotsAgainst": 81
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.918919,
+                  "savePctgPercentile": 0.6415,
+                  "shotsAgainst": 37
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480313/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020334",
@@ -169,12 +1305,100 @@
         {
           "attacker": "TOR",
           "defender": "CHI",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8481519",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 0,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 6,
+                  "savePctg": 0.866667,
+                  "savePctgPercentile": 0.5849,
+                  "shotsAgainst": 45
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 8,
+                  "savePctg": 0.833333,
+                  "savePctgPercentile": 0.0755,
+                  "shotsAgainst": 48
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 25,
+                  "savePctg": 0.816176,
+                  "savePctgPercentile": 0.5472,
+                  "shotsAgainst": 136
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 9,
+                  "savePctg": 0.769231,
+                  "savePctgPercentile": 0.0755,
+                  "shotsAgainst": 39
+                },
+                {
+                  "area": "R Point",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.969697,
+                  "savePctgPercentile": 0.3019,
+                  "shotsAgainst": 33
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "CHI",
           "defender": "TOR",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8475683",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.916667,
+                  "savePctgPercentile": 0.3208,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 7,
+                  "savePctg": 0.787879,
+                  "savePctgPercentile": 0.1887,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 18,
+                  "savePctg": 0.818182,
+                  "savePctgPercentile": 0.5849,
+                  "shotsAgainst": 99
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.947368,
+                  "savePctgPercentile": 0.8868,
+                  "shotsAgainst": 38
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020338",
@@ -187,12 +1411,44 @@
         {
           "attacker": "ANA",
           "defender": "STL",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8476412",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.710526,
+                  "savePctgPercentile": 0.0377,
+                  "shotsAgainst": 38
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476412/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "STL",
           "defender": "ANA",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8478024",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 9,
+                  "savePctg": 0.808511,
+                  "savePctgPercentile": 0.434,
+                  "shotsAgainst": 47
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478024/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020339",
@@ -205,12 +1461,114 @@
         {
           "attacker": "NSH",
           "defender": "MIN",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482661",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.955556,
+                  "savePctgPercentile": 0.5283,
+                  "shotsAgainst": 45
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.906977,
+                  "savePctgPercentile": 0.6981,
+                  "shotsAgainst": 43
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.928571,
+                  "savePctgPercentile": 0.5849,
+                  "shotsAgainst": 56
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 13,
+                  "savePctg": 0.893443,
+                  "savePctgPercentile": 0.9245,
+                  "shotsAgainst": 122
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.895833,
+                  "savePctgPercentile": 0.434,
+                  "shotsAgainst": 48
+                },
+                {
+                  "area": "R Point",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.966667,
+                  "savePctgPercentile": 0.283,
+                  "shotsAgainst": 30
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482661/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "MIN",
           "defender": "NSH",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8477424",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 0,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
+                  "shotsAgainst": 30
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 6,
+                  "savePctg": 0.853659,
+                  "savePctgPercentile": 0.4906,
+                  "shotsAgainst": 41
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.954545,
+                  "savePctgPercentile": 0.8302,
+                  "shotsAgainst": 44
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 15,
+                  "savePctg": 0.854369,
+                  "savePctgPercentile": 0.7736,
+                  "shotsAgainst": 103
+                },
+                {
+                  "area": "Outside R",
+                  "goalsAgainst": 1,
+                  "savePctg": 0.972222,
+                  "savePctgPercentile": 0.5283,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.909091,
+                  "savePctgPercentile": 0.5849,
+                  "shotsAgainst": 55
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8477424/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020340",
@@ -223,12 +1581,65 @@
         {
           "attacker": "DAL",
           "defender": "VGK",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8478499",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 13,
+                  "savePctg": 0.811594,
+                  "savePctgPercentile": 0.4906,
+                  "shotsAgainst": 69
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.9375,
+                  "savePctgPercentile": 0.7925,
+                  "shotsAgainst": 32
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478499/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "VGK",
           "defender": "DAL",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8479979",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.914286,
+                  "savePctgPercentile": 0.4528,
+                  "shotsAgainst": 35
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 11,
+                  "savePctg": 0.873563,
+                  "savePctgPercentile": 0.8302,
+                  "shotsAgainst": 87
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.914286,
+                  "savePctgPercentile": 0.6226,
+                  "shotsAgainst": 35
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479979/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020342",
@@ -241,12 +1652,86 @@
         {
           "attacker": "CGY",
           "defender": "SJS",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8482137",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 10,
+                  "savePctg": 0.787234,
+                  "savePctgPercentile": 0.1698,
+                  "shotsAgainst": 47
+                },
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.886364,
+                  "savePctgPercentile": 0.283,
+                  "shotsAgainst": 44
+                },
+                {
+                  "area": "L Point",
+                  "goalsAgainst": 0,
+                  "savePctg": 1.0,
+                  "savePctgPercentile": 1.0,
+                  "shotsAgainst": 30
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 19,
+                  "savePctg": 0.838983,
+                  "savePctgPercentile": 0.717,
+                  "shotsAgainst": 118
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 5,
+                  "savePctg": 0.886364,
+                  "savePctgPercentile": 0.3962,
+                  "shotsAgainst": 44
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482137/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         },
         {
           "attacker": "SJS",
           "defender": "CGY",
-          "goalieBranches": []
+          "goalieBranches": [
+            {
+              "goalieId": "8481692",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "L Circle",
+                  "goalsAgainst": 4,
+                  "savePctg": 0.870968,
+                  "savePctgPercentile": 0.2453,
+                  "shotsAgainst": 31
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 16,
+                  "savePctg": 0.802469,
+                  "savePctgPercentile": 0.3585,
+                  "shotsAgainst": 81
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 8,
+                  "savePctg": 0.764706,
+                  "savePctgPercentile": 0.0566,
+                  "shotsAgainst": 34
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481692/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            }
+          ]
         }
       ],
       "gameId": "2026020343",
@@ -254,60 +1739,527 @@
       "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
     }
   ],
-  "g0TwoGoalieDirectionDecisions": {},
+  "g0TwoGoalieDirectionDecisions": {
+    "2026020333": {
+      "attackingTeam": "LAK",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480280/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476341/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 21,
+        "oppositeGoaliePeerSavePercentile": 0.2453,
+        "oppositeGoalsAllowedFromOrigin": 3,
+        "oppositeWeakOrigin": "R Circle",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 27,
+        "winnerGoaliePeerSavePercentile": 0.0377,
+        "winnerGoalsAllowedFromOrigin": 4,
+        "winnerWeakOrigin": "Center Point"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "BOS"
+    },
+    "2026020335": {
+      "attackingTeam": "FLA",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8474593/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482221/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 29,
+        "oppositeGoaliePeerSavePercentile": 0.2642,
+        "oppositeGoalsAllowedFromOrigin": 4,
+        "oppositeWeakOrigin": "R Circle",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 63,
+        "winnerGoaliePeerSavePercentile": 0.1509,
+        "winnerGoalsAllowedFromOrigin": 15,
+        "winnerWeakOrigin": "Low Slot"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "EDM"
+    },
+    "2026020336": {
+      "attackingTeam": "NYI",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478009/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475660/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 51,
+        "oppositeGoaliePeerSavePercentile": 0.2642,
+        "oppositeGoalsAllowedFromOrigin": 10,
+        "oppositeWeakOrigin": "High Slot",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 23,
+        "winnerGoaliePeerSavePercentile": 0.2453,
+        "winnerGoalsAllowedFromOrigin": 1,
+        "winnerWeakOrigin": "R Point"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "CBJ"
+    },
+    "2026020337": {
+      "attackingTeam": "BUF",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "allProjectedGoalieCombinationsIndependentlyChecked": 1,
+        "eachCombinationAttacksSameSide": true,
+        "noUnknownGoalieAssumed": true,
+        "noWeightsOrArbitraryTieBreaks": true,
+        "pairwiseReceipts": [
+          {
+            "attacker": "BUF",
+            "goalieA": "8479361",
+            "goalieB": "8479312",
+            "proof": {
+              "goaliePbpSourceUrls": [
+                "https://api-web.nhle.com/v1/gamecenter/2025020869/play-by-play",
+                "https://api-web.nhle.com/v1/gamecenter/2025020610/play-by-play"
+              ],
+              "goalieSourceUrls": [
+                "https://api-web.nhle.com/v1/gamecenter/2025020869/play-by-play",
+                "https://api-web.nhle.com/v1/gamecenter/2025020610/play-by-play"
+              ],
+              "noWeightsOrExternalOdds": true,
+              "notGloveBlockerFiveHole": true,
+              "notGuaranteedTonightGoal": true,
+              "opposingGoaliesIndividuallyIdentified": true,
+              "oppositeDirectionSourceReviewed": true,
+              "oppositeGoalieOnNetShots": 54,
+              "oppositeGoaliePeerSavePercentile": 0.30952380952380953,
+              "oppositeGoalsAllowedFromOrigin": 5,
+              "oppositeWeakOrigin": "L Circle",
+              "reason": "Same pre-slate official historical goalie PBP peer sample, not mixed with NHL EDGE ranking",
+              "samePeerComparatorScope": "INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY",
+              "samePeerPopulationId": "76601cab71be222456a7",
+              "sourceCoherentIndependentHistoricalSample": true,
+              "winnerGoalieOnNetShots": 116,
+              "winnerGoaliePeerSavePercentile": 0.2558139534883721,
+              "winnerGoalsAllowedFromOrigin": 25,
+              "winnerWeakOrigin": "High Slot"
+            },
+            "sourceDecisionMethod": "SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL"
+          }
+        ],
+        "projectedBranchesNeverSilentlyConfirmed": true
+      },
+      "goalieSourceMethod": "ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "PHI"
+    },
+    "2026020338": {
+      "attackingTeam": "CHI",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 48,
+        "oppositeGoaliePeerSavePercentile": 0.0755,
+        "oppositeGoalsAllowedFromOrigin": 8,
+        "oppositeWeakOrigin": "L Circle",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 22,
+        "winnerGoaliePeerSavePercentile": 0.0377,
+        "winnerGoalsAllowedFromOrigin": 3,
+        "winnerWeakOrigin": "R Point"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "TOR"
+    },
+    "2026020339": {
+      "attackingTeam": "ANA",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": null,
+      "goalieSourceMethod": "SOURCE_WEAK_ZONE_SET_CONTAINMENT",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "STL"
+    },
+    "2026020340": {
+      "attackingTeam": "MIN",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": null,
+      "goalieSourceMethod": "SOURCE_WEAK_ZONE_SET_CONTAINMENT",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "NSH"
+    },
+    "2026020341": {
+      "attackingTeam": "OTT",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": null,
+      "goalieSourceMethod": "SOURCE_WEAK_ZONE_SET_CONTAINMENT",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "WPG"
+    },
+    "2026020342": {
+      "attackingTeam": "DAL",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "allProjectedGoalieCombinationsIndependentlyChecked": 1,
+        "eachCombinationAttacksSameSide": true,
+        "noUnknownGoalieAssumed": true,
+        "noWeightsOrArbitraryTieBreaks": true,
+        "pairwiseReceipts": [
+          {
+            "attacker": "DAL",
+            "goalieA": "8478499",
+            "goalieB": "8479979",
+            "proof": {
+              "goaliePbpSourceUrls": [
+                "https://api-web.nhle.com/v1/gamecenter/2025020909/play-by-play",
+                "https://api-web.nhle.com/v1/gamecenter/2025020804/play-by-play"
+              ],
+              "goalieSourceUrls": [
+                "https://api-web.nhle.com/v1/gamecenter/2025020909/play-by-play",
+                "https://api-web.nhle.com/v1/gamecenter/2025020804/play-by-play"
+              ],
+              "noWeightsOrExternalOdds": true,
+              "notGloveBlockerFiveHole": true,
+              "notGuaranteedTonightGoal": true,
+              "opposingGoaliesIndividuallyIdentified": true,
+              "oppositeDirectionSourceReviewed": true,
+              "oppositeGoalieOnNetShots": 89,
+              "oppositeGoaliePeerSavePercentile": 0.21052631578947367,
+              "oppositeGoalsAllowedFromOrigin": 9,
+              "oppositeWeakOrigin": "R Circle",
+              "reason": "Same pre-slate official historical goalie PBP peer sample, not mixed with NHL EDGE ranking",
+              "samePeerComparatorScope": "INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY",
+              "samePeerPopulationId": "76601cab71be222456a7",
+              "sourceCoherentIndependentHistoricalSample": true,
+              "winnerGoalieOnNetShots": 35,
+              "winnerGoaliePeerSavePercentile": 0.05555555555555555,
+              "winnerGoalsAllowedFromOrigin": 3,
+              "winnerWeakOrigin": "R Point"
+            },
+            "sourceDecisionMethod": "SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL"
+          }
+        ],
+        "projectedBranchesNeverSilentlyConfirmed": true
+      },
+      "goalieSourceMethod": "ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "VGK"
+    },
+    "2026020343": {
+      "attackingTeam": "SJS",
+      "bothGoaliesReviewedFirst": true,
+      "decisionEvidence": {
+        "goalieSourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482137/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481692/now"
+        ],
+        "noWeightsOrExternalOdds": true,
+        "notGloveBlockerFiveHole": true,
+        "oppositeDirectionSourceReviewed": true,
+        "oppositeGoalieOnNetShots": 29,
+        "oppositeGoaliePeerSavePercentile": 0.1698,
+        "oppositeGoalsAllowedFromOrigin": 3,
+        "oppositeWeakOrigin": "Center Point",
+        "reason": "Independent goalie-origin lower published peer save percentile, not game score or skater rank",
+        "samePeerComparatorScope": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "winnerGoalieOnNetShots": 34,
+        "winnerGoaliePeerSavePercentile": 0.0566,
+        "winnerGoalsAllowedFromOrigin": 8,
+        "winnerWeakOrigin": "R Circle"
+      },
+      "goalieSourceMethod": "NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0",
+      "isAnatomicalWeaknessClaim": false,
+      "targetGoalieTeam": "CGY"
+    }
+  },
   "games": 11,
   "gateCertification": {
-    "allGateChecksExecutedWithEvidence": true,
-    "allOverlayStepsSourceCompleteForEveryRejectedSkater": true,
-    "allOverlayStepsWereIndependentlyChecked": false,
-    "allSkatersHaveEachGateRecord": false,
-    "allSkatersHaveExactExecutionOrder": false,
+    "allGateChecksExecutedWithEvidence": false,
+    "allOverlayStepsSourceCompleteForEveryRejectedSkater": false,
+    "allOverlayStepsWereIndependentlyChecked": true,
+    "allSkatersHaveEachGateRecord": true,
+    "allSkatersHaveExactExecutionOrder": true,
     "copiedOverlayReceiptCount": 0,
     "copiedOverlayReceipts": [],
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
-    "firstFailureClassificationCounts": {},
-    "firstFailureExamples": [],
+    "firstFailureClassificationCounts": {
+      "EVIDENCE_INCOMPLETE": 227,
+      "SOURCE_ELIMINATED": 35
+    },
+    "firstFailureExamples": [
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8470621"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8474563"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8475208"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G5",
+        "gameId": "2026020333",
+        "playerId": "8475287"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G5",
+        "gameId": "2026020333",
+        "playerId": "8475692"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8476441"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8476469"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8476872"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10",
+        "gameId": "2026020333",
+        "playerId": "8476879"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G6",
+        "gameId": "2026020333",
+        "playerId": "8476979"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10",
+        "gameId": "2026020333",
+        "playerId": "8477942"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8477960"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G6",
+        "gameId": "2026020333",
+        "playerId": "8478550"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G9",
+        "gameId": "2026020333",
+        "playerId": "8479675"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8479998"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G4",
+        "gameId": "2026020333",
+        "playerId": "8481532"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G9",
+        "gameId": "2026020333",
+        "playerId": "8481732"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8482124"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G9",
+        "gameId": "2026020333",
+        "playerId": "8482155"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G5",
+        "gameId": "2026020333",
+        "playerId": "8482726"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G10.5",
+        "gameId": "2026020333",
+        "playerId": "8482730"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8474151"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8474590"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8475167"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8476453"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8476826"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8476878"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8477149"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8477404"
+      },
+      {
+        "classification": "EVIDENCE_INCOMPLETE",
+        "disposition": "NOT_EXECUTED",
+        "firstGate": "G0",
+        "gameId": "2026020334",
+        "playerId": "G0_RESEARCH:TBL:8480313:8478010"
+      }
+    ],
     "fullIndependentCardCertification": false,
     "gateChecksAttempted": {
-      "G0": 0,
-      "G1": 0,
-      "G10": 0,
-      "G10.5": 0,
-      "G11": 0,
-      "G12": 0,
-      "G13": 0,
-      "G14": 0,
-      "G15": 0,
-      "G16": 0,
-      "G17": 0,
-      "G18": 0,
-      "G2": 0,
-      "G3": 0,
-      "G4": 0,
-      "G5": 0,
-      "G6": 0,
-      "G7": 0,
-      "G8": 0,
-      "G9": 0,
-      "Step0": 0,
-      "Step1": 0,
-      "Step10": 0,
-      "Step10.5": 0,
-      "Step11": 0,
-      "Step12": 0,
-      "Step13": 0,
-      "Step14": 0,
-      "Step2": 0,
-      "Step3": 0,
-      "Step4": 0,
-      "Step5": 0,
-      "Step6": 0,
-      "Step7": 0,
-      "Step8": 0,
-      "Step9": 0
+      "G0": 267,
+      "G1": 267,
+      "G10": 267,
+      "G10.5": 267,
+      "G11": 267,
+      "G12": 267,
+      "G13": 267,
+      "G14": 267,
+      "G15": 267,
+      "G16": 267,
+      "G17": 267,
+      "G18": 267,
+      "G2": 267,
+      "G3": 267,
+      "G4": 267,
+      "G5": 267,
+      "G6": 267,
+      "G7": 267,
+      "G8": 267,
+      "G9": 267,
+      "Step0": 267,
+      "Step1": 267,
+      "Step10": 267,
+      "Step10.5": 267,
+      "Step11": 267,
+      "Step12": 267,
+      "Step13": 267,
+      "Step14": 267,
+      "Step2": 267,
+      "Step3": 267,
+      "Step4": 267,
+      "Step5": 267,
+      "Step6": 267,
+      "Step7": 267,
+      "Step8": 267,
+      "Step9": 267
     },
-    "gateRows": 22,
+    "gateRows": 9634,
     "gateSpecification": {
       "executionCount": 36,
       "executionOrder": [
@@ -412,51 +2364,1299 @@
         "G18"
       ]
     },
-    "goalieDirectionsWithPass": 0,
+    "goalieDirectionsWithPass": 22,
     "masterGateDispositions": {
-      "G0": {},
-      "G1": {},
-      "G10": {},
-      "G10.5": {},
-      "G11": {},
-      "G12": {},
-      "G13": {},
-      "G14": {},
-      "G15": {},
-      "G16": {},
-      "G17": {},
-      "G18": {},
-      "G2": {},
-      "G3": {},
-      "G4": {},
-      "G5": {},
-      "G6": {},
-      "G7": {},
-      "G8": {},
-      "G9": {}
+      "G0": {
+        "NOT_EXECUTED": 69,
+        "PASS": 198
+      },
+      "G1": {
+        "PASS": 267
+      },
+      "G10": {
+        "NOT_EXECUTED": 123,
+        "PASS": 144
+      },
+      "G10.5": {
+        "NOT_EXECUTED": 161,
+        "PASS": 106
+      },
+      "G11": {
+        "NOT_EXECUTED": 22,
+        "PASS": 245
+      },
+      "G12": {
+        "NOT_EXECUTED": 81,
+        "PASS": 186
+      },
+      "G13": {
+        "PASS": 267
+      },
+      "G14": {
+        "NOT_EXECUTED": 35,
+        "PASS": 232
+      },
+      "G15": {
+        "NOT_EXECUTED": 148,
+        "PASS": 119
+      },
+      "G16": {
+        "NOT_EXECUTED": 161,
+        "PASS": 106
+      },
+      "G17": {
+        "NOT_EXECUTED": 217,
+        "PASS": 50
+      },
+      "G18": {
+        "NOT_EXECUTED": 262,
+        "PASS": 5
+      },
+      "G2": {
+        "PASS": 267
+      },
+      "G3": {
+        "NOT_EXECUTED": 69,
+        "PASS": 198
+      },
+      "G4": {
+        "NOT_EXECUTED": 32,
+        "PASS": 235
+      },
+      "G5": {
+        "ELIMINATED": 37,
+        "NOT_EXECUTED": 35,
+        "PASS": 195
+      },
+      "G6": {
+        "NOT_EXECUTED": 56,
+        "PASS": 211
+      },
+      "G7": {
+        "NOT_EXECUTED": 32,
+        "PASS": 235
+      },
+      "G8": {
+        "PASS": 267
+      },
+      "G9": {
+        "NOT_EXECUTED": 148,
+        "PASS": 119
+      }
     },
     "missingMatrixGateRows": {},
     "neverTreatsGateRecordAsAutomaticPass": true,
     "nonselectedCandidateFailuresAreNotCertificationErrors": true,
     "nonselectedIncompleteEvidenceRemainsVisible": true,
-    "otherMissingSourceExamples": {},
+    "otherMissingSourceExamples": {
+      "G0": [
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476453",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476878",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477404",
+          "sourceCount": 2
+        }
+      ],
+      "G10": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8477942",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "sourceCount": 3
+        }
+      ],
+      "G10.5": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 25
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 25
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 24
+        }
+      ],
+      "G11": [
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8479981",
+          "sourceCount": 1
+        }
+      ],
+      "G12": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8477942",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8479705",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8481719",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482201",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482655",
+          "sourceCount": 3
+        }
+      ],
+      "G14": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8476429",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8482516",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020338",
+          "playerId": "8474013",
+          "sourceCount": 2
+        }
+      ],
+      "G15": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476979",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8477942",
+          "sourceCount": 3
+        }
+      ],
+      "G16": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 26
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 26
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 25
+        }
+      ],
+      "G17": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 2
+        }
+      ],
+      "G18": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 5
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 5
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 5
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 5
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 5
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 4
+        }
+      ],
+      "G3": [
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474151",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8474590",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8475167",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476453",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476878",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477404",
+          "sourceCount": 3
+        }
+      ],
+      "G4": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 1
+        }
+      ],
+      "G5": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8476429",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8482516",
+          "sourceCount": 4
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020338",
+          "playerId": "8474013",
+          "sourceCount": 4
+        }
+      ],
+      "G6": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8476979",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8478550",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478010",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478519",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 1
+        }
+      ],
+      "G7": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 1
+        }
+      ],
+      "G9": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8479675",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481732",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482155",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 19
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 19
+        }
+      ],
+      "Step0": [
+        {
+          "gameId": "2026020342",
+          "playerId": "8473994",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8474102",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8474574",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8475168",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8475794",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8476278",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8476889",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8476902",
+          "sourceCount": 1
+        }
+      ],
+      "Step10": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8475179",
+          "sourceCount": 2
+        }
+      ],
+      "Step10.5": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 25
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 25
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 21
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 24
+        }
+      ],
+      "Step11": [
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020339",
+          "playerId": "8482178",
+          "sourceCount": 0
+        }
+      ],
+      "Step12": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 26
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 26
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 22
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476879",
+          "sourceCount": 25
+        }
+      ],
+      "Step14": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8470621",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8474563",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475208",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476441",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476469",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8476872",
+          "sourceCount": 2
+        }
+      ],
+      "Step3": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "sourceCount": 3
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8475179",
+          "sourceCount": 3
+        }
+      ],
+      "Step4": [
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8479981",
+          "sourceCount": 0
+        }
+      ],
+      "Step5": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8481133",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8476429",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8482516",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020338",
+          "playerId": "8474013",
+          "sourceCount": 1
+        }
+      ],
+      "Step6": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8476979",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8478550",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8477149",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478010",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478416",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8478519",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 0
+        }
+      ],
+      "Step7": [
+        {
+          "gameId": "2026020333",
+          "playerId": "8475287",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8475692",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8481532",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020333",
+          "playerId": "8482726",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8476826",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:TBL:8480313:8482929",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8478911",
+          "sourceCount": 2
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8475179",
+          "sourceCount": 2
+        }
+      ],
+      "Step9": [
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8475718",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8479576",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8480873",
+          "sourceCount": 0
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483491",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020334",
+          "playerId": "G0_RESEARCH:WSH:8476883:8483573",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8473419",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8479981",
+          "sourceCount": 0
+        }
+      ]
+    },
     "overlayGateDispositions": {
-      "Step0": {},
-      "Step1": {},
-      "Step10": {},
-      "Step10.5": {},
-      "Step11": {},
-      "Step12": {},
-      "Step13": {},
-      "Step14": {},
-      "Step2": {},
-      "Step3": {},
-      "Step4": {},
-      "Step5": {},
-      "Step6": {},
-      "Step7": {},
-      "Step8": {},
-      "Step9": {}
+      "Step0": {
+        "NOT_EXECUTED": 24,
+        "PASS": 243
+      },
+      "Step1": {
+        "PASS": 267
+      },
+      "Step10": {
+        "NOT_EXECUTED": 72,
+        "PASS": 195
+      },
+      "Step10.5": {
+        "NOT_EXECUTED": 161,
+        "PASS": 106
+      },
+      "Step11": {
+        "NOT_EXECUTED": 2,
+        "PASS": 265
+      },
+      "Step12": {
+        "NOT_EXECUTED": 161,
+        "PASS": 106
+      },
+      "Step13": {
+        "PASS": 267
+      },
+      "Step14": {
+        "NOT_EXECUTED": 217,
+        "PASS": 50
+      },
+      "Step2": {
+        "PASS": 267
+      },
+      "Step3": {
+        "NOT_EXECUTED": 72,
+        "PASS": 195
+      },
+      "Step4": {
+        "NOT_EXECUTED": 21,
+        "PASS": 246
+      },
+      "Step5": {
+        "NOT_EXECUTED": 15,
+        "PASS": 252
+      },
+      "Step6": {
+        "NOT_EXECUTED": 56,
+        "PASS": 211
+      },
+      "Step7": {
+        "NOT_EXECUTED": 72,
+        "PASS": 195
+      },
+      "Step8": {
+        "PASS": 267
+      },
+      "Step9": {
+        "NOT_EXECUTED": 21,
+        "PASS": 246
+      }
     },
     "recordedPassProofGapExamples": [],
     "recordedPassesWithInsufficientProof": {
@@ -497,7 +3697,7 @@
       "Step8": 0,
       "Step9": 0
     },
-    "scannedSkaters": 0,
+    "scannedSkaters": 267,
     "selectedCoreOnlyFullyCertified": false,
     "selectedExecutionOrderGaps": [],
     "selectedLegs": [],
@@ -508,61 +3708,61 @@
       "allNonselectedRetainGateAudit": true,
       "lockedCoreRecipients": 0,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 0,
+      "notQualifiedIncompleteEvidence": 225,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 0,
-      "sourceEliminated": 0,
-      "surveyedEligibleSkaters": 0
+      "qualifiedButNotChosen": 5,
+      "sourceEliminated": 37,
+      "surveyedEligibleSkaters": 267
     },
     "slateDate": "2026-11-17",
     "sourceUnattributedPassingGateCount": 0,
     "sourceUnattributedPassingGateExamples": [],
-    "stage": "CONFIRMED",
+    "stage": "PROJECTED",
     "step8MissingDetails": [],
     "step8MissingReasons": {},
     "substantivelyCertifiedPasses": {
-      "G0": 0,
-      "G1": 0,
-      "G10": 0,
-      "G10.5": 0,
-      "G11": 0,
-      "G12": 0,
-      "G13": 0,
-      "G14": 0,
-      "G15": 0,
-      "G16": 0,
-      "G17": 0,
-      "G18": 0,
-      "G2": 0,
-      "G3": 0,
-      "G4": 0,
-      "G5": 0,
-      "G6": 0,
-      "G7": 0,
-      "G8": 0,
-      "G9": 0,
-      "Step0": 0,
-      "Step1": 0,
-      "Step10": 0,
-      "Step10.5": 0,
-      "Step11": 0,
-      "Step12": 0,
-      "Step13": 0,
-      "Step14": 0,
-      "Step2": 0,
-      "Step3": 0,
-      "Step4": 0,
-      "Step5": 0,
-      "Step6": 0,
-      "Step7": 0,
-      "Step8": 0,
-      "Step9": 0
+      "G0": 198,
+      "G1": 267,
+      "G10": 144,
+      "G10.5": 106,
+      "G11": 245,
+      "G12": 186,
+      "G13": 267,
+      "G14": 232,
+      "G15": 119,
+      "G16": 106,
+      "G17": 50,
+      "G18": 5,
+      "G2": 267,
+      "G3": 198,
+      "G4": 235,
+      "G5": 195,
+      "G6": 211,
+      "G7": 235,
+      "G8": 267,
+      "G9": 119,
+      "Step0": 243,
+      "Step1": 267,
+      "Step10": 195,
+      "Step10.5": 106,
+      "Step11": 265,
+      "Step12": 106,
+      "Step13": 267,
+      "Step14": 50,
+      "Step2": 267,
+      "Step3": 195,
+      "Step4": 246,
+      "Step5": 252,
+      "Step6": 211,
+      "Step7": 195,
+      "Step8": 267,
+      "Step9": 246
     },
     "surveyedGoalieDirections": 22,
     "twoDirectionsPerScheduledGameRecorded": true
   },
-  "gateRows": 22,
+  "gateRows": 9634,
   "historicalShiftCoverage": {
     "attemptedGames": 121,
     "chartedGames": 115,
@@ -599,13 +3799,40 @@
     "sourceScope": "HISTORICAL_OFFICIAL_NHL_SHIFT_INTERVALS_AND_PLAY_BY_PLAY"
   },
   "lineupSourceCoverage": {
-    "deploymentRecords": null,
-    "error": "ValueError: Lineup snapshot slate date mismatch: # Tonight in the NHL: line combinations and starting goalies (games dated 2026-11-16)",
-    "goalieReports": null,
-    "status": "SOURCE_UNAVAILABLE"
+    "deploymentRecords": 388,
+    "error": null,
+    "goalieReports": 22,
+    "status": "DATED_SOURCE_PARSED"
   },
   "missingByGate": {
-    "G0": 22
+    "G0": 69,
+    "G10": 123,
+    "G10.5": 161,
+    "G11": 22,
+    "G12": 81,
+    "G14": 35,
+    "G15": 148,
+    "G16": 161,
+    "G17": 217,
+    "G18": 262,
+    "G3": 69,
+    "G4": 32,
+    "G5": 35,
+    "G6": 56,
+    "G7": 32,
+    "G9": 148,
+    "Step0": 24,
+    "Step10": 72,
+    "Step10.5": 161,
+    "Step11": 2,
+    "Step12": 161,
+    "Step14": 217,
+    "Step3": 72,
+    "Step4": 21,
+    "Step5": 15,
+    "Step6": 56,
+    "Step7": 72,
+    "Step9": 21
   },
   "nonselectedGameResearchIsDiagnosticOnly": true,
   "nonselectedGameResearchNotes": [],
@@ -636,23 +3863,22 @@
     "targetSides": 22,
     "zonesAreConservativeDerivedRinkAreas": true
   },
-  "publicationDecision": "FULL_GATE_EXECUTION_INCOMPLETE",
+  "publicationDecision": "NO_ELIGIBLE_G18_CARD",
   "publishedToSite": false,
-  "retainedOriginalLockedCard": false,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
     "lockedCoreRecipients": 0,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 0,
+    "notQualifiedIncompleteEvidence": 225,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 0,
-    "sourceEliminated": 0,
-    "surveyedEligibleSkaters": 0
+    "qualifiedButNotChosen": 5,
+    "sourceEliminated": 37,
+    "surveyedEligibleSkaters": 267
   },
   "slateDate": "2026-11-17",
-  "stage": "CONFIRMED",
+  "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-17T07:46:56+00:00"
+  "updatedUTC": "2026-11-17T13:02:38+00:00"
 }
