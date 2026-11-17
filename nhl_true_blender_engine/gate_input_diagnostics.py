@@ -4,7 +4,7 @@ No scorer ranking, extra Core or fake gate pass. This is a debugging receipt.
 """
 import json
 from collections import Counter,defaultdict
-from .engine import MASTER, OVERLAY
+from .engine import MASTER, OVERLAY, STEPS_BY_GATE
 
 def explain_live_blockers(con,date,stage):
     rows=con.execute("""SELECT game_id,player_id,gate,disposition,details FROM gates
@@ -95,8 +95,25 @@ def explain_live_blockers(con,date,stage):
     for (game_id,pid),trace in sorted(players.items()):
         master={g:(trace[g]["disposition"] if g in trace else "MISSING_RECORD")
                 for g in MASTER}
-        overlay={g:(trace[g]["disposition"] if g in trace else "MISSING_RECORD")
-                 for g in OVERLAY}
+        # Step names are original source functions nested in their owning
+        # G0-G18 gate, NOT extra rows in the database. Looking for separate
+        # Step rows falsely reported EVERY Step missing for EVERY skater.
+        embedded={}
+        for parent,steps in STEPS_BY_GATE.items():
+            row=trace.get(parent)
+            parent_evidence=(json.loads(row["details"]).get("evidence") or {}
+                             if row is not None else {})
+            by_step={item.get("step"):item for item in
+                     (parent_evidence.get("originalFunctionEvidence") or [])
+                     if isinstance(item,dict)}
+            for step in steps:
+                found=by_step.get(step)
+                embedded[step]=(found.get("disposition","MISSING_FUNCTION_EVIDENCE")
+                                if found is not None else
+                                "MISSING_PARENT_GATE" if row is None else
+                                "MISSING_FUNCTION_EVIDENCE")
+        overlay={step:embedded.get(step,"MISSING_FUNCTION_EVIDENCE")
+                 for step in OVERLAY}
         failed_master=[g for g,v in master.items() if v!="PASS"]
         failed_overlay=[g for g,v in overlay.items() if v!="PASS"]
         reasons={}
@@ -145,7 +162,7 @@ def explain_live_blockers(con,date,stage):
             "failedMasterGates":failed_master,
             "failedOverlayGates":failed_overlay,
             "missingMasterRecords":[g for g,v in master.items() if v=="MISSING_RECORD"],
-            "missingOverlayRecords":[g for g,v in overlay.items() if v=="MISSING_RECORD"],
+            "missingOverlayRecords":[g for g,v in overlay.items() if v.startswith("MISSING_")],
             "masterDispositions":master,"overlayDispositions":overlay,
             "nonpassReasons":reasons})
     return {"slateDate":date,"stage":stage,"playersEvaluated":len(players),
