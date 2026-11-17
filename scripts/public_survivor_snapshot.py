@@ -70,3 +70,56 @@ def choose_public_survivors(status, snapshot, date):
         'currentRunFullyCertified':False,
         'notAReissuedOrChangedCore':True,
         'newerResearchNotFullyCertified':True}
+
+
+def persist_fully_certified_cohort(root, slate_date, stage, result, source_git_sha,
+                                   run_id=None):
+    """Save a real complete pre-puck survivor cohort only after G18 certification.
+
+    No guesses, manual skater choices, or retroactive snapshot construction.
+    The original run must already have selected and independently certified its
+    Core. GitHub Actions stores this with the canonical source ledger.
+    """
+    import json
+    from pathlib import Path
+    from datetime import datetime, timezone
+    if not (isinstance(source_git_sha,str) and
+            fullmatch(r'[0-9a-f]{40}',source_git_sha) and
+            stage in ('PROJECTED','CONFIRMED') and
+            result.get('gateCertification',{}).get('selectedCoreOnlyFullyCertified') is True
+            and result.get('card')):
+        return False
+    games=result.get('gameSurvivorPool') or []
+    expected=result.get('games')
+    if not (type(expected) is int and expected>=2 and
+            len(games)==expected and
+            all(g.get('status')=='SURVIVOR' and isinstance(g.get('survivor'),dict)
+                for g in games)):
+        return False
+    observed=datetime.now(timezone.utc)
+    gids=set();pids=set()
+    for g in games:
+        gid=str(g.get('gameId') or '')
+        pid=str(g['survivor'].get('playerId') or '')
+        start=_when(g.get('gameStartUTC'))
+        if (not gid or not pid or not start or observed>=start or
+                gid in gids or pid in pids):
+            return False
+        gids.add(gid);pids.add(pid)
+    snapshot={
+        'slateDate':slate_date,'stage':stage,
+        'certifiedAtUTC':observed.isoformat(timespec='seconds'),
+        'sourceGitCommit':source_git_sha,
+        'sourceWorkflowRunId':str(run_id) if run_id else None,
+        'originalPublicationDecision':'SOURCE_CERTIFIED_AND_PUBLISHED',
+        'originalFullRunSourceCertified':True,
+        'originalSourceGateCheckEveryGame':True,
+        'readOnlyDisplaySnapshot':True,
+        'certifiedGameCount':expected,
+        'gameSurvivorPool':games}
+    dst=Path(root)/'survivor_cohorts'/(slate_date+'.json')
+    dst.parent.mkdir(parents=True,exist_ok=True)
+    temp=dst.with_suffix('.tmp')
+    temp.write_text(json.dumps(snapshot,sort_keys=True,indent=2)+'\n',encoding='utf-8')
+    temp.replace(dst)
+    return True
