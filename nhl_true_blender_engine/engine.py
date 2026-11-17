@@ -568,6 +568,12 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         any(x['displacedDirectPrimaryPlayerId']==supplied_displaced
             for x in approved_rivals))
     derived_displacement=bool(changed_lane and approved_rivals)
+    # Owner rule (2026-11-17): a player whose goalie-first G0 route moved
+    # him OFF his usual lane into the goalie's weak lane, where he owns
+    # goals and beat every same-lane teammate at G10.5/G16, is a TRANSFER.
+    # No displaced usual owner of that lane is required. It still needs
+    # every direct gate (route_direct), so nothing is relaxed elsewhere.
+    off_lane_transfer=bool(changed_lane and route_direct)
     who=player.get('whoAnomaly')
     who_data=evidence_data(who) or {}
     physical_anomaly=bool(who_supported and receipt(who) and
@@ -579,7 +585,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     # label must survive contradiction review; there is no WHO-over-TRANSFER
     # priority or arbitrary fallback ordering.
     path_contradiction=bool(physical_anomaly and
-        (confirmed_displacement or derived_displacement))
+        (confirmed_displacement or derived_displacement or off_lane_transfer))
     if path_contradiction:
         path=None
         rationale='Two different sourced physical paths remain unseparated; no preferred label assigned'
@@ -589,6 +595,10 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     elif route_direct and (confirmed_displacement or derived_displacement):
         path='TRANSFER'
         rationale='Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5'
+    elif off_lane_transfer:
+        path='TRANSFER'
+        rationale=('Goalie-first G0 moved this player off his usual lane into the goalie weak lane, '
+                   'where he owns goals and beat every same-lane teammate under G10.5/G16')
     elif route_direct and primary_source_lane and not tdata.get('directRouteDisplaced'):
         path='PRIMARY'
         rationale='Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger'
@@ -619,6 +629,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'G10_5DisplacedPrimaryEvidence':approved_rivals,
         'explicitDisplacementSourceValidated':bool(confirmed_displacement),
         'independentTransferDerivedFromG0AndG10_5':derived_displacement,
+        'offUsualLaneTransferIntoGoalieWeakLane':off_lane_transfer,
         'G14IndependentWhoAnomalyVerified':physical_anomaly,
         'competingWHOandTRANSFERPathsUnseparated':path_contradiction,
         'whoPhysicalMechanism':who_data.get('mechanism') if physical_anomaly else None,
