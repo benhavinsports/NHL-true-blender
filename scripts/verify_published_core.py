@@ -7,6 +7,7 @@ receipts, their ordered indices, source provenance, and pre-puck timestamps.
 This is read-only. It never selects, relabels, replaces, or grades a skater.
 """
 from __future__ import annotations
+from nhl_true_blender_engine.core_identity import expected_core_ids
 
 import argparse
 from datetime import datetime, timezone
@@ -136,8 +137,11 @@ def verify_published_core(root: Path, date: str):
     survivors = run.get("allG18QualifiedSurvivors")
     _require(isinstance(survivors, list),
              "saved run omitted the full upstream survivor set")
-    survivor_ids = [(str(x.get("gameId")), str(x.get("playerId")))
-                    for x in survivors]
+    # G16's saved cross-game finalist receipt (if any) defines the exact
+    # survivors G18 may assemble; every other survivor needs a G16 exclusion.
+    survivor_ids = expected_core_ids(run)
+    _require(survivor_ids is not None,
+             "saved G16 finalist competition is missing, unseparated or inconsistent")
     _require(len(survivor_ids) == required and
              len(set(survivor_ids)) == required and
              set(survivor_ids) == set(exact_original),

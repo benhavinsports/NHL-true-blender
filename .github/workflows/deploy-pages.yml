@@ -64,8 +64,11 @@ jobs:
               survivors=run.get('allG18QualifiedSurvivors')
               if not isinstance(survivors,list) or not survivors:
                   return True  # Grade-only or older receipts are not reparsed.
-              before=[(str(x.get('gameId')),str(x.get('playerId')))
-                      for x in survivors]
+              # Survivors G16's saved cross-game finalist competition retained.
+              from nhl_true_blender_engine.core_identity import expected_core_ids
+              before=expected_core_ids(run)
+              if before is None:
+                  return False
               after=[(str(x.get('gameId')),str(x.get('playerId')))
                      for x in legs]
               return (len(before)==len(after) and
@@ -247,6 +250,7 @@ jobs:
                   'missingByGate':status.get('missingByGate',{}),
                   'gateCertification':status.get('gateCertification',{}),
                   'selectionFunnel':status.get('selectionFunnel',{}),
+                  'g16FinalistCompetition':status.get('g16FinalistCompetition'),
                   'survivorOnlyCertification':status.get('survivorOnlyCertification'),
                   'nonselectedGateAuditIsDiagnosticOnly':True,
                   'historicalShiftCoverage':status.get('historicalShiftCoverage',{}),
