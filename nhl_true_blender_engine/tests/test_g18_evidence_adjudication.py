@@ -31,7 +31,7 @@ def finalist(gid,pid,zone,own_goals,own_shots,percentile,def_share):
             "candidate":{"player":player,"release":own,"route":"PRIMARY"}}
 
 def test_source_proven_two_finalists_same_game_select_one_direct_recipient():
-    a=finalist(100,1,"Low Slot",4,22,.12,.25)
+    a=finalist(100,1,"Low Slot",4,22,.02,.35)
     b=finalist(100,2,"L Circle",2,14,.06,.31)
     winners,errors,audit=g18_select_by_evidence([a,b],1,"one game")
     assert not errors
@@ -45,11 +45,11 @@ def test_source_proven_two_finalists_same_game_select_one_direct_recipient():
 
 def test_five_source_separated_games_yield_exact_three_no_bogus_same_game():
     eligible=[
-        finalist(100,1,"Low Slot",1,20,.03,.23),
-        finalist(200,2,"L Circle",5,32,.05,.21),
-        finalist(300,3,"Low Slot",4,28,.06,.18),
-        finalist(400,4,"High Slot",2,19,.04,.24),
-        finalist(500,5,"Low Slot",3,23,.09,.29)]
+        finalist(100,1,"Low Slot",1,12,.25,.15),
+        finalist(200,2,"L Circle",5,32,.05,.28),
+        finalist(300,3,"Low Slot",4,28,.10,.24),
+        finalist(400,4,"High Slot",2,15,.20,.18),
+        finalist(500,5,"Low Slot",3,23,.15,.22)]
     chosen,errors=cross_game_winners(eligible,5)
     assert not errors
     assert len(chosen)==3
@@ -97,3 +97,34 @@ def test_g18_peer_and_attempt_finite_thresholds_not_fake_sorting():
     detail["peerTeamsCompared"]=10
     detail["attemptsPerGame"]=float("nan")
     assert g18_source_vector(item) is None
+
+def test_no_forced_g18_when_different_independent_gate_dimensions_disagree():
+    # More season goals alone cannot override a weaker source comparison
+    # against the goalie and defense. No assistant-made ranking priority.
+    higher_goal_count=finalist(100,1,"Low Slot",5,18,.30,.17)
+    stronger_goalie_defense_match=finalist(100,2,"L Circle",3,25,.02,.33)
+    winners,errors,audit=g18_select_by_evidence(
+        [higher_goal_count,stronger_goalie_defense_match],1,"one game")
+    assert winners==[]
+    assert "incomparable" in str(errors)
+    assert all(x["selection"]=="G18_UNSEPARATED_SOURCE_FRONTIER" for x in audit)
+
+
+def test_no_unverified_transfer_displacement_when_shots_only_break_goal_tie():
+    from nhl_true_blender_engine.engine import adjudicate_scoring_path, challenger_proof,MASTER
+    from nhl_true_blender_engine.tests.test_engine import skater, evidence
+    candidate=skater(710,"slot",30,2)
+    candidate["release"]["data"]["originalPrimaryOrigin"]="High Slot"
+    rival=skater(711,"slot",12,2)
+    goalie=evidence({"goalieId":"g","status":"CONFIRMED",
+                     "weakZones":{"slot":{"shotsAgainst":50}}})
+    defense=evidence({"greenWeakZones":["slot"]})
+    g105,rows=challenger_proof(candidate,[rival],goalie["data"]["weakZones"])
+    assert g105 is True  # SOG separates comparable direct-route candidates
+    d={gate:{"disposition":"PASS"} for gate in MASTER[:-1]}
+    path,proof=adjudicate_scoring_path(
+        candidate,[candidate,rival],candidate["release"]["data"],goalie,
+        defense,d,rows,False)
+    assert path is None
+    assert proof["G10_5DisplacedPrimaryEvidence"]==[]
+    assert proof["independentTransferDerivedFromG0AndG10_5"] is False
