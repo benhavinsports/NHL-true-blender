@@ -159,7 +159,7 @@ def fetch_nhl_article(team, team_name=None):
                 line_no+=1
                 for n in parts:
                     rows.append({'playerName':n,'line':line_no if line_no<=4 else None,'powerPlayUnit':None,'source':'NHL.com projected lineup article','sourcePath':f'forward line {line_no}','retrievedAt':datetime.now(timezone.utc).isoformat(),'sourceTeam':team.upper()})
-        if rows:return rows, {'source':'NHL.com projected lineup article','url':NHL_LINEUP_URL,'sourceDate':datetime.now(timezone.utc).date().isoformat(),'errors':[]}
+        if rows:return rows, {'source':'NHL.com projected lineup article','url':NHL_LINEUP_URL,'sourceDate':None,'dateVerified':False,'errors':['Season-long projected-lineup article does not establish slate-date freshness']}
         return [], {'source':None,'errors':['NHL.com team section found but no reliable forward-line rows parsed']}
     except Exception as e:return [], {'source':None,'errors':[f'NHL.com article: {type(e).__name__}: {e}']}
 
