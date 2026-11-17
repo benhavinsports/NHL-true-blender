@@ -226,6 +226,17 @@ def _validate_replacement(con, existing, new_legs, audit, now):
         raise ValueError('Replacement baseline card fingerprint mismatch')
     if fingerprint(new_legs) != audit['newFingerprint']:
         raise ValueError('Replacement new fingerprint mismatch')
+    # Reject any started-game mutation before consulting source chronology.
+    old_by_game = {x['gameId']:x for x in existing['current_legs']}
+    new_by_game = {x['gameId']:x for x in new_legs}
+    for game_id, leg in old_by_game.items():
+        changed = new_by_game.get(game_id)
+        if not changed or changed['playerId'] != leg['playerId']:
+            if game_started(leg, now):
+                raise ValueError('Frozen game leg cannot be replaced after puck drop')
+    for leg in new_legs:
+        if game_started(leg, now):
+            raise ValueError('Cannot insert a changed Core leg after puck drop')
     receipt = con.execute('SELECT * FROM evidence WHERE evidence_id=?',
                           (audit['triggerEvidenceId'],)).fetchone()
     if not receipt or receipt['slate_date'] != existing['slate_date']:
@@ -264,13 +275,6 @@ def _validate_replacement(con, existing, new_legs, audit, now):
         raise ValueError('G18 missing G10.5 direct-route challenger proof')
     if not audit['g17Contradictions'].get('sourceIds'):
         raise ValueError('G18 G17 contradicting evidence not sourced')
-    old_by_game = {x['gameId']:x for x in existing['current_legs']}
-    new_by_game = {x['gameId']:x for x in new_legs}
-    for game_id, leg in old_by_game.items():
-        changed = new_by_game.get(game_id)
-        if not changed or changed['playerId'] != leg['playerId']:
-            if game_started(leg, now):
-                raise ValueError('Frozen game leg cannot be replaced after puck drop')
     # Proof references must be persisted source receipts, not merely narrative URLs.
     required_source_ids=(audit['priorSurvivorFailure'].get('sourceIds',[])
                       +audit['g17Contradictions'].get('sourceIds',[]))
@@ -280,9 +284,6 @@ def _validate_replacement(con, existing, new_legs, audit, now):
         valid=con.execute('SELECT 1 FROM evidence WHERE evidence_id=? AND slate_date=?',
                           (proof_id,existing['slate_date'])).fetchone()
         if not valid: raise ValueError('G18 replacement proof source receipt absent: '+proof_id)
-    for leg in new_legs:
-        if game_started(leg, now):
-            raise ValueError('Cannot insert a changed Core leg after puck drop')
 
 
 def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
