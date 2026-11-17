@@ -920,42 +920,49 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         release,rec,rows,stage,receipt,evidence_data,gate_record)
     # The path is a RESULT of the physical-source gates, never a preallocated
     # PRIMARY/TRANSFER/WHO slot or an automatic fallback label.
-    previous_gates_passed=all(d[g]['disposition']=='PASS' for g in MASTER[:-1])
-    route,path_proof=adjudicate_scoring_path(player,teammates,release,
-        goalie_profile,coverage,d,rows,who_ok)
-    # Integrate each legacy Step observation into its corresponding gate's
-    # source decision. The Step receipts remain visible for audit, but there
-    # is no second, separately adjudicated overlay veto after G17.
-    # A source contradiction or missing proof is never promoted to PASS.
+    # Fold each source-backed Step observation into exactly one canonical
+    # gate verdict. Preserve its underlying evidence, but do not allow a
+    # PASS from the master check to hide a failed source observation.
     overlay_by_gate={gate:next((row for row in overlay
                       if row['gate']==step),None)
                      for gate,step in OVERLAY_AT_GATE.items()}
-    integrated_gates={}
     for gate in MASTER[:-1]:
-        master_disposition=d[gate]['disposition']
         observation=overlay_by_gate.get(gate)
-        observation_disposition=(observation['disposition']
-                                 if observation else 'PASS')
-        if 'ELIMINATED' in (master_disposition,observation_disposition):
+        if observation is None:
+            continue
+        prior=d[gate]['disposition']
+        observed=observation['disposition']
+        if 'ELIMINATED' in (prior,observed):
             integrated='ELIMINATED'
-        elif 'NOT_EXECUTED' in (master_disposition,observation_disposition):
+        elif 'NOT_EXECUTED' in (prior,observed):
             integrated='NOT_EXECUTED'
         else:
             integrated='PASS'
-        integrated_gates[gate]=integrated
-        if observation:
-            d[gate]['details']['integratedStepEvidence']={
-                'step':observation['gate'],
-                'disposition':observation_disposition,
-                'sourceIds':observation['details'].get('sourceIds',[]),
-                'evidence':observation['details'].get('evidence',{})}
-            d[gate]['details']['integratedDisposition']=integrated
-            matching=next(row for row in proof if row['gate']==gate)
-            matching['details']['evidence']['integratedStepEvidence']=(
-                d[gate]['details']['integratedStepEvidence'])
-            matching['details']['evidence']['integratedDisposition']=integrated
-    previous_gates_passed=all(value=='PASS'
-                              for value in integrated_gates.values())
+        evidence={
+            'step':observation['gate'],'disposition':observed,
+            'sourceIds':observation['details'].get('sourceIds',[]),
+            'evidence':observation['details'].get('evidence',{})}
+        d[gate]['details']['integratedStepEvidence']=evidence
+        d[gate]['details']['integratedDisposition']=integrated
+        d[gate]['disposition']=integrated
+        row=next(item for item in proof if item['gate']==gate)
+        row['disposition']=integrated
+        row['details']['evidence']['integratedStepEvidence']=evidence
+        row['details']['evidence']['integratedDisposition']=integrated
+        row['details']['sourceIds']=list(dict.fromkeys(
+            row['details'].get('sourceIds',[])+evidence['sourceIds']))
+        if integrated=='NOT_EXECUTED' and gate not in deficient:
+            deficient.append(gate)
+        if integrated=='ELIMINATED':
+            eliminated=True
+            if first_elimination_gate is None:
+                first_elimination_gate=gate
+    # Classification must consume the integrated verdicts, not the
+    # pre-merge master-only PASS labels.
+    previous_gates_passed=all(d[gate]['disposition']=='PASS'
+                              for gate in MASTER[:-1])
+    route,path_proof=adjudicate_scoring_path(player,teammates,release,
+        goalie_profile,coverage,d,rows,who_ok)
     overlay_passed=previous_gates_passed
     passed=previous_gates_passed and route is not None
     emit('G18',passed,{
