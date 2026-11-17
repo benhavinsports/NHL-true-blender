@@ -22,21 +22,19 @@ SCORER_GATE_ORDER = ([f'G{i}' for i in range(1,11)] +
 MASTER = ['G0'] + SCORER_GATE_ORDER
 OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] +
            [f'Step{i}' for i in range(11,15)])
-# Phase 1 has TWO independent ordered tracks: every original master
-# gate G0..G17, then ALL 16 source-based overlay checks in the saved
-# Step0..Step14 sequence (including Step10.5), then the G18 lock.
-# The former implementation silently reordered overlays (Step4 before
-# Step3, Step7 before Step5, etc.), and even attached venue Step2 to G3.
-# This diagnostic ownership map documents equivalent SUBJECTS only; it
-# never merges verdicts, changes chronological order or short-circuits.
-STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G1','Step3':'G5',
-              'Step4':'G7','Step5':'G4','Step6':'G6','Step7':'G4',
-              'Step8':'G9','Step9':'G11','Step10':'G3',
-              'Step10.5':'G10.5','Step11':'G14','Step12':'G16',
+# One integrated chronological gate trace. The legacy Step checks are
+# evidence observations at their corresponding master gate, not a second
+# selection phase after G17. Step10.5 belongs with G10.5.
+# Keep each observation identifiable for historical audit compatibility.
+STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G3','Step3':'G5',
+              'Step4':'G4','Step5':'G7','Step6':'G6','Step7':'G9',
+              'Step8':'G8','Step9':'G9','Step10':'G10',
+              'Step10.5':'G10.5','Step11':'G11','Step12':'G16',
               'Step13':'G13','Step14':'G17'}
 STEPS_BY_GATE = {gate:[step for step in OVERLAY if STEP_OWNER[step]==gate]
                  for gate in MASTER}
-EXECUTION_ORDER = MASTER[:-1] + OVERLAY + ['G18']
+EXECUTION_ORDER = [item for gate in MASTER
+                   for item in [gate]+STEPS_BY_GATE[gate]]
 if MASTER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
     raise RuntimeError('Authoritative NHL gate order was altered')
 PATCH_IDS = (
@@ -669,13 +667,35 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             if first_elimination_gate is None:first_elimination_gate=g
         elif disp=='NOT_EXECUTED':
             deficient.append(g)
-        # Master gate decision is independent and final. The original
-        # overlay receives its own ordered execution, not an embedded copy
-        # appended out-of-order to arbitrary master gates.
+        # Evaluate only the source observations owned by this gate, now,
+        # before recording its authoritative disposition.
+        observations=(independent_overlay(
+            game,attack_team,player,teammates,goalie_profile,release,rec,
+            rows,stage,receipt,evidence_data,gate_record,
+            only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
+        overlay.extend(observations)
+        if observations:
+            # Master and overlay are independent verdicts. Do not replace a
+            # master's decision with a merged overlay disposition.
+            detail_evidence=[{
+                'step':item['gate'],'disposition':item['disposition'],
+                'sourceIds':item['details'].get('sourceIds',[]),
+                'evidence':item['details'].get('evidence',{})}
+                for item in observations]
+            content={**content,'independentOverlayEvidence':detail_evidence}
+            for item in observations:
+                step=item['gate']
+                if item['disposition']=='NOT_EXECUTED':
+                    deficient.append(step)
+                elif item['disposition']=='ELIMINATED':
+                    eliminated=True
+                    if first_elimination_gate is None:
+                        first_elimination_gate=step
         d[g]={'disposition':disp,'details':content}
         record=gate_record(game,player['id'],g,disp,content,list(source_ids))
         proof.append(record)
         execution_trace.append(record)
+        execution_trace.extend(observations)
     # G0's per-skater record must point to an attack direction already
     # adjudicated from BOTH goalies. A shared goalie profile is not itself
     # a completed first-gate decision.
@@ -935,24 +955,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
-    # Evaluate ALL Phase-1 Step0..Step14 observations separately and in
-    # exact original order. Never merge them into master gate verdicts or
-    # mark the overlay complete merely because a master gate passed.
-    overlay=independent_overlay(
-        game,attack_team,player,teammates,goalie_profile,release,rec,
-        rows,stage,receipt,evidence_data,gate_record)
-    if [row['gate'] for row in overlay]!=OVERLAY:
-        raise ValueError('Incomplete or reordered independent Phase-1 overlay')
-    execution_trace.extend(overlay)
-    for item in overlay:
-        if item['disposition']=='NOT_EXECUTED':
-            deficient.append(item['gate'])
-        elif item['disposition']=='ELIMINATED':
-            eliminated=True
-            if first_elimination_gate is None:
-                first_elimination_gate=item['gate']
-    # Both tracks must pass separately before G18; no imposed ranking or
-    # after-the-fact reconstruction of overlay decisions.
+    # Both independent tracks must pass. Neither may overwrite the other's
+    # original verdict or masquerade as a completed source check.
     master_passed=all(d[gate]['disposition']=='PASS'
                       for gate in MASTER[:-1])
     overlay_passed=all(row['disposition']=='PASS' for row in overlay)
