@@ -12,10 +12,15 @@ def finalist(gid,pid,zone,own_goals,own_shots,percentile,def_share):
             "weakZones":{zone:{"shotsAgainst":50,"goalsAgainst":10,
                                "leagueSavePctgPercentile":percentile}},
             "goalieProfileSourceUrl":URL+"/edge/goalie-shot-location-detail/88/now"}
-    coverage={"comparison":"RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN",
-              "greenWeakZones":[zone],
-              "zoneConcessions":{zone:{"share":def_share,
-                                      "peerMedianShare":.10}}}
+    coverage={
+        "sourceType":"OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
+        "comparison":"RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "lowShotVolumeIsNotEvidenceOfDefensiveStrength":True,
+        "greenWeakZones":[zone],
+        "zoneConcessions":{zone:{
+            "attemptsAgainst":36,"gameCount":8,"peerTeamsCompared":20,
+            "attemptsPerGame":def_share*20,
+            "peerMedianAttemptsPerGame":2.0}}}
     player={"id":str(pid),"name":"Fixture skater "+str(pid),
             "release":receipt(own,URL+"/edge/skater-shot-location-detail/99/now"),
             "deployment":receipt({"EV":"F2","status":"PROJECTED"},
@@ -64,3 +69,31 @@ def test_missing_independent_goalie_or_team_comparator_cannot_force_arbitrary_th
     del entries[3]["targetGoalie"]["data"]["weakZones"]["Low Slot"]["leagueSavePctgPercentile"]
     chosen,errors=cross_game_winners(entries,4)
     assert not chosen and "evidence missing" in str(errors)
+
+
+def test_g18_rejects_obsolete_share_only_coverage_even_if_candidate_claims_pass():
+    """Source schema must agree with G9; a cosmetic label cannot qualify."""
+    item=finalist(100,1,"Low Slot",3,20,.05,.25)
+    data=item["game"]["coverage"]["DET"]["data"]
+    data["comparison"]="RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN"
+    data["zoneConcessions"]["Low Slot"]={"share":.25,"peerMedianShare":.10}
+    assert g18_source_vector(item) is None
+
+
+def test_g18_missing_actual_per_game_defensive_source_cannot_force_a_core():
+    items=[finalist(i,i,"Low Slot",i,20,.05,.24) for i in range(1,5)]
+    del items[-1]["game"]["coverage"]["DET"]["data"]["zoneConcessions"]["Low Slot"]["attemptsPerGame"]
+    winners,errors=cross_game_winners(items,4)
+    assert winners==[]
+    assert "evidence missing" in str(errors)
+
+
+def test_g18_peer_and_attempt_finite_thresholds_not_fake_sorting():
+    item=finalist(100,1,"Low Slot",3,20,.05,.25)
+    assert g18_source_vector(item) is not None
+    detail=item["game"]["coverage"]["DET"]["data"]["zoneConcessions"]["Low Slot"]
+    detail["peerTeamsCompared"]=2
+    assert g18_source_vector(item) is None
+    detail["peerTeamsCompared"]=10
+    detail["attemptsPerGame"]=float("nan")
+    assert g18_source_vector(item) is None
