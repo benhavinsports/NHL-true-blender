@@ -86,14 +86,127 @@
   },
   "noSelectionsOrRetroactiveGradesInvented": true,
   "officialRouteCalibration": {
-    "missesWithDefeatedTeammateScorer": 0,
-    "missesWithOppositeG0SideScoringMore": 0,
+    "missesWithDefeatedTeammateScorer": 4,
+    "missesWithOppositeG0SideScoringMore": 3,
     "noOddsWeightsOrAutomaticRecipientOverride": true,
-    "observations": [],
-    "officiallyComparedSlates": 0,
-    "originalLegsCompared": 0,
+    "observations": [
+      {
+        "G0selectedSide": "CGY",
+        "G10_5DefeatedTeammatesWhoScored": [
+          {
+            "goals": 1,
+            "player": "M. Backlund",
+            "playerId": "8474150"
+          }
+        ],
+        "calibrationOnlyNoCausalRuleClaim": true,
+        "gameId": "2026020328",
+        "officialSourceUrls": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020328/boxscore"
+        ],
+        "oppositeAttackSideGoals": 6,
+        "oppositeSideScoredMore": true,
+        "originalPath": "PRIMARY",
+        "originalPlayer": "Morgan Frost",
+        "playerId": "8480028",
+        "sameAttackSideGoals": 1,
+        "slateDate": "2026-11-15"
+      },
+      {
+        "G0selectedSide": "EDM",
+        "G10_5DefeatedTeammatesWhoScored": [
+          {
+            "goals": 1,
+            "player": "C. McDavid",
+            "playerId": "8478402"
+          },
+          {
+            "goals": 2,
+            "player": "L. Draisaitl",
+            "playerId": "8477934"
+          },
+          {
+            "goals": 1,
+            "player": "V. Podkolzin",
+            "playerId": "8481617"
+          },
+          {
+            "goals": 1,
+            "player": "Z. Hyman",
+            "playerId": "8475786"
+          }
+        ],
+        "calibrationOnlyNoCausalRuleClaim": true,
+        "gameId": "2026020326",
+        "officialSourceUrls": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020326/boxscore"
+        ],
+        "oppositeAttackSideGoals": 2,
+        "oppositeSideScoredMore": false,
+        "originalPath": "PRIMARY",
+        "originalPlayer": "Evan Bouchard",
+        "playerId": "8480803",
+        "sameAttackSideGoals": 5,
+        "slateDate": "2026-11-15"
+      },
+      {
+        "G0selectedSide": "MTL",
+        "G10_5DefeatedTeammatesWhoScored": [
+          {
+            "goals": 1,
+            "player": "P. Danault",
+            "playerId": "8476479"
+          }
+        ],
+        "calibrationOnlyNoCausalRuleClaim": true,
+        "gameId": "2026020331",
+        "officialSourceUrls": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020331/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020331/boxscore"
+        ],
+        "oppositeAttackSideGoals": 3,
+        "oppositeSideScoredMore": true,
+        "originalPath": "TRANSFER",
+        "originalPlayer": "Cole Caufield",
+        "playerId": "8481540",
+        "sameAttackSideGoals": 1,
+        "slateDate": "2026-11-16"
+      },
+      {
+        "G0selectedSide": "UTA",
+        "G10_5DefeatedTeammatesWhoScored": [
+          {
+            "goals": 1,
+            "player": "B. Hayton",
+            "playerId": "8480849"
+          },
+          {
+            "goals": 1,
+            "player": "V. Trocheck",
+            "playerId": "8476389"
+          }
+        ],
+        "calibrationOnlyNoCausalRuleClaim": true,
+        "gameId": "2026020332",
+        "officialSourceUrls": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020332/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020332/boxscore"
+        ],
+        "oppositeAttackSideGoals": 3,
+        "oppositeSideScoredMore": true,
+        "originalPath": "TRANSFER",
+        "originalPlayer": "Mikhail Sergachev",
+        "playerId": "8479410",
+        "sameAttackSideGoals": 2,
+        "slateDate": "2026-11-16"
+      }
+    ],
+    "officiallyComparedSlates": 2,
+    "originalLegsCompared": 5,
     "postgameOutcomesAreNotPregamePatchProof": true,
-    "scorerMissesCompared": 0,
+    "scorerMissesCompared": 4,
     "source": "PRESERVED_ORIGINAL_CORES_PLUS_OFFICIAL_NHL_SCORER_COMPARISONS"
   },
   "officiallyGradedSlates": 2,
