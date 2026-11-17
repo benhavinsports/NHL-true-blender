@@ -17,7 +17,14 @@ MASTER = tuple([f"G{i}" for i in range(11)] + ["G10.5"] +
                [f"G{i}" for i in range(11, 19)])
 OVERLAY = tuple([f"Step{i}" for i in range(11)] + ["Step10.5"] +
                 [f"Step{i}" for i in range(11, 15)])
-ORDER = MASTER[:-1] + OVERLAY + ("G18",)
+STEP_OWNER = {"Step0":"G0","Step1":"G2","Step2":"G3","Step3":"G5",
+              "Step4":"G4","Step5":"G7","Step6":"G6","Step7":"G9",
+              "Step8":"G8","Step9":"G9","Step10":"G10",
+              "Step10.5":"G10.5","Step11":"G11","Step12":"G16",
+              "Step13":"G13","Step14":"G17"}
+ORDER = tuple(item for gate in MASTER
+              for item in (gate,)+tuple(step for step in OVERLAY
+                                         if STEP_OWNER[step]==gate))
 SOURCE_OPTIONAL_NONELIMINATION = frozenset(("G8", "G13"))
 
 
