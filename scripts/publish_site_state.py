@@ -196,6 +196,26 @@ def export_run(con, slate_date, stage, result, root='state'):
         'eligibleSkaterRows':result.get('eligibleSkaterRows'),
     }
     path=root/'site_cards'/f'{slate_date}.json'
+    # Record issuance once, at the actual first publication. This is
+    # provenance, never a reconstructed timestamp from a later grade/run.
+    # A later confirmed pass may retain the original issuance but cannot
+    # manufacture an earlier one for a legacy card.
+    if path.exists():
+        old=json.loads(path.read_text(encoding='utf-8'))
+        if old.get('issuedAtUTC'):
+            payload['issuedAtUTC']=old['issuedAtUTC']
+        # Existing cards without a first-issuance receipt stay explicitly
+        # unknown. Never backfill from a later confirmation or postgame run.
+    else:
+        issued=datetime.now(timezone.utc)
+        from datetime import datetime as _dt
+        starts=[_dt.fromisoformat(str(leg['startUTC']).replace('Z','+00:00'))
+                for leg in legs]
+        if any(issued>=start for start in starts):
+            raise PublicationConflict(
+                'First card publication occurred at/after a leg puck drop; '
+                'refusing to invent a pre-puck issuance')
+        payload['issuedAtUTC']=issued.isoformat(timespec='seconds')
     if path.exists():
         old=json.loads(path.read_text(encoding='utf-8'))
         if old.get('cardId')!=payload['cardId']:
