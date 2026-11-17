@@ -61,7 +61,7 @@ jobs:
               if not run_path.exists():
                   return True
               run=json.loads(run_path.read_text(encoding='utf-8'))
-              survivors=run.get('allG18QualifiedSurvivors')
+              survivors=run.get('preCoreQualifiedSurvivors')
               if not isinstance(survivors,list) or not survivors:
                   return True  # Grade-only or older receipts are not reparsed.
               # Survivors G16's saved cross-game finalist competition retained.
@@ -194,7 +194,7 @@ jobs:
               if card and status.get('slateDate')==date:
                   by_recipient={
                       (str(row.get('gameId')),str(row.get('playerId'))):row
-                      for row in status.get('allG18QualifiedSurvivors',[])
+                      for row in status.get('preCoreQualifiedSurvivors',[])
                       if isinstance(row,dict)
                   }
                   for leg in legs:
