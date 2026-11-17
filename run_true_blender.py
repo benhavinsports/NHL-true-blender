@@ -112,9 +112,20 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         initial_census=_census(con,date,stage,result.get('games'))
         unresolved=initial_census.get('firstFailureClassificationCounts',{}).get(
             'EVIDENCE_INCOMPLETE',0)
-        if unresolved:
-            feedback.append({'pass':1,'unresolvedFirstGateCandidates':unresolved,
-                             'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
+        # In the exact live failure observed Nov 17, all 11 scheduled games
+        # lacked a dated STARTER identity.  That generated ZERO skater rows,
+        # hence "unresolved == 0" incorrectly disabled this entire second
+        # evidence-research pass.  G0 incompleteness is independently a
+        # source-refresh trigger even when no skater can yet be evaluated.
+        g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
+                    or result.get('g0Complete',0) < result.get('g0Directions',0))
+        if unresolved or g0_missing:
+            feedback.append({
+                'pass':1,'unresolvedFirstGateCandidates':unresolved,
+                'g0SourceGapTriggeredRefresh':g0_missing,
+                'g0CompleteDirectionsBeforeRefresh':result.get('g0Complete',0),
+                'g0ScheduledDirections':2*len(snapshot.get('games',[])),
+                'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
             async with _Client() as client:
                 refreshed_history=await collect_history(client,con,snapshot,date,stage)
                 refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
