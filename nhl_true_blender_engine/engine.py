@@ -1167,34 +1167,32 @@ def g18_select_by_evidence(items,required,scope):
 
     remaining=list(enriched)
     selected=[]
-    frontiers=[]
     while remaining and len(selected)<required:
         frontier=[entry for entry in remaining
                   if not any(dominates(other[0],entry[0])
                              for other in remaining if other is not entry)]
         if not frontier:
             raise ValueError('G18 source dominance analysis has no frontier')
-        frontiers.append(frontier)
         if len(frontier)>required-len(selected):
-            audit=[{**proof,
+            audit=[{**entry[2],
                     'selection':'G18_UNSEPARATED_SOURCE_FRONTIER'
                     if any(entry is item for item in frontier) else
                     'G18_SOURCE_SEPARATED',
                     'comparedAgainst':len(items)-1,
                     'noInventedMetricPriority':True}
-                   for item,(_,_,proof) in [(v,v) for v in enriched]]
+                   for entry in enriched]
             return [],[f'G18 {scope}: {len(frontier)} incomparable or tied source routes at final boundary; no evidence-based priority'],audit
         selected+=frontier
         remaining=[entry for entry in remaining
                    if not any(entry is member for member in frontier)]
     selected_ids={id(x) for x in selected}
-    audit=[{**proof,
+    audit=[{**entry[2],
             'selection':'G18_SELECTED' if id(entry) in selected_ids
                         else 'G18_SOURCE_SEPARATED',
             'comparedAgainst':len(items)-1,
             'noInventedMetricPriority':True,
             'dominanceMethod':'ALL_FOUR_SOURCE_DIMENSIONS_MUST_NOT_CONTRADICT'}
-           for entry,(_,_,proof) in [(v,v) for v in selected+remaining]]
+           for entry in selected+remaining]
     return [entry[1] for entry in selected],[],audit
 
 
