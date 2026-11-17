@@ -20,9 +20,19 @@ def fixture(tmp_path):
 
 def test_saved_revised_core_survives_newer_research_failure(tmp_path):
     card=fixture(tmp_path)
-    run=json.loads((tmp_path/"site_runs"/(DATE+".json")).read_text())
-    assert run["currentRunFullyCertified"] is False
-    assert run["publishedToSite"] is False
+    # The historical regression must simulate a *later failed research*
+    # pass. Do not assert the live production fixture is permanently broken:
+    # once the real engine publishes 11/11 verified survivors that assertion
+    # would incorrectly make every future scheduled run fail regression CI.
+    run_path=tmp_path/"site_runs"/(DATE+".json")
+    run=json.loads(run_path.read_text())
+    run["currentRunFullyCertified"]=False
+    run["publishedToSite"]=False
+    run["publicationDecision"]="CURRENT_RESEARCH_INCOMPLETE_SYNTHETIC_TEST_ONLY"
+    run["errors"]=["Synthetic later research missing required source"]
+    run_path.write_text(json.dumps(run))
+    assert json.loads(run_path.read_text())["currentRunFullyCertified"] is False
+    assert json.loads(run_path.read_text())["publishedToSite"] is False
     assert card["fingerprint"]!=json.loads(
         (tmp_path/"core_retractions"/(DATE+".json")).read_text())["originalFingerprint"]
     matrix=verified_original_receipt(tmp_path,DATE,card)
