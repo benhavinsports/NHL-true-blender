@@ -142,7 +142,7 @@ def verify_published_core(root: Path, date: str):
     # G18 assembles the Core; it cannot silently discard an upstream survivor.
     # Today's November 17 receipt demonstrated why selected-leg PASS counts
     # alone are insufficient: four qualified, three published.
-    survivors = run.get("allG18QualifiedSurvivors")
+    survivors = run.get("preCoreQualifiedSurvivors")
     _require(isinstance(survivors, list),
              "saved run omitted the full upstream survivor set")
     # G16's saved cross-game finalist receipt (if any) defines the exact
