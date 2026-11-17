@@ -34,8 +34,11 @@ def test_isolated_one_game_shot_and_no_recent_goals_does_not_pass_recurrence(tmp
         _mutate_one_off(sample)
         result=execute(con,sample,DATE,'CONFIRMED')
         rows=_evidence(con,'1010')
-        for gate in ('G7','G11','Step4','Step9','G18'):
-            assert rows[gate]=='NOT_EXECUTED', (gate,rows[gate])
+        # Actual dated source contradictions eliminate the scorer; G18
+        # records the earlier failure without inventing a fourth pick.
+        for gate in ('G7','G11','Step4','Step9'):
+            assert rows[gate]=='ELIMINATED', (gate,rows[gate])
+        assert rows['G18']=='NOT_EXECUTED'
         assert set(EXECUTION_ORDER).issubset(rows)
         assert result['card'] is None
     finally:
