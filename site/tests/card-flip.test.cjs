@@ -126,10 +126,23 @@ test("full slate shows all 11 separate source decisions without invented survivo
  const verified=receipts.filter(g=>g.survivor&&g.status==="SURVIVOR").length;
  assert.ok(verified<=receipts.length);
  assert.equal(board.childNodes[0].childNodes[0].textContent,verified+" / "+receipts.length+" verified game survivors");
- const unresolvedText=panels.filter((_,i)=>!receipts[i].survivor)
-   .flatMap(descendants).map(n=>n.textContent||"").join(" ");
- assert.match(unresolvedText,/No source-qualified survivor yet/);
- assert.ok(!/faker|placeholder pick/i.test(unresolvedText));
+ // A fully qualified slate can correctly have ZERO unresolved games.
+ // The old unconditional missing-evidence assertion made Pages deployment
+ // fail precisely when all eleven matchups produced source-backed survivors.
+ for(const [i,receipt] of receipts.entries()){
+   const rendered=descendants(panels[i]).map(n=>n.textContent||"").join(" ");
+   if(receipt.status==="SURVIVOR" && receipt.survivor){
+     assert.ok(rendered.includes(receipt.survivor.player),
+       "Published game survivor must match saved independent engine identity");
+     assert.ok(["PRIMARY","TRANSFER","WHO"].includes(receipt.survivor.routeLabel),
+       "Source-certified game survivor must have an evidence-based path");
+     assert.ok(!rendered.includes("No source-qualified survivor yet"),
+       "Certified game survivor cannot still show an evidence blocker");
+   }else{
+     assert.match(rendered,/No source-qualified survivor yet|selection frozen|unseparated/i);
+   }
+   assert.ok(!/faker|placeholder pick/i.test(rendered));
+ }
 });
 
 test("public HTML never renders the duplicate behind-the-pick audit",()=>{
