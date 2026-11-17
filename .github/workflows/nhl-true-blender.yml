@@ -66,8 +66,8 @@ jobs:
         run: python scripts/download_moneypuck.py
       - name: Complete legacy and integrated G0-G18 verification
         id: verification
-        continue-on-error: true
         run: |
+          set -euo pipefail
           python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
           python -m unittest discover -p 'test*.py' -v
           python -m pytest -q nhl_true_blender_engine/tests
@@ -75,6 +75,7 @@ jobs:
         continue-on-error: true
         run: python -m scripts.diagnose_live_pipeline
       - name: Run scheduled autonomous Blender phase
+        if: steps.verification.outcome == 'success'
         id: engine
         env:
           REQUESTED_DATE: ${{ inputs.date }}
@@ -93,7 +94,7 @@ jobs:
           cron = os.environ.get('TRIGGER_CRON') or ''
           mode = os.environ.get('REQUESTED_MODE') or ''
           if not mode:
-              if cron.startswith('15 8,11,13,15,18 '):
+              if cron.startswith('15 8,11,13,15 '):
                   mode = 'projected'
               elif (cron.startswith('55 17,18 ') or cron.startswith('15,35 18 ')
                     or cron.startswith('5,15,20 19 ')):
@@ -134,7 +135,7 @@ jobs:
           PY
       - name: Persist original canonical G18 state and published site JSON
         id: persist
-        if: always() && steps.engine.outcome == 'success'
+        if: steps.verification.outcome == 'success' && steps.engine.outcome == 'success'
         env:
           MONEYPUCK_CSV_DIR: data/moneypuck
         run: |
@@ -205,7 +206,7 @@ jobs:
       # made by GITHUB_TOKEN. Explicit workflow_dispatch is the supported way
       # to publish the refreshed verified run/card JSON to GitHub Pages.
       - name: Deploy refreshed Core and gate evidence to existing GitHub Pages
-        if: steps.persist.outputs.published == 'true'
+        if: steps.verification.outcome == 'success' && steps.persist.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
