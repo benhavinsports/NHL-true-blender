@@ -448,3 +448,37 @@ def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
     assert "G18" in str(result["errors"])
     rows=con.execute("SELECT disposition FROM gates WHERE gate='G18'").fetchall()
     assert rows and all(x["disposition"]=="NOT_EXECUTED" for x in rows)
+
+
+def test_stale_trigger_cannot_replace_core_or_fake_retraction_exception(con):
+    """Changing code or replaying old goalie receipts never authorizes a swap."""
+    first=execute(con,snapshot(),DATE,'PROJECTED')['card']
+    proposed=[dict(x) for x in first['current_legs']]
+    proposed[0]['playerId']='unverified-new-player'
+    record_evidence(con,{
+        'evidence_id':'stale-goalie-trigger','slate_date':DATE,
+        'stage':'CONFIRMED','game_id':proposed[0]['gameId'],
+        'player_id':proposed[0]['playerId'],'kind':'GOALIE_PROFILE',
+        'source_url':SRC,'observed_at':'2026-01-01T05:00:00Z',
+        'payload':{'goalieId':'not-a-live-goalie'}})
+    from nhl_true_blender_engine.storage import fingerprint
+    audit={
+        'baselineFingerprint':first['fingerprint'],
+        'triggerEvidenceId':'stale-goalie-trigger',
+        'oldValue':{'player':'original'},'newValue':{'player':'replacement'},
+        'affectedGates':['G0'],'dependentGates':['G10.5','G17'],
+        'priorSurvivorFailure':{'failedGate':'G0','sourceIds':['stale-goalie-trigger']},
+        'g105EveryChallenger':{'comparisonRows':[{'status':'DEFEATED'}]},
+        'g17Contradictions':{'sourceIds':['stale-goalie-trigger']},
+        'newFingerprint':fingerprint(proposed),
+    }
+    with pytest.raises(ValueError,match='predates or matches'):
+        save_card(con,DATE,'MIXED',proposed,3,audit=audit)
+    # This exception is only allowed for the exact archived November 17
+    # invalid-G18 fingerprint. Supplying the string alone grants no rights.
+    audit['exceptionScope']='NOV17_PREVIOUSLY_RETRACTED_FINGERPRINT_ONLY'
+    with pytest.raises(ValueError,match='retraction exception'):
+        save_card(con,DATE,'MIXED',proposed,3,audit=audit)
+    still=get_card(con,DATE)
+    assert still['fingerprint']==first['fingerprint']
+    assert still['revision']==first['revision']
