@@ -204,6 +204,14 @@ def export_run(con, slate_date, stage, result, root='state'):
         old=json.loads(path.read_text(encoding='utf-8'))
         if old.get('issuedAtUTC'):
             payload['issuedAtUTC']=old['issuedAtUTC']
+        # Never erase a postgame grade during a late projected/confirmed
+        # replay. The grade is attached to the immutable original card.
+        if old.get('gradeJson') and json.loads(old['gradeJson'] or '{}'):
+            if old.get('cardId')!=payload['cardId']:
+                raise PublicationConflict('Cannot replay over a graded card')
+            payload['gradeJson']=old['gradeJson']
+            payload['auditJson']=old.get('auditJson','')
+            payload['status']=old.get('status','FROZEN_GRADED')
         # Existing cards without a first-issuance receipt stay explicitly
         # unknown. Never backfill from a later confirmation or postgame run.
     else:
