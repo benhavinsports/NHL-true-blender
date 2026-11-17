@@ -203,3 +203,53 @@ def test_first_off_unverified_stale_or_conflicting_source_remains_unresolved():
     for x in games[0]["goalies"]["LAK"]:
         x["data"]["sourceReportDate"]="2026-11-16"
     assert len(all_goalie_branches(games[0],"PROJECTED")["LAK"])==2
+
+
+def test_immutable_old_goalie_receipt_remains_when_full_payload_acquires_first_off(tmp_path):
+    from nhl_true_blender_engine.enrichment import ingest
+    from nhl_true_blender_engine.engine import all_goalie_branches
+    html=HTML.replace('<div>Michael DiPietro</div>',
+       '<p>Kuemper was the first goalie off the ice at Los Angeles morning skate.</p>'
+       '<div>Michael DiPietro</div>')
+    games=fixtures()
+    games[0]["date"]=DATE
+    source="https://www.dailyfaceoff.com/starting-goalies/"+DATE
+    con=open_db(str(tmp_path/"legacy-goalie.sqlite"))
+    # This payload shape is already immutable in the canonical November 17
+    # ledger. The new full-payload revision MUST use a NEW evidence_id rather
+    # than trying to alter the old verified history and crashing the runner.
+    original={"team":"LAK","goalieId":"101","goalieName":"Darcy Kuemper",
+       "status":"EXPECTED","projectedPreferred":True,
+       "starterSourceStatus":"DAILY_FACEOFF_LIKELY","sourceLabel":"Likely",
+       "identityMatched":True,"confirmedOnlyWhenSourceReportsConfirmed":True,
+       "publishedAsOfSlateDate":DATE,
+       "noSoleSourceGuaranteeOfFutureGoalieAppearance":True}
+    ingest(con,{"evidence_id":"dfo-slate-starter-stable-existing",
+        "slate_date":DATE,"stage":"PROJECTED","game_id":games[0]["id"],
+        "kind":"GOALIE_STARTER","source_url":source,
+        "observed_at":"2026-11-17T12:00:00Z","payload":original})
+    class Reply:
+        text=html
+        def raise_for_status(self): pass
+    class Client:
+        def __init__(self,*args,**kwargs):pass
+        async def __aenter__(self):return self
+        async def __aexit__(self,*args):pass
+        async def get(self,url):return Reply()
+    with patch("nhl_true_blender_engine.dfo_dated_starters.httpx.AsyncClient",Client):
+        for iteration in range(2):
+            report=asyncio.run(collect_dfo_goalies(
+                con,{"games":games},DATE,"PROJECTED"))
+            assert report["matchedStarterIds"]==3
+    rows=con.execute("SELECT evidence_id,payload FROM evidence WHERE kind='GOALIE_STARTER'").fetchall()
+    assert len(rows)==4
+    old=next(row for row in rows if row["evidence_id"]=="dfo-slate-starter-stable-existing")
+    import json
+    assert json.loads(old["payload"])==original
+    revised=[row for row in rows if row["evidence_id"].startswith("dfo-slate-starter-v2-")]
+    assert len(revised)==3
+    assert any(json.loads(row["payload"]).get("datedEyewitnessMorningSkateFirstOff") is True
+               for row in revised)
+    attach(con,{"games":games},DATE,"PROJECTED")
+    assert [x["data"]["goalieId"] for x in all_goalie_branches(games[0],"PROJECTED")["LAK"]]==["101"]
+    con.close()

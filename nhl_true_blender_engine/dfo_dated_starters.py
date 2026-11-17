@@ -7,6 +7,7 @@ GOALIE_STARTER evidence. This collector does NOT select a scoring recipient.
 """
 from __future__ import annotations
 import hashlib
+import json
 import re
 from datetime import datetime, timezone
 from html.parser import HTMLParser
@@ -198,25 +199,31 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
     matches,status=parse_dfo_starters(html,date,snapshot.get("games",[]),diagnostics)
     observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
     for row in matches:
-        # Stable per-source name/id evidence. Never ingest team name only.
-        digest=hashlib.sha256(
-            f"{date}:{stage}:{row['gameId']}:{row['team']}:{row['goalieId']}:{row['sourceLabel']}".encode()
-        ).hexdigest()[:14]
-        ingest(con,{"evidence_id":f"dfo-slate-starter-{digest}",
+        # Evidence is immutable. The original identity-only receipt from
+        # earlier runs must NEVER be overwritten when a source later supplies
+        # an independent first-off observation, status revision, or corrected
+        # source metadata. Hash the FULL source payload, not just goalie ID.
+        payload={
+            "team":row["team"],"goalieId":row["goalieId"],
+            "goalieName":row["goalieName"],"status":row["status"],
+            "projectedPreferred":row["projectedPreferred"],
+            "starterSourceStatus":"DAILY_FACEOFF_"+row["sourceLabel"].upper(),
+            "sourceLabel":row["sourceLabel"],"identityMatched":True,
+            "datedEyewitnessMorningSkateFirstOff":
+                row["datedEyewitnessMorningSkateFirstOff"],
+            "sourceReportDate":row["sourceReportDate"],
+            "morningSkateSourceUrls":[url] if row["datedEyewitnessMorningSkateFirstOff"] else [],
+            "confirmedOnlyWhenSourceReportsConfirmed":True,
+            "publishedAsOfSlateDate":date,
+            "noSoleSourceGuaranteeOfFutureGoalieAppearance":True}
+        digest=hashlib.sha256(json.dumps({
+            "date":date,"stage":stage,"gameId":row["gameId"],
+            "sourceUrl":url,"payload":payload},
+            sort_keys=True,separators=(",",":")).encode()).hexdigest()[:18]
+        ingest(con,{"evidence_id":f"dfo-slate-starter-v2-{digest}",
             "slate_date":date,"stage":stage,"game_id":row["gameId"],
             "kind":"GOALIE_STARTER","source_url":url,
-            "observed_at":observed,
-            "payload":{"team":row["team"],"goalieId":row["goalieId"],
-                "goalieName":row["goalieName"],"status":row["status"],
-                "projectedPreferred":row["projectedPreferred"],
-                "starterSourceStatus":"DAILY_FACEOFF_"+row["sourceLabel"].upper(),
-                "sourceLabel":row["sourceLabel"],"identityMatched":True,
-                "datedEyewitnessMorningSkateFirstOff":row["datedEyewitnessMorningSkateFirstOff"],
-                "sourceReportDate":row["sourceReportDate"],
-                "morningSkateSourceUrls":[url] if row["datedEyewitnessMorningSkateFirstOff"] else [],
-                "confirmedOnlyWhenSourceReportsConfirmed":True,
-                "publishedAsOfSlateDate":date,
-                "noSoleSourceGuaranteeOfFutureGoalieAppearance":True}})
+            "observed_at":observed,"payload":payload})
     return {"status":status,"source":url,
         "matchedStarterIds":len(matches),
         "matchesByGame":{str(g["id"]):sum(x["gameId"]==str(g["id"]) for x in matches)
