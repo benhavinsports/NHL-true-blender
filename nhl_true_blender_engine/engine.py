@@ -596,21 +596,47 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     all_gates=all(dispositions.get(g,{}).get('disposition')=='PASS'
                   for g in ('G0','G3','G4','G5','G6','G7','G9',
                             'G10','G10.5','G12','G15','G16','G17'))
+    # G15 has already separately certified either OWN scored goals in this
+    # target lane, or a fully reconciled OWN season-goal record AND observed
+    # own on-net shots from this exact goalie/defense-matched lane. G18 only
+    # assembles a proved route; it must not silently reintroduce the old
+    # exact-lane-scored-goal demand that was repaired at G15.
+    g15=dispositions.get('G15') or {}
+    finisher=(g15.get('details') or {})
+    lane_scored=bool(release and type(release.get('ownedGoals')) is int
+                     and release['ownedGoals']>0)
+    own_lanes_shot=bool(release and type(release.get('attempts')) is int
+                        and release['attempts']>0)
+    cross_origin_finisher=bool(
+        g15.get('disposition')=='PASS' and
+        finisher.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
+        finisher.get('matchedOriginHasHistoricalGoal') is False and
+        type(finisher.get('officialOwnedGoalsInMatchedOrigin')) is int and
+        finisher['officialOwnedGoalsInMatchedOrigin']==0 and
+        type(finisher.get('officialDatedSeasonGoals')) is int and
+        finisher['officialDatedSeasonGoals']>0 and
+        type(finisher.get('totalOwnedGoalsFromEveryNhlEdgeOrigin')) is int and
+        finisher['totalOwnedGoalsFromEveryNhlEdgeOrigin']==
+            finisher['officialDatedSeasonGoals'] and
+        type(finisher.get('matchedOriginOwnOnNetShots')) is int and
+        finisher['matchedOriginOwnOnNetShots']==(release or {}).get('attempts') and
+        finisher['matchedOriginOwnOnNetShots']>0 and
+        finisher.get('sameLaneGoalsNotInferredFromScoringElsewhere') is True and
+        finisher.get('directFinisherEvidenceMethod')==
+        'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS')
+    credited_finisher=bool(lane_scored or cross_origin_finisher)
     direct={
         'G0ThruG17SourcePass':all_gates,
         'independentOwnScoringSource':receipt(player.get('release')),
-        'observedOwnedGoalsInSelectedLane':bool(release and
-            type(release.get('ownedGoals'))==int and release['ownedGoals']>0),
+        'observedOwnOnNetShotsInSelectedLane':own_lanes_shot,
         'goalieWeakAreaDirectlyMatched':bool(zone and zone in (goalie_data.get('weakZones') or {})),
         'independentDefenseAreaDirectlyMatched':bool(zone and zone in
             (cover.get('greenWeakZones') or [])),
         'historicallyCreditedIndependentGoalRecipient':bool(
             own.get('recipient') is True and
             own.get('creditedGoalsVerified') is True and
-            receipt(player.get('release')) and
-            type((release or {}).get('ownedGoals')) is int and
-            release['ownedGoals']>0 and
-            dispositions.get('G15',{}).get('disposition')=='PASS'),
+            receipt(player.get('release')) and credited_finisher and
+            g15.get('disposition')=='PASS'),
         'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
             and dispositions.get('G16',{}).get('disposition')=='PASS'),
         'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
@@ -721,6 +747,10 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'laneChangedAfterGoalieFirstG0':changed_lane,
         'primaryOriginIsSourceDistinct':primary_source_lane,
         'positiveDirectGateEvidence':direct,
+        'historicMatchedLaneOwnedGoals':(release or {}).get('ownedGoals'),
+        'historicMatchedLaneOwnedGoalsExactlyPreserved':True,
+        'G15IndependentFinisherReconciledBeyondMatchedOrigin':cross_origin_finisher,
+        'neverClaimUnobservedSameLaneGoals':True,
         'futureAssistOrGoalOutcomeNeverProvedFromHistory':True,
         'G10_5DisplacedPrimaryEvidence':approved_rivals,
         'explicitDisplacementSourceValidated':bool(confirmed_displacement),
