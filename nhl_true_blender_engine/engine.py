@@ -677,7 +677,7 @@ def _finish_pool(games,game_pool,card,g16_receipt):
 
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
-                    stopped_before_g10_5=None):
+                    stopped_before_g10_5=None, defer_g18=False):
     d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
     # Teammates who passed G0-G10 (see stopped_before_g10_5). Only these are
     # meaningful G10.5/G16 challengers, for the master gate and its overlay.
@@ -1101,32 +1101,33 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
     passed=previous_gates_passed and route is not None
-    emit('G18',passed,{
-        'candidateEligibleForCrossGameFinal':passed,
-        'pathClassificationEvidence':path_proof,
-        'classificationOccursAfterAllSourceGates':True,
-        'originalFunctionsReviewedBeforeG18':overlay_passed,
-        'notPresetOneOfEach':True},
-        source_ids=path_proof['sourceUrls'])
+    # In the scheduled full-slate run G18 is deferred until G16 finishes
+    # cross-game competition. A game finalist is NOT yet a Core recipient.
+    if not defer_g18:
+        emit('G18',passed,{
+            'candidateEligibleForCrossGameFinal':passed,
+            'pathClassificationEvidence':path_proof,
+            'classificationOccursAfterAllSourceGates':True,
+            'originalFunctionsReviewedBeforeG18':overlay_passed,
+            'notPresetOneOfEach':True},
+            source_ids=path_proof['sourceUrls'])
     master_trace=[row['gate'] for row in proof]
     overlay_trace=[row['gate'] for row in overlay]
-    if master_trace!=MASTER:
+    expected_master=MASTER[:-1] if defer_g18 else MASTER
+    if master_trace!=expected_master:
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
     if set(overlay_trace)!=set(OVERLAY) or len(overlay_trace)!=len(OVERLAY):
         raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
-    if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
+    expected_execution=EXECUTION_ORDER[:-1] if defer_g18 else EXECUTION_ORDER
+    if [row['gate'] for row in execution_trace]!=expected_execution:
         raise ValueError('Single original gate trace does not match G0–G18')
-    # G18 itself must survive its independent semantic/source audit.  An
-    # earlier bool may say "passed" even if emit('G18') correctly downgraded
-    # the recorded disposition for missing route proof. No such recipient can
-    # ever enter the one-per-game or cross-game finalist pool.
-    final_g18_passed=(passed and d['G18']['disposition']=='PASS')
+    final_g18_passed=(passed if defer_g18 else
+                      passed and d['G18']['disposition']=='PASS')
     return {'player':player,'dispositions':d,'complete':final_g18_passed,
-            'deficientGates':deficient,
-            'route':route,'pathEvidence':path_proof,
+            'preCoreQualified':passed,'g18Deferred':defer_g18,
+            'deficientGates':deficient,'route':route,'pathEvidence':path_proof,
             'pressure':evidence_data(shots),
             'release':release,'challengers':rows},execution_trace
-
 
 
 def verify_complete_matrix(games, records, scan, now=None, selected_directions=None):
@@ -1733,6 +1734,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     errors=[]
     # Postgame learning is audit-only: original gate verdicts alone select scorers.
     records=[];qualified=[];all_survivor_receipts=[];pool_size=0
+    deferred_g18=[]  # All candidate G18 receipts wait for the G16 decision
     # Preserve actual G0 goalie-first direction receipts BEFORE skater traces.
     for entry in scan:
         match=next(g for g in games if str(g['id'])==entry['gameId'])
@@ -1916,8 +1918,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 # Bind the G0 direction receipt to every skater checked after
                 # goalie-first selection; never infer direction from a PASS.
                 result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage,
-                                              stopped_before_g10_5=stopped)
+                                              stopped_before_g10_5=stopped,defer_g18=True)
                 records+=traces
+                deferred_g18.append((match,result))
                 stop=next((g for g in MASTER if
                            (result['dispositions'].get(g) or {}).get('disposition')!='PASS'),None)
                 if stop:
@@ -1974,7 +1977,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         else:
             pool_entry(match,'NO_SURVIVOR',**base,
                        stoppedAt=MASTER[max(furthest)] if furthest else None,
-                       reason='no candidate passed every gate G0-G18')
+                       reason='no candidate passed every pre-Core gate G0-G17')
         if len(all_per_game)==1:
             qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
@@ -1985,7 +1988,6 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 f"{match['id']} PRE_CORE_REVIEW: {len(all_per_game)} qualified same-game "
                 "recipients remain after G10.5/G17; no arbitrary final pick")
     pool_size+=unresolved_unique_pool
-    save_gates(con,date,stage,records)
     required_core=2 if len(games)==2 else 3
     g16_receipt=None
     finalists=qualified
