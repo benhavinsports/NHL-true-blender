@@ -23,6 +23,16 @@ def full_pass_count(payload):
     )
 
 
+def evidence_strength(payload):
+    """Count actual pre-puck PASSes; never regress a displayed source receipt."""
+    return (
+        full_pass_count(payload),
+        sum(int(leg.get("masterPassed") or 0) +
+            int(leg.get("overlayPassed") or 0)
+            for leg in payload.get("legs", []))
+    )
+
+
 def refresh(root="state"):
     root = Path(root)
     db = root / "true_blender.sqlite"
@@ -60,8 +70,10 @@ def refresh(root="state"):
                         for x in previous.get("legs", [])}):
                 preserved.append({"date": date, "reason": "RECIPIENT_IDENTITY_MISMATCH"})
                 continue
-            if full_pass_count(candidate) < full_pass_count(previous):
-                preserved.append({"date": date, "reason": "PREVIOUS_CERTIFIED_RECEIPT_STRONGER"})
+            if evidence_strength(candidate) < evidence_strength(previous):
+                preserved.append({"date": date, "reason": "PREVIOUS_PREPUCK_RECEIPTS_STRONGER",
+                                  "prior": evidence_strength(previous),
+                                  "reconstructed": evidence_strength(candidate)})
                 continue
             candidate["games"] = previous.get("games", [])
             candidate["deploymentRefreshIsReadOnly"] = True
