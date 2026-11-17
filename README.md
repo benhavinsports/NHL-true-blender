@@ -27,6 +27,15 @@ gate's `originalFunctionEvidence` field. The canonical database trace contains
 one gate row per original position. The dashboard shows one gate deck and
 expands these internal functions in the relevant gate detail.
 
+## Survivor pool and final Core certification
+
+The run output `preCoreQualifiedSurvivors` is the source-backed pool of
+game-level survivors **before** final cross-game G16 competition. A player
+retains game-survivor status even when G16 excludes that player from the Core.
+Only the final three (or two on a two-game slate) get G18 PASS, and the final
+card contains exactly those recipients. The survivor pool is not itself a
+list of G18-qualified players.
+
 A complete recorded trace is **not** proof of scorer qualification. The
 corresponding source-backed decisions must pass the actual original rules;
 missing evidence cannot be silently promoted to a PASS. Existing historical
