@@ -122,6 +122,12 @@ def verify_published_core(root: Path, date: str):
              "full original G0-G18 candidate and goalie branch rows incomplete")
     games = gates.get("games") or []
     required = 2 if len(games) == 2 else 3
+    # G18 is the final assembled card, not a source-pass for every provisional
+    # game survivor. Earlier runs reported five G18 PASS rows but selected
+    # three; that must now invalidate publication rather than look green.
+    final_counts=(certification.get("masterGateDispositions") or {}).get("G18") or {}
+    _require(final_counts.get("PASS") == required,
+             "G18 PASS count does not equal the final Core size")
     _require(len(games) >= 2 and len(gates.get("legs") or []) == required,
              "incorrect Core 2/3 count for this slate")
     try:
