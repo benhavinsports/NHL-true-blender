@@ -190,7 +190,8 @@ def test_historical_source_committed_core_receipt_uses_its_actual_order():
     assert recovered["cardId"] == frozen["cardId"]
     assert recovered["fingerprint"] == frozen["fingerprint"]
     assert recovered["historicalOrderPreserved"] is True
-    assert recovered["currentEngineUsesDifferentOverlayPlacement"] is True
+    # New execution now matches the archived Phase-1 master + independent overlay order.
+    assert recovered["currentEngineUsesDifferentOverlayPlacement"] is False
     assert recovered["savedOriginalStage"] == "PROJECTED"
     assert len(recovered["legs"]) == 2
     for leg in recovered["legs"]:
