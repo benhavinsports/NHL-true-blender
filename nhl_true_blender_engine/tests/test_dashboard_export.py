@@ -144,7 +144,7 @@ def test_archived_partial_projected_receipts_stay_visible_without_fake_pass(tmp_
         con.execute("""INSERT INTO gate_history
            (snapshot_hash,slate_date,stage,game_id,player_id,gate,
             disposition,details,evaluated_at,archived_at)
-           SELECT 'projected-partial-'+game_id+'-'+player_id+'-'+gate,
+           SELECT 'projected-partial-'||game_id||'-'||player_id||'-'||gate,
                   slate_date,'PROJECTED',game_id,player_id,gate,
                   CASE WHEN gate='G6' THEN 'NOT_EXECUTED' ELSE disposition END,
                   details,evaluated_at,evaluated_at
