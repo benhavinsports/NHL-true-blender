@@ -34,7 +34,7 @@ def test_dashboard_exports_one_saved_core_real_36_checks_and_all_games(tmp_path)
         assert selected["sourceVerifiedPregameGateCount"]==(
             selected["masterPassed"]+selected["overlayPassed"])
         assert selected["gateDetails"][EXECUTION_ORDER.index("G10.5")]["gate"]=="G10.5"
-        assert selected["gateDetails"][30]["gate"]=="Step10.5"
+        assert selected["gateDetails"][EXECUTION_ORDER.index("Step10.5")]["gate"]=="Step10.5"
         assert all(g["prePuckRecord"] for g in selected["gateDetails"])
         assert selected["gateDetails"][0]["sourceIds"]
         assert selected["gateDetails"][0]["evidence"]["targetGoalie"]
