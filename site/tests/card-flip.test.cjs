@@ -34,6 +34,19 @@ class FakeNode{
  replaceChildren(...x){this.childNodes=x;}
  setAttribute(k,v){this.attributes[k]=String(v);}
  getAttribute(k){return this.attributes[k];}
+ querySelector(selector){
+   const klass=String(selector).startsWith(".")?String(selector).slice(1):null;
+   if(!klass)return null;
+   const search=node=>{
+     for(const child of node.childNodes){
+       if(child.classList?.contains(klass))return child;
+       const result=search(child);
+       if(result)return result;
+     }
+     return null;
+   };
+   return search(this);
+ }
  addEventListener(event,cb){this.listeners[event]=cb;}
  scrollIntoView(){}
 }
