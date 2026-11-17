@@ -340,3 +340,29 @@ def test_integrated_gate_evidence_uses_semantic_owners(con):
         assert {item['step'] for item in observations}==steps
         assert proof['integratedDisposition']=='PASS'
         assert all(item['disposition']=='PASS' for item in observations)
+
+
+def test_gate_time_trace_matches_persisted_decisions(con):
+    """Prove the saved chronology and gate verdicts, not merely row counts."""
+    result=execute(con,snapshot(),DATE,'CONFIRMED')
+    assert result['card'] is not None,result['errors']
+    rows=con.execute(
+        "SELECT gate,disposition,details FROM gates WHERE slate_date=? "
+        "AND stage='CONFIRMED' AND game_id='5001' AND player_id='1010'",
+        (DATE,)).fetchall()
+    chronological=sorted(rows,key=lambda row:json.loads(row[2])['executionIndex'])
+    assert [row[0] for row in chronological]==EXECUTION_ORDER
+    assert len(chronological)==len(set(row[0] for row in chronological))
+    for gate in MASTER[:-1]:
+        gate_row=next(row for row in chronological if row[0]==gate)
+        content=json.loads(gate_row[2])['evidence']
+        steps=content.get('integratedStepEvidence',[])
+        assert [item['step'] for item in steps]==STEPS_BY_GATE[gate]
+        if steps:
+            assert gate_row[1]=='PASS' if all(
+                item['disposition']=='PASS' for item in steps
+            ) and content.get('integratedDisposition')=='PASS' else gate_row[1]!='PASS'
+            for step in steps:
+                receipt=next(row for row in chronological if row[0]==step['step'])
+                assert receipt[1]==step['disposition']
+                assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
