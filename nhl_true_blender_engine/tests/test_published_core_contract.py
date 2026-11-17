@@ -83,6 +83,9 @@ def fixture(root):
         "currentRunFullyCertified": True, "publishedToSite": True,
         "cardSavedByEngine": True, "errors": [], "eligibleSkaterRows": 2,
         "gateRows": 76, "gateCertification": cert,
+        "allG18QualifiedSurvivors": [
+            {"gameId": game, "playerId": player} for game, player, _ in pairs
+        ],
     }
     card = {
         "slateDate": DATE, "cardId": "SYNTHETIC-CORE",
@@ -127,6 +130,8 @@ def test_passes_only_when_all_36_source_verified_pre_puck_receipts_present(tmp_p
     lambda run,card,g: g["legs"][0]["gateDetails"][35]["evidence"][
         "pathClassificationEvidence"].update({"pathQuotaApplied":True}),
     lambda run,card,g: run["gateCertification"]["gateChecksAttempted"].update({"G0":1}),
+    lambda run,card,g: run["allG18QualifiedSurvivors"].append(
+        {"gameId":"2026020333","playerId":"1003"}),
 ])
 def test_rejects_any_shortcut_or_relabelled_or_missing_gate(tmp_path,mutate):
     run,card,gates=fixture(tmp_path)
@@ -136,3 +141,14 @@ def test_rejects_any_shortcut_or_relabelled_or_missing_gate(tmp_path,mutate):
         (tmp_path/directory/f"{DATE}.json").write_text(json.dumps(payload))
     with pytest.raises(AssertionError,match="BLENDER CORE CONTRACT FAILED"):
         verify_published_core(tmp_path,DATE)
+
+def test_g18_does_not_certify_card_with_four_survivors_but_three_published(tmp_path):
+    """Regression for Nov 17: a Core cannot be certified from an incomplete
+    subset of genuinely qualified recipients, even when all 36 checks pass."""
+    run, card, gates = fixture(tmp_path)
+    run["allG18QualifiedSurvivors"].append(
+        {"gameId": "2026020333", "playerId": "1003"}
+    )
+    (tmp_path/"site_runs"/f"{DATE}.json").write_text(json.dumps(run))
+    with pytest.raises(AssertionError, match="silently dropped"):
+        verify_published_core(tmp_path, DATE)
