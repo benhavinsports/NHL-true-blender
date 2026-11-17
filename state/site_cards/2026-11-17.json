@@ -9,11 +9,18 @@
   "issuedAtUTC": "2026-11-17T13:07:01+00:00",
   "legsJson": "[{\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / Low Slot\", \"gameId\": \"2026020335\", \"gameState\": \"FUT\", \"matchup\": \"EDM@FLA\", \"opposingGoalieId\": \"8482221\", \"path\": \"PRIMARY\", \"player\": \"Sam Reinhart\", \"playerId\": \"8477933\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T00:00:00Z\"}, {\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / Low Slot\", \"gameId\": \"2026020341\", \"gameState\": \"FUT\", \"matchup\": \"OTT@WPG\", \"opposingGoalieId\": \"8482076\", \"path\": \"PRIMARY\", \"player\": \"Tim St\\u00fctzle\", \"playerId\": \"8482116\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T00:00:00Z\"}, {\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / R Circle\", \"gameId\": \"2026020343\", \"gameState\": \"FUT\", \"matchup\": \"CGY@SJS\", \"opposingGoalieId\": \"8481692\", \"path\": \"PRIMARY\", \"player\": \"Will Smith\", \"playerId\": \"8484227\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484227/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T03:00:00Z\"}]",
   "originalFingerprint": "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6",
-  "provenance": "Independent scheduled NHL G0-G18 and overlay with source-backed recipient evidence",
+  "provenance": "RETRACTED: Old G18 ranked 3 of 4 independent upstream survivors. Historical only. Not a valid current Core.",
   "revision": 1,
   "slateDate": "2026-11-17",
   "source": "GITHUB_ACTIONS_FULL_GATE_MATRIX",
   "stage": "PROJECTED",
-  "status": "G18_SOURCE_VERIFIED",
-  "verified": true
+  "status": "RETRACTED_UNAUTHORIZED_G18",
+  "verified": false,
+  "retraction": {
+    "manifest": "state/core_retractions/2026-11-17.json",
+    "reason": "PREVIOUS_G18_UNAUTHORIZED_RANKING_SELECTED_THREE_OF_FOUR_UPSTREAM_SURVIVORS",
+    "newCoreMustBeIssuedFromFullCorrectedEngine": true,
+    "originalCardNotCurrent": true,
+    "neverUseOldThreeAsFreshPicks": true
+  }
 }
