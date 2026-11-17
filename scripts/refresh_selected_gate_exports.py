@@ -33,6 +33,47 @@ def evidence_strength(payload):
     )
 
 
+def archived_receipt_diagnostics(con, date, legs):
+    """Summary of archived cohorts only; never manufacture a gate PASS."""
+    from collections import defaultdict
+    from datetime import datetime
+    result = []
+    for leg in legs:
+        puck = datetime.fromisoformat(leg["startUTC"].replace("Z", "+00:00"))
+        rows = con.execute("""
+            SELECT stage,gate,disposition,evaluated_at
+            FROM gate_history
+            WHERE slate_date=? AND game_id=? AND player_id=?""",
+            (date, str(leg["gameId"]), str(leg["playerId"]))).fetchall()
+        groups = defaultdict(list)
+        for row in rows:
+            groups[(row["stage"], row["evaluated_at"])].append(row)
+        cohorts = []
+        for (stage, timestamp), batch in groups.items():
+            at = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            unique_gates = {row["gate"] for row in batch}
+            cohorts.append({
+                "stage": stage, "evaluatedAt": timestamp,
+                "beforePuck": at < puck,
+                "gateCount": len(unique_gates),
+                "passCount": sum(row["disposition"] == "PASS" for row in batch),
+                "missingOrNonpassing": 36 - sum(
+                    row["disposition"] == "PASS" for row in batch)
+            })
+        cohorts.sort(key=lambda x: (x["passCount"], x["gateCount"]), reverse=True)
+        result.append({
+            "playerId": str(leg["playerId"]),
+            "gameId": str(leg["gameId"]),
+            "archivedRows": len(rows),
+            "archivedCohorts": len(cohorts),
+            "bestPrePuckCohorts": [x for x in cohorts
+                if x["beforePuck"]][:3],
+            "bestPostPuckCohorts": [x for x in cohorts
+                if not x["beforePuck"]][:1],
+        })
+    return result
+
+
 def refresh(root="state"):
     root = Path(root)
     db = root / "true_blender.sqlite"
@@ -41,6 +82,7 @@ def refresh(root="state"):
     con = open_db(str(db))
     updated = []
     preserved = []
+    incomplete_archive_audits = []
     try:
         for path in sorted((root / "site_gates").glob("????-??-??.json")):
             date = path.stem
@@ -70,6 +112,10 @@ def refresh(root="state"):
                         for x in previous.get("legs", [])}):
                 preserved.append({"date": date, "reason": "RECIPIENT_IDENTITY_MISMATCH"})
                 continue
+            if full_pass_count(candidate) < len(candidate.get("legs", [])):
+                incomplete_archive_audits.append({
+                    "date": date, "cohortEvidence": archived_receipt_diagnostics(
+                        con, date, json.loads(saved.get("legsJson", "[]")))})
             if evidence_strength(candidate) < evidence_strength(previous):
                 preserved.append({"date": date, "reason": "PREVIOUS_PREPUCK_RECEIPTS_STRONGER",
                                   "prior": evidence_strength(previous),
@@ -106,7 +152,8 @@ def refresh(root="state"):
     finally:
         con.close()
     return {"status": "READ_ONLY_EXPORT", "updated": updated,
-            "preserved": preserved}
+            "preserved": preserved,
+            "incompleteArchiveAudits": incomplete_archive_audits}
 
 
 if __name__ == "__main__":
