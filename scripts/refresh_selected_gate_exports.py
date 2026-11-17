@@ -84,9 +84,9 @@ def recover_committed_original(root, date, saved, candidate):
     from datetime import datetime
     from nhl_true_blender_engine.engine import EXECUTION_ORDER, MASTER, OVERLAY
 
-    # Keep the exact archived chronological sequence as evidence. Current
-    # execution now independently runs the original Step0..Step14 track
-    # after G17; never rewrite older gate receipts to claim they did.
+    # Keep the exact legacy chronological sequence as evidence, even when
+    # today's integrated engine uses an interleaved overlay. Never rewrite
+    # archived source receipts to pretend the new ordering ran historically.
     original_path = root / "site_gates" / (date + "-original-projected.json")
     if not original_path.is_file():
         return candidate
