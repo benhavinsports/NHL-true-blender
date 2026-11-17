@@ -766,11 +766,12 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
              goalie_profile['data'].get('goalieProfileSourceUrl'),goalie_profile['sourceUrl']])))
     dep=player.get('deployment')
     dep_data=evidence_data(dep)
-    dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED'))
+    dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED') and not player.get('deploymentConflict'))
     # Keep a sourced projected unit only as projected evidence until the team
     # actually confirms it; complete runs with mixed evidence remain MIXED.
     emit('G6',dep_ok,{'deployment':dep_data,'notAllPP1':True,
-          'projectedNotPromoted':bool(dep_data and dep_data.get('status')=='PROJECTED')},
+          'projectedNotPromoted':bool(dep_data and dep_data.get('status')=='PROJECTED'),
+          'deploymentConflict':bool(player.get('deploymentConflict'))},
          source_ids=[dep.get('sourceUrl','') if dep else ''])
     emit('G7',bool(rec),{'eventLogReconciled':rec,'multiGoalDateOnce':True,'missedGamesExcluded':True},
          source_ids=[p.get('sourceUrl','') for p in (player.get('gameLog'),player.get('mappedGoals')) if p])
