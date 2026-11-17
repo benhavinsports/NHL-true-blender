@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 from nhl_true_blender_engine.sources import NHLClient, official_slate, collect_watch
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
-from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups
+from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups, fetch_and_ingest_additional_deployment
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
@@ -55,6 +55,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
         source_research = await collect_secondary(con, snapshot, date, stage)
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
+            con,snapshot,date,stage)
+        source_research['additionalStructuredDeployment']=await fetch_and_ingest_additional_deployment(
             con,snapshot,date,stage)
         # Independent dated NHL.com projected goalie listings are researched
         # rather than treating ambiguous generic EXPECTED branches as final.
