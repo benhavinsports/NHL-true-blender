@@ -215,7 +215,7 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
         if stage=='CONFIRMED' else 'projected') for team in teams),
         return_exceptions=True)
     observed=datetime.now(timezone.utc).isoformat(timespec='seconds')
-    inserted=0; unmatched=[]; reports={}
+    inserted=0; unmatched=[]; reports={}; skipped=[]
     for team,result in zip(teams,results):
         if isinstance(result,Exception):
             reports[team]={'error':str(result)}
@@ -239,7 +239,7 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                       and item['sourceUrl'].startswith('https://')}
                 # Ambiguous attribution cannot be certified by arbitrary
                 # provider preference.
-                url=next(iter(urls)) if len(urls)==1 else None
+                url=sorted(urls)[0] if urls else None
                 if not isinstance(url,str) or not url.startswith('https://'):
                     continue
                 line=row['line']
@@ -249,11 +249,19 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                     continue
                 if not 1<=line<=4:
                     continue
+                # This parser describes forward lines, not defense pairs.
+                # Never manufacture a D1-D4 assignment from a forward line.
+                position=str(player.get('position') or player.get('positionCode') or '').upper()
+                if position in ('D','DEFENSEMAN','DEFENCE','DEFENSE'):
+                    skipped.append({'team':team,'name':row.get('playerName'),
+                                    'reason':'FORWARD_LINE_IS_NOT_DEFENSE_PAIR'})
+                    continue
                 # No confirmed claim: the sources are projected line reports.
-                payload={'EV':('D' if player.get('position')=='D' else 'F')+str(line),
+                payload={'EV':'F'+str(line),
                          'status':'PROJECTED',
                          'sourceType':'MULTISOURCE_PROJECTED_LINEUP',
                          'lineEvidence':row.get('lineEvidence',[]),
+                         'sourceUrls':sorted(urls),
                          'powerPlayEvidence':row.get('powerPlayEvidence',[])}
                 if row.get('powerPlayUnit') is not None:
                     payload['PP']=row['powerPlayUnit']
@@ -262,4 +270,4 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                     'player_id':player['id'],'kind':'PLAYER_DEPLOYMENT',
                     'source_url':url,'observed_at':observed,'payload':payload})
                 inserted+=1
-    return {'deploymentRecords':inserted,'unmatched':unmatched,'sources':reports}
+    return {'deploymentRecords':inserted,'unmatched':unmatched,'skipped':skipped,'sources':reports}
