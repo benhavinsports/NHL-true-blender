@@ -17,6 +17,7 @@ from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups, fetch_and_ingest_additional_deployment
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
+from nhl_true_blender_engine.dated_goalie_projections import collect_dated_goalie_projections
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.goalie_history_fallback import collect_goalie_pbp_fallback
 from nhl_true_blender_engine.official_context import collect_context
@@ -63,6 +64,13 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # These do not claim team confirmation or overwrite confirmed goalies.
         from nhl_true_blender_engine.nhl_projected_goalies import collect_nhl_projected_goalies
         source_research['officialNhlProjectedGoalies']=await collect_nhl_projected_goalies(
+            con,snapshot,date,stage)
+        # The primary third-party markdown sometimes still contains YESTERDAY's
+        # header at sunrise; do not stop G0 for all 11 current-day games.
+        # Collect dated, matchup-scoped projected goalie IDs from an additional
+        # public source. Preserve EXPECTED/PROJECTED vs CONFIRMED and require
+        # exact official NHL roster ID matching before using any branch.
+        source_research['datedGoalieProjections']=await collect_dated_goalie_projections(
             con,snapshot,date,stage)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
         if csv_dir and Path(csv_dir, 'skaters.csv').exists():
@@ -119,6 +127,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             # otherwise the second pass compares new goalie history against
             # stale starter identities and can regress the G0 attack branch.
             await collect_nhl_projected_goalies(con,snapshot,date,stage)
+            await collect_dated_goalie_projections(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
@@ -208,6 +217,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             'skaterRinkProfiles','totalFailed','anatomicalClaimCertified')}
         result['lineupSourceCoverage']={k:source_research.get('parsedLineups',{}).get(k)
             for k in ('status','deploymentRecords','goalieReports','error')}
+        result['datedGoalieSourceCoverage']=source_research.get(
+            'datedGoalieProjections',{})
         result['g0RinkOriginResearch']=edge_g0_review
         result['g0OfficialPbpFallback']=goalie_pbp_fallback
         # Source-verified Core JSON is produced independently by the engine.
