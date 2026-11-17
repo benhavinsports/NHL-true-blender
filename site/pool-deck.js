@@ -30,6 +30,9 @@ function fact(anchor,label,value){
 }
 function toggle(holder,key){
  flippedKey=flippedKey===key?null:key;
+ // An opened scouting record expands above the small mobile grid.
+ // A single flip remains the sole interaction; no editing or selection.
+ document.body?.classList?.toggle("pool-card-open",Boolean(flippedKey));
  for(const c of holder.children){
    if(!c.classList?.contains("pool-flip-card"))continue;
    const active=c.dataset.cardKey===flippedKey;
@@ -172,7 +175,10 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  holder.appendChild(card);
 }
 function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
- if(date!==visibleDate){flippedKey=null;visibleDate=date;}
+ if(date!==visibleDate){
+   flippedKey=null;visibleDate=date;
+   document.body?.classList?.remove("pool-card-open");
+ }
  holder.replaceChildren();
  if(!games?.length){
    holder.appendChild(create("p","pool-empty","No saved game-survivor data for this slate."));
@@ -201,6 +207,12 @@ function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
  holder.appendChild(stats);
  for(const g of games)card(holder,g,coreKeys,latest,gates,gateNames,facts);
 }
+document.addEventListener?.("keydown",event=>{
+ if(event.key!=="Escape"||!flippedKey)return;
+ const card=document.querySelector?.('.pool-flip-card[data-card-key="'+flippedKey+'"]');
+ const holder=card?.parentElement;
+ if(holder){toggle(holder,flippedKey);card.querySelector?.(".pool-front-turn")?.focus?.();}
+});
 const api={render};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 root.ElitePool=api;
