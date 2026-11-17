@@ -9,10 +9,15 @@ def first_gate_audit(con,date,stage):
     rows=con.execute("""SELECT game_id,player_id,gate,disposition FROM gates
         WHERE slate_date=? AND stage=?""",(date,stage)).fetchall()
     by_player=defaultdict(dict)
+    researched=defaultdict(dict)
     for r in rows:
-        if r["player_id"].startswith("GOALIE_DIRECTION:"):
+        pid=str(r["player_id"])
+        if pid.startswith("GOALIE_DIRECTION:"):
             continue
-        by_player[(r["game_id"],r["player_id"])][r["gate"]]=r["disposition"]
+        if pid.startswith("G0_RESEARCH:"):
+            researched[(r["game_id"],pid)][r["gate"]]=r["disposition"]
+            continue
+        by_player[(r["game_id"],pid)][r["gate"]]=r["disposition"]
     counts=Counter()
     traces=[]
     for (game_id,pid),gates in by_player.items():
@@ -23,6 +28,9 @@ def first_gate_audit(con,date,stage):
                        "firstNonpassingGate":reason,
                        "reasonDisposition":gates.get(reason,"MISSING") if reason!="FULL_G0_G18_PASS" else "PASS"})
     return {"scannedSkaters":len(by_player),
+            "g0ResearchOnlyBranchMatrices":len(researched),
+            "g0ResearchOnlyGateRows":sum(len(v) for v in researched.values()),
+            "g0ResearchNeverCountedAsSurvivingSkater":True,
             "firstNonpassingGateCounts":dict(sorted(counts.items())),
             "allGateRowsPresent":sum(len(v)==len(MASTER)+16 for v in by_player.values()),
             "samplesByFirstGate":{
