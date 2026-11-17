@@ -108,8 +108,7 @@ def test_full_structural_three_game_run(con):
                                  ['G10.5'] + [f'G{i}' for i in range(11,19)])
     assert MASTER == ['G0'] + SCORER_GATE_ORDER
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
-    assert EXECUTION_ORDER == MASTER[:-1] + OVERLAY + ['G18']
-    assert [x for x in EXECUTION_ORDER if x in OVERLAY] == OVERLAY
+    assert EXECUTION_ORDER == [item for gate in MASTER for item in [gate] + STEPS_BY_GATE[gate]]
     assert EXECUTION_ORDER[-1]=='G18'
     assert EXECUTION_ORDER.index('G10.5') < EXECUTION_ORDER.index('G11')
     assert len(PATCH_IDS)==13
@@ -321,35 +320,33 @@ def test_matrix_verifier_rejects_reordered_gate_rows(con):
                for error in errors)
 
 
-def test_phase1_overlay_matches_restored_semantics_and_stays_separate(con):
-    """Phase 1's numbered Step checks run independently; no wrong owning gate."""
-    from nhl_true_blender_engine.engine import STEP_OWNER
-    expected={'Step0':'G0','Step1':'G2','Step2':'G1',
-              'Step3':'G5','Step4':'G7','Step5':'G4',
-              'Step6':'G6','Step7':'G4','Step8':'G9',
-              'Step9':'G11','Step10':'G3','Step10.5':'G10.5',
-              'Step11':'G14','Step12':'G16','Step13':'G13','Step14':'G17'}
-    assert STEP_OWNER==expected
+def test_integrated_gate_evidence_uses_semantic_owners(con):
+    """Step observations must affect the gate that consumes their evidence."""
     result=execute(con,snapshot(),DATE,'CONFIRMED')
     assert result['card'] is not None,result['errors']
     rows=con.execute(
-        "SELECT gate,disposition,details FROM gates WHERE slate_date=? "
-        "AND stage='CONFIRMED' AND game_id='5001' AND player_id='1010'",
-        (DATE,)).fetchall()
-    details={row['gate']:json.loads(row['details']) for row in rows}
-    for gate in MASTER:
-        assert 'independentOverlayEvidence' not in details[gate]['evidence']
-        assert 'integratedDisposition' not in details[gate]['evidence']
-    for step in OVERLAY:
-        proof=details[step]['evidence']
-        assert proof['independentOverlayEvaluation'] is True
-        assert proof['checkedBeforeG18'] is True
-        assert proof['masterGateVerdictCopied'] is False
-        assert details[step]['sourceIds']
+        "SELECT gate,details FROM gates WHERE slate_date=? AND stage='CONFIRMED' "
+        "AND game_id='5001' AND player_id='1010'",(DATE,)).fetchall()
+    details={gate:json.loads(raw) for gate,raw in rows}
+    expected={'G0':{'Step0'},'G2':{'Step1'},'G3':{'Step2'},
+              'G5':{'Step3'},'G4':{'Step4'},'G7':{'Step5'},
+              'G6':{'Step6'},'G9':{'Step7','Step9'},'G8':{'Step8'},
+              'G10':{'Step10'},'G10.5':{'Step10.5'},
+              'G11':{'Step11'},'G16':{'Step12'},
+              'G13':{'Step13'},'G17':{'Step14'}}
+    for gate,steps in expected.items():
+        proof=details[gate]['evidence']
+        observations=proof['independentOverlayEvidence']
+        assert {item['step'] for item in observations}==steps
+        # The original master verdict and independent overlay dispositions
+        # remain distinct; G18 reads BOTH tracks without merging them.
+        assert 'integratedDisposition' not in proof
+        assert proof.get('integratedStepEvidence') is None
+        assert all(item['disposition']=='PASS' for item in observations)
 
 
 def test_gate_time_trace_matches_persisted_decisions(con):
-    """No gate skipping, no overlay compression, exact independent ordering."""
+    """Prove the saved chronology and gate verdicts, not merely row counts."""
     result=execute(con,snapshot(),DATE,'CONFIRMED')
     assert result['card'] is not None,result['errors']
     rows=con.execute(
@@ -358,13 +355,17 @@ def test_gate_time_trace_matches_persisted_decisions(con):
         (DATE,)).fetchall()
     chronological=sorted(rows,key=lambda row:json.loads(row[2])['executionIndex'])
     assert [row[0] for row in chronological]==EXECUTION_ORDER
-    assert EXECUTION_ORDER==MASTER[:-1]+OVERLAY+[MASTER[-1]]
-    assert [x[0] for x in chronological[:len(MASTER)-1]]==MASTER[:-1]
-    assert [x[0] for x in chronological[len(MASTER)-1:-1]]==OVERLAY
-    assert chronological[-1][0]=='G18'
     assert len(chronological)==len(set(row[0] for row in chronological))
-    for row in chronological[:-1]:
-        assert json.loads(row[2])['executionIndex']<len(EXECUTION_ORDER)-1
+    for gate in MASTER[:-1]:
+        gate_row=next(row for row in chronological if row[0]==gate)
+        content=json.loads(gate_row[2])['evidence']
+        steps=content.get('independentOverlayEvidence',[])
+        assert [item['step'] for item in steps]==STEPS_BY_GATE[gate]
+        assert 'integratedDisposition' not in content
+        for step in steps:
+            receipt=next(row for row in chronological if row[0]==step['step'])
+            assert receipt[1]==step['disposition']
+            assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
 
 
 def test_projected_status_cannot_erase_official_dressed_status():
