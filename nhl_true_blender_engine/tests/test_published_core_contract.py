@@ -80,3 +80,15 @@ def test_g18_rejects_unreported_extra_survivor(tmp_path):
     persist(tmp_path,run,card,gates)
     with pytest.raises(AssertionError,match="silently dropped"):
         verify_published_core(tmp_path,DATE)
+
+
+
+def test_run_receipt_distinguishes_final_core_nonselection_from_missing_sources(tmp_path):
+    run, card, gates=fixture(tmp_path)
+    dispositions=run["gateCertification"]["masterGateDispositions"]["G18"]
+    nonselected=run["g18IntentionallyNotSelectedNotMissingSource"]
+    assert dispositions["PASS"]==2
+    assert nonselected==dispositions["NOT_EXECUTED"]
+    assert nonselected>0
+    assert run["missingByGate"].get("G18",0)==0
+    assert run["currentRunFullyCertified"] is True
