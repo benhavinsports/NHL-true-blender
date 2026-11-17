@@ -90,7 +90,11 @@ def verify_published_core(root: Path, date: str):
     # G0-selected player row. The old published contract incorrectly used
     # all 267 official IDs as the 222 G0-selected matrix denominator.
     # Preserve every research receipt, certify only the real matrix cohort.
-    skaters = certification.get("scannedSkaters")
+    # Historical read-only contract fixtures predate the separate
+    # research counter. They describe no G0 branch research, so their
+    # total official pool equals the candidate pool.
+    skaters = certification.get("scannedSkaters",
+                                run.get("eligibleSkaterRows"))
     all_official = run.get("eligibleSkaterRows")
     research_official = certification.get("g0ResearchOnlyOfficialSkaters",0)
     research_branches = certification.get("g0ResearchOnlyBranchMatrices",0)
