@@ -107,9 +107,10 @@ def test_undated_shot_counts_leave_g11_and_step9_unresolved(tmp_path):
         rows=_evidence(con,'1010')
         assert rows['G11']=='NOT_EXECUTED', rows
         assert rows['Step9']=='NOT_EXECUTED', rows
-        # Valid dated credited-goal history remains independently adjudicated;
-        # changing a pressure source must not alter that G7 decision.
-        assert rows['G7']=='PASS'
+        # Three credited goals on the SAME date cannot establish separate
+        # dated recurrences when the independent shot dates are absent.
+        assert rows['G7']=='NOT_EXECUTED'
+        assert rows['Step4']=='NOT_EXECUTED'
         assert '1010' not in {x['playerId'] for x in
                               (result['card'] or {}).get('current_legs',[])}
     finally:
