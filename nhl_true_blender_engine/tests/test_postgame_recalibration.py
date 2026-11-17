@@ -137,3 +137,97 @@ def test_calibration_counts_only_official_frozen_grades_and_three_real_dates_mon
     assert again==result
     assert con.execute("SELECT COUNT(*) FROM season_calibration_history").fetchone()[0]==1
     con.close()
+
+
+def test_postgame_audits_original_saved_36_gate_card_not_latest_diagnostic(tmp_path):
+    """Original source-backed pre-puck contradiction must not be hidden by confirmation."""
+    from nhl_true_blender_engine.engine import MASTER, OVERLAY
+    con=open_db(str(tmp_path/"historic.sqlite"))
+    card_id=insert_card_and_grade(con,DATE)
+    # Latest confirmed matrix looks normal, but original immutable source
+    # evidence proves a conflicting PASS from the locked projected card.
+    insert_pregame_gate(con,"G10.5",{
+        "allAlternativesScanned":True,
+        "comparisonRows":[{"challengerId":"999","status":"DEFEATED"}]})
+    order=list(MASTER[:-1])+list(OVERLAY)+["G18"]
+    records=[]
+    for i,gate in enumerate(order):
+        evidence=({"allAlternativesScanned":True,
+                   "comparisonRows":[{"challengerId":"999","status":"RIVAL_DOMINATES"}]}
+                  if gate=="G10.5" else {"syntheticGateEvidence":True})
+        records.append({
+            "gate":gate,"status":"PASS","evidence":evidence,
+            "evaluatedAt":BEFORE,"prePuckRecord":True,
+            "recordedExecutionIndex":i,"expectedExecutionIndex":i,
+            "executionOrderVerified":True,
+            "sourceIds":[PREGAME]})
+    path=tmp_path/"site_gates"/f"{DATE}-original-projected.json"
+    path.parent.mkdir(parents=True,exist_ok=True)
+    original={
+        "cardId":card_id,"fingerprint":"synthetic-fingerprint","revision":1,
+        "stage":"PROJECTED","readOnly":True,
+        "doesNotSelectOrReplaceScorers":True,"executionOrder":order,
+        "legs":[{"gameId":"8888","playerId":"888","player":"Synthetic Player",
+                 "stageOfGateRecords":"PROJECTED","startUTC":PUCK,
+                 "executionOrderVerified":True,"gateDetails":records}]
+    }
+    path.write_text(json.dumps(original))
+    result=adjudicate_misses(con,DATE,root=tmp_path)
+    assert result["activated"]==[GUARD_POLICIES["G10.5"]]
+    decision=result["decisions"][0]
+    assert decision["gateAuditProvenance"]["receiptType"]=="ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT"
+    assert decision["frozenPregameStage"]=="PROJECTED"
+    assert decision["provedPreGameDecisionContradiction"]["reason"]=="PASS_WITH_UNDEFEATED_DIRECT_CHALLENGER"
+    # The selected card remains intact; only future pre-proven contradictions
+    # are blocked when the guard is active.
+    assert con.execute("SELECT fingerprint FROM cards WHERE slate_date=?",(DATE,)).fetchone()[0]=="synthetic-fingerprint"
+    con.close()
+
+
+def test_original_receipt_identity_mismatch_cannot_override_actual_stored_gates(tmp_path):
+    """Fabricated/different-card exports are never accepted as gate authority."""
+    from nhl_true_blender_engine.engine import MASTER, OVERLAY
+    con=open_db(str(tmp_path/"id.sqlite"))
+    card_id=insert_card_and_grade(con,DATE)
+    insert_pregame_gate(con,"G10.5",{
+        "allAlternativesScanned":True,
+        "comparisonRows":[{"challengerId":"999","status":"DEFEATED"}]})
+    order=list(MASTER[:-1])+list(OVERLAY)+["G18"]
+    path=tmp_path/"site_gates"/f"{DATE}-original-projected.json"
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps({
+        "cardId":card_id,"fingerprint":"wrong-other-card",
+        "revision":1,"readOnly":True,
+        "doesNotSelectOrReplaceScorers":True,"executionOrder":order,
+        "legs":[{"gameId":"8888","playerId":"888","startUTC":PUCK,
+                 "executionOrderVerified":True,"gateDetails":[]}]}))
+    result=adjudicate_misses(con,DATE,root=tmp_path)
+    assert result["activated"]==[]
+    assert result["decisions"][0]["gateAuditProvenance"]["receiptType"]=="PARTIAL_CURRENT_DATABASE_RECORDS"
+    assert con.execute("SELECT COUNT(*) FROM patches").fetchone()[0]==0
+    con.close()
+
+
+def test_archived_coherent_matrix_checked_when_current_receipts_have_been_replaced(tmp_path):
+    """A complete timestamped original archive is used; disjoint PASS rows cannot join."""
+    from nhl_true_blender_engine.engine import EXECUTION_ORDER
+    con=open_db(str(tmp_path/"cohort.sqlite"))
+    insert_card_and_grade(con,DATE)
+    insert_pregame_gate(con,"G10.5",{
+        "allAlternativesScanned":True,
+        "comparisonRows":[{"challengerId":"999","status":"DEFEATED"}]})
+    for i,gate in enumerate(EXECUTION_ORDER):
+        evidence=({"allAlternativesScanned":True,
+                   "comparisonRows":[{"challengerId":"999","status":"RIVAL_DOMINATES"}]}
+                  if gate=="G10.5" else {"syntheticFixtureEvidence":True})
+        payload=encode({"executionIndex":i,"evidence":evidence,"sourceIds":[PREGAME]})
+        con.execute("""INSERT INTO gate_history VALUES (?,?,?,?,?,?,?,?,?,?)""",(
+            "synthetic-history-"+gate,DATE,"PROJECTED","8888","888",
+            gate,"PASS",payload,BEFORE,BEFORE))
+    result=adjudicate_misses(con,DATE)
+    assert result["activated"]==[GUARD_POLICIES["G10.5"]]
+    provenance=result["decisions"][0]["gateAuditProvenance"]
+    assert provenance["receiptType"]=="SAME_EXECUTION_DATABASE_GATE_COHORT"
+    assert provenance["databaseOrigin"]=="HISTORY"
+    assert provenance["individualOrderedChecks"]==36
+    con.close()
