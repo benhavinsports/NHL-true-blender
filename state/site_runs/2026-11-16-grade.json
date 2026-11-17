@@ -7,21 +7,21 @@
     "legs": 2,
     "missAudits": [
       {
-        "conclusion": "PREGAME_GATE_RECEIPT_INCOMPLETE",
-        "earliestGate": "G2",
+        "auditStage": "PROJECTED",
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
         "gameId": "2026020331",
-        "patchesToAudit": [
-          "PATCH_2026_11_05_EXECUTION_MATRIX_V1"
-        ],
+        "originalLockReceiptCount": 36,
+        "patchesToAudit": [],
         "player": "Cole Caufield"
       },
       {
-        "conclusion": "PREGAME_GATE_RECEIPT_INCOMPLETE",
-        "earliestGate": "G2",
+        "auditStage": "PROJECTED",
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
         "gameId": "2026020332",
-        "patchesToAudit": [
-          "PATCH_2026_11_05_EXECUTION_MATRIX_V1"
-        ],
+        "originalLockReceiptCount": 36,
+        "patchesToAudit": [],
         "player": "Mikhail Sergachev"
       }
     ],
@@ -4308,21 +4308,21 @@
   },
   "missAudits": [
     {
-      "conclusion": "PREGAME_GATE_RECEIPT_INCOMPLETE",
-      "earliestGate": "G2",
+      "auditStage": "PROJECTED",
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
       "gameId": "2026020331",
-      "patchesToAudit": [
-        "PATCH_2026_11_05_EXECUTION_MATRIX_V1"
-      ],
+      "originalLockReceiptCount": 36,
+      "patchesToAudit": [],
       "player": "Cole Caufield"
     },
     {
-      "conclusion": "PREGAME_GATE_RECEIPT_INCOMPLETE",
-      "earliestGate": "G2",
+      "auditStage": "PROJECTED",
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
       "gameId": "2026020332",
-      "patchesToAudit": [
-        "PATCH_2026_11_05_EXECUTION_MATRIX_V1"
-      ],
+      "originalLockReceiptCount": 36,
+      "patchesToAudit": [],
       "player": "Mikhail Sergachev"
     }
   ],
@@ -8590,5 +8590,5 @@
     "wins": 0
   },
   "slateDate": "2026-11-16",
-  "status": "GRADED_OFFICIAL_GOAL_EVENTS"
+  "status": "ALREADY_OFFICIALLY_GRADED"
 }
