@@ -298,8 +298,14 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
             card_id = 'NHL-'+slate_date+'-CANONICAL'
             revision = 1
             rationale = {'type':'FIRST_ISSUANCE','issuedBeforePuckDrop':True}
+            # Retraction timestamps are stored to whole seconds, so a
+            # genuine independent reissue in that SAME second must still
+            # be distinguishable from the original revoked card. A pair
+            # of second-rounded stamp() values can wrongly make issuance
+            # look older/equal to the retraction event.
+            issued_at=datetime.now(ET).isoformat(timespec='microseconds')
             con.execute('''INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?)''',
-                        (slate_date,card_id,encode(legs),encode(legs),stage,new_hash,revision,stamp(),stamp(),None))
+                        (slate_date,card_id,encode(legs),encode(legs),stage,new_hash,revision,issued_at,issued_at,None))
         con.execute('''INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)''',
                     (f'{card_id}-v{revision}',slate_date,card_id,revision,stage,new_hash,
                      encode(legs),encode(rationale),stamp()))
