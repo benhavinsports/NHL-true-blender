@@ -26,11 +26,15 @@ OVERLAY = ([f'Step{i}' for i in range(11)] + ['Step10.5'] +
 # evidence observations at their corresponding master gate, not a second
 # selection phase after G17. Step10.5 belongs with G10.5.
 # Keep each observation identifiable for historical audit compatibility.
-OVERLAY_AT_GATE = {('G10.5' if step == 'Step10.5' else
-                    'G' + step[4:]): step for step in OVERLAY}
+STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G3','Step3':'G5',
+              'Step4':'G4','Step5':'G7','Step6':'G6','Step7':'G9',
+              'Step8':'G8','Step9':'G9','Step10':'G10',
+              'Step10.5':'G10.5','Step11':'G11','Step12':'G16',
+              'Step13':'G13','Step14':'G17'}
+STEPS_BY_GATE = {gate:[step for step in OVERLAY if STEP_OWNER[step]==gate]
+                 for gate in MASTER}
 EXECUTION_ORDER = [item for gate in MASTER
-                   for item in ([gate] + ([OVERLAY_AT_GATE[gate]]
-                       if gate in OVERLAY_AT_GATE else []))]
+                   for item in [gate]+STEPS_BY_GATE[gate]]
 if MASTER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
     raise RuntimeError('Authoritative NHL gate order was altered')
 PATCH_IDS = (
@@ -631,6 +635,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     release=player_releases(player)
     rec=reconcile_logs(player)
     position=player.get('position')
+    # Shared challenger evidence is computed before the first gate. G10.5
+    # consumes this same immutable comparison rather than recomputing it.
+    precoverage=evidence_data(game.get('coverage',{}).get(attack_team)) or {}
+    rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
+            x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
+    wins,rows=challenger_proof(player,rivals,weak,
+        precoverage.get('greenWeakZones'))
+    overlay=[]
     def emit(g, ok, detail, eliminate=False, source_ids=()):
         nonlocal eliminated,first_elimination_gate
         # Every candidate gets an ACTUAL G0-G18 source check. A previous
@@ -651,6 +663,31 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
             if first_elimination_gate is None:first_elimination_gate=g
         elif disp=='NOT_EXECUTED':
             deficient.append(g)
+        # Evaluate only the source observations owned by this gate, now,
+        # before recording its authoritative disposition.
+        observations=(independent_overlay(
+            game,attack_team,player,teammates,goalie_profile,release,rec,
+            rows,stage,receipt,evidence_data,gate_record,
+            only_steps=set(STEPS_BY_GATE[g])) if STEPS_BY_GATE[g] else [])
+        overlay.extend(observations)
+        if observations:
+            states=[disp]+[item['disposition'] for item in observations]
+            disp=('ELIMINATED' if 'ELIMINATED' in states else
+                  'NOT_EXECUTED' if 'NOT_EXECUTED' in states else 'PASS')
+            detail_evidence=[{
+                'step':item['gate'],'disposition':item['disposition'],
+                'sourceIds':item['details'].get('sourceIds',[]),
+                'evidence':item['details'].get('evidence',{})}
+                for item in observations]
+            content={**content,'integratedStepEvidence':detail_evidence,
+                     'integratedDisposition':disp}
+            source_ids=list(dict.fromkeys(list(source_ids)+[
+                url for item in detail_evidence for url in item['sourceIds']]))
+            if disp=='NOT_EXECUTED' and g not in deficient:
+                deficient.append(g)
+            if disp=='ELIMINATED':
+                eliminated=True
+                if first_elimination_gate is None:first_elimination_gate=g
         d[g]={'disposition':disp,'details':content}
         proof.append(gate_record(game,player['id'],g,disp,content,list(source_ids)))
     # G0's per-skater record must point to an attack direction already
@@ -810,8 +847,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
              if receipt(x))))
     rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
-    wins,rows=challenger_proof(player,rivals,weak,
-        coverage_data.get('greenWeakZones') if coverage_data else None)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True},
@@ -913,60 +948,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
-    # Run Phase-1 Step0..Step14 as 16 independent source observations BEFORE
-    # G18. Do not copy a master verdict into an overlay record or pretend
-    # a missing shift-by-shift source was independently verified.
-    overlay=independent_overlay(game,attack_team,player,teammates,goalie_profile,
-        release,rec,rows,stage,receipt,evidence_data,gate_record)
-    # The path is a RESULT of the physical-source gates, never a preallocated
-    # PRIMARY/TRANSFER/WHO slot or an automatic fallback label.
-    # Fold each source-backed Step observation into exactly one canonical
-    # gate verdict. Preserve its underlying evidence, but do not allow a
-    # PASS from the master check to hide a failed source observation.
-    # Route legacy observations by what they actually test, not by their
-    # numeric Step label. Multiple observations may belong to one gate.
-    step_owner={
-        'Step0':'G0','Step1':'G2','Step2':'G3','Step3':'G5',
-        'Step4':'G4','Step5':'G7','Step6':'G6','Step7':'G9',
-        'Step8':'G8','Step9':'G9','Step10':'G10',
-        'Step10.5':'G10.5','Step11':'G11','Step12':'G16',
-        'Step13':'G13','Step14':'G17'}
-    overlay_by_gate={gate:[] for gate in MASTER[:-1]}
-    for observation in overlay:
-        overlay_by_gate[step_owner[observation['gate']]].append(observation)
-    for gate in MASTER[:-1]:
-        observations=overlay_by_gate[gate]
-        if not observations:
-            continue
-        dispositions=[d[gate]['disposition']]+[
-            item['disposition'] for item in observations]
-        if 'ELIMINATED' in dispositions:
-            integrated='ELIMINATED'
-        elif 'NOT_EXECUTED' in dispositions:
-            integrated='NOT_EXECUTED'
-        else:
-            integrated='PASS'
-        evidence=[{
-            'step':item['gate'],'disposition':item['disposition'],
-            'sourceIds':item['details'].get('sourceIds',[]),
-            'evidence':item['details'].get('evidence',{})}
-            for item in observations]
-        d[gate]['details']['integratedStepEvidence']=evidence
-        d[gate]['details']['integratedDisposition']=integrated
-        d[gate]['disposition']=integrated
-        row=next(item for item in proof if item['gate']==gate)
-        row['disposition']=integrated
-        row['details']['evidence']['integratedStepEvidence']=evidence
-        row['details']['evidence']['integratedDisposition']=integrated
-        row['details']['sourceIds']=list(dict.fromkeys(
-            row['details'].get('sourceIds',[])+[
-                url for item in evidence for url in item['sourceIds']]))
-        if integrated=='NOT_EXECUTED' and gate not in deficient:
-            deficient.append(gate)
-        if integrated=='ELIMINATED':
-            eliminated=True
-            if first_elimination_gate is None:
-                first_elimination_gate=gate
     # Classification must consume the integrated verdicts, not the
     # pre-merge master-only PASS labels.
     previous_gates_passed=all(d[gate]['disposition']=='PASS'
@@ -988,8 +969,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
     if overlay_trace!=OVERLAY:
         raise ValueError(f'Independent overlay execution order mismatch: {overlay_trace}')
-    # Build the chronological integrated trace from the two evidence
-    # collections, rather than appending a second overlay phase.
+    # Actual gate-time trace: no post-hoc sorting or reconstructed order.
     trace_by_gate={row['gate']:row for row in proof+overlay}
     execution_trace=[trace_by_gate[gate] for gate in EXECUTION_ORDER]
     if [row['gate'] for row in execution_trace]!=EXECUTION_ORDER:
