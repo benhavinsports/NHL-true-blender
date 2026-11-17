@@ -29,7 +29,9 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
             'mappedGoals':evidence({'goals':entries}),
             'officialGoalTotal':evidence({'goals':goals}),
             'finishOwnership':evidence({'recipient':True,'creditedGoalsVerified':True}),
-            'pressure':evidence({'recentAppearanceShots':[3,4,2]}),
+            'pressure':evidence({'recentAppearanceShots':[3,4],
+                'appearances':[{'date':'2026-11-01'},{'date':'2026-11-02'}],
+                'evidenceType':'OFFICIAL_HISTORICAL_SHOT_EVENTS'}),
             'contradictions':evidence({
                 'sourceType':'FIXTURE_STRUCTURED_G17','unresolved':False,
                 'anatomicalWeaknessCertified':True,
