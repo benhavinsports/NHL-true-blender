@@ -69,6 +69,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         'goalieResearchCannotBeCountedAsCertifiedCoreSkaters':True,
         'gateRows':result.get('gateRows',0),
         'missingByGate':result.get('missingByGate',{}),
+        'g18IntentionallyNotSelectedNotMissingSource':
+            result.get('g18IntentionallyNotSelectedNotMissingSource',0),
         'errors':result.get('errors',[])[:20],
         'nonselectedGameResearchNotes':result.get('nonselectedGameResearchNotes',[]),
         'nonselectedGameResearchIsDiagnosticOnly':True,
