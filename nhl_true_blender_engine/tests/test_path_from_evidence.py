@@ -60,14 +60,32 @@ def test_competing_source_proven_who_and_transfer_paths_are_not_arbitrarily_labe
     assert proof["independentTransferDerivedFromG0AndG10_5"] is True
     assert proof["pathQuotaApplied"] is False
 
-def test_an_unproven_secondary_route_gets_no_forced_label():
+def test_off_usual_lane_route_owned_against_every_teammate_is_a_transfer():
+    # Owner rule (2026-11-17): moved off his usual lane into the goalie's
+    # weak lane, owns goals there and beat every same-lane teammate.
+    # No displaced usual owner of that lane is required.
     p=skater(2001,"slot",25,4)
     p["release"]["data"]["originalPrimaryOrigin"]="High Slot"
     rival=skater(2002,"Point",12,2)
     path,proof=_decision(player=p,rivals=[rival])
-    assert path is None
+    assert path=="TRANSFER"
+    assert proof["offUsualLaneTransferIntoGoalieWeakLane"] is True
+    assert proof["independentTransferDerivedFromG0AndG10_5"] is False
     assert proof["fallbackToPrimary"] is False
-    assert proof["G14IndependentWhoAnomalyVerified"] is False
+
+def test_off_lane_route_without_every_direct_gate_gets_no_forced_label():
+    p=skater(2001,"slot",25,4)
+    p["release"]["data"]["originalPrimaryOrigin"]="High Slot"
+    others=[skater(2002,"Point",12,2)]
+    g=evidence({"goalieId":"g123","status":"EXPECTED","weakZones":{"slot":{"shotsAgainst":80}}})
+    c=evidence({"greenWeakZones":["slot"]})
+    _,rows=challenger_proof(p,others,g["data"]["weakZones"])
+    d={gate:{"disposition":"PASS"} for gate in MASTER[:-1]}
+    d["G16"]={"disposition":"NOT_EXECUTED"}
+    path,proof=adjudicate_scoring_path(p,[p,*others],p["release"]["data"],g,c,d,rows,False)
+    assert path is None
+    assert proof["offUsualLaneTransferIntoGoalieWeakLane"] is False
+    assert proof["fallbackToPrimary"] is False
 
 def test_false_transfer_flag_does_not_get_label_without_g105_displaced_recipient():
     p=skater(2001,"slot",28,4)
