@@ -44,7 +44,7 @@ def fixture(root: Path):
         "verified":False,"status":"RETRACTED_UNAUTHORIZED_G18"}))
     (root/"site_runs"/f"{DATE}.json").write_text(json.dumps({
         "slateDate":DATE,"errors":["PRE_CORE_REVIEW: four upstream survivors"],
-        "allG18QualifiedSurvivors":survivors}))
+        "preCoreQualifiedSurvivors":survivors}))
     (root/"core_retractions"/f"{DATE}.json").write_text(json.dumps({
         "slateDate":DATE,"cardId":CARD_ID,
         "originalFingerprint":ORIGINAL_FINGERPRINT,
@@ -62,7 +62,7 @@ def test_withdraws_only_discredited_selected_card_and_preserves_full_original(tm
     # Old first-retraction proof is immutable and must not be required again.
     run_path=tmp_path/"site_runs"/f"{DATE}.json"
     run_path.write_text(json.dumps({
-        "slateDate":DATE,"errors":[],"allG18QualifiedSurvivors":[]}))
+        "slateDate":DATE,"errors":[],"preCoreQualifiedSurvivors":[]}))
     assert retract(tmp_path)["status"]=="ORIGINAL_ALREADY_RETRACTED"
     con=open_db(str(tmp_path/"true_blender.sqlite"))
     assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]==0
@@ -80,7 +80,7 @@ def test_will_not_retract_when_four_survivor_proof_disagrees(tmp_path):
     fixture(tmp_path)
     path=tmp_path/"site_runs"/f"{DATE}.json"
     bad=json.loads(path.read_text())
-    bad["allG18QualifiedSurvivors"].pop()
+    bad["preCoreQualifiedSurvivors"].pop()
     path.write_text(json.dumps(bad))
     with pytest.raises(ValueError,match="four-survivor"):
         retract(tmp_path)
