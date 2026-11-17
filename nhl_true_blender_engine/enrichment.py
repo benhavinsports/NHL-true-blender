@@ -215,6 +215,24 @@ def attach(con, snapshot, date, stage):
                 else:
                     fld=KIND_TO_FIELD.get(kind)
                     if fld:
+                        if kind=='PLAYER_DEPLOYMENT' and p.get(fld):
+                            # A later generic projected lineup must never
+                            # erase an independently verified confirmed unit.
+                            previous=p[fld]
+                            prior=previous.get('data',{})
+                            if (prior.get('status')=='CONFIRMED' and
+                                data.get('status')!='CONFIRMED'):
+                                prior.setdefault('projectedAlternatives',[]).append(wrapper)
+                                continue
+                            # Keep contradictory projected assignments visible
+                            # rather than silently replacing the earlier one.
+                            if (prior.get('status')=='PROJECTED' and
+                                data.get('status')=='PROJECTED' and
+                                prior.get('EV') and data.get('EV') and
+                                prior.get('EV')!=data.get('EV')):
+                                prior.setdefault('conflictingProjectedAssignments',[]).append(wrapper)
+                                p['deploymentConflict']=True
+                                continue
                         if kind=='PLAYER_FINISH_CREDIT' and p.get(fld):
                             previous=p[fld]
                             prior=previous.get('data',{})
