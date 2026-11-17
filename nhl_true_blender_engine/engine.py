@@ -2107,8 +2107,19 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 remaining.append(message)
         errors=remaining
     gaps=defaultdict(int)
+    g18_intentionally_not_selected=0
     for rec in records:
-        if rec['disposition']=='NOT_EXECUTED':gaps[rec['gate']]+=1
+        if rec['disposition']!='NOT_EXECUTED':
+            continue
+        # A non-Core player deliberately does not pass final assembly G18.
+        # This is not a missing G18 source, and must not inflate source gaps.
+        evidence=(rec.get('details') or {}).get('evidence') or {}
+        if (rec['gate']=='G18' and
+            evidence.get('G18FinalAssemblyAfterFullG16') is True and
+            evidence.get('G18CoreSlotGrantedOnlyAfterG16') is False):
+            g18_intentionally_not_selected+=1
+        else:
+            gaps[rec['gate']]+=1
     result={'card':card,'date':date,'stage':stage,'games':len(games),
             'g0TwoGoalieDirectionDecisions':{
                 gid:{'attackingTeam':d['attacker'],'targetGoalieTeam':d['defender'],
@@ -2119,6 +2130,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 for gid,d in selected_directions.items()},
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
             'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
+            'g18IntentionallyNotSelectedNotMissingSource':g18_intentionally_not_selected,
             'unresolvedG0ResearchBranchCount':len(unresolved_branch_analyses),
             'unresolvedG0PlayerSourceChecks':sum(x['masterAndOverlayChecks']
                     for x in unresolved_branch_analyses),

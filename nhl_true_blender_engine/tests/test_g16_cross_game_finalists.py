@@ -164,6 +164,12 @@ def test_g18_pass_is_only_final_core_after_cross_game_g16(tmp_path):
             (DATE,)).fetchall()
         g18_pass={r['player_id'] for r in rows if r['disposition']=='PASS'}
         assert g18_pass==chosen=={'100','110','120'}
+        # Final non-Core decisions are NOT absent source evidence at G18.
+        # The older missingByGate count wrongly reported every non-Core
+        # player as missing proof of the final Core assembly gate.
+        non_core=[r for r in rows if r['disposition']=='NOT_EXECUTED']
+        assert result['missingByGate'].get('G18',0)==0
+        assert result['g18IntentionallyNotSelectedNotMissingSource']==len(non_core)
         rejected=next(r for r in rows if r['player_id']=='130')
         assert rejected['disposition']=='NOT_EXECUTED'
         evidence=json.loads(rejected['details'])
