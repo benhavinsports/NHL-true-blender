@@ -2,12 +2,11 @@
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
   "cardId": "NHL-2026-11-17-CANONICAL",
-  "cardPath": "state/site_cards/2026-11-17.json",
-  "cardSavedByEngine": true,
-  "coreEligibleSkaterMatrices": 231,
-  "currentRunFullyCertified": true,
+  "cardSavedByEngine": false,
+  "coreEligibleSkaterMatrices": 181,
+  "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-17T17:39:32+00:00",
+    "asOf": "2026-11-17T17:47:35+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 11,
     "gamesWithOnlyOneMatchedGoalie": 0,
@@ -251,48 +250,32 @@
     "status": "EVIDENCE_COLLECTED",
     "totalFailed": 0
   },
-  "eligibleSkaterRows": 274,
-  "errors": [],
-  "fingerprint": "1626f70ea7fa11aa7fe7fcb9bb5e65b02a38bdaf0b2c3f2d09217dd7ca56d8ad",
+  "eligibleSkaterRows": 318,
+  "errors": [
+    "2026020334 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction",
+    "2026020338 G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route",
+    "2026020340 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction",
+    "PRE_CORE_REVIEW: 2 independently qualified game recipients, but Core 3 requires exactly 3; G18 cannot rank, preselect, or eliminate any of them"
+  ],
   "firstNonpassingGateAudit": {
-    "allGateRowsPresent": 231,
+    "allGateRowsPresent": 181,
     "firstNonpassingGateCounts": {
-      "FULL_G0_G18_PASS": 3,
       "G0": 24,
-      "G10": 11,
-      "G10.5": 47,
+      "G10": 8,
+      "G10.5": 36,
       "G15": 1,
+      "G18": 2,
       "G2": 12,
-      "G4": 40,
-      "G6": 27,
+      "G4": 31,
+      "G6": 18,
       "G7": 2,
-      "G9": 64
+      "G9": 47
     },
     "g0ResearchNeverCountedAsSurvivingSkater": true,
-    "g0ResearchOnlyBranchMatrices": 64,
-    "g0ResearchOnlyGateRows": 1280,
+    "g0ResearchOnlyBranchMatrices": 180,
+    "g0ResearchOnlyGateRows": 3600,
     "notAScorerRanking": true,
     "samplesByFirstGate": {
-      "FULL_G0_G18_PASS": [
-        {
-          "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020335",
-          "playerId": "8477933",
-          "reasonDisposition": "PASS"
-        },
-        {
-          "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020338",
-          "playerId": "8477939",
-          "reasonDisposition": "PASS"
-        },
-        {
-          "firstNonpassingGate": "FULL_G0_G18_PASS",
-          "gameId": "2026020343",
-          "playerId": "8484227",
-          "reasonDisposition": "PASS"
-        }
-      ],
       "G0": [
         {
           "firstNonpassingGate": "G0",
@@ -361,6 +344,20 @@
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
+      "G18": [
+        {
+          "firstNonpassingGate": "G18",
+          "gameId": "2026020335",
+          "playerId": "8477933",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G18",
+          "gameId": "2026020343",
+          "playerId": "8484227",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
       "G2": [
         {
           "firstNonpassingGate": "G2",
@@ -396,8 +393,8 @@
         },
         {
           "firstNonpassingGate": "G4",
-          "gameId": "2026020334",
-          "playerId": "8478911",
+          "gameId": "2026020335",
+          "playerId": "8475179",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -456,12 +453,12 @@
         }
       ]
     },
-    "scannedSkaters": 231
+    "scannedSkaters": 181
   },
   "g0Complete": 22,
   "g0Directions": 22,
   "g0OfficialPbpFallback": {
-    "addedIndependentLeaguePeerGames": 102,
+    "addedIndependentLeaguePeerGames": 95,
     "anatomicalClaimCertified": false,
     "clubScheduleGamesRecovered": 0,
     "clubScheduleNeverImpliesGoaliePlayed": true,
@@ -469,26 +466,26 @@
     "cohortIndependentOfProjectedStarterRoster": true,
     "cohortSource": "PRE_SLATE_LEAGUE_WIDE_NHL_PBP",
     "distinctPeerGoaliesWithOnNetEvents": 87,
-    "distinctPreSlateNhlGamesCompared": 592,
+    "distinctPreSlateNhlGamesCompared": 606,
     "fallbackProfiles": 0,
     "goaliesNeedingPbpResearch": 0,
-    "goaliesWithOfficialPersonalHistory": 23,
+    "goaliesWithOfficialPersonalHistory": 24,
     "goaliesWithPeerComparedOrigins": 0,
-    "historicalGoalieIdentityEvents": 26914,
-    "historicalNhlGamesFetched": 490,
+    "historicalGoalieIdentityEvents": 28048,
+    "historicalNhlGamesFetched": 511,
     "historicalOnly": true,
     "independentSameCohortPopulationId": "2484aaa6c50184051970",
-    "independentSameCohortProfiles": 23,
-    "independentlyIdentifiedSlateGoaliePeers": 23,
+    "independentSameCohortProfiles": 24,
+    "independentlyIdentifiedSlateGoaliePeers": 24,
     "samplePeersNotFullLeaguePercentile": true,
     "sourceFailures": [],
     "sourceType": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
     "status": "OFFICIAL_PBP_FALLBACK_COLLECTED",
     "unresolved": []
   },
-  "g0ResearchOnlyBranchMatrices": 64,
-  "g0ResearchOnlyGateRows": 1280,
-  "g0ResearchOnlyOfficialSkaters": 43,
+  "g0ResearchOnlyBranchMatrices": 180,
+  "g0ResearchOnlyGateRows": 3600,
+  "g0ResearchOnlyOfficialSkaters": 137,
   "g0RinkOriginResearch": [
     {
       "anatomicalWeaknessCertified": false,
@@ -958,6 +955,42 @@
           "defender": "TOR",
           "goalieBranches": [
             {
+              "goalieId": "8475683",
+              "rinkShotOriginAreaRows": [
+                {
+                  "area": "Center Point",
+                  "goalsAgainst": 3,
+                  "savePctg": 0.916667,
+                  "savePctgPercentile": 0.3208,
+                  "shotsAgainst": 36
+                },
+                {
+                  "area": "High Slot",
+                  "goalsAgainst": 7,
+                  "savePctg": 0.787879,
+                  "savePctgPercentile": 0.1887,
+                  "shotsAgainst": 33
+                },
+                {
+                  "area": "Low Slot",
+                  "goalsAgainst": 18,
+                  "savePctg": 0.818182,
+                  "savePctgPercentile": 0.5849,
+                  "shotsAgainst": 99
+                },
+                {
+                  "area": "R Circle",
+                  "goalsAgainst": 2,
+                  "savePctg": 0.947368,
+                  "savePctgPercentile": 0.8868,
+                  "shotsAgainst": 38
+                }
+              ],
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8475683/now",
+              "starterStatus": "EXPECTED",
+              "zoneProfileFound": true
+            },
+            {
               "goalieId": "8476932",
               "rinkShotOriginAreaRows": [
                 {
@@ -1344,59 +1377,6 @@
       "isAnatomicalWeaknessClaim": false,
       "targetGoalieTeam": "LAK"
     },
-    "2026020334": {
-      "attackingTeam": "WSH",
-      "bothGoaliesReviewedFirst": true,
-      "decisionEvidence": {
-        "allProjectedGoalieCombinationsIndependentlyChecked": 1,
-        "eachCombinationAttacksSameSide": true,
-        "noUnknownGoalieAssumed": true,
-        "noWeightsOrArbitraryTieBreaks": true,
-        "pairwiseReceipts": [
-          {
-            "attacker": "WSH",
-            "goalieA": "8476883",
-            "goalieB": "8480313",
-            "proof": {
-              "everyExposedOriginDirectlyCompared": true,
-              "exposedGoalieId": "8476883",
-              "goaliePbpSourceUrls": [
-                "https://api-web.nhle.com/v1/gamecenter/2025020912/play-by-play",
-                "https://api-web.nhle.com/v1/gamecenter/2025020440/play-by-play"
-              ],
-              "noWeightsOrExternalOdds": true,
-              "notGloveBlockerFiveHole": true,
-              "notGuaranteedTonightGoal": true,
-              "opposingGoaliesIndividuallyIdentified": true,
-              "oppositeAttacker": "TBL",
-              "oppositeDirectionSourceReviewed": true,
-              "otherGoalieFullySourceComparedAreas": 7,
-              "otherGoalieId": "8480313",
-              "otherGoalieWeakOrigins": [],
-              "reason": "Same pre-slate official PBP peer pool: only one goalie has a peer-qualified weak origin, and the other goalie is better on BOTH goal rate and peer rank from every one of those origins",
-              "sameOriginComparisons": [
-                {
-                  "exposedGoalieGoals": 8,
-                  "exposedGoaliePeerRank": 0.3170731707317073,
-                  "exposedGoalieShots": 91,
-                  "origin": "L Circle",
-                  "otherGoalieGoals": 7,
-                  "otherGoaliePeerRank": 0.4878048780487805,
-                  "otherGoalieShots": 109
-                }
-              ],
-              "samePeerPopulationId": "2484aaa6c50184051970",
-              "sourceCoherentIndependentHistoricalSample": true
-            },
-            "sourceDecisionMethod": "SAME_HISTORICAL_OFFICIAL_PBP_ONE_SIDED_WEAKNESS"
-          }
-        ],
-        "projectedBranchesNeverSilentlyConfirmed": true
-      },
-      "goalieSourceMethod": "ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE",
-      "isAnatomicalWeaknessClaim": false,
-      "targetGoalieTeam": "TBL"
-    },
     "2026020335": {
       "attackingTeam": "FLA",
       "bothGoaliesReviewedFirst": true,
@@ -1498,14 +1478,6 @@
       "isAnatomicalWeaknessClaim": false,
       "targetGoalieTeam": "PHI"
     },
-    "2026020338": {
-      "attackingTeam": "TOR",
-      "bothGoaliesReviewedFirst": true,
-      "decisionEvidence": null,
-      "goalieSourceMethod": "SOURCE_WEAK_ZONE_SET_CONTAINMENT",
-      "isAnatomicalWeaknessClaim": false,
-      "targetGoalieTeam": "CHI"
-    },
     "2026020339": {
       "attackingTeam": "ANA",
       "bothGoaliesReviewedFirst": true,
@@ -1599,7 +1571,7 @@
     }
   },
   "g16FinalistCompetition": null,
-  "g18IntentionallyNotSelectedNotMissingSource": 228,
+  "g18IntentionallyNotSelectedNotMissingSource": 181,
   "gameSurvivorPool": [
     {
       "attackTeam": "BOS",
@@ -1662,7 +1634,7 @@
       "furthestCandidatesDiagnosticOnly": [],
       "gameId": "2026020335",
       "gameStartUTC": "2026-11-18T00:00:00Z",
-      "inCore": true,
+      "inCore": false,
       "matchup": "EDM@FLA",
       "opponentTeam": "EDM",
       "poolIsDiagnosticAndNeverSelects": true,
@@ -1976,180 +1948,24 @@
       ]
     },
     {
-      "attackTeam": "WSH",
-      "candidatesEvaluated": 23,
-      "firstNonPassGateCounts": {
-        "G4:NOT_EXECUTED": 1,
-        "G6:NOT_EXECUTED": 5,
-        "G9:NOT_EXECUTED": 17
-      },
-      "furthestCandidatesDiagnosticOnly": [
-        {
-          "player": "Anthony Beauvillier",
-          "playerId": "8478463",
-          "stoppedAt": "G9:NOT_EXECUTED"
-        },
-        {
-          "player": "Pierre-Luc Dubois",
-          "playerId": "8479400",
-          "stoppedAt": "G9:NOT_EXECUTED"
-        },
-        {
-          "player": "Boone Jenner",
-          "playerId": "8476432",
-          "stoppedAt": "G9:NOT_EXECUTED"
-        },
-        {
-          "player": "Jordan Kyrou",
-          "playerId": "8479385",
-          "stoppedAt": "G9:NOT_EXECUTED"
-        },
-        {
-          "player": "Ryan Leonard",
-          "playerId": "8484186",
-          "stoppedAt": "G9:NOT_EXECUTED"
-        }
-      ],
       "gameId": "2026020334",
       "gameStartUTC": "2026-11-18T00:30:00Z",
       "inCore": false,
       "matchup": "WSH@TBL",
-      "opponentTeam": "TBL",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every pre-Core gate G0-G17",
+      "reason": "G0 did not decide which goalie is attacked",
       "status": "NO_SURVIVOR",
-      "stoppedAt": "G9",
-      "targetGoalieIds": [
-        "8476883"
-      ]
+      "stoppedAt": "G0"
     },
     {
-      "attackTeam": "TOR",
-      "candidatesEvaluated": 27,
-      "firstNonPassGateCounts": {
-        "G10.5:ELIMINATED": 11,
-        "G10:NOT_EXECUTED": 3,
-        "G4:NOT_EXECUTED": 8,
-        "G6:NOT_EXECUTED": 4
-      },
-      "furthestCandidatesDiagnosticOnly": [],
       "gameId": "2026020338",
       "gameStartUTC": "2026-11-18T00:30:00Z",
-      "inCore": true,
+      "inCore": false,
       "matchup": "TOR@CHI",
-      "opponentTeam": "CHI",
       "poolIsDiagnosticAndNeverSelects": true,
-      "status": "SURVIVOR",
-      "survivor": {
-        "attackTeam": "TOR",
-        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020062/play-by-play",
-        "deployment": {
-          "EV": "F2",
-          "line": 2,
-          "powerPlayUnit": 1,
-          "sourceType": "SECONDARY_PROJECTED_LINEUP",
-          "status": "PROJECTED"
-        },
-        "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
-        "gameId": "2026020338",
-        "gameStartUTC": "2026-11-18T00:30:00Z",
-        "goalieId": "8481519",
-        "goalieObservedZoneStats": {
-          "goalsAgainst": 8,
-          "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-          "leagueSavePctgPercentile": 0.0755,
-          "savePctg": 0.8333333333333334,
-          "saves": 40,
-          "shotsAgainst": 48,
-          "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-        },
-        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
-        "goalieStatus": "EXPECTED",
-        "independentOpponentDefense": {
-          "allAttemptsAgainst": 931,
-          "allOnNetShotsAgainst": 482,
-          "attemptShare": 0.10311493018259936,
-          "attemptTypes": [
-            "goal",
-            "shot-on-goal",
-            "missed-shot",
-            "blocked-shot"
-          ],
-          "attemptsAgainst": 96,
-          "attemptsPerGame": 6.0,
-          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-          "gameCount": 16,
-          "goalsAgainst": 8,
-          "onNetShotsAgainst": 50,
-          "peerMedianAttemptsPerGame": 5.9375,
-          "peerTeamsCompared": 31
-        },
-        "matchup": "TOR@CHI",
-        "nonRankingDiagnosticOnly": true,
-        "opponentTeam": "CHI",
-        "ownRouteZone": "L Circle",
-        "ownShotsOnGoal": 11,
-        "ownedGoals": 2,
-        "pathClassificationEvidence": {
-          "G10_5DisplacedPrimaryEvidence": [
-            {
-              "G10_5Verdict": "DEFEATED",
-              "directGoalCreditCandidate": 2,
-              "directGoalCreditPrior": 1,
-              "displacedDirectPrimaryPlayerId": "8475166",
-              "rivalOriginalPrimaryOrigin": "L Circle",
-              "sameLane": "L Circle",
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475166/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now"
-              ]
-            }
-          ],
-          "G14IndependentWhoAnomalyVerified": false,
-          "competingWHOandTRANSFERPathsUnseparated": false,
-          "explicitDisplacementSourceValidated": false,
-          "fallbackToPrimary": false,
-          "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
-          "independentTransferDerivedFromG0AndG10_5": true,
-          "laneChangedAfterGoalieFirstG0": true,
-          "offUsualLaneTransferIntoGoalieWeakLane": true,
-          "originalScoringLane": "Low Slot",
-          "path": "TRANSFER",
-          "pathQuotaApplied": false,
-          "positiveDirectGateEvidence": {
-            "G0ThruG17SourcePass": true,
-            "allRelevantChallengersReviewed": true,
-            "goalieWeakAreaDirectlyMatched": true,
-            "historicallyCreditedIndependentGoalRecipient": true,
-            "independentDefenseAreaDirectlyMatched": true,
-            "independentOwnScoringSource": true,
-            "observedOwnedGoalsInSelectedLane": true,
-            "opponentContradictionsReviewed": true,
-            "verifiedEVAccess": true
-          },
-          "primaryOriginIsSourceDistinct": false,
-          "rationale": "Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5",
-          "scoringLane": "L Circle",
-          "selectionIndependentOfLabel": true,
-          "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475166/now",
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now",
-            "https://api-web.nhle.com/v1/gamecenter/2026020062/play-by-play",
-            "https://api-web.nhle.com/v1/gamecenter/2026020202/boxscore",
-            "https://www.betweenthelineshockey.com/tonight.md"
-          ],
-          "unknownIsNotAPath": true,
-          "whoPhysicalMechanism": null
-        },
-        "player": "William Nylander",
-        "playerId": "8477939",
-        "routeLabel": "TRANSFER",
-        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now"
-      },
-      "targetGoalieIds": [
-        "8481519"
-      ]
+      "reason": "G0 did not decide which goalie is attacked",
+      "status": "NO_SURVIVOR",
+      "stoppedAt": "G0"
     },
     {
       "attackTeam": "ANA",
@@ -2267,7 +2083,7 @@
       "furthestCandidatesDiagnosticOnly": [],
       "gameId": "2026020343",
       "gameStartUTC": "2026-11-18T03:00:00Z",
-      "inCore": true,
+      "inCore": false,
       "matchup": "CGY@SJS",
       "opponentTeam": "CGY",
       "poolIsDiagnosticAndNeverSelects": true,
@@ -2373,7 +2189,7 @@
   "games": 11,
   "gateCertification": {
     "allGateChecksExecutedWithEvidence": false,
-    "allOfficialSkatersReviewedIncludingG0Research": 274,
+    "allOfficialSkatersReviewedIncludingG0Research": 318,
     "allOriginalFunctionsWereCheckedWithinGates": true,
     "allOverlayStepsSourceCompleteForEveryRejectedSkater": false,
     "allOverlayStepsWereIndependentlyChecked": true,
@@ -2384,8 +2200,8 @@
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
     "firstFailureClassificationCounts": {
-      "EVIDENCE_INCOMPLETE": 168,
-      "SOURCE_ELIMINATED": 60
+      "EVIDENCE_INCOMPLETE": 132,
+      "SOURCE_ELIMINATED": 49
     },
     "firstFailureExamples": [
       {
@@ -2543,91 +2359,91 @@
         "playerId": "8485395"
       },
       {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8471214"
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G2",
+        "gameId": "2026020335",
+        "playerId": "8473419"
       },
       {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
-        "gameId": "2026020334",
-        "playerId": "8475718"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8476432"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8476880"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8477949"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8478440"
-      },
-      {
-        "classification": "EVIDENCE_INCOMPLETE",
-        "disposition": "NOT_EXECUTED",
-        "firstGate": "G9",
-        "gameId": "2026020334",
-        "playerId": "8478463"
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8474189"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
         "firstGate": "G4",
-        "gameId": "2026020334",
-        "playerId": "8478911"
+        "gameId": "2026020335",
+        "playerId": "8475179"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G2",
+        "gameId": "2026020335",
+        "playerId": "8475462"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8477409"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G2",
+        "gameId": "2026020335",
+        "playerId": "8477493"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G10.5",
+        "gameId": "2026020335",
+        "playerId": "8477495"
+      },
+      {
+        "classification": "SOURCE_ELIMINATED",
+        "disposition": "ELIMINATED",
+        "firstGate": "G7",
+        "gameId": "2026020335",
+        "playerId": "8477903"
       }
     ],
-    "fullIndependentCardCertification": true,
+    "fullIndependentCardCertification": false,
     "g0ResearchExcludedFromCoreCandidateAndPassDenominator": true,
-    "g0ResearchOnlyBranchMatrices": 64,
-    "g0ResearchOnlyGateRows": 1280,
-    "g0ResearchOnlyOfficialSkaters": 43,
+    "g0ResearchOnlyBranchMatrices": 180,
+    "g0ResearchOnlyGateRows": 3600,
+    "g0ResearchOnlyOfficialSkaters": 137,
     "g0ResearchPreservedAsIndependentSourceEvidence": true,
     "gateChecksAttempted": {
-      "G0": 231,
-      "G1": 231,
-      "G10": 231,
-      "G10.5": 231,
-      "G11": 231,
-      "G12": 231,
-      "G13": 231,
-      "G14": 231,
-      "G15": 231,
-      "G16": 231,
-      "G17": 231,
-      "G18": 231,
-      "G2": 231,
-      "G3": 231,
-      "G4": 231,
-      "G5": 231,
-      "G6": 231,
-      "G7": 231,
-      "G8": 231,
-      "G9": 231
+      "G0": 181,
+      "G1": 181,
+      "G10": 181,
+      "G10.5": 181,
+      "G11": 181,
+      "G12": 181,
+      "G13": 181,
+      "G14": 181,
+      "G15": 181,
+      "G16": 181,
+      "G17": 181,
+      "G18": 181,
+      "G2": 181,
+      "G3": 181,
+      "G4": 181,
+      "G5": 181,
+      "G6": 181,
+      "G7": 181,
+      "G8": 181,
+      "G9": 181
     },
-    "gateRows": 5922,
+    "gateRows": 7242,
     "gateSpecification": {
       "embeddedFunctionCount": 16,
       "executionCount": 20,
@@ -2721,85 +2537,84 @@
     "masterGateDispositions": {
       "G0": {
         "NOT_EXECUTED": 24,
-        "PASS": 207
+        "PASS": 157
       },
       "G1": {
-        "PASS": 231
+        "PASS": 181
       },
       "G10": {
-        "NOT_EXECUTED": 76,
-        "PASS": 155
+        "NOT_EXECUTED": 56,
+        "PASS": 125
       },
       "G10.5": {
-        "ELIMINATED": 91,
-        "NOT_EXECUTED": 16,
-        "PASS": 124
+        "ELIMINATED": 66,
+        "NOT_EXECUTED": 15,
+        "PASS": 100
       },
       "G11": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       },
       "G12": {
-        "NOT_EXECUTED": 76,
-        "PASS": 155
+        "NOT_EXECUTED": 56,
+        "PASS": 125
       },
       "G13": {
-        "PASS": 231
+        "PASS": 181
       },
       "G14": {
-        "NOT_EXECUTED": 33,
-        "PASS": 198
+        "NOT_EXECUTED": 32,
+        "PASS": 149
       },
       "G15": {
-        "NOT_EXECUTED": 132,
-        "PASS": 99
+        "NOT_EXECUTED": 104,
+        "PASS": 77
       },
       "G16": {
-        "ELIMINATED": 91,
-        "NOT_EXECUTED": 16,
-        "PASS": 124
+        "ELIMINATED": 66,
+        "NOT_EXECUTED": 15,
+        "PASS": 100
       },
       "G17": {
-        "NOT_EXECUTED": 164,
-        "PASS": 67
+        "NOT_EXECUTED": 132,
+        "PASS": 49
       },
       "G18": {
-        "NOT_EXECUTED": 228,
-        "PASS": 3
+        "NOT_EXECUTED": 181
       },
       "G2": {
         "ELIMINATED": 12,
-        "PASS": 219
+        "PASS": 169
       },
       "G3": {
         "NOT_EXECUTED": 24,
-        "PASS": 207
+        "PASS": 157
       },
       "G4": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "G5": {
-        "ELIMINATED": 36,
-        "NOT_EXECUTED": 33,
-        "PASS": 162
+        "ELIMINATED": 28,
+        "NOT_EXECUTED": 32,
+        "PASS": 121
       },
       "G6": {
-        "NOT_EXECUTED": 55,
-        "PASS": 176
+        "NOT_EXECUTED": 41,
+        "PASS": 140
       },
       "G7": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       },
       "G8": {
-        "PASS": 231
+        "PASS": 181
       },
       "G9": {
-        "NOT_EXECUTED": 129,
-        "PASS": 102
+        "NOT_EXECUTED": 99,
+        "PASS": 82
       }
     },
     "missingMatrixGateRows": {},
@@ -2809,65 +2624,65 @@
     "originalFunctionDispositions": {
       "Step0": {
         "NOT_EXECUTED": 24,
-        "PASS": 207
+        "PASS": 157
       },
       "Step1": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step10": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step10.5": {
-        "NOT_EXECUTED": 107,
-        "PASS": 124
+        "NOT_EXECUTED": 81,
+        "PASS": 100
       },
       "Step11": {
         "NOT_EXECUTED": 3,
-        "PASS": 228
+        "PASS": 178
       },
       "Step12": {
-        "NOT_EXECUTED": 107,
-        "PASS": 124
+        "NOT_EXECUTED": 81,
+        "PASS": 100
       },
       "Step13": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step14": {
-        "NOT_EXECUTED": 164,
-        "PASS": 67
+        "NOT_EXECUTED": 132,
+        "PASS": 49
       },
       "Step2": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step3": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step4": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       },
       "Step5": {
-        "NOT_EXECUTED": 13,
-        "PASS": 218
+        "NOT_EXECUTED": 12,
+        "PASS": 169
       },
       "Step6": {
-        "NOT_EXECUTED": 55,
-        "PASS": 176
+        "NOT_EXECUTED": 41,
+        "PASS": 140
       },
       "Step7": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step8": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step9": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       }
     },
     "otherMissingSourceExamples": {
@@ -2935,24 +2750,24 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8475718",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 2
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8479576",
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8480796",
+          "gameId": "2026020335",
+          "playerId": "8477493",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8480873",
-          "sourceCount": 0
+          "gameId": "2026020335",
+          "playerId": "8477903",
+          "sourceCount": 1
         }
       ],
       "G10.5": [
@@ -2982,11 +2797,6 @@
           "sourceCount": 0
         },
         {
-          "gameId": "2026020338",
-          "playerId": "8475690",
-          "sourceCount": 1
-        },
-        {
           "gameId": "2026020339",
           "playerId": "8478873",
           "sourceCount": 1
@@ -2995,34 +2805,14 @@
           "gameId": "2026020339",
           "playerId": "8482178",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020341",
+          "playerId": "8473512",
+          "sourceCount": 21
         }
       ],
       "G11": [
-        {
-          "gameId": "2026020334",
-          "playerId": "8475718",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8479576",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8483491",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8483573",
-          "sourceCount": 1
-        },
         {
           "gameId": "2026020335",
           "playerId": "8473419",
@@ -3037,6 +2827,31 @@
           "gameId": "2026020335",
           "playerId": "8479981",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
+          "sourceCount": 1
         }
       ],
       "G12": [
@@ -3061,24 +2876,24 @@
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8475718",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8479576",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8480796",
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 3
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8480873",
-          "sourceCount": 0
+          "gameId": "2026020335",
+          "playerId": "8477493",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020335",
+          "playerId": "8477903",
+          "sourceCount": 3
         }
       ],
       "G14": [
@@ -3108,11 +2923,6 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020338",
-          "playerId": "8475690",
-          "sourceCount": 2
-        },
-        {
           "gameId": "2026020339",
           "playerId": "8478873",
           "sourceCount": 2
@@ -3121,6 +2931,11 @@
           "gameId": "2026020339",
           "playerId": "8482178",
           "sourceCount": 1
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8473994",
+          "sourceCount": 2
         }
       ],
       "G15": [
@@ -3192,11 +3007,6 @@
           "sourceCount": 0
         },
         {
-          "gameId": "2026020338",
-          "playerId": "8475690",
-          "sourceCount": 1
-        },
-        {
           "gameId": "2026020339",
           "playerId": "8478873",
           "sourceCount": 1
@@ -3205,6 +3015,11 @@
           "gameId": "2026020339",
           "playerId": "8482178",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020341",
+          "playerId": "8473512",
+          "sourceCount": 21
         }
       ],
       "G17": [
@@ -3234,18 +3049,18 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8475718",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8478911",
+          "gameId": "2026020335",
+          "playerId": "8474189",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8479576",
+          "gameId": "2026020335",
+          "playerId": "8475179",
           "sourceCount": 1
         }
       ],
@@ -3345,11 +3160,6 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8478911",
-          "sourceCount": 1
-        },
-        {
           "gameId": "2026020335",
           "playerId": "8475179",
           "sourceCount": 1
@@ -3372,6 +3182,11 @@
         {
           "gameId": "2026020336",
           "playerId": "8475170",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8475231",
           "sourceCount": 1
         }
       ],
@@ -3402,11 +3217,6 @@
           "sourceCount": 2
         },
         {
-          "gameId": "2026020338",
-          "playerId": "8475690",
-          "sourceCount": 3
-        },
-        {
           "gameId": "2026020339",
           "playerId": "8478873",
           "sourceCount": 3
@@ -3415,6 +3225,11 @@
           "gameId": "2026020339",
           "playerId": "8482178",
           "sourceCount": 2
+        },
+        {
+          "gameId": "2026020342",
+          "playerId": "8473994",
+          "sourceCount": 3
         }
       ],
       "G6": [
@@ -3439,52 +3254,27 @@
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8475718",
+          "gameId": "2026020335",
+          "playerId": "8473419",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8479576",
+          "gameId": "2026020335",
+          "playerId": "8475462",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8480873",
+          "gameId": "2026020335",
+          "playerId": "8477493",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020334",
-          "playerId": "8483491",
+          "gameId": "2026020335",
+          "playerId": "8479981",
           "sourceCount": 1
         }
       ],
       "G7": [
-        {
-          "gameId": "2026020334",
-          "playerId": "8475718",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8479576",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8480873",
-          "sourceCount": 0
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8483491",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020334",
-          "playerId": "8483573",
-          "sourceCount": 1
-        },
         {
           "gameId": "2026020335",
           "playerId": "8473419",
@@ -3499,6 +3289,31 @@
           "gameId": "2026020335",
           "playerId": "8479981",
           "sourceCount": 0
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8481014",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020336",
+          "playerId": "8484221",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8476891",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8479941",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020337",
+          "playerId": "8484797",
+          "sourceCount": 1
         }
       ],
       "G9": [
@@ -3547,65 +3362,65 @@
     "overlayGateDispositions": {
       "Step0": {
         "NOT_EXECUTED": 24,
-        "PASS": 207
+        "PASS": 157
       },
       "Step1": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step10": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step10.5": {
-        "NOT_EXECUTED": 107,
-        "PASS": 124
+        "NOT_EXECUTED": 81,
+        "PASS": 100
       },
       "Step11": {
         "NOT_EXECUTED": 3,
-        "PASS": 228
+        "PASS": 178
       },
       "Step12": {
-        "NOT_EXECUTED": 107,
-        "PASS": 124
+        "NOT_EXECUTED": 81,
+        "PASS": 100
       },
       "Step13": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step14": {
-        "NOT_EXECUTED": 164,
-        "PASS": 67
+        "NOT_EXECUTED": 132,
+        "PASS": 49
       },
       "Step2": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step3": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step4": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       },
       "Step5": {
-        "NOT_EXECUTED": 13,
-        "PASS": 218
+        "NOT_EXECUTED": 12,
+        "PASS": 169
       },
       "Step6": {
-        "NOT_EXECUTED": 55,
-        "PASS": 176
+        "NOT_EXECUTED": 41,
+        "PASS": 140
       },
       "Step7": {
-        "NOT_EXECUTED": 69,
-        "PASS": 162
+        "NOT_EXECUTED": 60,
+        "PASS": 121
       },
       "Step8": {
-        "PASS": 231
+        "PASS": 181
       },
       "Step9": {
-        "ELIMINATED": 8,
-        "NOT_EXECUTED": 26,
-        "PASS": 197
+        "ELIMINATED": 6,
+        "NOT_EXECUTED": 16,
+        "PASS": 159
       }
     },
     "recordedPassProofGapExamples": [],
@@ -3631,16 +3446,47 @@
       "G8": 0,
       "G9": 0
     },
-    "scannedSkaters": 231,
-    "selectedCoreOnlyFullyCertified": true,
-    "selectedExecutionOrderGaps": [],
+    "scannedSkaters": 181,
+    "selectedCoreOnlyFullyCertified": false,
+    "selectedExecutionOrderGaps": [
+      {
+        "actual": [],
+        "expected": [
+          "G0",
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5",
+          "G6",
+          "G7",
+          "G8",
+          "G9",
+          "G10",
+          "G10.5",
+          "G11",
+          "G12",
+          "G13",
+          "G14",
+          "G15",
+          "G16",
+          "G17",
+          "G18"
+        ],
+        "gameId": "2026020338",
+        "playerId": "8477939",
+        "recordedIndices": []
+      }
+    ],
     "selectedLegs": [
       {
         "executionOrderGaps": [],
         "executionOrderVerified": true,
         "gameId": "2026020335",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
+        "masterAllPass": false,
+        "masterMissingOrNonpassing": [
+          "G18"
+        ],
         "missingProvenanceForPassingGates": [],
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
@@ -3649,30 +3495,120 @@
         "playerId": "8477933",
         "savedPath": "PRIMARY",
         "semanticMissingProof": [],
-        "substantivelyCertified": true
+        "substantivelyCertified": false
       },
       {
-        "executionOrderGaps": [],
-        "executionOrderVerified": true,
+        "executionOrderGaps": [
+          "RECORDED_GATE_ORDER_OR_INDEX_MISMATCH"
+        ],
+        "executionOrderVerified": false,
         "gameId": "2026020338",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
+        "masterAllPass": false,
+        "masterMissingOrNonpassing": [
+          "G0",
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5",
+          "G6",
+          "G7",
+          "G8",
+          "G9",
+          "G10",
+          "G10.5",
+          "G11",
+          "G12",
+          "G13",
+          "G14",
+          "G15",
+          "G16",
+          "G17",
+          "G18"
+        ],
         "missingProvenanceForPassingGates": [],
-        "overlayAllPass": true,
-        "overlayIndependentlyEvaluated": true,
-        "overlayMissingOrNonpassing": [],
+        "overlayAllPass": false,
+        "overlayIndependentlyEvaluated": false,
+        "overlayMissingOrNonpassing": [
+          {
+            "function": "Step0",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step1",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step2",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step3",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step4",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step5",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step6",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step7",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step8",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step9",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step10",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step10.5",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step11",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step12",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step13",
+            "status": "MISSING"
+          },
+          {
+            "function": "Step14",
+            "status": "MISSING"
+          }
+        ],
         "player": "William Nylander",
         "playerId": "8477939",
         "savedPath": "TRANSFER",
         "semanticMissingProof": [],
-        "substantivelyCertified": true
+        "substantivelyCertified": false
       },
       {
         "executionOrderGaps": [],
         "executionOrderVerified": true,
         "gameId": "2026020343",
-        "masterAllPass": true,
-        "masterMissingOrNonpassing": [],
+        "masterAllPass": false,
+        "masterMissingOrNonpassing": [
+          "G18"
+        ],
         "missingProvenanceForPassingGates": [],
         "overlayAllPass": true,
         "overlayIndependentlyEvaluated": true,
@@ -3681,22 +3617,22 @@
         "playerId": "8484227",
         "savedPath": "PRIMARY",
         "semanticMissingProof": [],
-        "substantivelyCertified": true
+        "substantivelyCertified": false
       }
     ],
-    "selectedMasterGatesAllPass": true,
-    "selectedOverlayGatesAllPass": true,
+    "selectedMasterGatesAllPass": false,
+    "selectedOverlayGatesAllPass": false,
     "selectedSourceAttributionGaps": [],
     "selectionFunnel": {
       "allNonselectedRetainGateAudit": true,
-      "lockedCoreRecipients": 3,
+      "lockedCoreRecipients": 2,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 108,
+      "notQualifiedIncompleteEvidence": 85,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
       "qualifiedButNotChosen": 0,
-      "sourceEliminated": 120,
-      "surveyedEligibleSkaters": 231
+      "sourceEliminated": 94,
+      "surveyedEligibleSkaters": 181
     },
     "slateDate": "2026-11-17",
     "sourceUnattributedPassingGateCount": 0,
@@ -3705,32 +3641,34 @@
     "step8MissingDetails": [],
     "step8MissingReasons": {},
     "substantivelyCertifiedPasses": {
-      "G0": 207,
-      "G1": 231,
-      "G10": 155,
-      "G10.5": 124,
-      "G11": 197,
-      "G12": 155,
-      "G13": 231,
-      "G14": 198,
-      "G15": 99,
-      "G16": 124,
-      "G17": 67,
-      "G18": 3,
-      "G2": 219,
-      "G3": 207,
-      "G4": 162,
-      "G5": 162,
-      "G6": 176,
-      "G7": 197,
-      "G8": 231,
-      "G9": 102
+      "G0": 157,
+      "G1": 181,
+      "G10": 125,
+      "G10.5": 100,
+      "G11": 159,
+      "G12": 125,
+      "G13": 181,
+      "G14": 149,
+      "G15": 77,
+      "G16": 100,
+      "G17": 49,
+      "G18": 0,
+      "G2": 169,
+      "G3": 157,
+      "G4": 121,
+      "G5": 121,
+      "G6": 140,
+      "G7": 159,
+      "G8": 181,
+      "G9": 82
     },
     "surveyedGoalieDirections": 22,
     "twoDirectionsPerScheduledGameRecorded": true
   },
-  "gateRows": 5922,
+  "gateRows": 7242,
   "goalieResearchCannotBeCountedAsCertifiedCoreSkaters": true,
+  "historicalCardIsNotCurrentRunCertification": true,
+  "historicalLockedLegCount": 3,
   "historicalShiftCoverage": {
     "attemptedGames": 121,
     "chartedGames": 115,
@@ -3773,27 +3711,25 @@
     "status": "DATED_SOURCE_PARSED"
   },
   "missingByGate": {
-    "G0": 88,
-    "G10": 96,
-    "G10.5": 39,
-    "G11": 28,
-    "G12": 96,
-    "G14": 56,
-    "G15": 171,
-    "G16": 39,
-    "G17": 213,
-    "G18": 64,
-    "G3": 88,
-    "G4": 102,
-    "G5": 56,
-    "G6": 65,
-    "G7": 28,
-    "G9": 156
+    "G0": 204,
+    "G10": 117,
+    "G10.5": 108,
+    "G11": 30,
+    "G12": 117,
+    "G14": 80,
+    "G15": 207,
+    "G16": 108,
+    "G17": 268,
+    "G18": 180,
+    "G3": 204,
+    "G4": 129,
+    "G5": 80,
+    "G6": 81,
+    "G7": 30,
+    "G9": 178
   },
   "nonselectedGameResearchIsDiagnosticOnly": true,
-  "nonselectedGameResearchNotes": [
-    "2026020340 G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction"
-  ],
+  "nonselectedGameResearchNotes": [],
   "nonselectedGateAuditIsDiagnosticOnly": true,
   "officialBoxscoreCoverage": {
     "appearanceRows": 3235,
@@ -3995,113 +3931,6 @@
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now"
     },
     {
-      "attackTeam": "TOR",
-      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020062/play-by-play",
-      "deployment": {
-        "EV": "F2",
-        "line": 2,
-        "powerPlayUnit": 1,
-        "sourceType": "SECONDARY_PROJECTED_LINEUP",
-        "status": "PROJECTED"
-      },
-      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
-      "gameId": "2026020338",
-      "gameStartUTC": "2026-11-18T00:30:00Z",
-      "goalieId": "8481519",
-      "goalieObservedZoneStats": {
-        "goalsAgainst": 8,
-        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-        "leagueSavePctgPercentile": 0.0755,
-        "savePctg": 0.8333333333333334,
-        "saves": 40,
-        "shotsAgainst": 48,
-        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-      },
-      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
-      "goalieStatus": "EXPECTED",
-      "independentOpponentDefense": {
-        "allAttemptsAgainst": 931,
-        "allOnNetShotsAgainst": 482,
-        "attemptShare": 0.10311493018259936,
-        "attemptTypes": [
-          "goal",
-          "shot-on-goal",
-          "missed-shot",
-          "blocked-shot"
-        ],
-        "attemptsAgainst": 96,
-        "attemptsPerGame": 6.0,
-        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-        "gameCount": 16,
-        "goalsAgainst": 8,
-        "onNetShotsAgainst": 50,
-        "peerMedianAttemptsPerGame": 5.9375,
-        "peerTeamsCompared": 31
-      },
-      "matchup": "TOR@CHI",
-      "nonRankingDiagnosticOnly": true,
-      "opponentTeam": "CHI",
-      "ownRouteZone": "L Circle",
-      "ownShotsOnGoal": 11,
-      "ownedGoals": 2,
-      "pathClassificationEvidence": {
-        "G10_5DisplacedPrimaryEvidence": [
-          {
-            "G10_5Verdict": "DEFEATED",
-            "directGoalCreditCandidate": 2,
-            "directGoalCreditPrior": 1,
-            "displacedDirectPrimaryPlayerId": "8475166",
-            "rivalOriginalPrimaryOrigin": "L Circle",
-            "sameLane": "L Circle",
-            "sourceUrls": [
-              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475166/now",
-              "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now"
-            ]
-          }
-        ],
-        "G14IndependentWhoAnomalyVerified": false,
-        "competingWHOandTRANSFERPathsUnseparated": false,
-        "explicitDisplacementSourceValidated": false,
-        "fallbackToPrimary": false,
-        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
-        "independentTransferDerivedFromG0AndG10_5": true,
-        "laneChangedAfterGoalieFirstG0": true,
-        "offUsualLaneTransferIntoGoalieWeakLane": true,
-        "originalScoringLane": "Low Slot",
-        "path": "TRANSFER",
-        "pathQuotaApplied": false,
-        "positiveDirectGateEvidence": {
-          "G0ThruG17SourcePass": true,
-          "allRelevantChallengersReviewed": true,
-          "goalieWeakAreaDirectlyMatched": true,
-          "historicallyCreditedIndependentGoalRecipient": true,
-          "independentDefenseAreaDirectlyMatched": true,
-          "independentOwnScoringSource": true,
-          "observedOwnedGoalsInSelectedLane": true,
-          "opponentContradictionsReviewed": true,
-          "verifiedEVAccess": true
-        },
-        "primaryOriginIsSourceDistinct": false,
-        "rationale": "Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5",
-        "scoringLane": "L Circle",
-        "selectionIndependentOfLabel": true,
-        "sourceUrls": [
-          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
-          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475166/now",
-          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now",
-          "https://api-web.nhle.com/v1/gamecenter/2026020062/play-by-play",
-          "https://api-web.nhle.com/v1/gamecenter/2026020202/boxscore",
-          "https://www.betweenthelineshockey.com/tonight.md"
-        ],
-        "unknownIsNotAPath": true,
-        "whoPhysicalMechanism": null
-      },
-      "player": "William Nylander",
-      "playerId": "8477939",
-      "routeLabel": "TRANSFER",
-      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477939/now"
-    },
-    {
       "attackTeam": "SJS",
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020038/play-by-play",
       "deployment": {
@@ -4195,22 +4024,24 @@
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484227/now"
     }
   ],
-  "publicationDecision": "SOURCE_CERTIFIED_AND_PUBLISHED",
-  "publishedToSite": true,
+  "publicationDecision": "G18_UPSTREAM_SURVIVORS_UNRESOLVED",
+  "publishedToSite": false,
+  "qualifiedSurvivorCount": 2,
+  "retainedOriginalLockedCard": true,
   "runner": "GITHUB_ACTIONS_AUTONOMOUS",
   "selectionFunnel": {
     "allNonselectedRetainGateAudit": true,
-    "lockedCoreRecipients": 3,
+    "lockedCoreRecipients": 2,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 108,
+    "notQualifiedIncompleteEvidence": 85,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
     "qualifiedButNotChosen": 0,
-    "sourceEliminated": 120,
-    "surveyedEligibleSkaters": 231
+    "sourceEliminated": 94,
+    "surveyedEligibleSkaters": 181
   },
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
-  "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-17T17:41:43+00:00"
+  "survivorOnlyCertification": false,
+  "updatedUTC": "2026-11-17T17:49:36+00:00"
 }

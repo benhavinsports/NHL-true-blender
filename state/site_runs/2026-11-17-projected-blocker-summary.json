@@ -1,52 +1,44 @@
 {
   "slateDate": "2026-11-17",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 207,
+  "g0AcceptedSkaterMatrices": 157,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G9": 119,
-    "G10": 65,
-    "G12": 65,
-    "G15": 120,
-    "G4": 45,
-    "G5": 45,
-    "G17": 140,
-    "Step3": 45,
-    "Step7": 45,
-    "Step10": 45,
-    "Step14": 140,
-    "G6": 49,
-    "Step6": 49,
-    "G7": 30,
-    "G11": 30,
-    "Step4": 30,
-    "Step9": 30,
+    "G9": 89,
+    "G10": 45,
+    "G12": 45,
+    "G15": 92,
+    "G4": 36,
+    "G5": 36,
+    "G17": 108,
+    "Step3": 36,
+    "Step7": 36,
+    "Step10": 36,
+    "Step14": 108,
+    "G6": 35,
+    "Step6": 35,
     "G2": 12,
-    "G10.5": 103,
-    "G16": 103,
-    "Step10.5": 103,
-    "Step12": 103,
-    "G14": 9,
-    "Step5": 9,
+    "G7": 18,
+    "G10.5": 77,
+    "G11": 18,
+    "G16": 77,
+    "Step4": 18,
+    "Step9": 18,
+    "Step10.5": 77,
+    "Step12": 77,
+    "G14": 8,
+    "Step5": 8,
     "Step11": 3
   },
-  "g18NonselectedNotMissingSource": 228,
-  "g18ActualMissingSourceCount": 64,
+  "g18NonselectedNotMissingSource": 181,
+  "g18ActualMissingSourceCount": 180,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
       "masterGates": [
-        "G9",
-        "G18"
-      ],
-      "overlaySteps": [],
-      "playerCount": 37
-    },
-    {
-      "masterGates": [
         "G10.5",
         "G15",
         "G16",
@@ -58,7 +50,15 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 30
+      "playerCount": 24
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 23
     },
     {
       "masterGates": [
@@ -67,7 +67,7 @@
         "G18"
       ],
       "overlaySteps": [],
-      "playerCount": 20
+      "playerCount": 18
     },
     {
       "masterGates": [
@@ -81,7 +81,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 17
+      "playerCount": 12
     },
     {
       "masterGates": [
@@ -97,7 +97,7 @@
         "Step10",
         "Step14"
       ],
-      "playerCount": 13
+      "playerCount": 12
     },
     {
       "masterGates": [
@@ -114,7 +114,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 11
+      "playerCount": 8
     },
     {
       "masterGates": [
@@ -137,27 +137,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 6
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G11",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
-        "Step14"
-      ],
-      "playerCount": 6
+      "playerCount": 4
     },
     {
       "masterGates": [
@@ -168,7 +148,7 @@
         "G18"
       ],
       "overlaySteps": [],
-      "playerCount": 5
+      "playerCount": 4
     },
     {
       "masterGates": [
@@ -215,55 +195,6 @@
     },
     {
       "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
         "G6",
         "G9",
         "G15",
@@ -277,9 +208,11 @@
       "playerCount": 3
     },
     {
-      "masterGates": [],
+      "masterGates": [
+        "G18"
+      ],
       "overlaySteps": [],
-      "playerCount": 3
+      "playerCount": 2
     },
     {
       "masterGates": [
@@ -350,56 +283,6 @@
         "G4",
         "G5",
         "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
         "G9",
         "G10",
         "G12",
@@ -424,6 +307,7 @@
         "G10",
         "G10.5",
         "G12",
+        "G14",
         "G15",
         "G16",
         "G17",
@@ -431,6 +315,7 @@
       ],
       "overlaySteps": [
         "Step3",
+        "Step5",
         "Step7",
         "Step10",
         "Step10.5",
@@ -648,28 +533,6 @@
         "G4",
         "G5",
         "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10",
         "G12",
         "G15",
         "G17",
@@ -712,22 +575,15 @@
         "G4",
         "G5",
         "G6",
-        "G7",
-        "G10",
         "G10.5",
-        "G11",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step3",
-        "Step4",
         "Step6",
         "Step7",
-        "Step9",
         "Step10",
         "Step10.5",
         "Step12",
@@ -802,31 +658,6 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
         "G7",
         "G9",
         "G10",
@@ -859,6 +690,29 @@
         "G5",
         "G9",
         "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
         "G12",
         "G15",
         "G17",
@@ -915,6 +769,50 @@
       ],
       "overlaySteps": [
         "Step6",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
         "Step14"
       ],
       "playerCount": 1
@@ -1715,27 +1613,12 @@
       "playerId": "8481219",
       "reason": null
     },
-    "G7": {
-      "gameId": "2026020334",
-      "playerId": "8475718",
-      "reason": null
-    },
-    "G11": {
-      "gameId": "2026020334",
-      "playerId": "8475718",
-      "reason": null
-    },
-    "Step4": {
-      "gameId": "2026020334",
-      "playerId": "8475718",
-      "reason": null
-    },
-    "Step9": {
-      "gameId": "2026020334",
-      "playerId": "8475718",
-      "reason": null
-    },
     "G2": {
+      "gameId": "2026020335",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G7": {
       "gameId": "2026020335",
       "playerId": "8473419",
       "reason": null
@@ -1795,7 +1678,22 @@
         ]
       }
     },
+    "G11": {
+      "gameId": "2026020335",
+      "playerId": "8473419",
+      "reason": null
+    },
     "G16": {
+      "gameId": "2026020335",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step4": {
+      "gameId": "2026020335",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step9": {
       "gameId": "2026020335",
       "playerId": "8473419",
       "reason": null
