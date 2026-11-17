@@ -197,13 +197,12 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
                 "error":type(exc).__name__,
                 "noStarterWasInferredFromFetchFailure":True}
     matches,status=parse_dfo_starters(html,date,snapshot.get("games",[]),diagnostics)
-    observed=datetime.now(timezone.utc).isoformat(timespec    for row in matches:
+    observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
+    for row in matches:
         # Evidence is immutable. The original identity-only receipt from
         # earlier runs must NEVER be overwritten when a source later supplies
         # an independent first-off observation, status revision, or corrected
-        # source metadata. Hash the canonical FULL source payload, not only
-        # player identity/label. Identical retry is idempotent; real change
-        # creates a new timestamped observation with a new immutable ID.
+        # source metadata. Hash the FULL source payload, not just goalie ID.
         payload={
             "team":row["team"],"goalieId":row["goalieId"],
             "goalieName":row["goalieName"],"status":row["status"],
@@ -225,7 +224,6 @@ async def collect_dfo_goalies(con,snapshot,date,stage):
             "slate_date":date,"stage":stage,"game_id":row["gameId"],
             "kind":"GOALIE_STARTER","source_url":url,
             "observed_at":observed,"payload":payload})
-ce":True}})
     return {"status":status,"source":url,
         "matchedStarterIds":len(matches),
         "matchesByGame":{str(g["id"]):sum(x["gameId"]==str(g["id"]) for x in matches)
