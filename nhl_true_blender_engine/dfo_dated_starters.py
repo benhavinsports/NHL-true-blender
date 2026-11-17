@@ -165,10 +165,10 @@ def parse_dfo_starters(html,date,games,diagnostics=None):
             surname=str(goalie["name"]).split()[-1]
             direct_first_off=bool(
                 status=="EXPECTED" and
-                re.search(r"\\b"+re.escape(surname)+
-                          r"\\b[^\\n]{0,180}\\bfirst (?:goalie|goaltender) off(?: the ice)?\\b",
+                re.search(r"\b"+re.escape(surname)+
+                          r"\b.{0,180}?\bfirst (?:goalie|goaltender) off(?: the ice)?\b",
                           " ".join(own_card.split()),re.I))
-            own_date=bool(re.search(re.escape(date)+r"T\\d\\d:\\d\\d:\\d\\d",
+            own_date=bool(re.search(re.escape(date)+r"T\d\d:\d\d:\d\d",
                     own_card))
             eyewitness=bool(direct_first_off and own_date)
             found.append({"gameId":game_id,"team":team,
