@@ -99,7 +99,7 @@ def test_grade_final_frozen_replacement_identity(tmp_path):
     from nhl_true_blender_engine.storage import record_evidence
     record_evidence(con,{'evidence_id':'source-1','slate_date':DATE,'stage':'CONFIRMED',
             'game_id':altered[0]['gameId'],'player_id':altered[0]['playerId'],
-            'kind':'GOALIE_PROFILE','source_url':SRC,'observed_at':'2026-11-15T09:00:00Z',
+            'kind':'GOALIE_PROFILE','source_url':SRC,'observed_at':datetime.now(timezone.utc).isoformat(),
             'payload':{'goalie':'new'}})
     audit={'baselineFingerprint':initial['fingerprint'],'triggerEvidenceId':'source-1',
             'oldValue':'old goalie','newValue':'new goalie',
@@ -191,7 +191,7 @@ def test_engine_auto_replaces_only_after_verified_confirmed_new_goalie(tmp_path)
                      ('fresh-contradiction-review','PLAYER_CONTRADICTIONS')]:
         record_evidence(con,{'evidence_id':rid,'slate_date':DATE,'stage':'CONFIRMED',
            'game_id':selected_game['id'],'player_id':challenger['id'],
-           'kind':kind,'source_url':SRC,'observed_at':'2026-11-14T12:00:00-05:00',
+           'kind':kind,'source_url':SRC,'observed_at':datetime.now(timezone.utc).isoformat(),
            'payload':{'documented':'yes','review':'direct release vs goalie location'}})
     result=execute(con,s,DATE,'CONFIRMED')
     assert result['card'],result['errors']
