@@ -294,5 +294,8 @@ jobs:
         if: always()
         with:
           name: true-blender-evidence-${{ github.run_id }}
-          path: runs/
-          if-no-files-found: ignore
+          path: |
+            runs/
+            state/site_runs/
+            state/site_cards/
+          if-no-files-found: warn
