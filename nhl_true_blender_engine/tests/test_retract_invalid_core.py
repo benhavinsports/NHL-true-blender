@@ -58,6 +58,11 @@ def test_withdraws_only_discredited_selected_card_and_preserves_full_original(tm
     first=retract(tmp_path)
     assert first["status"]=="ORIGINAL_RETRACTED_FROM_ACTIVE_LEDGER"
     assert first["originalVersionsPreserved"]==1
+    # Fresh evidence is expected to change after the corrected engine runs.
+    # Old first-retraction proof is immutable and must not be required again.
+    run_path=tmp_path/"site_runs"/f"{DATE}.json"
+    run_path.write_text(json.dumps({
+        "slateDate":DATE,"errors":[],"allG18QualifiedSurvivors":[]}))
     assert retract(tmp_path)["status"]=="ORIGINAL_ALREADY_RETRACTED"
     con=open_db(str(tmp_path/"true_blender.sqlite"))
     assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]==0
@@ -114,6 +119,8 @@ def test_new_independent_card_can_be_issued_after_retraction(tmp_path):
     assert new["fingerprint"]!=ORIGINAL_FINGERPRINT
     assert new["revision"]==1
     assert get_card(con,DATE)["current_legs"]==fresh
+    con.commit()
+    assert retract(tmp_path)["status"]=="NEW_CORRECTED_CARD_EXISTS"
     # Retraction is a historical audit, not a second authoritative card.
     assert con.execute("SELECT COUNT(*) FROM card_retractions").fetchone()[0]==1
     assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]==1
