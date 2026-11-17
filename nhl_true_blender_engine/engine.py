@@ -1645,6 +1645,130 @@ def _authorized_retraction_reselection(con, existing, legs, selected, date, stag
     }
 
 
+
+def _material_g0_goalie_change(con, existing, date, game_id, source_ids):
+    """Prove a NEW measured goalie input changed, not just G0 code or status.
+
+    A freshly re-fetched NHL EDGE/PBP profile with identical observed physical
+    weakness measurements is not a gate-changing source. Compare each current
+    verified profile with the latest source receipt for the same team/goalie
+    before the active card version was saved. A genuinely new confirmed goalie
+    identity also qualifies, but routine EXPECTED -> CONFIRMED for the SAME
+    starter is not a change in that goalie's physical weakness.
+    """
+    version=con.execute(
+        'SELECT created_at FROM card_versions WHERE slate_date=? AND revision=?',
+        (date,existing['revision'])).fetchone()
+    if not version or not version['created_at']:
+        return None
+    try:
+        baseline=datetime.fromisoformat(version['created_at'].replace('Z','+00:00'))
+        if baseline.tzinfo is None:
+            return None
+    except (TypeError, ValueError, AttributeError):
+        return None
+
+    def instant(raw):
+        try:
+            result=datetime.fromisoformat(raw.replace('Z','+00:00'))
+            return result if result.tzinfo is not None else None
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+    def measured(data):
+        # Ignore refreshed source URLs, observation times, goalie status and
+        # descriptive text: only real numeric goalie weakness observations
+        # can change the recorded physical G0 route.
+        keep=('goalsAgainst','shotsAgainst','saves','savePctg',
+              'leagueSavePctgPercentile','samplePeerSavePctgPercentile')
+        areas={}
+        for fld in ('weakZones','observedAreas','strengthZones'):
+            zones=data.get(fld) or {}
+            if isinstance(zones,dict):
+                selected={}
+                for zone,detail in zones.items():
+                    if isinstance(detail,dict):
+                        numeric={k:detail[k] for k in keep
+                                 if type(detail.get(k)) in (int,float)}
+                        if numeric:
+                            selected[zone]=numeric
+                if selected:
+                    areas[fld]=selected
+        return areas
+
+    evidence=con.execute(
+        "SELECT evidence_id,kind,observed_at,payload FROM evidence "
+        "WHERE slate_date=? AND game_id=? AND kind IN ('GOALIE_PROFILE','GOALIE_STARTER')",
+        (date,str(game_id))).fetchall()
+    earlier=[]
+    for row in evidence:
+        observed=instant(row['observed_at'])
+        if observed is None:
+            continue
+        try:
+            data=json.loads(row['payload'])
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(data,dict):
+            continue
+        earlier.append((row,data,observed))
+    prior=[(row,payload,seen) for row,payload,seen in earlier if seen<=baseline]
+    for eid in source_ids:
+        current=next(((row,data,seen) for row,data,seen in earlier
+                      if row['evidence_id']==eid and row['kind']=='GOALIE_PROFILE'),None)
+        if current is None:
+            continue
+        row,data,seen=current
+        if seen<=baseline:
+            continue
+        team=str(data.get('team') or '')
+        goalie=str(data.get('goalieId') or '')
+        if not team or not goalie:
+            continue
+        baseline_profiles=sorted((
+            (old,prior_data,old_time) for old,prior_data,old_time in prior
+            if old['kind']=='GOALIE_PROFILE' and
+               str(prior_data.get('team'))==team and
+               str(prior_data.get('goalieId'))==goalie and measured(prior_data)
+        ),key=lambda x:x[2],reverse=True)
+        latest=baseline_profiles[0] if baseline_profiles else None
+        current_measured=measured(data)
+        if latest and current_measured and current_measured!=measured(latest[1]):
+            return {
+                'reason':'MEASURED_GOALIE_WEAK_ORIGIN_CHANGED',
+                'gameId':str(game_id),'team':team,'goalieId':goalie,
+                'priorEvidenceId':latest[0]['evidence_id'],
+                'triggerEvidenceId':eid,
+                'priorObservedAt':latest[0]['observed_at'],
+                'triggerObservedAt':row['observed_at'],
+                'baselineVersionCreatedAt':version['created_at'],
+                'noUnchangedProfileRefreshAsNewTrigger':True,
+            }
+        # A different CONFIRMED starter not on the original source roster
+        # changes the goalie branch; a confirmation of the same projected
+        # starter, by itself, never reverses G0.
+        prior_starters={str(payload.get('goalieId')) for old,payload,_ in prior
+                        if old['kind']=='GOALIE_STARTER' and
+                           str(payload.get('team'))==team}
+        if goalie not in prior_starters and prior_starters:
+            confirmed=next(((old,payload,when) for old,payload,when in earlier
+                            if old['kind']=='GOALIE_STARTER' and
+                               str(payload.get('team'))==team and
+                               str(payload.get('goalieId'))==goalie and
+                               payload.get('status')=='CONFIRMED' and when>baseline),None)
+            if confirmed and current_measured:
+                return {
+                    'reason':'NEW_CONFIRMED_STARTER_IDENTITY',
+                    'gameId':str(game_id),'team':team,'goalieId':goalie,
+                    'priorStarterIds':sorted(prior_starters),
+                    'starterEvidenceId':confirmed[0]['evidence_id'],
+                    'triggerEvidenceId':eid,
+                    'triggerObservedAt':row['observed_at'],
+                    'baselineVersionCreatedAt':version['created_at'],
+                }
+    return None
+
+
 def source_verified_g0_direction_replacement(
         con, existing, legs, selected, date, scan, selected_directions):
     """Replace a lost-game leg ONLY if sourced G0 reverses its attack side.
@@ -1700,6 +1824,12 @@ def source_verified_g0_direction_replacement(
                            "AND kind='GOALIE_PROFILE' AND evidence_id=?",
                            (date,gid,eid)).fetchone():
             return None
+    material=_material_g0_goalie_change(
+        con,existing,date,gid,(old_id,new_id))
+    if material is None:
+        # Replaying historical NHL EDGE values or changing G0 implementation
+        # does not satisfy the user's post-card replacement evidence rule.
+        return None
     identified={(str(x['game']['id']),str(x['candidate']['player']['id'])) for x in selected}
     if (identified!=set(new) or len(selected)!=3 or any(
             not x['candidate'].get('complete') or any(
@@ -1727,7 +1857,8 @@ def source_verified_g0_direction_replacement(
             return None
     return {
         'baselineFingerprint':existing['fingerprint'],
-        'triggerEvidenceId':new_id,
+        'triggerEvidenceId':material['triggerEvidenceId'],
+        'g0MaterialSourceChange':material,
         'oldValue':{'player':prior['player'],'gameId':gid,
                     'opposingGoalieId':prior['opposingGoalieId']},
         'newValue':{'player':replacement['player'],'gameId':replacement['gameId']},
