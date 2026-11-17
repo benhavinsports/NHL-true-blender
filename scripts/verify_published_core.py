@@ -110,6 +110,18 @@ def verify_published_core(root: Path, date: str):
              "published Core differs from canonical saved legs")
     exact_original = {(str(x["gameId"]), str(x["playerId"])): x for x in original}
     exact_export = {(str(x["gameId"]), str(x["playerId"])): x for x in selected}
+    # G18 assembles the Core; it cannot silently discard an upstream survivor.
+    # Today's November 17 receipt demonstrated why selected-leg PASS counts
+    # alone are insufficient: four qualified, three published.
+    survivors = run.get("allG18QualifiedSurvivors")
+    _require(isinstance(survivors, list),
+             "saved run omitted the full upstream survivor set")
+    survivor_ids = [(str(x.get("gameId")), str(x.get("playerId")))
+                    for x in survivors]
+    _require(len(survivor_ids) == required and
+             len(set(survivor_ids)) == required and
+             set(survivor_ids) == set(exact_original),
+             "G18 silently dropped, added, or duplicated fully qualified survivors")
     _require(len(exact_original) == len(exact_export) == required and
              set(exact_original) == set(exact_export),
              "duplicate/cross-game/changed selected players")
