@@ -148,17 +148,22 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                     when=_datetime(past["evaluated_at"])
                     if when and (puck is None or when<puck):
                         batches.setdefault(past["evaluated_at"],[]).append(past)
+                # A coherent but incomplete historic run is still valuable
+                # evidence. Restore its REAL FAIL/NOT_EXECUTED gates too;
+                # only a 36/36 PASS cohort may be called certified.
                 archived=[]
-                for timestamp,batch in sorted(batches.items(),reverse=True):
+                ranked=[]
+                for timestamp,batch in batches.items():
                     by_gate={row["gate"]:row for row in batch}
                     if (len(batch)==len(EXECUTION_ORDER)
                             and set(by_gate)==set(EXECUTION_ORDER)
-                            and all(by_gate[gate]["disposition"]=="PASS"
-                                and json.loads(by_gate[gate]["details"]).get(
-                                    "executionIndex")==index
+                            and all(json.loads(by_gate[gate]["details"]).get(
+                                "executionIndex")==index
                                 for index,gate in enumerate(EXECUTION_ORDER))):
-                        archived=batch
-                        break
+                        passes=sum(row["disposition"]=="PASS" for row in batch)
+                        ranked.append((passes,timestamp,batch))
+                if ranked:
+                    archived=max(ranked,key=lambda item:(item[0],item[1]))[2]
                 def fully_certified(rows):
                     by_gate={row["gate"]:row for row in rows
                         if _datetime(row["evaluated_at"]) and
@@ -169,7 +174,11 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                             and json.loads(by_gate[gate]["details"]).get(
                                 "executionIndex")==index
                             for index,gate in enumerate(EXECUTION_ORDER)))
-                used_archive=bool(archived and not fully_certified(candidates))
+                def pass_count(rows):
+                    return sum(row["disposition"]=="PASS" for row in rows)
+                used_archive=bool(archived and not fully_certified(candidates)
+                    and (len(candidates)!=len(EXECUTION_ORDER)
+                         or pass_count(archived)>pass_count(candidates)))
                 if used_archive:
                     candidates=archived
                 phase_rows[selectedStage]=candidates
@@ -208,7 +217,12 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
             sourceStage=next((s for s in stages_to_check
                 if phase_reviews[s]["fullOriginalOrderPass"]),None)
             if sourceStage is None:
-                sourceStage=next((s for s in stages_to_check
+                # Without a fully proven newer phase, show the actual
+                # original card's projected source cohort first. The
+                # confirmed review remains separate, never silently merged.
+                original_first=(("PROJECTED","CONFIRMED")
+                    if card["stage"]=="PROJECTED" else stages_to_check)
+                sourceStage=next((s for s in original_first
                     if phase_reviews[s]["available"]),None)
             realRows=phase_rows.get(sourceStage,[])
             mapping={}
