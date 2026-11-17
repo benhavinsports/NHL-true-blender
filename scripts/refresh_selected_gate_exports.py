@@ -82,8 +82,11 @@ def recover_committed_original(root, date, saved, candidate):
     of a verified Git commit and must match the unchanged authoritative Core.
     """
     from datetime import datetime
-    from nhl_true_blender_engine.engine import EXECUTION_ORDER
+    from nhl_true_blender_engine.engine import EXECUTION_ORDER, MASTER, OVERLAY
 
+    # Keep the exact legacy chronological sequence as evidence, even when
+    # today's integrated engine uses an interleaved overlay. Never rewrite
+    # archived source receipts to pretend the new ordering ran historically.
     original_path = root / "site_gates" / (date + "-original-projected.json")
     if not original_path.is_file():
         return candidate
@@ -106,19 +109,23 @@ def recover_committed_original(root, date, saved, candidate):
         return candidate
     # Verify the exact source-backed, ordered, individually timestamped
     # pre-puck trace. Never count a checklist or reconstructed gate label.
+    original_order = original.get("executionOrder")
+    legacy_order = list(MASTER[:-1]) + list(OVERLAY) + ["G18"]
+    if original_order not in (EXECUTION_ORDER, legacy_order):
+        return candidate
     required_anchors = {"G0", "G6", "G10.5", "G17", "G18"}
     for leg in original["legs"]:
         trace = leg.get("gateDetails") or []
         if (leg.get("masterPassed") != 20 or leg.get("overlayPassed") != 16
                 or leg.get("executionOrderVerified") is not True
-                or len(trace) != len(EXECUTION_ORDER)):
+                or len(trace) != len(original_order)):
             return candidate
         try:
             puck = datetime.fromisoformat(leg["startUTC"].replace("Z","+00:00"))
             for index, record in enumerate(trace):
                 when = datetime.fromisoformat(
                     record["evaluatedAt"].replace("Z","+00:00"))
-                if (record.get("gate") != EXECUTION_ORDER[index]
+                if (record.get("gate") != original_order[index]
                         or record.get("status") != "PASS"
                         or record.get("prePuckRecord") is not True
                         or record.get("recordedExecutionIndex") != index
@@ -153,6 +160,8 @@ def recover_committed_original(root, date, saved, candidate):
     original["stage"] = candidate.get("stage", "CONFIRMED")
     original["savedOriginalStage"] = "PROJECTED"
     original["originalSourceCommit"] = "3c0b3126544"
+    original["historicalOrderPreserved"] = True
+    original["currentEngineUsesDifferentOverlayPlacement"] = (original_order != EXECUTION_ORDER)
     original["games"] = candidate.get("games") or original.get("games", [])
     original["deploymentRefreshIsReadOnly"] = True
     return original
