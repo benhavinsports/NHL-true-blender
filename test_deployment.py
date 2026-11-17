@@ -17,6 +17,17 @@ class DeploymentTests(unittest.TestCase):
     def test_name_normalization_is_diacritic_safe(self):
         self.assertEqual(norm_name('Alexis Lafrenière'),norm_name('Alexis Lafreniere'))
 
+    def test_source_url_is_preserved_for_verified_line_evidence(self):
+        source='https://www.nhl.com/news/example-projected-lineup'
+        row={'playerName':'Test Player','line':2,'powerPlayUnit':None,
+             'source':'NHL.com projected lineup article','sourcePath':'article row'}
+        with patch('deployment_sources.fetch_hockeyinsights',return_value=([],{'source':None})), \
+             patch('deployment_sources.fetch_nhl_article',return_value=([row],{
+                 'source':'NHL.com projected lineup article','url':source})), \
+             patch('deployment_sources.fetch_dailyfaceoff',return_value=([],{'source':None})):
+            rows,_=fetch_deployment('NYR','New York Rangers')
+        self.assertEqual(rows[0]['lineEvidence'][0]['sourceUrl'],source)
+
     def test_source_fallback_continues_after_first_source_missing(self):
         with patch('deployment_sources.fetch_hockeyinsights',return_value=([],{'source':None,'errors':['not found']})), \
              patch('deployment_sources.fetch_nhl_article',return_value=([{'playerName':'Test Player','line':1,'powerPlayUnit':None,'source':'NHL.com projected lineup article'}],{'source':'NHL.com projected lineup article','errors':[]})), \
