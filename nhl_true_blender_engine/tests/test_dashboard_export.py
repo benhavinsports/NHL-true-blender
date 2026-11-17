@@ -126,3 +126,41 @@ def test_archived_original_pre_puck_receipts_survive_later_post_puck_refresh(tmp
         assert all(record["prePuckRecord"] for record in selected["gateDetails"])
     assert get_card(con,DATE)==locked
     con.close()
+
+
+
+def test_archived_partial_projected_receipts_stay_visible_without_fake_pass(tmp_path):
+    """Restore one coherent historical source run, including its real failures."""
+    con=open_db(str(tmp_path/"ledger.sqlite"))
+    slate=snapshot(3)
+    result=execute(con,slate,DATE,"CONFIRMED")
+    assert result["card"],result["errors"]
+    legs=result["card"]["current_legs"]
+    # The original card was projected; its complete observed gate matrix had
+    # a real G6 evidence gap. The later confirmed review also has G6 missing.
+    con.execute("UPDATE cards SET stage='PROJECTED' WHERE slate_date=?",(DATE,))
+    for leg in legs:
+        args=(DATE,str(leg["gameId"]),str(leg["playerId"]))
+        con.execute("""INSERT INTO gate_history
+           (snapshot_hash,slate_date,stage,game_id,player_id,gate,
+            disposition,details,evaluated_at,archived_at)
+           SELECT 'projected-partial-'+game_id+'-'+player_id+'-'+gate,
+                  slate_date,'PROJECTED',game_id,player_id,gate,
+                  CASE WHEN gate='G6' THEN 'NOT_EXECUTED' ELSE disposition END,
+                  details,evaluated_at,evaluated_at
+           FROM gates WHERE slate_date=? AND stage='CONFIRMED'
+             AND game_id=? AND player_id=?""",args)
+        con.execute("""UPDATE gates SET disposition='NOT_EXECUTED'
+           WHERE slate_date=? AND stage='CONFIRMED'
+             AND game_id=? AND player_id=? AND gate='G6'""",args)
+    export_dashboard(con,DATE,"CONFIRMED",slate,tmp_path/"state")
+    doc=json.loads((tmp_path/"state"/"site_gates"/f"{DATE}.json").read_text())
+    for entry in doc["legs"]:
+        assert entry["stageOfGateRecords"]=="PROJECTED"
+        assert entry["masterPassed"]==19
+        assert entry["overlayPassed"]==16
+        assert entry["separatePhaseReviews"]["PROJECTED"]["recoveredArchivedOriginal"]
+        assert entry["separatePhaseReviews"]["PROJECTED"]["fullOriginalOrderPass"] is False
+        assert entry["separatePhaseReviews"]["PROJECTED"]["nonpassingGates"]["G6"]=="NOT_EXECUTED"
+        assert next(g for g in entry["gateDetails"] if g["gate"]=="G6")["status"]=="NOT_EXECUTED"
+    con.close()
