@@ -190,6 +190,23 @@ def refresh(root="state"):
                     or previous.get("fingerprint") != saved.get("fingerprint")):
                 preserved.append({"date": date, "reason": "CARD_IDENTITY_MISMATCH"})
                 continue
+            # A saved revision already carrying its own independently verified
+            # 20-gate pre-puck source cohort must stay BYTE-FOR-BYTE intact.
+            # Re-exporting an incomplete latest stage can stamp CONFIRMED on
+            # projected receipts and make a genuinely valid prior card fail
+            # the standalone provenance check, hiding the Core on Pages.
+            # Rebuild only when the old receipt is unverified/incomplete or
+            # the canonical saved card identity/revision no longer matches.
+            from scripts.preserved_core_receipt import verified_original_receipt
+            if verified_original_receipt(root, date, saved) is not None:
+                preserved.append({
+                    "date": date,
+                    "reason": "PREVIOUS_INDEPENDENT_CERTIFIED_PREPUCK_RECEIPT",
+                    "sourceStage": previous.get("stage"),
+                    "revision": saved.get("revision"),
+                    "untouchedOriginalGateProof": True,
+                })
+                continue
             # Recover the original full-slate summary verbatim; the DB
             # pre-puck player/goalie receipts provide the gate proofs.
             # Never replace actual games with fabricated empty matchups.
