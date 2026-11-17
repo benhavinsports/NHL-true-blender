@@ -65,9 +65,14 @@ def retract(root="state", now=None):
                 # make a newly issued post-retraction card "the old one".
                 issued=datetime.fromisoformat(
                     active["first_issued_at"].replace("Z","+00:00"))
-                retired=datetime.fromisoformat(
-                    archived["retracted_at_utc"].replace("Z","+00:00"))
-                if issued<=retired:
+                old_issued=datetime.fromisoformat(
+                    json.loads(archived["original_card"])["first_issued_at"]
+                    .replace("Z","+00:00"))
+                # Both database/card timestamps are second-resolution, and
+                # an honest reissue can happen in the SAME SECOND as its
+                # invalidation. Compare against the preserved ORIGINAL
+                # first-issued time, not the second-level retraction clock.
+                if issued<=old_issued:
                     raise ValueError("Retracted original returned to active canonical cards")
                 versions=checkpoint.execute("""SELECT COUNT(*) FROM card_versions
                     WHERE slate_date=?""",(DATE,)).fetchone()[0]
