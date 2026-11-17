@@ -129,7 +129,12 @@ def test_full_original_engine_recognizes_precore_route_without_a_historical_goal
     try:
         result=execute(con,snap,DATE,"PROJECTED")
         entry=next(x for x in result["gameSurvivorPool"] if x["gameId"]==game["id"])
-        assert entry["status"]=="SURVIVOR",entry
+        debug=[(x["gate"],x["disposition"],
+              (json.loads(x["details"]).get("evidence") or {}).get("semanticProofGaps"))
+            for x in con.execute("SELECT gate,disposition,details FROM gates "
+              "WHERE game_id=? AND player_id=?",
+              (game["id"],str(main["id"]))).fetchall()]
+        assert entry["status"]=="SURVIVOR",(entry,debug,result["errors"])
         assert entry["survivor"]["playerId"]==str(main["id"])
         assert entry["survivor"]["routeLabel"]=="TRANSFER"
         rows=con.execute("SELECT gate,disposition,details FROM gates "
