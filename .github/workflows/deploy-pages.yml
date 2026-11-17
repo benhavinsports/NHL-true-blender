@@ -8,6 +8,7 @@ on:
       - 'runs/**'
       - 'state/site_cards/**'
       - 'state/site_runs/**'
+      - 'state/survivor_cohorts/**'
       - 'state/site_gates/**'
       - 'state/history/**'
       - 'state/true_blender.sqlite.gz'
@@ -158,19 +159,29 @@ jobs:
               status_path=root/'site_runs'/f'{date}.json'
               card_path=root/'site_cards'/f'{date}.json'
               status=json.loads(status_path.read_text()) if status_path.exists() else {}
-              # Pages can populate the compact backs of every true game
-              # survivor from the restored authoritative SQLite ledger.
-              # This never changes G0-G18 outcomes or selects a scorer.
-              game_gate_receipts=status.get('gameSurvivorGateReceipts') or {}
-              if not game_gate_receipts and status.get('gameSurvivorPool'):
+              # A later incomplete research pass must not blank the public
+              # record of a previously fully source-certified game-survivor
+              # cohort. This is DISPLAY ONLY and always marked PROJECTED when
+              # backed by an older projected source receipt.
+              from scripts.public_survivor_snapshot import choose_public_survivors
+              archive=root/'survivor_cohorts'/f'{date}.json'
+              snapshot=json.loads(archive.read_text(encoding='utf-8')) if archive.is_file() else None
+              display_pool,display_meta=choose_public_survivors(status,snapshot,date)
+              is_archived=display_meta['origin']=='LAST_FULLY_SOURCE_CERTIFIED_PREPUCK_COHORT'
+              if is_archived:
+                  print('::warning::Current review incomplete; showing previous full pre-puck source-certified game survivors as '+display_meta['sourceStage'])
+              # Pages reads actual gate receipts (if present) from the saved
+              # stage that generated the displayed cohort, never the newer
+              # unverified phase. Missing stage receipts remain unverified.
+              game_gate_receipts={} if is_archived else (status.get('gameSurvivorGateReceipts') or {})
+              if not game_gate_receipts and display_pool:
                   from scripts.publish_site_state import _public_survivor_gate_cards
                   db_path=root/'true_blender.sqlite'
                   if db_path.exists():
                       with sqlite3.connect(str(db_path), timeout=60) as source_db:
                           source_db.row_factory=sqlite3.Row
                           game_gate_receipts=_public_survivor_gate_cards(
-                              source_db,date,status.get('stage'),
-                              status.get('gameSurvivorPool',[]))
+                              source_db,date,display_meta['sourceStage'],display_pool)
                   print('Read-only survivor gate receipts prepared:',len(game_gate_receipts))
               card=json.loads(card_path.read_text()) if card_path.exists() else None
               # A postgame official grade updates the SAME locked Core,
@@ -284,7 +295,9 @@ jobs:
                   'gateCertification':status.get('gateCertification',{}),
                   'selectionFunnel':status.get('selectionFunnel',{}),
                   'g16FinalistCompetition':status.get('g16FinalistCompetition'),
-                  'gameSurvivorPool':status.get('gameSurvivorPool',[]),
+                  'gameSurvivorPool':display_pool,
+                  'gameSurvivorDisplayProvenance':display_meta,
+                  'gameSurvivorDisplayStage':display_meta.get('sourceStage'),
                   'gameSurvivorGateReceipts':game_gate_receipts,
                   'survivorOnlyCertification':status.get('survivorOnlyCertification'),
                   'nonselectedGateAuditIsDiagnosticOnly':True,
