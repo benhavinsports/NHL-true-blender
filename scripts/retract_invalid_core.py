@@ -59,10 +59,25 @@ def retract(root="state", now=None):
             if (archived["card_id"] != CARD_ID
                     or archived["original_fingerprint"] != ORIGINAL_FINGERPRINT):
                 raise ValueError("Existing retraction archive identity mismatch")
-            if active and active["fingerprint"] == ORIGINAL_FINGERPRINT:
-                raise ValueError("Retracted original returned to active canonical cards")
-            return {"status": "NEW_CORRECTED_CARD_EXISTS" if active else
-                    "ORIGINAL_ALREADY_RETRACTED", "originalCardId": CARD_ID}
+            if active:
+                # The REAL corrected selection may independently produce the
+                # same three names/fingerprint. A fingerprint alone cannot
+                # make a newly issued post-retraction card "the old one".
+                issued=datetime.fromisoformat(
+                    active["first_issued_at"].replace("Z","+00:00"))
+                retired=datetime.fromisoformat(
+                    archived["retracted_at_utc"].replace("Z","+00:00"))
+                if issued<=retired:
+                    raise ValueError("Retracted original returned to active canonical cards")
+                versions=checkpoint.execute("""SELECT COUNT(*) FROM card_versions
+                    WHERE slate_date=?""",(DATE,)).fetchone()[0]
+                if not versions:
+                    raise ValueError("New corrected card lacks its own source-issued version")
+                return {"status":"NEW_CORRECTED_CARD_EXISTS",
+                        "originalCardId":CARD_ID,
+                        "identicalPlayersMayBeIndependentlyReissued":True}
+            return {"status":"ORIGINAL_ALREADY_RETRACTED",
+                    "originalCardId":CARD_ID}
     finally:
         checkpoint.close()
     run_path = root / "site_runs" / (DATE + ".json")
