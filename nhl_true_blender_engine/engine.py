@@ -595,11 +595,46 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     all_gates=all(dispositions.get(g,{}).get('disposition')=='PASS'
                   for g in ('G0','G3','G4','G5','G6','G7','G9',
                             'G10','G10.5','G12','G15','G16','G17'))
+    # G15 now independently proves historical GOAL RECIPIENT credit from
+    # either the exact goalie-weak origin OR a fully reconciled official season
+    # of own NHL EDGE scored goals plus actual on-net shots from that target.
+    # The original path classifier must accept the SAME independently
+    # corroborated direct own-shot scoring route without inventing a goal
+    # historically scored from that particular zero-goal origin.
+    g15=(dispositions.get('G15') or {})
+    g15_evidence=g15.get('details') or {}
+    historical_own_lane_goal=bool(release and
+        type(release.get('ownedGoals')) is int and release['ownedGoals']>0)
+    cross_origin_direct_finisher=bool(
+        g15.get('disposition')=='PASS' and
+        g15_evidence.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
+        g15_evidence.get('independentHistoricalGoalFinishingEvidence') is True and
+        g15_evidence.get('separateOfficialShotOriginSource') is True and
+        g15_evidence.get('sameLaneGoalsNotInferredFromScoringElsewhere') is True and
+        g15_evidence.get('officialOwnedGoalsInMatchedOrigin')==0 and
+        g15_evidence.get('matchedOriginHasHistoricalGoal') is False and
+        type(g15_evidence.get('matchedOriginOwnOnNetShots')) is int and
+        g15_evidence['matchedOriginOwnOnNetShots']>0 and
+        type(g15_evidence.get('officialDatedSeasonGoals')) is int and
+        g15_evidence['officialDatedSeasonGoals']>0 and
+        g15_evidence.get('totalOwnedGoalsFromEveryNhlEdgeOrigin')==
+            g15_evidence['officialDatedSeasonGoals'] and
+        g15_evidence.get('directFinisherEvidenceMethod')==
+            'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS' and
+        bool(release and type(release.get('attempts')) is int and
+             release['attempts']==g15_evidence['matchedOriginOwnOnNetShots'] and
+             type(release.get('ownedGoals')) is int and release['ownedGoals']==0) and
+        receipt(player.get('seasonHistory')) and
+        receipt(player.get('release')) and
+        player['seasonHistory']['sourceUrl']!=player['release']['sourceUrl'] and
+        player['seasonHistory']['sourceUrl']==
+            g15_evidence.get('independentSeasonLogSource'))
     direct={
         'G0ThruG17SourcePass':all_gates,
         'independentOwnScoringSource':receipt(player.get('release')),
-        'observedOwnedGoalsInSelectedLane':bool(release and
-            type(release.get('ownedGoals'))==int and release['ownedGoals']>0),
+        'observedOwnedGoalsInSelectedLane':historical_own_lane_goal,
+        'independentlyReconciledOwnFinisherWithRealTargetLaneShots':
+            cross_origin_direct_finisher,
         'goalieWeakAreaDirectlyMatched':bool(zone and zone in (goalie_data.get('weakZones') or {})),
         'independentDefenseAreaDirectlyMatched':bool(zone and zone in
             (cover.get('greenWeakZones') or [])),
@@ -607,15 +642,20 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
             own.get('recipient') is True and
             own.get('creditedGoalsVerified') is True and
             receipt(player.get('release')) and
-            type((release or {}).get('ownedGoals')) is int and
-            release['ownedGoals']>0 and
+            (historical_own_lane_goal or cross_origin_direct_finisher) and
             dispositions.get('G15',{}).get('disposition')=='PASS'),
         'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
             and dispositions.get('G16',{}).get('disposition')=='PASS'),
         'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
         'verifiedEVAccess':receipt(player.get('deployment')),
     }
-    route_direct=all(direct.values())
+    # A zero historical goal in the attacked origin stays a ZERO in the
+    # evidence. Never let that single honest negative negate independent
+    # G15 official own-goal proof and G5 source-observed own shots there.
+    route_direct=(all(v for k,v in direct.items() if k not in (
+        'observedOwnedGoalsInSelectedLane',
+        'independentlyReconciledOwnFinisherWithRealTargetLaneShots'))
+        and (historical_own_lane_goal or cross_origin_direct_finisher))
     original=(release or {}).get('originalPrimaryOrigin')
     changed_lane=bool(original and original!=zone)
     primary_source_lane=not changed_lane and not (release or {}).get('primaryWasTiedBeforeG0',False)
@@ -692,8 +732,14 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         rationale='Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5'
     elif off_lane_transfer:
         path='TRANSFER'
-        rationale=('Goalie-first G0 moved this player off his usual lane into the goalie weak lane, '
-                   'where he owns goals and beat every same-lane teammate under G10.5/G16')
+        rationale=(('Goalie-first G0 moved this verified own-goal recipient off his usual scoring area '
+                    'into the goalies observed weak shooting origin, where he has actual source-backed '
+                    'own shots but ZERO historically credited goals in that exact origin; independently '
+                    'dated season goal credits match every NHL EDGE own scoring origin; rivals '
+                    'separated by G10.5/G16. No future goal is guaranteed')
+                   if cross_origin_direct_finisher and not historical_own_lane_goal else
+                   ('Goalie-first G0 moved this player off his usual lane into the goalie weak lane, '
+                    'where he owns goals and beat every same-lane teammate under G10.5/G16'))
     elif route_direct and primary_source_lane and not tdata.get('directRouteDisplaced'):
         path='PRIMARY'
         rationale='Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger'
