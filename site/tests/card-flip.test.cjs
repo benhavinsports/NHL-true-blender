@@ -42,7 +42,6 @@ function descendants(node){
 function appContext(){
  const elements={
    "core-cards":new FakeNode("div"),
-   "leg-detail":new FakeNode("section"),
    "pool-list":new FakeNode("div"),
    "core":new FakeNode("section")
  };
@@ -58,7 +57,6 @@ function appContext(){
  assert.ok(script.includes("boot().catch("));
  // The test invokes the same app functions without starting network polling.
  vm.runInContext(script.split("boot().catch(")[0],sandbox);
- vm.runInContext("renderDetails=function(){};",sandbox);
  sandbox.sample={gateData:saved,legs:JSON.parse(card.legsJson),run};
  vm.runInContext(`
    state.selectedDate="2026-11-17";
@@ -99,9 +97,15 @@ test("tapping Core card toggles physical back with all 20 reasons in place",()=>
  const {sandbox,elements}=appContext();
  vm.runInContext("renderCards()",sandbox);
  const cardNode=elements["core-cards"].childNodes[0];
- assert.equal(cardNode.tagName,"button");
+ assert.equal(cardNode.tagName,"div");
+ assert.equal(cardNode.getAttribute("role"),"button");
  assert.equal(descendants(cardNode).filter(n=>n.classList.contains("card-back")).length,1);
  assert.equal(descendants(cardNode).filter(n=>n.classList.contains("flip-gate-row")).length,20);
+ const allSources=descendants(cardNode).filter(n=>n.tagName==="a");
+ assert.ok(allSources.length>=20,"source links should live on the back of the actual card");
+ assert.ok(allSources.every(n=>n.href.startsWith("https://")));
+ const content=descendants(cardNode).filter(n=>n.classList.contains("flip-function-line"));
+ assert.ok(content.length>=16,"nested original functions are inspectable on the card back");
  assert.equal(cardNode.getAttribute("aria-expanded"),"false");
  cardNode.listeners.click();
  assert.equal(cardNode.classList.contains("is-flipped"),true);
@@ -126,4 +130,13 @@ test("full slate shows all 11 separate source decisions without invented survivo
    .flatMap(descendants).map(n=>n.textContent||"").join(" ");
  assert.match(unresolvedText,/No source-qualified survivor yet/);
  assert.ok(!/faker|placeholder pick/i.test(unresolvedText));
+});
+
+test("public HTML never renders the duplicate behind-the-pick audit",()=>{
+ const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
+ assert.ok(!html.includes('id="evidence"'));
+ assert.ok(!html.includes('id="leg-detail"'));
+ assert.ok(!html.includes("Behind the pick"));
+ assert.ok(!html.includes('href="#evidence"'));
+ assert.ok(html.includes('id="core-cards"'));
 });
