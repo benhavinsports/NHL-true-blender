@@ -65,3 +65,25 @@ def test_wrong_card_or_missing_gate_trace_cannot_unlock_ui(tmp_path):
     matrix["legs"][1]["gateDetails"].pop(11)
     f.write_text(json.dumps(matrix))
     assert verified_original_receipt(tmp_path,DATE,card) is None
+
+
+def test_deployment_refresh_cannot_overwrite_an_independently_proven_gate_export(tmp_path, monkeypatch):
+    from nhl_true_blender_engine.storage import open_db
+    import scripts.refresh_selected_gate_exports as module
+    card=fixture(tmp_path)
+    gate_path=tmp_path/"site_gates"/(DATE+".json")
+    original=gate_path.read_bytes()
+    assert verified_original_receipt(tmp_path,DATE,card) is not None
+    db=open_db(str(tmp_path/"true_blender.sqlite"))
+    db.close()
+
+    def prevent_later_review_replacing_proven_receipt(*args,**kwargs):
+        raise AssertionError("A weaker or newer read-only reconstruction must not replace original source proof")
+
+    monkeypatch.setattr(module,"export_dashboard",prevent_later_review_replacing_proven_receipt)
+    outcome=module.refresh(tmp_path)
+    assert gate_path.read_bytes()==original
+    assert verified_original_receipt(tmp_path,DATE,card) is not None
+    assert any(x["date"]==DATE and
+        x["reason"]=="PREVIOUS_INDEPENDENT_CERTIFIED_PREPUCK_RECEIPT"
+        for x in outcome["preserved"])
