@@ -391,3 +391,51 @@ def test_projected_status_cannot_erase_official_dressed_status():
     assert player['availability']=='DRESSED'
     assert player['availabilitySource']['evidenceId']=='official-dressed'
     assert len(player['availabilityAlternatives'])==1
+
+
+def test_real_g9_per_game_coverage_allows_four_game_full_gate_execution_to_core3(con):
+    """Actual G0-G18 gate matrices feed cross-game G18; no old share field."""
+    s=snapshot(4)
+    for i,g in enumerate(s["games"]):
+        # A dated, source-labeled goalie vulnerability percentile is the
+        # actual input G18 can compare across independently screened games.
+        zone=g["goalies"][g["home"]][0]["data"]["weakZones"]["slot"]
+        zone["leagueSavePctgPercentile"]=.05 + i*.12
+        for attacking_team in (g["away"],g["home"]):
+            defense=g["coverage"][attacking_team]["data"]
+            assert defense["comparison"]==(
+                "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN")
+            assert "share" not in defense["zoneConcessions"]["slot"]
+    result=execute(con,s,DATE,"CONFIRMED")
+    assert result["uniqueGameSurvivors"]==4
+    assert result["card"] is not None,result["errors"]
+    legs=result["card"]["current_legs"]
+    assert len(legs)==3
+    assert {x["playerId"] for x in legs}=={"1010","1020","1030"}
+    assert len({x["gameId"] for x in legs})==3
+    assert result["gateRows"]==12*len(EXECUTION_ORDER)+8
+    for leg in legs:
+        rows=con.execute("""SELECT gate,disposition,details FROM gates
+           WHERE slate_date=? AND stage='CONFIRMED'
+             AND game_id=? AND player_id=?""",
+           (DATE,leg["gameId"],leg["playerId"])).fetchall()
+        ordered=sorted(rows,key=lambda x:json.loads(x["details"])["executionIndex"])
+        assert [x["gate"] for x in ordered]==EXECUTION_ORDER
+        assert all(x["disposition"]=="PASS" for x in ordered)
+
+
+def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
+    """G18 must not silently promote a pre-audit True despite failed proof."""
+    import nhl_true_blender_engine.engine as engine
+    original_audit=engine.audit_gate
+    def reject_final(gate,evidence,source_ids,stage):
+        if gate=="G18":
+            return ["SYNTHETIC_MISSING_G18_PROOF"]
+        return original_audit(gate,evidence,source_ids,stage)
+    monkeypatch.setattr(engine,"audit_gate",reject_final)
+    result=execute(con,snapshot(3),DATE,"CONFIRMED")
+    assert result["card"] is None
+    assert result["uniqueGameSurvivors"]==0
+    assert "G18" in str(result["errors"])
+    rows=con.execute("SELECT disposition FROM gates WHERE gate='G18'").fetchall()
+    assert rows and all(x["disposition"]=="NOT_EXECUTED" for x in rows)
