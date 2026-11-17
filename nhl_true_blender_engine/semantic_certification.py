@@ -77,14 +77,27 @@ def audit_gate(gate, evidence, source_ids, stage):
              'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
              'G9_LEGACY_OR_UNVERIFIED_COVERAGE_METHOD')
         z=e.get('zoneConcessionEvidence') or {}
-        need(type(z.get('attemptsAgainst')) is int and
-             z.get('attemptsAgainst',0)>=16 and
-             type(z.get('gameCount')) is int and z.get('gameCount',0)>=6 and
-             type(z.get('peerTeamsCompared')) is int and
-             z.get('peerTeamsCompared',0)>=6 and
-             type(z.get('attemptsPerGame')) in (int,float) and
-             type(z.get('peerMedianAttemptsPerGame')) in (int,float) and
-             z.get('attemptsPerGame',0)>z.get('peerMedianAttemptsPerGame',0),
+        # Independent real shot-attempt concession OR independently
+        # observed on-net concession can prove the SAME opponent-defense
+        # weakness. Neither a goalie weakness nor absence of shots passes G9.
+        scoped=(type(z.get('gameCount')) is int and z['gameCount']>=6 and
+                type(z.get('peerTeamsCompared')) is int and
+                z['peerTeamsCompared']>=6)
+        attempts=(type(z.get('attemptsAgainst')) is int and
+                  z['attemptsAgainst']>=16 and
+                  type(z.get('attemptsPerGame')) in (int,float) and
+                  type(z.get('peerMedianAttemptsPerGame')) in (int,float) and
+                  z['attemptsPerGame']>z['peerMedianAttemptsPerGame'] and
+                  'ATTEMPTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or
+                                            ['ATTEMPTS_AGAINST_PEER']))
+        on_net=(type(z.get('onNetShotsAgainst')) is int and
+                z['onNetShotsAgainst']>=12 and
+                type(z.get('onNetShotsPerGame')) in (int,float) and
+                type(z.get('peerMedianOnNetShotsPerGame')) in (int,float) and
+                z['onNetShotsPerGame']>z['peerMedianOnNetShotsPerGame'] and
+                z.get('independentOnNetConcessionReview') is True and
+                'ON_NET_SHOTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or []))
+        need(scoped and (attempts or on_net),
              'G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING')
         need(e.get('lowShotVolumeNotStrengthEvidence') is True,
              'G9_LOW_VOLUME_MUST_NOT_BE_CALLED_DEFENSIVE_STRENGTH')

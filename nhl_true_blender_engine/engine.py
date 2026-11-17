@@ -179,6 +179,82 @@ def g0_full_slate(games, stage):
     return scan,error
 
 
+
+def g0_source_coherent_scorer_goalie(game, direction, starter):
+    """Carry the G0 deciding *source*, not an unrelated empty EDGE profile,
+    into the original per-skater G0/G3/G5 route checks.
+
+    A same-cohort official NHL PBP goalie comparison is sometimes the only
+    measured source that G0 used to pick the attack side (e.g. VGK's starter
+    has no separately qualified NHL EDGE weak area). Previously the source
+    DID decide G0, yet skater evaluation silently reverted to the old empty
+    EDGE weakZones and marked every player G0 NOT_EXECUTED. This function
+    may NOT create a G0 direction or convert any estimated starter to
+    CONFIRMED; it only carries the *same actual historical evidence* through
+    the original gates, with the dated goalie ID, population, and source URL.
+    """
+    if not (isinstance(direction,dict) and
+            direction.get('g0SelectionMethod') ==
+                'ALL_SOURCE_REVIEWED_STARTER_PAIRS_AGREE' and
+            direction.get('attacker') in (game['away'],game['home']) and
+            starter and isinstance(starter.get('data'),dict)):
+        return starter
+    base=starter['data']
+    if base.get('weakZones'):
+        return starter  # Never replace an already source-qualified NHL EDGE lane
+    gid=str(base.get('goalieId') or '')
+    receipts=(direction.get('g0DecisionProof') or {}).get('pairwiseReceipts') or []
+    if not receipts or not all(
+        rec.get('attacker')==direction['attacker'] and
+        rec.get('sourceDecisionMethod')=='SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL' and
+        gid in (str(rec.get('goalieA')),str(rec.get('goalieB'))) and
+        (rec.get('proof') or {}).get('sourceCoherentIndependentHistoricalSample') is True
+        for rec in receipts):
+        return starter
+    populations={str((rec.get('proof') or {}).get('samePeerPopulationId') or '') for rec in receipts}
+    if len(populations)!=1 or not next(iter(populations)):
+        return starter
+    peer=(game.get('goaliePeerContexts') or {}).get(gid)
+    if not receipt(peer):
+        return starter
+    data=peer.get('data') or {}
+    weak=data.get('weakZones') or {}
+    if not (
+        str(data.get('goalieId'))==gid and
+        data.get('samplePeerPopulationId') in populations and
+        data.get('sourceClass')=='INDEPENDENT_OFFICIAL_RINK_ORIGIN_PROXY' and
+        data.get('peerSampleNeverLeagueEDGEPercentile') is True and
+        isinstance(weak,dict) and bool(weak) and
+        isinstance(data.get('sample'),dict) and
+        isinstance(data.get('counterevidence'),dict) and
+        type(data.get('fullySourceComparedAreas')) is int and
+        data['fullySourceComparedAreas']>0 and
+        all(type(v.get('shotsAgainst')) is int and v['shotsAgainst']>=20 and
+            type(v.get('goalsAgainst')) is int and 0<v['goalsAgainst']<=v['shotsAgainst'] and
+            v.get('peerComparedSameOrigin') is True and
+            type(v.get('peerGoaliesSampled')) is int and v['peerGoaliesSampled']>=4
+            for v in weak.values())):
+        return starter
+    # Keep the original starter identity/status. Every derived vulnerability
+    # comes as one coherent official PBP peer source, never a hybrid with EDGE.
+    pdata={**base,
+        'weakZones':weak,
+        'strengthZones':data.get('strengthZones') or {},
+        'sample':data['sample'],
+        'counterevidence':data['counterevidence'],
+        'fullySourceComparedAreas':data['fullySourceComparedAreas'],
+        'sourceReviewed':True,
+        'sourceClass':data['sourceClass'],
+        'sourceType':data.get('sourceType'),
+        'evidenceScope':'INDEPENDENT_HISTORICAL_OFFICIAL_PBP_RINK_ORIGIN',
+        'goalieProfileSourceUrl':peer['sourceUrl'],
+        'goalieProfileObservedAt':peer['observedAt'],
+        'goalieProfileEvidenceId':peer.get('evidenceId'),
+        'samePeerPopulationId':data['samplePeerPopulationId'],
+        'sourceCoherentG0ToG5':True,
+        'notGoalMouthAnatomy':True}
+    return {**starter,'data':pdata}
+
 def complete_roster(game, team):
     """Current roster is not a confirmed dressed lineup. Never silently drop depth or D."""
     wrapper=game.get('rosters',{}).get(team)
@@ -2031,7 +2107,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             continue
         all_per_game=[]
         first_stops=defaultdict(int); furthest={}
-        for branch in branches:
+        for original_branch in branches:
+            branch=g0_source_coherent_scorer_goalie(match,direction,original_branch)
             scoped_game={**match,'_g0SelectedDirection':direction}
             scoped_players=[release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
                             for player in players]
