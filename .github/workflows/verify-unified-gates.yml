@@ -24,11 +24,12 @@ jobs:
         run: python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
       - name: Run repository-wide unittest suite used in production
         run: python -m unittest discover -p 'test*.py' -v
-      - name: Run existing engine regression suite
-        run: python -m pytest -q nhl_true_blender_engine/tests
       - name: Verify dashboard JavaScript parses
         run: |
           node --check site/gate-facts.js
           node --check site/pool-deck.js
           node --check site/app.js
           node --test site/tests/card-flip.test.cjs
+      - name: Run existing engine regression suite
+        run: python -m pytest -q nhl_true_blender_engine/tests
+
