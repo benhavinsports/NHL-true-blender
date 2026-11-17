@@ -111,11 +111,12 @@ def verify_published_core(root: Path, date: str):
     # All historical source functions must be accounted for, but their
     # observations must never be counted as additional selection gates.
     for step in OVERLAY:
-        checks=(certification.get("gateChecksAttempted") or {}).get(step)
-        _require(checks==skaters, f"{step} evidence reviewed for {checks}/{skaters}")
+        # Source function observations are nested, not additional gate
+        # executions; their authoritative coverage is reported separately.
         outcomes=(certification.get("originalFunctionDispositions") or {}).get(step) or {}
-        _require(sum(v for v in outcomes.values() if type(v) is int)==skaters,
-                 f"{step} original function missing a source disposition")
+        checked=sum(v for v in outcomes.values() if type(v) is int)
+        _require(checked==skaters,
+                 f"{step} original function reviewed for {checked}/{skaters}")
     _require(run.get("gateRows", 0) >=
              (skaters+research_branches)*len(ORDER)+run.get("g0Directions",0),
              "full original G0-G18 candidate and goalie branch rows incomplete")
