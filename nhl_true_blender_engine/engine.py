@@ -2118,6 +2118,28 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route")
             continue
         errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
+    # G17 independently re-reviews the EXACT G0-decided goalie profile and
+    # source-coherent G5/9 shot lane, not an outdated pre-G0 generic branch.
+    # Before goalie direction was established, initial G17 research necessarily
+    # reviewed generic projected goalies; that left source-derived PBP routes
+    # with an empty/mismatched G17 counterevidence receipt. Complete this
+    # gate's genuine source research now, while the original G0 decision is
+    # frozen, BEFORE evaluating G10.5/G16/G17 on this selected attack side.
+    # Do not emit an artificial PASS: a contradiction still stays unresolved.
+    eligible_g17_directions={
+        str(g['id']):selected_directions[str(g['id'])]
+        for g in games if str(g['id']) in selected_directions and
+        g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
+        (not g.get('startUTC') or
+         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now)}
+    if eligible_g17_directions:
+        from .contradiction_review import review_all_candidates
+        from .enrichment import attach
+        review_all_candidates(con,snapshot,date,stage,
+                              selected_directions=eligible_g17_directions)
+        # Rebind independently sourced and versioned review receipts onto the
+        # actual original skater identities. A scorer cannot self-certify G17.
+        attach(con,snapshot,date,stage)
     # A G0 failure MUST NOT silently short-circuit all 36 source checks.
     # Investigate each available goalie branch against each official skater
     # on BOTH sides, while retaining a FAILED G0 and forbidding selection.
