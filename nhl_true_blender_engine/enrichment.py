@@ -165,6 +165,18 @@ def attach(con, snapshot, date, stage):
                 prior['data'].setdefault('projectedPreferenceSources',[])
                 if wrapper['sourceUrl'] not in prior['data']['projectedPreferenceSources']:
                     prior['data']['projectedPreferenceSources'].append(wrapper['sourceUrl'])
+                # Merge separately observed, dated, first-off eyewitness
+                # evidence into this SAME official goalie ID only. The
+                # starter remains EXPECTED, never auto-confirmed. A stale
+                # other-date report cannot defeat source disagreements.
+                if (data.get('datedEyewitnessMorningSkateFirstOff') is True
+                        and data.get('sourceReportDate')==date
+                        and data.get('status')=='EXPECTED'):
+                    prior['data']['datedEyewitnessMorningSkateFirstOff']=True
+                    prior['data']['sourceReportDate']=date
+                    prior['data'].setdefault('morningSkateSourceUrls',[])
+                    if wrapper['sourceUrl'] not in prior['data']['morningSkateSourceUrls']:
+                        prior['data']['morningSkateSourceUrls'].append(wrapper['sourceUrl'])
             elif kind=='GOALIE_PROFILE':
                 # Profile has its own provenance; keep starter source separate.
                 # Only a real source-linked profile may provide weakness claims.
