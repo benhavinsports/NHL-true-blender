@@ -7,7 +7,7 @@ site/data/latest.json. This transport never picks or substitutes scorers.
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from nhl_true_blender_engine.engine import MASTER, OVERLAY
+from nhl_true_blender_engine.engine import MASTER, OVERLAY, STEPS_BY_GATE
 from nhl_true_blender_engine.storage import fingerprint
 
 class PublicationConflict(RuntimeError):
@@ -96,17 +96,17 @@ def export_run(con, slate_date, stage, result, root='state'):
     # skaters are expected to have ELIMINATED / NOT_EXECUTED source outcomes.
     # Those outcomes remain visible in missingByGate; they do not disqualify
     # fully proven surviving recipients. The recipient-specific checks below
-    # independently enforce all 36 PASSes and their source/overlay evidence.
+    # independently enforce every original gate and its embedded functions.
     census=result.get('gateCertification') or {}
     scanned=census.get('scannedSkaters')
     attempts=census.get('gateChecksAttempted') or {}
     all_gates_attempted=(type(scanned) is int and scanned>0
-        and all(attempts.get(gate)==scanned for gate in MASTER+OVERLAY))
+        and all(attempts.get(gate)==scanned for gate in MASTER))
     full_execution=(
         all_gates_attempted
         and census.get('allSkatersHaveEachGateRecord') is True
         and census.get('allSkatersHaveExactExecutionOrder') is True
-        and census.get('allOverlayStepsWereIndependentlyChecked') is True
+        and census.get('allOriginalFunctionsWereCheckedWithinGates') is True
         and census.get('copiedOverlayReceiptCount') == 0
         and census.get('twoDirectionsPerScheduledGameRecorded') is True
     )
@@ -191,7 +191,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         raise PublicationConflict('G18 card fingerprint mismatches its saved recipients')
     if result.get('g0Directions',0) < result.get('games',0):
         raise PublicationConflict('G0 game scan incomplete')
-    required=set(MASTER+OVERLAY)
+    required=set(MASTER)
     validation_gaps=[]
     for leg in legs:
         game_id, player_id = str(leg['gameId']),str(leg['playerId'])
@@ -204,12 +204,31 @@ def export_run(con, slate_date, stage, result, root='state'):
                 'missingGateRows':sorted(required-set(trace))})
             continue
         incomplete={g:x['disposition'] for g,x in trace.items() if x['disposition']!='PASS'}
-        alias=[g for g,x in trace.items() if g in OVERLAY and
-               not (json.loads(x['details']).get('evidence',{})
-                    .get('independentOverlayEvaluation') is True)]
-        if incomplete or alias:
+        # The saved receipt is one G0–G18 trace. Each original function
+        # is evidence inside the gate that owns it, never another gate row.
+        function_gaps=[]
+        for gate in MASTER:
+            proof=json.loads(trace[gate]['details']).get('evidence') or {}
+            nested=proof.get('originalFunctionEvidence') or []
+            expected=STEPS_BY_GATE[gate]
+            if [x.get('step') for x in nested]!=expected:
+                function_gaps.append({'gate':gate,'reason':'MISSING_OR_REORDERED_ORIGINAL_FUNCTION'})
+                continue
+            for check in nested:
+                evidence=check.get('evidence') or {}
+                neutral=(check.get('step')=='Step13'
+                         and evidence.get('nonblocking') is True)
+                if (check.get('disposition')!='PASS' and not neutral
+                    or evidence.get('independentOverlayEvaluation') is not True
+                    or evidence.get('checkedBeforeG18') is not True
+                    or evidence.get('masterGateVerdictCopied') is not False):
+                    function_gaps.append({
+                        'gate':gate,'function':check.get('step'),
+                        'status':check.get('disposition'),
+                        'reason':'ORIGINAL_FUNCTION_NOT_SOURCE_PROVEN'})
+        if incomplete or function_gaps:
             validation_gaps.append({'gameId':game_id,'playerId':player_id,
-                'notPassing':incomplete,'copiedOverlayGates':alias})
+                'notPassing':incomplete,'originalFunctionGaps':function_gaps})
             continue
         g0=json.loads(trace['G0']['details'])['evidence']
         if leg.get('opposingGoalieId') and str(g0.get('targetGoalie'))!=str(leg['opposingGoalieId']):
@@ -258,7 +277,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'legsJson':json.dumps(legs,sort_keys=True),
         'gradeJson':json.dumps(card.get('grade') or {}),
         'auditJson':'',
-        'provenance':'Independent scheduled NHL G0-G18 and overlay with source-backed recipient evidence',
+        'provenance':'One original G0-G18 execution with embedded source-backed function evidence',
         'gateRows':result.get('gateRows'),
         'g0Directions':result.get('g0Directions'),
         'eligibleSkaterRows':result.get('eligibleSkaterRows'),
