@@ -188,9 +188,14 @@ function renderHeader(){
    notice.appendChild(pill("ARCHIVED · "+date,"warning"));
    notice.appendChild(el("p","","This is a previously locked slate, not a new pick for today. Select a different date to inspect another card."));
  }else if(saved){
-   notice.appendChild(pill(s.phase,statusClass(s.phase)));
-   notice.appendChild(el("p","",s.certified?
-     "One saved Core. Selection and gate records are preserved in the official engine ledger.":
+   const storedProof=s.current&&state.latest?.savedOriginalGateEvidenceVerified===true;
+   const currentIncomplete=s.current&&state.latest?.currentRunFullyCertified!==true;
+   notice.appendChild(pill(storedProof&&currentIncomplete?
+     "SAVED ORIGINAL CORE · CURRENT RECHECK OPEN":s.phase,
+     storedProof&&currentIncomplete?"warning":statusClass(s.phase)));
+   notice.appendChild(el("p","",storedProof&&currentIncomplete?
+     "This is the previously source-verified pre-puck saved card, not a fresh certification. The latest research pass is incomplete; its unresolved game and gate evidence remains visible below. No replacement was selected by the dashboard.":
+     s.certified?"One saved Core. Selection and gate records are preserved in the official engine ledger.":
      "Original Core retained. Check the selected-leg evidence before treating the latest run as fully certified."));
  }else{
    if(s.today && state.latest?.oldCoreRetractedByRuleCorrection===true){
@@ -966,6 +971,7 @@ function publishedSignature(latest,archived,season){
    stage:latest?.stage,grade:latest?.postgameGrade?.result,
    archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
     perGame:(latest?.gameSurvivorPool||[]).map(g=>[g.gameId,g.status,g.survivor?.playerId]),
+    savedOriginalGateEvidenceVerified:latest?.savedOriginalGateEvidenceVerified,
    seasonSize:season?.officiallyGradedSlates,
    patchCount:season?.verifiedAutomaticGuardPatches?.length,
  });
