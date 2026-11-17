@@ -959,7 +959,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     # original verdict or masquerade as a completed source check.
     master_passed=all(d[gate]['disposition']=='PASS'
                       for gate in MASTER[:-1])
-    overlay_passed=all(row['disposition']=='PASS' for row in overlay)
+    # Step13 is the original qualitative, nonblocking numerology review.
+    # Its evidence and verdict remain visible, but a missing optional
+    # observation must not eliminate an otherwise source-qualified scorer.
+    overlay_passed=all(
+        row['disposition']=='PASS' or
+        (row['gate']=='Step13' and
+         row.get('details',{}).get('evidence',{}).get('nonblocking') is True)
+        for row in overlay)
     previous_gates_passed=master_passed and overlay_passed
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
