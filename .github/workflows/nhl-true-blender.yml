@@ -83,6 +83,9 @@ jobs:
           # Preserve original cards/versions/gate history in card_retractions.
           # There is NO player substitution or manual Core in this operation.
           python -m scripts.retract_invalid_core
+          # Archive the rejected card in SQLite before any candidate can
+          # advance. The original fingerprint may never become an automatic
+          # default or be silently recycled as a "new" G18 selection.
       - name: Run scheduled autonomous Blender phase
         if: steps.verification.outcome == 'success'
         id: engine
