@@ -181,8 +181,9 @@ function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
  const count=games.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
  const coreKeys=new Set((coreLegs||[]).map(x=>
    String(x.gameId)+":"+String(x.playerId)));
- const core=games.filter(g=>g.survivor&&coreKeys.has(
-   String(g.gameId)+":"+String(g.survivor.playerId))).length;
+ // Saved Core identity is independent of a newer, incomplete per-game run.
+ // Never erase the actual saved Core count because its latest pool is empty.
+ const core=(coreLegs||[]).length;
  const stats=create("div","pool-stat-strip");
  for(const [value,label] of [[count+" / "+games.length,"SURVIVORS"],
      [core,"CORE SAVED"],[games.length-count,"IN REVIEW"]]){
