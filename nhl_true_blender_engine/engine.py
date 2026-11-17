@@ -5,6 +5,7 @@ Output is an immutable gate record for every surveyed direction and skater.
 Only the uniquely defensible, fully evidenced survivors can be published.
 """
 from __future__ import annotations
+import json
 from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -1323,8 +1324,129 @@ def cross_game_winners(winners, slate_size):
     return list(winners),[]
 
 
+def _authorized_retraction_reselection(con, existing, legs, selected, date, stage):
+    """Repair a previously REVOKED November 17 card from a fresh full-gate run.
+
+    The one-slate user-authorized retraction archived the bad G18 selection,
+    but a later run reissued the SAME bad fingerprint. Normal goalie-only
+    replacement cannot correct a wrong GAME recipient. This exception does
+    not elect any scorer: it uses only the already-executed G16/G18 survivors
+    and independently saved source receipts. An unknown prior gate is recorded
+    as NOT_EXECUTED, never misrepresented as source elimination.
+    """
+    if date != '2026-11-17' or stage not in ('PROJECTED', 'CONFIRMED'):
+        return None
+    try:
+        archived = con.execute(
+            "SELECT original_fingerprint,original_card FROM card_retractions "
+            "WHERE slate_date=?", (date,)).fetchone()
+    except Exception:
+        return None
+    if not archived or existing.get('grade') is not None:
+        return None
+    old_original = json.loads(archived['original_card'])
+    if (archived['original_fingerprint'] != existing['fingerprint']
+            or old_original.get('fingerprint') != existing['fingerprint']
+            or str(existing['first_issued_at']) <= str(old_original['first_issued_at'])):
+        return None
+
+    old_by_id = {(str(x['gameId']), str(x['playerId'])): x
+                 for x in existing['current_legs']}
+    new_by_id = {(str(x['gameId']), str(x['playerId'])): x for x in legs}
+    removed = [old_by_id[k] for k in old_by_id.keys() - new_by_id.keys()]
+    added = [new_by_id[k] for k in new_by_id.keys() - old_by_id.keys()]
+    if len(removed) != 1 or len(added) != 1 or len(legs) != len(existing['current_legs']):
+        return None
+    old, new = removed[0], added[0]
+
+    # Current G0-G18 is the selection authority, not the historical card.
+    # The engine has just saved these rows for the SAME phase/source snapshot.
+    chosen_ids = {(str(x['game']['id']), str(x['candidate']['player']['id']))
+                  for x in selected}
+    if chosen_ids != set(new_by_id) or len(selected) != len(legs):
+        return None
+    if any(not item['candidate'].get('complete') or any(
+            (item['candidate'].get('dispositions', {}).get(g) or {}).get('disposition') != 'PASS'
+            for g in MASTER) for item in selected):
+        return None
+    candidate_item = next((x for x in selected
+        if str(x['game']['id']) == str(new['gameId'])
+        and str(x['candidate']['player']['id']) == str(new['playerId'])), None)
+    if candidate_item is None:
+        return None
+    candidate = candidate_item['candidate']
+    comparison = candidate.get('challengers') or []
+    if (not comparison or
+            any(row.get('status') not in (
+                'DEFEATED', 'DIFFERENT_TARGET_LANE',
+                'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE')
+                for row in comparison)):
+        return None
+
+    # Prove why the previously retracted recipient no longer has a CURRENT
+    # certified route. Source-unknown is never upgraded to ELIMINATED.
+    previous = con.execute(
+        "SELECT gate,disposition,details FROM gates WHERE slate_date=? "
+        "AND stage=? AND game_id=? AND player_id=? AND gate!='G18'",
+        (date, stage, str(old['gameId']), str(old['playerId']))).fetchall()
+    prior_nonpass = next((row for gate in ('G10.5','G15','G16','G17',
+        'G0','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G11','G12','G13','G14')
+        for row in previous if row['gate'] == gate and
+        row['disposition'] in ('ELIMINATED', 'NOT_EXECUTED')), None)
+    if not prior_nonpass:
+        return None
+
+    # Match the source IDs to persisted immutable evidence; URL-only prose
+    # cannot satisfy the ledger's audited replacement contract.
+    old_receipt = con.execute(
+        "SELECT evidence_id FROM evidence WHERE slate_date=? AND game_id=? "
+        "AND player_id=? ORDER BY evidence_id LIMIT 1",
+        (date, str(old['gameId']), str(old['playerId']))).fetchone()
+    release = candidate['player'].get('release') or {}
+    g17 = candidate['player'].get('contradictions') or {}
+    new_id, g17id = release.get('evidenceId'), g17.get('evidenceId')
+    for ref in (new_id, g17id):
+        if not ref or not con.execute(
+            "SELECT 1 FROM evidence WHERE slate_date=? AND evidence_id=? "
+            "AND game_id=? AND player_id=?",
+            (date, ref, str(new['gameId']), str(new['playerId']))).fetchone():
+            return None
+    if not old_receipt:
+        return None
+    return {
+        'baselineFingerprint': existing['fingerprint'],
+        'triggerEvidenceId': new_id,
+        'oldValue': {'player': old['player'], 'gameId': old['gameId']},
+        'newValue': {'player': new['player'], 'gameId': new['gameId']},
+        'affectedGates': ['G10.5','G15','G16','G17','G18'],
+        'dependentGates': ['G10.5','G15','G16','G17','G18'],
+        'priorSurvivorFailure': {
+            'playerId': old['playerId'],
+            'failedGate': prior_nonpass['gate'],
+            'disposition': prior_nonpass['disposition'],
+            'sourceIds': [old_receipt['evidence_id']],
+            'savedGateEvidence': json.loads(prior_nonpass['details']),
+            'notAnEliminationWhenMissing': prior_nonpass['disposition'] == 'NOT_EXECUTED',
+            'reason': 'Previously user-retracted card; current gate evidence is not a PASS',
+        },
+        'g105EveryChallenger': {'candidate': new['playerId'],
+                                'comparisonRows': comparison},
+        'g17Contradictions': {
+            'sourceIds': [g17id],
+            'review': candidate['dispositions']['G17']['details']},
+        'newFingerprint': fingerprint(legs),
+        'exceptionScope': 'NOV17_PREVIOUSLY_RETRACTED_FINGERPRINT_ONLY',
+        'retractedOriginalFirstIssuedAt': old_original['first_issued_at'],
+        'notAManualSelection': True,
+    }
+
+
 def build_verified_replacement(con, existing, legs, selected, date, stage):
-    """Automatic pre-puck replacement only after stored confirmed-source gate reruns."""
+    """Automatic pre-puck replacement only after source-backed gate reruns."""
+    corrected = _authorized_retraction_reselection(
+        con, existing, legs, selected, date, stage)
+    if corrected is not None:
+        return corrected
     if stage != 'CONFIRMED':
         return None
     prior = {str(x['gameId']): x for x in existing['current_legs']}
