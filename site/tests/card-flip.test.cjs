@@ -128,7 +128,14 @@ test("full slate shows all 11 separate source decisions without invented survivo
  assert.equal(board.childNodes[0].childNodes[0].textContent,verified+" / "+receipts.length+" verified game survivors");
  const unresolvedText=panels.filter((_,i)=>!receipts[i].survivor)
    .flatMap(descendants).map(n=>n.textContent||"").join(" ");
- assert.match(unresolvedText,/No source-qualified survivor yet/);
+ if(verified<receipts.length){
+   assert.match(unresolvedText,/No source-qualified survivor yet/);
+ }else{
+   // A successful 11/11 live engine run must NOT be rejected because
+   // the test still expects yesterday's missing-survivor placeholder.
+   assert.equal(verified,receipts.length);
+   assert.equal(unresolvedText.trim(),"");
+ }
  assert.ok(!/faker|placeholder pick/i.test(unresolvedText));
 });
 
