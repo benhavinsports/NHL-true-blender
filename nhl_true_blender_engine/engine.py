@@ -2131,7 +2131,18 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         for g in games if str(g['id']) in selected_directions and
         g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
         (not g.get('startUTC') or
-         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now)}
+         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now) and
+        # Do not overwrite another verified G17 in the ordinary case.
+        # Recheck only when a sourced skater who can shoot lacks an
+        # independent G17 receipt, or the G0 source-coherent goalie
+        # profile differs from the earlier pre-G0 research branch.
+        (any(receipt(p.get('release')) and
+                 not receipt(p.get('contradictions'))
+                 for p in complete_roster(g,selected_directions[str(g['id'])]['attacker']))
+         or any(g0_source_coherent_scorer_goalie(
+                 g,selected_directions[str(g['id'])],branch) is not branch
+                for branch in all_goalie_branches(g,stage).get(
+                    selected_directions[str(g['id'])]['defender'],[])))}
     if eligible_g17_directions:
         from .contradiction_review import review_all_candidates
         from .enrichment import attach
