@@ -114,3 +114,31 @@ def test_g15_semantic_auditor_rejects_manufactured_non_lane_goals():
         altered={**good,**changed}
         assert "G15_FINISHER_PROOF_NOT_INDEPENDENT" in audit_gate(
             "G15",altered,src,"CONFIRMED")
+
+
+def test_g18_does_not_reject_a_full_g15_verified_goal_recipient_for_zero_exact_lane_goals(tmp_path):
+    s,g,p=separate_finisher_scene()
+    # The fixture rival independently owns scored goals from this exact
+    # lane, so source-backed G10.5 would correctly reject the candidate.
+    # Only mark that unrelated rival OUT to isolate the G18-to-G15 bug.
+    s["games"][0]["rosters"][g["away"]]["data"]["players"][1]["availability"]="OUT"
+    con=open_db(str(tmp_path/"route.sqlite"))
+    try:
+        result=execute(con,s,DATE,"CONFIRMED")
+        rows=con.execute("""SELECT gate,disposition,details FROM gates
+          WHERE game_id=? AND player_id=? AND gate IN ('G5','G10.5','G15','G17','G18')
+          ORDER BY CASE gate WHEN 'G5' THEN 1 WHEN 'G10.5' THEN 2
+          WHEN 'G15' THEN 3 WHEN 'G17' THEN 4 ELSE 5 END""",
+          (str(g["id"]),str(p["id"]))).fetchall()
+        decisions={row["gate"]:row["disposition"] for row in rows}
+        assert all(decisions.get(gate)=="PASS" for gate in
+            ('G5','G10.5','G15','G17','G18')),decisions
+        g18=json.loads(next(row["details"] for row in rows if row["gate"]=="G18"))["evidence"]
+        route=g18["pathClassificationEvidence"]
+        assert route["historicMatchedLaneOwnedGoals"]==0
+        assert route["G15IndependentFinisherReconciledBeyondMatchedOrigin"] is True
+        assert route["neverClaimUnobservedSameLaneGoals"] is True
+        assert route["positiveDirectGateEvidence"]["observedOwnOnNetShotsInSelectedLane"] is True
+        assert route["positiveDirectGateEvidence"]["historicallyCreditedIndependentGoalRecipient"] is True
+    finally:
+        con.close()
