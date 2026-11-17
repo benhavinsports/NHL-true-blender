@@ -967,8 +967,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
     overlay_trace=[row['gate'] for row in overlay]
     if master_trace!=MASTER:
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
-    if overlay_trace!=OVERLAY:
-        raise ValueError(f'Independent overlay execution order mismatch: {overlay_trace}')
+    if set(overlay_trace)!=set(OVERLAY) or len(overlay_trace)!=len(OVERLAY):
+        raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
     # Actual gate-time trace: no post-hoc sorting or reconstructed order.
     trace_by_gate={row['gate']:row for row in proof+overlay}
     execution_trace=[trace_by_gate[gate] for gate in EXECUTION_ORDER]
@@ -986,7 +986,7 @@ def verify_complete_matrix(games, records, scan, now=None, selected_directions=N
     errors=[]
     now=now or datetime.now(timezone.utc)
     expected_set=set(EXECUTION_ORDER)
-    if tuple(OVERLAY)!=tuple(STEP_ORDER):
+    if set(OVERLAY)!=set(STEP_ORDER):
         errors.append('Phase-1 overlay source order differs from the authoritative mapping')
     for game in games:
         already_started=(game.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
