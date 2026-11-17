@@ -783,7 +783,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
           'missedGamesExcluded':True,**dated_recurrence},
          source_ids=[p['sourceUrl'] for p in (
              player.get('gameLog'),player.get('mappedGoals'),player.get('pressure'))
-             if receipt(p)])
+             if receipt(p)],
+         # Complete dated counterevidence is an elimination, not "data missing".
+         eliminate=bool(rec and shot_review['valid']
+                        and shot_review['datedAppearanceAlignmentVerified']
+                        and not dated_recurrence['datedScoringOrShotRecurrence']))
     market=player.get('authenticMarket')
     # G8 explicitly neutral when unavailable; never invent market or eliminate a skater.
     emit('G8',True,{'market':evidence_data(market) if receipt(market) else None,
@@ -878,6 +882,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage)
          {'recentOwnAttempts':recent_shots,
           'shotContinuation':shot_review,
           'noOneOffPressureCalledContinuation':True},
+         eliminate=bool(receipt(shots) and shot_review['valid']
+                        and not shot_review['repeatedOwnShotPressure']),
          source_ids=[shots['sourceUrl']] if receipt(shots) else [])
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)},
