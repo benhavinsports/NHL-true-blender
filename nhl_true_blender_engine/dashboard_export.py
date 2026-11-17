@@ -133,6 +133,45 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                     FROM gates WHERE slate_date=? AND stage=?
                         AND game_id=? AND player_id=?""",
                     (date,selectedStage,gameId,playerId)).fetchall()
+                # save_gates archives the prior matrix before each refresh.
+                # After puck drop the active table may contain only a G0
+                # diagnostic, even though a truly source-certified card was
+                # locked earlier. Recover ONLY a coherent archived pre-puck
+                # full execution, never a mixture of unrelated gate passes.
+                prior=con.execute("""
+                    SELECT gate,disposition,details,evaluated_at,archived_at
+                    FROM gate_history WHERE slate_date=? AND stage=?
+                        AND game_id=? AND player_id=?""",
+                    (date,selectedStage,gameId,playerId)).fetchall()
+                batches={}
+                for past in prior:
+                    when=_datetime(past["evaluated_at"])
+                    if when and (puck is None or when<puck):
+                        batches.setdefault(past["evaluated_at"],[]).append(past)
+                archived=[]
+                for timestamp,batch in sorted(batches.items(),reverse=True):
+                    by_gate={row["gate"]:row for row in batch}
+                    if (len(batch)==len(EXECUTION_ORDER)
+                            and set(by_gate)==set(EXECUTION_ORDER)
+                            and all(by_gate[gate]["disposition"]=="PASS"
+                                and json.loads(by_gate[gate]["details"]).get(
+                                    "executionIndex")==index
+                                for index,gate in enumerate(EXECUTION_ORDER))):
+                        archived=batch
+                        break
+                def fully_certified(rows):
+                    by_gate={row["gate"]:row for row in rows
+                        if _datetime(row["evaluated_at"]) and
+                        (puck is None or _datetime(row["evaluated_at"])<puck)}
+                    return (len(rows)==len(EXECUTION_ORDER)
+                        and set(by_gate)==set(EXECUTION_ORDER)
+                        and all(by_gate[gate]["disposition"]=="PASS"
+                            and json.loads(by_gate[gate]["details"]).get(
+                                "executionIndex")==index
+                            for index,gate in enumerate(EXECUTION_ORDER)))
+                used_archive=bool(archived and not fully_certified(candidates))
+                if used_archive:
+                    candidates=archived
                 phase_rows[selectedStage]=candidates
                 pre_puck={}
                 for row in candidates:
@@ -146,6 +185,7 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                         for index,gate in enumerate(EXECUTION_ORDER)))
                 phase_reviews[selectedStage]={
                     "available":bool(candidates),
+                    "recoveredArchivedOriginal":used_archive,
                     "prePuckGateRows":len(pre_puck),
                     "masterPassed":sum(gate in MASTER and
                         row["disposition"]=="PASS"
@@ -211,6 +251,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                 "stageOfGateRecords":sourceStage,
                 "latestReviewStage":stage,
                 "separatePhaseReviews":phase_reviews,
+                "sourceGateArchive":bool(sourceStage and
+                    phase_reviews[sourceStage]["recoveredArchivedOriginal"]),
                 "startUTC":leg.get("startUTC"),
                 "executionOrderVerified":order_verified,
                 "masterPassed":sum(r["gate"] in MASTER and r["status"]=="PASS"
