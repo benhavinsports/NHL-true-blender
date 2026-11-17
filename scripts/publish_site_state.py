@@ -46,6 +46,71 @@ def _was_explicitly_retracted(path, root, slate_date):
     return True
 
 
+
+def _unresolved_first_gate_source_receipts(con, date, stage, game_pool):
+    """Compact TRUE gate receipts needed to repair an unresolved game.
+
+    Selection does not consult this review. Copy only the original
+    source-grounded evidence of the furthest still-blocked candidate and
+    exact raw source IDs; never infer a PASS, create a Core or skip a gate.
+    Unlike the 9-MB candidate matrix this can be checked in saved JSON.
+    """
+    wanted=('G0','G4','G9','G10','G15')
+    out=[]
+    for game in game_pool or []:
+        if game.get('status')=='SURVIVOR':
+            continue
+        furthest=game.get('furthestCandidatesDiagnosticOnly') or []
+        item={'gameId':game.get('gameId'),'matchup':game.get('matchup'),
+              'stop':game.get('stoppedAt'),'status':game.get('status'),
+              'nonSelectionDiagnosticOnly':True}
+        if not furthest:
+            out.append(item)
+            continue
+        candidate=furthest[0]
+        pid=str(candidate.get('playerId') or '')
+        item.update({'candidateId':pid,'candidateName':candidate.get('player'),
+                     'candidateStoppedAt':candidate.get('stoppedAt')})
+        proof={}
+        for gate in wanted:
+            row=con.execute(
+                "SELECT disposition,details FROM gates WHERE slate_date=? "
+                "AND stage=? AND game_id=? AND player_id=? AND gate=?",
+                (date,stage,str(game.get('gameId')),pid,gate)).fetchone()
+            if not row:
+                proof[gate]={'status':'NOT_RECORDED'}
+                continue
+            details=json.loads(row['details'] or '{}')
+            ev=details.get('evidence') or {}
+            if gate=='G15':
+                fields=('independentHistoricalGoalFinishingEvidence',
+                    'goalSourceReconciledToDatedAppearances',
+                    'separateOfficialShotOriginSource',
+                    'officialOwnedGoalsInMatchedOrigin',
+                    'officialDatedSeasonGoals',
+                    'seasonAndReleaseGoalCreditsConsistent',
+                    'independentSeasonLogSource',
+                    'semanticProofGaps')
+            elif gate=='G9':
+                fields=('shooterZone','greenTarget','redAvoid','zoneConcessionEvidence',
+                        'coverageSourceType','coverageComparison','semanticProofGaps')
+            elif gate=='G10':
+                fields=('historicalDirectGoalRecipientVerified',
+                        'historicalDirectGoalRecipientVerificationMethod',
+                        'semanticProofGaps')
+            elif gate=='G0':
+                fields=('targetGoalie','branchStatus','directionSelectedBeforeSkaters',
+                        'weakZones','semanticProofGaps')
+            else:
+                fields=('archetype','ownRelease','semanticProofGaps')
+            proof[gate]={'status':row['disposition'],
+                'evidence':{k:ev[k] for k in fields if k in ev},
+                'sourceUrls':[v for v in (details.get('sourceIds') or [])
+                              if isinstance(v,str) and v.startswith('https://')][:5]}
+        item['recordedOriginalGateEvidence']=proof
+        out.append(item)
+    return out
+
 def export_run(con, slate_date, stage, result, root='state'):
     root = Path(root)
     card = result.get('card')
@@ -76,6 +141,8 @@ def export_run(con, slate_date, stage, result, root='state'):
         'nonselectedGameResearchIsDiagnosticOnly':True,
         'preCoreQualifiedSurvivors':result.get('preCoreQualifiedSurvivors',[]),
         'gameSurvivorPool':result.get('gameSurvivorPool',[]),
+        'sourceGateBlockerReceipts':_unresolved_first_gate_source_receipts(
+            con,slate_date,stage,result.get('gameSurvivorPool',[])),
         'g16FinalistCompetition':result.get('g16FinalistCompetition'),
         'cardSavedByEngine':bool(card),
         'publishedToSite':False,
