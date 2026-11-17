@@ -1,0 +1,658 @@
+{
+  "allG18QualifiedSurvivors": [],
+  "anatomicalEvidenceMisrepresented": false,
+  "bothGoaliesRequiredBeforeG0PlayerElimination": true,
+  "cardId": null,
+  "cardSavedByEngine": false,
+  "currentRunFullyCertified": false,
+  "edgeSourceCoverage": {
+    "allCurrentRosterIdentitiesChecked": 542,
+    "anatomicalClaimCertified": false,
+    "goalieRinkProfiles": 50,
+    "skaterRinkProfiles": 492,
+    "status": "EVIDENCE_COLLECTED",
+    "totalFailed": 0
+  },
+  "eligibleSkaterRows": 492,
+  "errors": [
+    "2026020333 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020335 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020336 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020337 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020341 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020334 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020338 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020339 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020340 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020342 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "2026020343 G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule",
+    "G18 only 0 fully evidenced games; 3 required"
+  ],
+  "executionCertificationGaps": {
+    "allGateChecksExecutedWithEvidence": true,
+    "allSkatersHaveEachGateRecord": false,
+    "allSkatersHaveExactExecutionOrder": false,
+    "fullIndependentCardCertification": false,
+    "missingByGate": {
+      "G0": 22
+    },
+    "twoDirectionsPerScheduledGameRecorded": true
+  },
+  "firstNonpassingGateAudit": {
+    "allGateRowsPresent": 0,
+    "firstNonpassingGateCounts": {},
+    "notAScorerRanking": true,
+    "samplesByFirstGate": {},
+    "scannedSkaters": 0
+  },
+  "g0Complete": 0,
+  "g0Directions": 22,
+  "g0OfficialPbpFallback": {
+    "fallbackProfiles": 0,
+    "goaliesNeedingPbpResearch": 0,
+    "sourceFailures": [],
+    "sourceType": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
+    "status": "NO_SOURCE_IDENTIFIED_SLATE_GOALIES"
+  },
+  "g0RinkOriginResearch": [
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "LAK",
+          "defender": "BOS",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "BOS",
+          "defender": "LAK",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020333",
+      "matchup": "LAK@BOS",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "EDM",
+          "defender": "FLA",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "FLA",
+          "defender": "EDM",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020335",
+      "matchup": "EDM@FLA",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "CBJ",
+          "defender": "NYI",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "NYI",
+          "defender": "CBJ",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020336",
+      "matchup": "CBJ@NYI",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "BUF",
+          "defender": "PHI",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "PHI",
+          "defender": "BUF",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020337",
+      "matchup": "BUF@PHI",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "OTT",
+          "defender": "WPG",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "WPG",
+          "defender": "OTT",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020341",
+      "matchup": "OTT@WPG",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "WSH",
+          "defender": "TBL",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "TBL",
+          "defender": "WSH",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020334",
+      "matchup": "WSH@TBL",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "TOR",
+          "defender": "CHI",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "CHI",
+          "defender": "TOR",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020338",
+      "matchup": "TOR@CHI",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "ANA",
+          "defender": "STL",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "STL",
+          "defender": "ANA",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020339",
+      "matchup": "ANA@STL",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "NSH",
+          "defender": "MIN",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "MIN",
+          "defender": "NSH",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020340",
+      "matchup": "NSH@MIN",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "DAL",
+          "defender": "VGK",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "VGK",
+          "defender": "DAL",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020342",
+      "matchup": "DAL@VGK",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    },
+    {
+      "anatomicalWeaknessCertified": false,
+      "directions": [
+        {
+          "attacker": "CGY",
+          "defender": "SJS",
+          "goalieBranches": []
+        },
+        {
+          "attacker": "SJS",
+          "defender": "CGY",
+          "goalieBranches": []
+        }
+      ],
+      "gameId": "2026020343",
+      "matchup": "CGY@SJS",
+      "status": "RINK_SHOT_ORIGIN_RESEARCH_ONLY"
+    }
+  ],
+  "g0TwoGoalieDirectionDecisions": {},
+  "games": 11,
+  "gateCertification": {
+    "allGateChecksExecutedWithEvidence": true,
+    "allOverlayStepsSourceCompleteForEveryRejectedSkater": true,
+    "allOverlayStepsWereIndependentlyChecked": false,
+    "allSkatersHaveEachGateRecord": false,
+    "allSkatersHaveExactExecutionOrder": false,
+    "copiedOverlayReceiptCount": 0,
+    "copiedOverlayReceipts": [],
+    "doesNotSelectChangeOrRegradeCard": true,
+    "executionOrderMismatches": [],
+    "firstFailureClassificationCounts": {},
+    "firstFailureExamples": [],
+    "fullIndependentCardCertification": false,
+    "gateChecksAttempted": {
+      "G0": 0,
+      "G1": 0,
+      "G10": 0,
+      "G10.5": 0,
+      "G11": 0,
+      "G12": 0,
+      "G13": 0,
+      "G14": 0,
+      "G15": 0,
+      "G16": 0,
+      "G17": 0,
+      "G18": 0,
+      "G2": 0,
+      "G3": 0,
+      "G4": 0,
+      "G5": 0,
+      "G6": 0,
+      "G7": 0,
+      "G8": 0,
+      "G9": 0,
+      "Step0": 0,
+      "Step1": 0,
+      "Step10": 0,
+      "Step10.5": 0,
+      "Step11": 0,
+      "Step12": 0,
+      "Step13": 0,
+      "Step14": 0,
+      "Step2": 0,
+      "Step3": 0,
+      "Step4": 0,
+      "Step5": 0,
+      "Step6": 0,
+      "Step7": 0,
+      "Step8": 0,
+      "Step9": 0
+    },
+    "gateRows": 22,
+    "gateSpecification": {
+      "executionCount": 36,
+      "executionOrder": [
+        "G0",
+        "Step0",
+        "G1",
+        "G2",
+        "Step1",
+        "G3",
+        "Step2",
+        "G4",
+        "Step4",
+        "G5",
+        "Step3",
+        "G6",
+        "Step6",
+        "G7",
+        "Step5",
+        "G8",
+        "Step8",
+        "G9",
+        "Step7",
+        "Step9",
+        "G10",
+        "Step10",
+        "G10.5",
+        "Step10.5",
+        "G11",
+        "Step11",
+        "G12",
+        "G13",
+        "Step13",
+        "G14",
+        "G15",
+        "G16",
+        "Step12",
+        "G17",
+        "Step14",
+        "G18"
+      ],
+      "masterCount": 20,
+      "masterOrder": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlayCount": 16,
+      "overlayOrder": [
+        "Step0",
+        "Step1",
+        "Step2",
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step8",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step13",
+        "Step14"
+      ],
+      "scorerGateOrder": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ]
+    },
+    "goalieDirectionsWithPass": 0,
+    "masterGateDispositions": {
+      "G0": {},
+      "G1": {},
+      "G10": {},
+      "G10.5": {},
+      "G11": {},
+      "G12": {},
+      "G13": {},
+      "G14": {},
+      "G15": {},
+      "G16": {},
+      "G17": {},
+      "G18": {},
+      "G2": {},
+      "G3": {},
+      "G4": {},
+      "G5": {},
+      "G6": {},
+      "G7": {},
+      "G8": {},
+      "G9": {}
+    },
+    "missingMatrixGateRows": {},
+    "neverTreatsGateRecordAsAutomaticPass": true,
+    "nonselectedCandidateFailuresAreNotCertificationErrors": true,
+    "nonselectedIncompleteEvidenceRemainsVisible": true,
+    "otherMissingSourceExamples": {},
+    "overlayGateDispositions": {
+      "Step0": {},
+      "Step1": {},
+      "Step10": {},
+      "Step10.5": {},
+      "Step11": {},
+      "Step12": {},
+      "Step13": {},
+      "Step14": {},
+      "Step2": {},
+      "Step3": {},
+      "Step4": {},
+      "Step5": {},
+      "Step6": {},
+      "Step7": {},
+      "Step8": {},
+      "Step9": {}
+    },
+    "recordedPassProofGapExamples": [],
+    "recordedPassesWithInsufficientProof": {
+      "G0": 0,
+      "G1": 0,
+      "G10": 0,
+      "G10.5": 0,
+      "G11": 0,
+      "G12": 0,
+      "G13": 0,
+      "G14": 0,
+      "G15": 0,
+      "G16": 0,
+      "G17": 0,
+      "G18": 0,
+      "G2": 0,
+      "G3": 0,
+      "G4": 0,
+      "G5": 0,
+      "G6": 0,
+      "G7": 0,
+      "G8": 0,
+      "G9": 0,
+      "Step0": 0,
+      "Step1": 0,
+      "Step10": 0,
+      "Step10.5": 0,
+      "Step11": 0,
+      "Step12": 0,
+      "Step13": 0,
+      "Step14": 0,
+      "Step2": 0,
+      "Step3": 0,
+      "Step4": 0,
+      "Step5": 0,
+      "Step6": 0,
+      "Step7": 0,
+      "Step8": 0,
+      "Step9": 0
+    },
+    "scannedSkaters": 0,
+    "selectedCoreOnlyFullyCertified": false,
+    "selectedExecutionOrderGaps": [],
+    "selectedLegs": [],
+    "selectedMasterGatesAllPass": false,
+    "selectedOverlayGatesAllPass": false,
+    "selectedSourceAttributionGaps": [],
+    "selectionFunnel": {
+      "allNonselectedRetainGateAudit": true,
+      "lockedCoreRecipients": 0,
+      "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
+      "notQualifiedIncompleteEvidence": 0,
+      "oneSourceSelectedCardPreserved": true,
+      "otherNotSelected": 0,
+      "qualifiedButNotChosen": 0,
+      "sourceEliminated": 0,
+      "surveyedEligibleSkaters": 0
+    },
+    "slateDate": "2026-11-17",
+    "sourceUnattributedPassingGateCount": 0,
+    "sourceUnattributedPassingGateExamples": [],
+    "stage": "CONFIRMED",
+    "step8MissingDetails": [],
+    "step8MissingReasons": {},
+    "substantivelyCertifiedPasses": {
+      "G0": 0,
+      "G1": 0,
+      "G10": 0,
+      "G10.5": 0,
+      "G11": 0,
+      "G12": 0,
+      "G13": 0,
+      "G14": 0,
+      "G15": 0,
+      "G16": 0,
+      "G17": 0,
+      "G18": 0,
+      "G2": 0,
+      "G3": 0,
+      "G4": 0,
+      "G5": 0,
+      "G6": 0,
+      "G7": 0,
+      "G8": 0,
+      "G9": 0,
+      "Step0": 0,
+      "Step1": 0,
+      "Step10": 0,
+      "Step10.5": 0,
+      "Step11": 0,
+      "Step12": 0,
+      "Step13": 0,
+      "Step14": 0,
+      "Step2": 0,
+      "Step3": 0,
+      "Step4": 0,
+      "Step5": 0,
+      "Step6": 0,
+      "Step7": 0,
+      "Step8": 0,
+      "Step9": 0
+    },
+    "surveyedGoalieDirections": 22,
+    "twoDirectionsPerScheduledGameRecorded": true
+  },
+  "gateRows": 22,
+  "historicalShiftCoverage": {
+    "attemptedGames": 121,
+    "chartedGames": 115,
+    "doesNotConfirmTonightLines": true,
+    "doesNotProveGloveBlockerOrFiveHole": true,
+    "matchedDefensiveShotEvents": 5377,
+    "sampledOfficialIntervals": 86402,
+    "sourceFailures": [
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020189"
+      },
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020203"
+      },
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020190"
+      },
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020192"
+      },
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020202"
+      },
+      {
+        "error": "EMPTY_OFFICIAL_SHIFT_CHART",
+        "gameId": "2026020199"
+      }
+    ],
+    "sourceScope": "HISTORICAL_OFFICIAL_NHL_SHIFT_INTERVALS_AND_PLAY_BY_PLAY"
+  },
+  "lineupSourceCoverage": {
+    "deploymentRecords": null,
+    "error": "ValueError: Lineup snapshot slate date mismatch: # Tonight in the NHL: line combinations and starting goalies (games dated 2026-11-16)",
+    "goalieReports": null,
+    "status": "SOURCE_UNAVAILABLE"
+  },
+  "missingByGate": {
+    "G0": 22
+  },
+  "nonselectedGameResearchIsDiagnosticOnly": true,
+  "nonselectedGameResearchNotes": [],
+  "nonselectedGateAuditIsDiagnosticOnly": true,
+  "officialBoxscoreCoverage": {
+    "appearanceRows": 3235,
+    "attemptedGames": 121,
+    "discrepancies": [],
+    "distinctPlayers": 452,
+    "noSeasonTotalsInvented": true,
+    "source": "https://api-web.nhle.com/v1/gamecenter/",
+    "sourceGames": 121,
+    "status": "OFFICIAL_PBP_AND_BOXSCORE_RECONCILED",
+    "timeLeakagePrevented": true,
+    "verifiedOwnGoalRows": 452
+  },
+  "officialDefenseCoverage": {
+    "coverageAttackSides": 22,
+    "failedSources": [],
+    "historicalDefensiveEventsWithObservedShifts": 5377,
+    "lowShotVolumeNeverCreatesRedStrengthZone": true,
+    "minimumPeerAttempts": 120,
+    "minimumPeerGames": 6,
+    "minimumZoneAttempts": 16,
+    "officialShiftChartGames": 115,
+    "peerComparison": "OTHER_TEAM_MEDIAN_SHOT_ATTEMPTS_PER_GAME",
+    "sourceType": "OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
+    "targetSides": 22,
+    "zonesAreConservativeDerivedRinkAreas": true
+  },
+  "publicationDecision": "FULL_GATE_EXECUTION_INCOMPLETE",
+  "publishedToSite": false,
+  "retainedOriginalLockedCard": false,
+  "runner": "GITHUB_ACTIONS_AUTONOMOUS",
+  "selectionFunnel": {
+    "allNonselectedRetainGateAudit": true,
+    "lockedCoreRecipients": 0,
+    "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
+    "notQualifiedIncompleteEvidence": 0,
+    "oneSourceSelectedCardPreserved": true,
+    "otherNotSelected": 0,
+    "qualifiedButNotChosen": 0,
+    "sourceEliminated": 0,
+    "surveyedEligibleSkaters": 0
+  },
+  "slateDate": "2026-11-17",
+  "stage": "CONFIRMED",
+  "survivorOnlyCertification": false,
+  "updatedUTC": "2026-11-17T05:05:35+00:00"
+}
