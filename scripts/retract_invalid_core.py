@@ -87,7 +87,7 @@ def retract(root="state", now=None):
         checkpoint.close()
     run_path = root / "site_runs" / (DATE + ".json")
     source_run = json.loads(run_path.read_text(encoding="utf-8"))
-    observed = source_run.get("allG18QualifiedSurvivors") or []
+    observed = source_run.get("preCoreQualifiedSurvivors") or []
     actual_ids = {(str(x["gameId"]), str(x["playerId"])) for x in observed}
     manifest_ids = {(str(x["gameId"]), str(x["playerId"]))
                     for x in manifest["upstreamSurvivors"]}
