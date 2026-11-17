@@ -38,7 +38,7 @@ def test_no_g0_winner_audits_both_teams_and_every_goalie_branch_without_picks(tm
     rows=con.execute("""SELECT player_id,gate,disposition,details
       FROM gates WHERE slate_date=? AND stage='PROJECTED'
        AND player_id LIKE 'G0_RESEARCH:%'""",(DATE,)).fetchall()
-    assert len(rows)==7*36
+    assert len(rows)==7*len(EXECUTION_ORDER)
     for pid in {row["player_id"] for row in rows}:
         got=[row for row in rows if row["player_id"]==pid]
         assert len(got)==len(EXECUTION_ORDER)
