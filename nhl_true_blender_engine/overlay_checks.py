@@ -101,7 +101,10 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'noMissedGameZeroFilled':True,'multigoalDateCountedOnce':True,
           **dated_recurrence},
          src(player.get('gameLog'),player.get('mappedGoals'),
-             player.get('officialGoalTotal'),pressure))
+             player.get('officialGoalTotal'),pressure),
+         contradiction=bool(recurrence and observed_shots['valid']
+                            and observed_shots['datedAppearanceAlignmentVerified']
+                            and not dated_recurrence['datedScoringOrShotRecurrence']))
     own_mechanism=bool(receipt(raw_release) and release and release.get('archetype')
                       and isinstance(release.get('ownedGoals'),int)
                       and isinstance(release.get('attempts'),int)
@@ -180,7 +183,9 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
          {'dateSampleShotsOnNet':recent,
           'recentRouteContinuationMeasured':measured,
           'ownShotContinuationEvidence':observed_shots,
-          'notWeightedOrMarketSelected':True},src(pressure))
+          'notWeightedOrMarketSelected':True},src(pressure),
+         contradiction=bool(receipt(pressure) and observed_shots['valid']
+                            and not observed_shots['repeatedOwnShotPressure']))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
          {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,
           'weaknessAreaSummary':weak.get(zone) if zone else None,
