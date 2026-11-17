@@ -97,6 +97,15 @@ function explanation(record){
      "Unusual independent scoring route was source-supported and reviewed with the goalie target.":
      "Unusual WHO route checked; no separate supported anomaly was asserted or forced.";
  case "G15":
+   if(e.fullSeasonGoalCreditsReconciledAgainstEdgeOrigins===true &&
+      e.matchedOriginHasHistoricalGoal===false)
+     return "Independent verified goal recipient: "+text(e.officialDatedSeasonGoals)+
+       " official season goals match "+text(e.totalOwnedGoalsFromEveryNhlEdgeOrigin)+
+       " OWN NHL EDGE origin goals. "+text(e.matchedOriginOwnOnNetShots)+
+       " actual on-net shots from today's targeted goalie-weak origin; "+
+       "ZERO goals historically credited from that specific origin. "+
+       "G5 and G9 establish its attacking route separately. This does NOT prove "+
+       "the player will score rather than assist tonight.";
    return "Independent historical finishing cross-check: "+
      text(e.officialOwnedGoalsInMatchedOrigin)+" credited goal(s) from the selected shot origin"+
      (small(e.officialDatedSeasonGoals)!==null?" versus "+e.officialDatedSeasonGoals+" dated season goal(s)":"")+
