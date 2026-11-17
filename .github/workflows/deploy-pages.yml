@@ -321,5 +321,9 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+      # GitHub's artifact listing can lag immediately after a successful upload.
+      # Keep the one Pages artifact; do not create duplicate deployments.
+      - name: Allow Pages artifact metadata to become readable
+        run: sleep 12
       - id: deployment
         uses: actions/deploy-pages@v4
