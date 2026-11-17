@@ -110,14 +110,14 @@ def test_full_structural_three_game_run(con):
                                  ['G10.5'] + [f'G{i}' for i in range(11,19)])
     assert MASTER == ['G0'] + SCORER_GATE_ORDER
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
-    assert EXECUTION_ORDER == [item for gate in MASTER for item in [gate] + STEPS_BY_GATE[gate]]
+    assert EXECUTION_ORDER == MASTER
     assert EXECUTION_ORDER[-1]=='G18'
     assert EXECUTION_ORDER.index('G10.5') < EXECUTION_ORDER.index('G11')
     assert len(PATCH_IDS)==13
     res=execute(con,snapshot(),DATE,'CONFIRMED')
     assert res['g0Directions']==6 and res['g0Complete']==6
     assert res['eligibleSkaterRows']==9
-    assert res['gateRows']==9*(len(MASTER)+len(OVERLAY))+6
+    assert res['gateRows']==9*len(MASTER)+6
     assert res['uniqueGameSurvivors']==3
     assert res['card'] is not None,res['errors']
     legs=res['card']['current_legs']
@@ -125,7 +125,7 @@ def test_full_structural_three_game_run(con):
     assert {x['path'] for x in legs}=={'PRIMARY','WHO'}
     assert len({x['gameId'] for x in legs})==3
     assert con.execute('SELECT COUNT(*) FROM cards').fetchone()[0]==1
-    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==9*(len(MASTER)+len(OVERLAY))+6
+    assert con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]==9*len(MASTER)+6
     stored=con.execute("SELECT gate,details FROM gates WHERE slate_date=? AND stage='CONFIRMED' AND game_id='5001' AND player_id='1010'",(DATE,)).fetchall()
     stored.sort(key=lambda row:json.loads(row['details']).get('executionIndex',-1))
     assert [row['gate'] for row in stored]==EXECUTION_ORDER
@@ -284,8 +284,14 @@ def test_missing_game_one_skater_trace_cannot_issue_card(con):
         for team in (game['away'],game['home']):
             for p in game['rosters'][team]['data']['players']:
                 for gate in EXECUTION_ORDER:
-                    if p['id']=='1011' and gate=='Step7':continue
-                    rows.append(gate_record(game,p['id'],gate,'PASS',{}))
+                    functions=[{'step':step,'disposition':'PASS','sourceIds':['https://www.nhl.com/'],
+                                'evidence':{'independentOverlayEvaluation':True,
+                                            'checkedBeforeG18':True,
+                                            'masterGateVerdictCopied':False}}
+                               for step in STEPS_BY_GATE[gate]
+                               if not (p['id']=='1011' and step=='Step7')]
+                    rows.append(gate_record(game,p['id'],gate,'PASS',
+                        {'originalFunctionEvidence':functions}))
     selected={str(g['id']):{'attacker':g['away']} for g in s['games']}
     errors=verify_complete_matrix(s['games'],rows,[],now=datetime.now(timezone.utc),selected_directions=selected)
     assert any('1011' in e and 'Step7' in e for e in errors)
@@ -330,21 +336,20 @@ def test_integrated_gate_evidence_uses_semantic_owners(con):
         "SELECT gate,details FROM gates WHERE slate_date=? AND stage='CONFIRMED' "
         "AND game_id='5001' AND player_id='1010'",(DATE,)).fetchall()
     details={gate:json.loads(raw) for gate,raw in rows}
-    expected={'G0':{'Step0'},'G2':{'Step1'},'G3':{'Step2'},
-              'G5':{'Step3'},'G4':{'Step4'},'G7':{'Step5'},
-              'G6':{'Step6'},'G9':{'Step7','Step9'},'G8':{'Step8'},
-              'G10':{'Step10'},'G10.5':{'Step10.5'},
-              'G11':{'Step11'},'G16':{'Step12'},
-              'G13':{'Step13'},'G17':{'Step14'}}
+    expected={'G0':{'Step0'},'G1':{'Step2'},'G2':{'Step1'},
+              'G4':{'Step5','Step7'},'G5':{'Step3','Step10'},
+              'G6':{'Step6'},'G7':{'Step4'},'G9':{'Step8'},
+              'G10.5':{'Step10.5'},'G11':{'Step9'},
+              'G13':{'Step13'},'G14':{'Step11'},'G16':{'Step12'},
+              'G17':{'Step14'}}
     for gate,steps in expected.items():
         proof=details[gate]['evidence']
         observations=proof['independentOverlayEvidence']
         assert {item['step'] for item in observations}==steps
-        # The original master verdict and independent overlay dispositions
-        # remain distinct; G18 reads BOTH tracks without merging them.
-        assert 'integratedDisposition' not in proof
-        assert proof.get('integratedStepEvidence') is None
+        # Each source function now belongs to this one canonical gate row.
+        assert proof['originalFunctionEvidence']==observations
         assert all(item['disposition']=='PASS' for item in observations)
+    assert set(details)==set(MASTER)
 
 
 def test_gate_time_trace_matches_persisted_decisions(con):
@@ -363,11 +368,11 @@ def test_gate_time_trace_matches_persisted_decisions(con):
         content=json.loads(gate_row[2])['evidence']
         steps=content.get('independentOverlayEvidence',[])
         assert [item['step'] for item in steps]==STEPS_BY_GATE[gate]
-        assert 'integratedDisposition' not in content
-        for step in steps:
-            receipt=next(row for row in chronological if row[0]==step['step'])
-            assert receipt[1]==step['disposition']
-            assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
+        assert steps==content.get('originalFunctionEvidence',[])
+        for fn in steps:
+            assert fn['disposition']=='PASS'
+            assert fn['evidence']['checkedBeforeG18'] is True
+            assert fn['evidence']['masterGateVerdictCopied'] is False
 
 
 def test_projected_status_cannot_erase_official_dressed_status():

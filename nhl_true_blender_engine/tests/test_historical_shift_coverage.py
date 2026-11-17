@@ -76,10 +76,12 @@ def test_step8_team_shift_review_has_real_clock_joined_events_and_lane_truth(tmp
     assert audit["fullIndependentCardCertification"] is True
     for leg in result["card"]["current_legs"]:
         row=con.execute("""SELECT details FROM gates WHERE slate_date=? AND stage=?
-            AND game_id=? AND player_id=? AND gate='Step8'""",
+            AND game_id=? AND player_id=? AND gate='G9'""",
             (DATE,"CONFIRMED",str(leg["gameId"]),str(leg["playerId"]))).fetchone()
         import json
-        payload=json.loads(row["details"])["evidence"]
+        gate=json.loads(row["details"])["evidence"]
+        payload=next(fn["evidence"] for fn in gate["originalFunctionEvidence"]
+                     if fn["step"]=="Step8")
         assert payload["observedHistoricalShiftEvents"]==1
         assert payload["specificPlayerZoneShiftEvidenceProven"] is True
         assert payload["historicalShiftsNotTonightLineupConfirmation"] is True

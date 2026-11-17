@@ -31,6 +31,7 @@ def _result(extra=True):
             "allSkatersHaveEachGateRecord": True,
             "allSkatersHaveExactExecutionOrder": True,
             "allOverlayStepsWereIndependentlyChecked": True,
+            "allOriginalFunctionsWereCheckedWithinGates": True,
             "copiedOverlayReceiptCount": 0,
             "twoDirectionsPerScheduledGameRecorded": True,
             "selectedCoreOnlyFullyCertified": True,

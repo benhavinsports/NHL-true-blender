@@ -28,9 +28,14 @@ def make(player_zone="Unmapped EDGE Area",include_shift=True):
 def review(g,p):
     goalie=g["goalies"][g["home"]][0]
     attacker=g["away"]
+    # A function-check receipt is intermediate evidence inside G9, not
+    # an independently persisted gate record.
+    def observation_record(_game, _player, step, status, detail, sources):
+        return {"gate":step,"disposition":status,
+                "details":{"evidence":detail,"sourceIds":list(sources)}}
     rows=independent_overlay(g,attacker,p,[p],goalie,
         player_releases(p),reconcile_logs(p),[],"CONFIRMED",
-        receipt,evidence_data,gate_record)
+        receipt,evidence_data,observation_record)
     return next(r for r in rows if r["gate"]=="Step8")
 
 def test_true_team_shift_coverage_passes_even_if_own_edge_area_is_not_polygon_matched():

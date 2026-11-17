@@ -177,7 +177,7 @@ function renderHeader(){
  setText("stat-phase",saved?s.phase:"AWAITING");
  const valid=state.gateData?.legs?.every(x=>x.masterPassed===x.totalMaster
      &&x.overlayPassed===x.totalOverlay);
- setText("stat-gates",valid?"36 / 36":saved&&state.gateData?"REVIEW":"—");
+ setText("stat-gates",valid?"20 / 20":saved&&state.gateData?"REVIEW":"—");
  const recent=state.latest;
  setText("stat-scanned",s.current?
     number(recent?.selectionFunnel?.surveyedEligibleSkaters||
@@ -228,7 +228,7 @@ function coreCard(leg,i){
  const key=String(leg.gameId)+":"+String(leg.playerId);
  button.setAttribute("aria-pressed",String(key===state.selectedLeg));
  button.setAttribute("aria-label","Flip "+leg.player+
-   " card to inspect 20 G gates, 16 overlay checks and their sources");
+   " card to inspect the original G0–G18 gate evidence and sources");
  // A playing-card suit is decorative, never a scorer rank or calculated chance.
  const suit=path.display==="TRANSFER"?"♦":path.display==="WHO"?"♣":"♠";
  const top=el("div","card-head");
@@ -254,7 +254,7 @@ function coreCard(leg,i){
    metadata.appendChild(el("div","tiny","Original frozen label: "+path.original));
  button.appendChild(metadata);
  const bottom=el("div","card-bottom");
- bottom.appendChild(el("span","","FLIP • INSPECT 36 GATES"));
+ bottom.appendChild(el("span","","FLIP • INSPECT G0–G18"));
  bottom.appendChild(el("span","tiny-arrow","↻"));
  button.appendChild(bottom);
  button.addEventListener("click",()=>{
@@ -331,20 +331,20 @@ function renderDetails(){
  const compliance=el("div","phase-bar");
  const summary=el("div");
  summary.appendChild(el("strong","","Full gate evidence"));
- const passed=data?data.masterPassed+" / "+data.totalMaster+" master · "+
-   data.overlayPassed+" / "+data.totalOverlay+" overlay":"No separately exported pre-puck matrix yet";
+ const passed=data?data.masterPassed+" / "+data.totalMaster+" original gates":
+   "No pre-puck original gate matrix available";
  summary.appendChild(el("p","",passed+
    (data?" · "+(data.executionOrderVerified?"exact execution order verified":"execution order NOT verified")+
      " · Source stage: "+(data.stageOfGateRecords||"Unavailable"):"")));
  compliance.appendChild(summary);
  const passedAll=data&&data.executionOrderVerified===true&&
    data.masterPassed===data.totalMaster&&data.overlayPassed===data.totalOverlay;
- compliance.appendChild(pill(data?passedAll?"ALL 36 PASSED · ORDER VERIFIED":"EVIDENCE REVIEW":"AWAITING EXPORT",
+ compliance.appendChild(pill(data?passedAll?"G0–G18 PASSED · ORDER VERIFIED":"EVIDENCE REVIEW":"AWAITING EXPORT",
      data?passedAll?"success":"warning":"neutral"));
  body.appendChild(compliance);
  if(state.gateData?.currentEngineUsesDifferentOverlayPlacement){
    body.appendChild(el("div","notice warning",
-      "This original projected receipt is preserved in its actual historic execution order: G0–G17, overlay 0–14, then G18. It contains 36 recorded PASS checks, but does NOT claim the newer interleaved overlay order was executed on that historical run."));
+      "An older run used duplicate Step rows. Its historic evidence is retained but is not certified as a fresh unified G0–G18 run."));
  }
  // These are independent source reviews, not two different Core cards.
  // A later incomplete confirmation must never hide the original verified
@@ -356,8 +356,8 @@ function renderDetails(){
      if(!r)continue;
      const label=phase+(data.stageOfGateRecords===phase?" · SHOWN ABOVE":" · REVIEW ONLY");
      const status=!r.available?"NOT COLLECTED":
-       r.fullOriginalOrderPass?"36/36 SOURCE PASSES":
-       r.masterPassed+" / 20 master · "+r.overlayPassed+" / 16 overlay";
+       r.fullOriginalOrderPass?"G0–G18 SOURCE PASSES":
+       r.masterPassed+" / 20 original gates";
      reviews.appendChild(fact(label,status));
    }
    body.appendChild(reviews);
@@ -372,7 +372,7 @@ function renderDetails(){
      "Selected-player source receipts are not available in the deployed evidence export. A PASS is not assumed."));
  }else{
    const tabs=el("div","gate-tabs");
-   for(const [key,title] of [["all","All 36"],["master","G0–G18"],["overlay","Overlay 0–14"],["review","Needs review"]]){
+   for(const [key,title] of [["all","All G0–G18"],["review","Needs review"]]){
      const btn=el("button","tab",title);btn.type="button";
      btn.setAttribute("aria-pressed",String(state.gateFilter===key));
      btn.addEventListener("click",()=>{state.gateFilter=key;renderDetails();});
@@ -381,8 +381,6 @@ function renderDetails(){
    body.appendChild(tabs);
    const gates=data.gateDetails||[];
    const visible=gates.filter(x=>state.gateFilter==="all"||
-     state.gateFilter==="master"&&MASTER.includes(x.gate)||
-     state.gateFilter==="overlay"&&OVERLAY.includes(x.gate)||
      state.gateFilter==="review"&&x.status!=="PASS");
    if(!visible.length){
      body.appendChild(el("div","notice good","Every gate in this view is recorded as PASS in the saved pre-puck evidence."));
@@ -425,6 +423,28 @@ function gateRow(record){
       " · "+sources.length+" attributed source"+(sources.length===1?"":"s"):
     "No matching pre-puck receipt available; this gate is NOT represented as passed."));
  const evidence=record.evidence||{};
+ const originalFunctions=evidence.originalFunctionEvidence||[];
+ if(originalFunctions.length){
+   const functions=el("details","source-details");
+   functions.appendChild(el("summary","","Original functions within this gate"));
+   const list=el("div","gate-list");
+   for(const fn of originalFunctions){
+     const pane=el("details","gate-row");
+     const header=el("summary");
+     header.appendChild(el("span","gate-title",EXPLAIN[fn.step]||"Original function"));
+     header.appendChild(pill(fn.disposition||"UNKNOWN",statusClass(fn.disposition)));
+     pane.appendChild(header);
+     const inside=el("div","gate-body");
+     const urls=unique((fn.sourceIds||[]).filter(u=>typeof u==="string"&&u.startsWith("https://")));
+     if(urls.length){
+       const links=el("div","source-links");urls.map(u=>link(u)).filter(Boolean).forEach(a=>links.appendChild(a));
+       inside.appendChild(links);
+     }
+     inside.appendChild(el("pre","raw-json",JSON.stringify(fn.evidence||{},null,2)));
+     pane.appendChild(inside);list.appendChild(pane);
+   }
+   functions.appendChild(list);inner.appendChild(functions);
+ }
  if(record.gate==="G10"&&evidence.notAssistOrFeeder===true){
    const warning=el("div","notice warning",
      "ORIGINAL CARD AUDIT: This older G10 receipt claimed the skater was not an assist/feeder based on historically credited goals alone. It was not proof of tonight's finisher. The frozen original remains unchanged; future engine runs now report this uncertainty accurately.");
@@ -743,11 +763,10 @@ function renderSystem(){
  host.appendChild(details);
 }
 function renderCompleteGateDeck(){
-  // All 20 master + 16 overlay steps are displayed identically.
-  // This deck is NAVIGATION ONLY; it never changes a Blender decision.
+  // One gate deck; original source functions are nested under each gate.
+  // This deck is navigation only and never changes a Blender decision.
   for(const [id,gates,type] of [
-    ["master-gate-deck",MASTER,"master"],
-    ["overlay-gate-deck",OVERLAY,"overlay"]
+    ["master-gate-deck",MASTER,"all"]
   ]){
     const holder=$(id);
     if(!holder)continue;
@@ -758,7 +777,7 @@ function renderCompleteGateDeck(){
       card.dataset.gate=gate;
       card.setAttribute("aria-label","Inspect "+gate+": "+(EXPLAIN[gate]||"Gate evidence"));
       card.appendChild(el("span","mini-gate-code",gate));
-      card.appendChild(el("span","mini-gate-symbol",type==="master"?"♠":"◇"));
+      card.appendChild(el("span","mini-gate-symbol","♠"));
       card.appendChild(el("span","mini-gate-title",EXPLAIN[gate]||"Source check"));
       card.addEventListener("click",()=>{
         state.gateFilter=type;

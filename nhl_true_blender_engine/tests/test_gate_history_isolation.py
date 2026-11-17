@@ -14,7 +14,7 @@ def test_full_prior_run_archived_when_new_run_has_no_eligible_games(tmp_path):
         assert first["card"] is not None,first["errors"]
         first_count=con.execute("""SELECT count(*) FROM gates WHERE
             slate_date=? AND stage='CONFIRMED'""",(DATE,)).fetchone()[0]
-        assert first_count==9*(len(MASTER)+len(OVERLAY))+6
+        assert first_count==9*len(MASTER)+6
         saved=get_card(con,DATE)
         # Simulate a later replay after puck: no player can be newly
         # selected, but the original card must not be silently replaced.
@@ -43,7 +43,7 @@ def test_full_prior_run_archived_when_new_run_has_no_eligible_games(tmp_path):
         con.close()
 
 
-def test_full_36_gate_cohort_has_one_precise_execution_timestamp(tmp_path):
+def test_full_original_gate_cohort_has_one_precise_execution_timestamp(tmp_path):
     """Chronological gate archive cannot be split when seconds tick mid-run."""
     from nhl_true_blender_engine.engine import EXECUTION_ORDER
     con=open_db(str(tmp_path/"timestamp.sqlite"))

@@ -32,7 +32,7 @@ def first_gate_audit(con,date,stage):
             "g0ResearchOnlyGateRows":sum(len(v) for v in researched.values()),
             "g0ResearchNeverCountedAsSurvivingSkater":True,
             "firstNonpassingGateCounts":dict(sorted(counts.items())),
-            "allGateRowsPresent":sum(len(v)==len(MASTER)+16 for v in by_player.values()),
+            "allGateRowsPresent":sum(len(v)==len(MASTER) for v in by_player.values()),
             "samplesByFirstGate":{
                 gate:[x for x in traces if x["firstNonpassingGate"]==gate][:3]
                 for gate in counts},

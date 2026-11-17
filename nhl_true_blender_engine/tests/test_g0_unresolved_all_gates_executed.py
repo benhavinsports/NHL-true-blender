@@ -31,17 +31,17 @@ def test_no_g0_winner_audits_both_teams_and_every_goalie_branch_without_picks(tm
     assert result["g0Directions"]==2
     assert result["eligibleSkaterRows"]==4
     # 3 away-team players against BOTH home goalie possibilities,
-    # plus 1 home-team player against the away goalie: 7 x 36.
+    # plus 1 home-team player against the away goalie: 7 original G0–G18 traces.
     assert result["unresolvedG0ResearchBranchCount"]==7
-    assert result["unresolvedG0PlayerSourceChecks"]==7*36
+    assert result["unresolvedG0PlayerSourceChecks"]==7*len(EXECUTION_ORDER)
     assert result["gateRows"]==7*len(EXECUTION_ORDER)+2
     rows=con.execute("""SELECT player_id,gate,disposition,details
       FROM gates WHERE slate_date=? AND stage='PROJECTED'
        AND player_id LIKE 'G0_RESEARCH:%'""",(DATE,)).fetchall()
-    assert len(rows)==7*36
+    assert len(rows)==7*len(EXECUTION_ORDER)
     for pid in {row["player_id"] for row in rows}:
         got=[row for row in rows if row["player_id"]==pid]
-        assert len(got)==36
+        assert len(got)==len(EXECUTION_ORDER)
         got.sort(key=lambda row:json.loads(row["details"])["executionIndex"])
         assert [row["gate"] for row in got]==EXECUTION_ORDER
         assert got[0]["disposition"]!="PASS"

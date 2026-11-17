@@ -14,6 +14,25 @@ a paid application server, or a separate website host to trigger analysis.
 A successful GitHub workflow means code executed; it does not by itself
 prove that all scorer gates passed or that a Core 3 was issued.
 
+## Original gate execution — single pipeline
+
+The active scorer sequence is one G0–G18 pipeline:
+
+`G0 → G1 → G2 → G3 → G4 → G5 → G6 → G7 → G8 → G9 → G10 → G10.5 → G11 → G12 → G13 → G14 → G15 → G16 → G17 → G18`
+
+The historical Phase-1 `Step` names are descriptions of original functions
+**inside their owning gate**, not 16 additional gate positions or a second
+selection pass. Their independent source observations are preserved under each
+gate's `originalFunctionEvidence` field. The canonical database trace contains
+one gate row per original position. The dashboard shows one gate deck and
+expands these internal functions in the relevant gate detail.
+
+A complete recorded trace is **not** proof of scorer qualification. The
+corresponding source-backed decisions must pass the actual original rules;
+missing evidence cannot be silently promoted to a PASS. Existing historical
+36-row archives remain intact and are not retroactively relabeled as a
+newly executed G0–G18 run.
+
 ## Local development app (optional)
 
 - **Windows:** double-click `start_windows.bat`

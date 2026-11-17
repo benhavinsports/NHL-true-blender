@@ -35,12 +35,14 @@ def test_postgame_audit_cannot_veto_scorer_selection():
     assert "active_guards" not in calls
 
 
-def test_all_master_and_overlay_positions_remain_distinct():
+def test_one_original_execution_sequence_retains_all_original_functions():
     from nhl_true_blender_engine.engine import MASTER, OVERLAY, EXECUTION_ORDER
     assert MASTER == (["G0"] + [f"G{i}" for i in range(1, 11)] +
                       ["G10.5"] + [f"G{i}" for i in range(11, 19)])
     assert OVERLAY == ([f"Step{i}" for i in range(11)] +
                        ["Step10.5"] + [f"Step{i}" for i in range(11, 15)])
-    assert len(EXECUTION_ORDER) == 36
-    assert len(set(EXECUTION_ORDER)) == 36
+    assert len(EXECUTION_ORDER) == len(MASTER) == 20
+    assert EXECUTION_ORDER == MASTER
+    assert len(OVERLAY) == 16
+    assert not set(EXECUTION_ORDER).intersection(OVERLAY)
     assert EXECUTION_ORDER[-1] == "G18"

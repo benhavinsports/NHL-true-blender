@@ -3,6 +3,7 @@
 These are synthetic fixtures; they never choose or replace a real scorer.
 November 17 exposed zero goal dates and [0,0,3] shots as a false PASS.
 """
+import json
 from nhl_true_blender_engine.engine import execute, EXECUTION_ORDER
 from nhl_true_blender_engine.route_continuation import (
     observed_own_shot_appearances, observed_dated_recurrence)
@@ -11,10 +12,16 @@ from nhl_true_blender_engine.tests.test_engine import DATE, snapshot
 
 
 def _evidence(con, pid):
-    return {row['gate']:row['disposition'] for row in con.execute(
-        """SELECT gate, disposition FROM gates
+    outcomes={}
+    for row in con.execute(
+        """SELECT gate, disposition, details FROM gates
            WHERE slate_date=? AND stage='CONFIRMED' AND player_id=?""",
-        (DATE, pid)).fetchall()}
+        (DATE, pid)).fetchall():
+        outcomes[row['gate']]=row['disposition']
+        for fn in (json.loads(row['details'])['evidence']
+                   .get('originalFunctionEvidence') or []):
+            outcomes[fn['step']]=fn['disposition']
+    return outcomes
 
 
 def _mutate_one_off(s):
