@@ -336,9 +336,12 @@ def test_integrated_gate_evidence_uses_semantic_owners(con):
               'G13':{'Step13'},'G17':{'Step14'}}
     for gate,steps in expected.items():
         proof=details[gate]['evidence']
-        observations=proof['integratedStepEvidence']
+        observations=proof['independentOverlayEvidence']
         assert {item['step'] for item in observations}==steps
-        assert proof['integratedDisposition']=='PASS'
+        # The original master verdict and independent overlay dispositions
+        # remain distinct; G18 reads BOTH tracks without merging them.
+        assert 'integratedDisposition' not in proof
+        assert proof.get('integratedStepEvidence') is None
         assert all(item['disposition']=='PASS' for item in observations)
 
 
@@ -356,16 +359,13 @@ def test_gate_time_trace_matches_persisted_decisions(con):
     for gate in MASTER[:-1]:
         gate_row=next(row for row in chronological if row[0]==gate)
         content=json.loads(gate_row[2])['evidence']
-        steps=content.get('integratedStepEvidence',[])
+        steps=content.get('independentOverlayEvidence',[])
         assert [item['step'] for item in steps]==STEPS_BY_GATE[gate]
-        if steps:
-            assert gate_row[1]=='PASS' if all(
-                item['disposition']=='PASS' for item in steps
-            ) and content.get('integratedDisposition')=='PASS' else gate_row[1]!='PASS'
-            for step in steps:
-                receipt=next(row for row in chronological if row[0]==step['step'])
-                assert receipt[1]==step['disposition']
-                assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
+        assert 'integratedDisposition' not in content
+        for step in steps:
+            receipt=next(row for row in chronological if row[0]==step['step'])
+            assert receipt[1]==step['disposition']
+            assert json.loads(receipt[2])['sourceIds']==step['sourceIds']
 
 
 def test_projected_status_cannot_erase_official_dressed_status():
