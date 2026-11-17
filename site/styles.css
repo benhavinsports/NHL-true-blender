@@ -862,3 +862,266 @@ a{color:#70eff5}
 .card-back .flip-function-line{padding:4px 0}
 .card-back .flip-function-line strong{display:block;font-size:9px;color:#20668c;line-height:1.45}
 .card-back .flip-function-line p{margin:2px 0;font-size:9px;color:#355d77;line-height:1.35}
+
+
+/* ─── TRUE BLENDER / PRIVATE-DECK PRESENTATION ───────────────────────────
+   Public dashboard only: Core, certified game-survivor cards, results.
+   Source and original gate receipts live behind the cards, not on the face.
+   No editor controls and no duplicate technical telemetry sections. */
+body{
+  background:
+    radial-gradient(circle at 50% -120px,rgba(37,75,113,.27),transparent 600px),
+    linear-gradient(170deg,#071221,#0c1830 62%,#081222);
+}
+.site-header{background:rgba(7,18,35,.95);border-bottom:1px solid #e3c89224;box-shadow:none}
+.brand-mark{
+  background:#162a43;border:1px solid #d9b76d55;color:#f9e9b6;
+  box-shadow:inset 0 1px 0 #ffffff12;border-radius:9px;
+}
+.brand-copy strong{letter-spacing:.12em;color:#f4e8ca}
+.main-nav a{font-size:11px;letter-spacing:.12em;font-weight:800;color:#aebdd1}
+.main-nav a:hover{background:#263a55;color:#f8e9c7}
+.header-action{border:1px solid #5570896b;background:#152841;border-radius:8px;color:#ccdbeb}
+.game-main{padding-top:20px}
+.game-shell{grid-template-columns:210px minmax(0,1fr);gap:16px;align-items:start}
+.game-rail,.game-table{border:1px solid #8ea5be40!important;box-shadow:0 18px 35px #0003;border-radius:15px;background:#101f39}
+.deck-rail{display:none!important}
+.run-rail .arcade-header{border-bottom:1px solid #7a97b044;background:#101e34;color:#e5d4ac;font-size:13px}
+.run-rail .rail-body{padding:14px;display:grid;grid-template-columns:1fr;gap:16px}
+.run-rail .slate-name{background:transparent;min-height:0;padding:0}
+.run-rail .slate-name strong{color:#fbecd2;letter-spacing:-.02em}
+.run-rail .rail-caption{color:#9babbb}
+.run-rail .round-objective{display:none}
+.run-rail .run-control{padding:0}
+.run-rail .slate-picker{background:#0b1c35;border:1px solid #768ba455;border-radius:8px}
+.game-table{background:linear-gradient(165deg,#102343,#0c1c37);overflow:hidden}
+.game-table .table-header{background:#0d1d36;border-bottom:1px solid #708dac40;padding:14px 18px}
+.game-table .table-header .eyebrow{color:#d4c299;font-size:10px}
+.game-table .table-header-label{color:#91cbbd;font-size:10px;letter-spacing:.1em}
+.game-table .phase-bar{
+  border:0;border-bottom:1px solid #b3c2d028;background:transparent;
+  min-height:45px;padding:8px 18px;
+}
+.game-table .phase-bar .pill{font-size:10px}
+.game-table .phase-bar p{display:none}
+.phase-quiet{color:#a9bfd0;font-size:10px}
+.play-stage{padding:26px 17px 20px}
+.play-stage::before{opacity:.45}
+.play-stage-heading h1{letter-spacing:-.045em;text-shadow:none}
+.play-stage-heading>span{opacity:.5}
+.table-instruction{font-size:10px;font-weight:750;letter-spacing:.09em;color:#9bb6c7;text-shadow:none}
+.hand-tray{background:#0b1b36;border-top:1px solid #7d97ba33}
+.hand-tray .tray-marker{color:#b2cad7}
+.hand-tray .table-link{color:#a7e0db}
+.section{margin-top:46px}
+.section-heading{margin-bottom:16px}
+.section-heading .eyebrow{color:#a4e4d8;font-size:10px;letter-spacing:.24em}
+.section-heading h2{
+  color:#f9eed4;text-shadow:none;font-family:Inter,system-ui,sans-serif;
+  letter-spacing:-.05em;font-weight:900;font-size:clamp(27px,3.2vw,38px);
+}
+#pool .section-panel{padding:0;border:0;background:transparent;box-shadow:none}
+#pool .pool-subtitle{color:#a9bed0;font-size:12px;line-height:1.45;margin-top:5px}
+.pool-deck{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;align-items:stretch;
+}
+.pool-stat-strip{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  background:#101e35;border:1px solid #9caabe38;border-radius:11px;
+  min-height:72px;align-items:center;margin:0 0 8px;padding:9px 14px;
+}
+.pool-stat{display:grid;gap:2px;text-align:center;min-width:0}
+.pool-stat+.pool-stat{border-left:1px solid #acb7c82d}
+.pool-stat strong{color:#f9edcf;font-size:clamp(17px,2.2vw,27px);letter-spacing:-.05em;font-weight:900}
+.pool-stat span{font-size:9px;color:#9ab4c8;letter-spacing:.13em;font-weight:850}
+.pool-flip-card{
+  --pool-ink:#233652;
+  position:relative;min-width:0;height:294px;perspective:1000px;
+  border-radius:12px;isolation:isolate;
+  filter:drop-shadow(0 9px 10px #0004);
+}
+.pool-flip-card:focus-within{z-index:5}
+.pool-flip-inner{
+  position:absolute;inset:0;transform-style:preserve-3d;
+  transition:transform .62s cubic-bezier(.2,.65,.23,1);
+}
+.pool-flip-card.is-flipped .pool-flip-inner{transform:rotateY(180deg)}
+.pool-face{
+  position:absolute;inset:0;border-radius:11px;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:1px solid #d5c5a3;
+}
+.pool-front{
+  background:
+    radial-gradient(circle at 85% 12%,#ffffffa5,transparent 55%),
+    linear-gradient(145deg,#fffbed,#eee5cf);
+  color:var(--pool-ink);
+}
+.pool-flip-card.core-pool-card .pool-front{
+  background:radial-gradient(circle at 85% 12%,#ffffffb0,transparent 58%),
+    linear-gradient(145deg,#fff8df,#e7dac0);
+  border-color:#e6bb6c;
+}
+.pool-front::after{
+  content:"";position:absolute;inset:7px;border:1px solid #b8a88575;
+  border-radius:6px;pointer-events:none;
+}
+.pool-front-turn{
+  display:flex;flex-direction:column;justify-content:space-between;text-align:left;
+  position:relative;z-index:1;border:0;background:none;color:inherit;
+  width:100%;height:100%;padding:17px 15px 15px;cursor:pointer;
+}
+.pool-front-turn:hover{background:#ffffff20}
+.pool-front-turn:focus-visible,.pool-back-turn:focus-visible{outline:3px solid #51d4cb;outline-offset:-4px}
+.pool-card-head{display:flex;justify-content:space-between;align-items:start;gap:6px}
+.pool-matchup{font-size:10px;color:#475a73;font-weight:950;letter-spacing:.045em}
+.pool-card-suit{font-size:17px;line-height:1;color:#b8a06f}
+.pool-overline{
+  font-size:9px;color:#7c7263;font-weight:1000;letter-spacing:.19em;
+  border-bottom:1px solid #bfad8a8f;padding-bottom:10px;
+}
+.pool-flip-card.core-pool-card .pool-overline{color:#946c35}
+.pool-card-player{display:grid;gap:8px;min-height:106px;align-content:center}
+.pool-player-name{
+  display:block;color:#142843;font-weight:950;letter-spacing:-.05em;
+  font-size:clamp(19px,1.9vw,27px);line-height:1.05;overflow-wrap:break-word;
+}
+.pool-team{font-size:10px;letter-spacing:.14em;color:#64758a;font-weight:850}
+.pool-route{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:1px}
+.pool-path{
+  border-radius:3px;border:1px solid #9bb7c6;background:#e5eef2;
+  padding:4px 6px;color:#2b6683;font-weight:900;font-size:9px;letter-spacing:.025em;
+}
+.pool-path.transfer{border-color:#ddb779;background:#f7e8cd;color:#8f622f}
+.pool-path.who{border-color:#aa97c4;background:#efe9f7;color:#775a9f}
+.pool-origin{font-size:10px;color:#53687b;font-weight:750}
+.pool-short-proof{
+  font-size:10px;line-height:1.4;color:#5a6e7d;font-weight:750;
+  white-space:normal;
+}
+.pool-turn-tip{
+  align-self:stretch;text-align:right;border-top:1px solid #c8b99c99;
+  padding-top:9px;color:#667b8b;font-size:9px;font-weight:850;letter-spacing:.09em;
+}
+.pool-unresolved{font-size:22px}
+.pool-flip-card.unqualified .pool-front{background:linear-gradient(160deg,#e7e7e2,#d6d8d8)}
+.pool-back{
+  transform:rotateY(180deg);display:flex;flex-direction:column;
+  background:#101f37;border-color:#58728a;color:#ecf3fb;
+}
+.pool-back-bar{
+  display:flex;justify-content:space-between;gap:5px;align-items:center;
+  padding:12px 10px 9px;border-bottom:1px solid #7992ab3c;
+  min-height:45px;flex:0 0 auto;
+}
+.pool-back-bar strong{font-size:12px;line-height:1.18;letter-spacing:-.025em;color:#f7eccd}
+.pool-back-turn{
+  background:#1b344d;border:1px solid #63839c;border-radius:5px;
+  font-size:9px;color:#d5efec;padding:6px 7px;white-space:nowrap;font-weight:850;
+}
+.pool-back-content{
+  display:grid;align-content:start;gap:7px;padding:9px 10px 15px;
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  scrollbar-color:#456d7a #0d2137;min-height:0;flex:1;
+}
+.pool-back-subtitle{color:#8dcfc4;font-size:9px;letter-spacing:.08em;margin:0;font-weight:850}
+.pool-fact{display:grid;gap:2px;border-bottom:1px solid #7b92a426;padding:0 0 6px}
+.pool-fact span{font-size:9px;letter-spacing:.05em;color:#96acbc}
+.pool-fact strong{font-size:11px;line-height:1.35;font-weight:750;color:#ebf1ef;overflow-wrap:anywhere}
+.pool-back-reason{font-size:10px;line-height:1.5;color:#c0d5df;margin:3px 0 4px}
+.pool-gate-heading{
+  color:#eddfb2;font-size:9px;letter-spacing:.08em;padding:8px 0 5px;
+}
+.pool-gate-proof{
+  border:1px solid #50647a78;border-radius:5px;background:#142b46;
+  min-width:0;
+}
+.pool-gate-proof>summary{
+  display:flex;align-items:center;justify-content:space-between;gap:5px;
+  min-height:30px;padding:6px 7px;color:#d9eaf3;cursor:pointer;list-style:none;
+  font-size:10px;font-weight:800;
+}
+.pool-gate-proof>summary::-webkit-details-marker{display:none}
+.pool-gate-verdict{color:#e3ba89;font-size:9px;text-align:right;max-width:70%;overflow-wrap:anywhere}
+.pool-gate-verdict.passed{color:#83d7be}
+.pool-gate-proof>p{font-size:10px;line-height:1.5;color:#c8d6e0;padding:0 8px;margin:5px 0 8px;overflow-wrap:anywhere}
+.pool-gate-proof .pool-function-proof{color:#9cc7d7;font-size:9px}
+.pool-gate-links,.pool-evidence-sources{display:flex;gap:5px;flex-wrap:wrap;padding:4px 7px 8px}
+.pool-evidence-sources{border-top:1px solid #607c9440;padding:9px 0 0;gap:7px}
+.pool-evidence-sources>strong{width:100%;color:#d9bc87;font-size:10px}
+.pool-evidence-link{
+  font-size:9px;color:#91ebdb;border:1px solid #468d8a80;border-radius:5px;
+  padding:5px 6px;display:inline-flex;max-width:100%;overflow-wrap:anywhere;
+}
+.pool-evidence-link:hover{background:#28556a;text-decoration:none}
+.pool-receipt-pending{color:#aec7d5;font-size:10px;line-height:1.5}
+.pool-empty{grid-column:1/-1;margin:0;padding:25px;color:#a9bbcb}
+#results .section-panel{background:#0f223e;border:1px solid #536c8954;box-shadow:none;border-radius:12px}
+.footer{
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:26px 4px;color:#7f98ad;font-size:10px;
+  border-top:1px solid #a2bac328;
+}
+@media(max-width:1100px){
+  .game-shell{grid-template-columns:175px minmax(0,1fr)}
+  .pool-deck{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:940px){
+  .game-shell{display:flex;flex-direction:column;gap:12px}
+  .run-rail,.game-table{width:100%}
+  .run-rail .rail-body{display:flex;align-items:center;justify-content:space-between;gap:13px}
+  .run-rail .slate-name{min-width:0}
+  .run-rail .run-control{flex:0 1 195px;min-width:125px}
+  .pool-deck{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:650px){
+  .header-content{gap:8px;flex-wrap:wrap;min-height:58px}
+  .brand{gap:7px}
+  .brand-mark{height:32px;width:32px;font-size:12px}
+  .brand-copy strong{font-size:11px;letter-spacing:.045em}
+  .brand-copy span{display:none}
+  .main-nav{gap:0;order:3;width:100%;justify-content:space-around;border-top:1px solid #61798e30}
+  .main-nav a{font-size:9px;padding:8px 12px;letter-spacing:.09em}
+  .header-action{font-size:0;padding:8px}
+  .header-action svg{height:17px;width:17px}
+  .game-main{padding-top:12px}
+  .game-shell{gap:10px}
+  .run-rail .rail-body{display:flex;gap:12px;padding:11px}
+  .run-rail .slate-name{min-height:0;padding:0}
+  .run-rail .slate-name strong{font-size:17px}
+  .run-rail .run-control{flex:0 1 145px}
+  .run-rail .slate-picker{padding:8px;font-size:11px;min-height:37px}
+  .arcade-header{display:none}
+  .game-table .table-header{padding:10px 12px}
+  .play-stage{padding:20px 0 7px}
+  .section{margin-top:34px}
+  .section-heading{margin-bottom:13px}
+  .section-heading h2{font-size:28px}
+  #pool .pool-subtitle{font-size:11px}
+  .pool-deck{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .pool-flip-card{height:270px}
+  .pool-front-turn{padding:14px 12px 12px}
+  .pool-matchup{font-size:9px}
+  .pool-player-name{font-size:clamp(20px,5.3vw,24px)}
+  .pool-team{font-size:9px}
+  .pool-short-proof{font-size:9px}
+  .pool-overline{font-size:8px}
+  .pool-origin{font-size:9px}
+  .pool-turn-tip{font-size:8px}
+  .pool-stat-strip{min-height:65px;padding:8px 4px}
+  .pool-stat strong{font-size:18px}
+  .pool-stat span{font-size:8px;letter-spacing:.07em}
+  .footer{padding:23px 4px;line-height:1.6}
+}
+@media(max-width:350px){
+  .pool-deck{gap:8px}
+  .pool-flip-card{height:260px}
+  .pool-front-turn{padding:12px 10px}
+  .pool-player-name{font-size:19px}
+  .pool-route{gap:4px}
+  .pool-path{font-size:8px;padding:3px 4px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pool-flip-inner{transition:none}
+}
