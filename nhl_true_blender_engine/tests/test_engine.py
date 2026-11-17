@@ -6,7 +6,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import pytest
 from nhl_true_blender_engine.storage import open_db, save_card, get_card, grade_frozen_card, record_evidence, record_watch
-from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY, SCORER_GATE_ORDER, EXECUTION_ORDER, PATCH_IDS
+from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY, SCORER_GATE_ORDER, EXECUTION_ORDER, STEPS_BY_GATE, PATCH_IDS
 from nhl_true_blender_engine.sources import credited_goals_from_pbp, normalize_games, SourceUnavailable
 
 SRC='https://example.org/official-verifiable-fixture-not-live'
@@ -108,7 +108,7 @@ def test_full_structural_three_game_run(con):
                                  ['G10.5'] + [f'G{i}' for i in range(11,19)])
     assert MASTER == ['G0'] + SCORER_GATE_ORDER
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
-    assert EXECUTION_ORDER == [item for gate in MASTER for item in ([gate] + ([('Step10.5' if gate=='G10.5' else 'Step'+gate[1:])] if gate in ['G'+step[4:] for step in OVERLAY] else []))]
+    assert EXECUTION_ORDER == [item for gate in MASTER for item in [gate] + STEPS_BY_GATE[gate]]
     assert EXECUTION_ORDER[-1]=='G18'
     assert EXECUTION_ORDER.index('G10.5') < EXECUTION_ORDER.index('G11')
     assert len(PATCH_IDS)==13
