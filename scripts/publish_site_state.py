@@ -56,7 +56,16 @@ def export_run(con, slate_date, stage, result, root='state'):
         'games':result.get('games',0),
         'g0Directions':result.get('g0Directions',0),
         'g0Complete':result.get('g0Complete',0),
+        # Distinguish real G0-authorized candidate matrix checks from
+        # branch-specific research on official skaters whose attack side
+        # has NOT passed G0. Both are retained, but only the former enter
+        # the Core selection/certification denominator.
         'eligibleSkaterRows':result.get('eligibleSkaterRows',0),
+        'coreEligibleSkaterMatrices':(result.get('gateCertification') or {}).get('scannedSkaters',0),
+        'g0ResearchOnlyOfficialSkaters':(result.get('gateCertification') or {}).get('g0ResearchOnlyOfficialSkaters',0),
+        'g0ResearchOnlyBranchMatrices':(result.get('gateCertification') or {}).get('g0ResearchOnlyBranchMatrices',0),
+        'g0ResearchOnlyGateRows':(result.get('gateCertification') or {}).get('g0ResearchOnlyGateRows',0),
+        'goalieResearchCannotBeCountedAsCertifiedCoreSkaters':True,
         'gateRows':result.get('gateRows',0),
         'missingByGate':result.get('missingByGate',{}),
         'errors':result.get('errors',[])[:20],
