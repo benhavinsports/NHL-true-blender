@@ -1,0 +1,67 @@
+{
+  "slateDate": "2026-11-17",
+  "cardId": "NHL-2026-11-17-CANONICAL",
+  "originalFingerprint": "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6",
+  "originalRevision": 1,
+  "reason": "PREVIOUS_G18_UNAUTHORIZED_RANKING_SELECTED_THREE_OF_FOUR_UPSTREAM_SURVIVORS",
+  "approval": "USER_EXPLICITLY_REJECTED_OLD_G18_CARD",
+  "engineCorrectionCommit": "ce96b03f71e93c326c089d0710bc95554c109675",
+  "upstreamSurvivors": [
+    {
+      "gameId": "2026020335",
+      "playerId": "8477933",
+      "player": "Sam Reinhart",
+      "matchup": "EDM@FLA",
+      "routeLabel": "PRIMARY"
+    },
+    {
+      "gameId": "2026020341",
+      "playerId": "8482116",
+      "player": "Tim Stützle",
+      "matchup": "OTT@WPG",
+      "routeLabel": "PRIMARY"
+    },
+    {
+      "gameId": "2026020340",
+      "playerId": "8474716",
+      "player": "Jared Spurgeon",
+      "matchup": "NSH@MIN",
+      "routeLabel": "PRIMARY"
+    },
+    {
+      "gameId": "2026020343",
+      "playerId": "8484227",
+      "player": "Will Smith",
+      "matchup": "CGY@SJS",
+      "routeLabel": "PRIMARY"
+    }
+  ],
+  "oldCard": {
+    "auditJson": "",
+    "cardId": "NHL-2026-11-17-CANONICAL",
+    "eligibleSkaterRows": 267,
+    "fingerprint": "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6",
+    "g0Directions": 22,
+    "gateRows": 9634,
+    "gradeJson": "{}",
+    "issuedAtUTC": "2026-11-17T13:07:01+00:00",
+    "legsJson": "[{\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / Low Slot\", \"gameId\": \"2026020335\", \"gameState\": \"FUT\", \"matchup\": \"EDM@FLA\", \"opposingGoalieId\": \"8482221\", \"path\": \"PRIMARY\", \"player\": \"Sam Reinhart\", \"playerId\": \"8477933\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477933/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T00:00:00Z\"}, {\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / Low Slot\", \"gameId\": \"2026020341\", \"gameState\": \"FUT\", \"matchup\": \"OTT@WPG\", \"opposingGoalieId\": \"8482076\", \"path\": \"PRIMARY\", \"player\": \"Tim St\\u00fctzle\", \"playerId\": \"8482116\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482116/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T00:00:00Z\"}, {\"directRoute\": \"OBSERVED_OWN_SHOT_ORIGIN / R Circle\", \"gameId\": \"2026020343\", \"gameState\": \"FUT\", \"matchup\": \"CGY@SJS\", \"opposingGoalieId\": \"8481692\", \"path\": \"PRIMARY\", \"player\": \"Will Smith\", \"playerId\": \"8484227\", \"sourceIds\": [\"https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484227/now\", \"https://www.betweenthelineshockey.com/tonight.md\"], \"startUTC\": \"2026-11-18T03:00:00Z\"}]",
+    "originalFingerprint": "3b3862e259b6acedaed43de619a759b27f64ec9ffc02459be32c938f86e278d6",
+    "provenance": "Independent scheduled NHL G0-G18 and overlay with source-backed recipient evidence",
+    "revision": 1,
+    "slateDate": "2026-11-17",
+    "source": "GITHUB_ACTIONS_FULL_GATE_MATRIX",
+    "stage": "PROJECTED",
+    "status": "G18_SOURCE_VERIFIED",
+    "verified": true
+  },
+  "audit": {
+    "oldCardWasSelectedByUnauthorizedG18Ranking": true,
+    "correctedRunnerReport": "state/site_runs/2026-11-17.json",
+    "correctedEngineRetainedAllFourUpstreamSurvivors": true,
+    "originalCardMustNotBePresentedAsCurrentOrVerified": true,
+    "newSelectionMustComeOnlyFromFullReexecution": true,
+    "notAManualScorerReplacement": true,
+    "reviewedAtUTC": "2026-11-17T13:26:51+00:00"
+  }
+}
