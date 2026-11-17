@@ -341,6 +341,36 @@ def export_run(con, slate_date, stage, result, root='state'):
         return status
     status['currentRunFullyCertified']=True
     status['publicationDecision']='SOURCE_CERTIFIED_AND_PUBLISHED'
+    # Preserve the actual signed-by-ledger revision rationale in the saved
+    # machine-readable card. The prior exporter silently left auditJson empty
+    # even after a G18 replacement, making source/trigger history impossible
+    # to inspect without opening the compressed SQLite ledger.
+    version_row=con.execute(
+        'SELECT created_at,rationale FROM card_versions '
+        'WHERE slate_date=? AND revision=?',
+        (slate_date,card['revision'])).fetchone()
+    if not version_row:
+        raise PublicationConflict('Canonical Core revision lacks saved replacement rationale')
+    try:
+        version_rationale=json.loads(version_row['rationale'])
+        if not isinstance(version_rationale,dict):
+            raise ValueError('Card version rationale is not an object')
+    except (TypeError, ValueError):
+        raise PublicationConflict('Canonical Core version rationale is invalid')
+    rationale_audit=version_rationale.get('audit') or {}
+    audit_receipt={
+        'revision':card['revision'],
+        'createdAt':version_row['created_at'],
+        'type':version_rationale.get('type'),
+        'rationale':version_rationale,
+        'postRevisionTriggerChronologyVerified':(
+            rationale_audit.get('triggerNewerThanBaselineVersion') is True
+            if version_rationale.get('type')=='GATE_VALIDATED_REPLACEMENT'
+            else None),
+        'historicalReplacementPrecedesCurrentGuard':(
+            version_rationale.get('type')=='GATE_VALIDATED_REPLACEMENT'
+            and rationale_audit.get('triggerNewerThanBaselineVersion') is not True),
+    }
     payload={
         'slateDate':slate_date,'cardId':card['card_id'],
         'stage':card['stage'],'status':'G18_SOURCE_VERIFIED',
@@ -349,7 +379,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'originalFingerprint':fingerprint(card['initial_legs']),
         'legsJson':json.dumps(legs,sort_keys=True),
         'gradeJson':json.dumps(card.get('grade') or {}),
-        'auditJson':'',
+        'auditJson':json.dumps(audit_receipt,sort_keys=True,default=str),
         'provenance':'One original G0-G18 execution with embedded source-backed function evidence',
         'gateRows':result.get('gateRows'),
         'g0Directions':result.get('g0Directions'),
