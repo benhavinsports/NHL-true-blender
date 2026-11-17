@@ -108,7 +108,8 @@ def test_full_structural_three_game_run(con):
                                  ['G10.5'] + [f'G{i}' for i in range(11,19)])
     assert MASTER == ['G0'] + SCORER_GATE_ORDER
     assert len(MASTER)==20 and MASTER[11]=='G10.5' and len(OVERLAY)==16
-    assert EXECUTION_ORDER == [item for gate in MASTER for item in [gate] + STEPS_BY_GATE[gate]]
+    assert EXECUTION_ORDER == MASTER[:-1] + OVERLAY + ['G18']
+    assert [x for x in EXECUTION_ORDER if x in OVERLAY] == OVERLAY
     assert EXECUTION_ORDER[-1]=='G18'
     assert EXECUTION_ORDER.index('G10.5') < EXECUTION_ORDER.index('G11')
     assert len(PATCH_IDS)==13
