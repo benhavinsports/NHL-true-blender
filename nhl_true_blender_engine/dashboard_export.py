@@ -1,7 +1,7 @@
 """Read-only user-facing NHL True Blender receipts.
 
-Exports the ONE saved Core and the actual stored G0-G18 + Phase-1 overlay
-records for each selected recipient. It never picks players or changes a card.
+Exports the ONE saved Core and its single G0-G18 gate sequence, with the
+original Step functions nested in their owning gate. Never selects players.
 A gate recorded after puck drop cannot masquerade as its pregame evidence.
 Full evidence is retained so UI drilldowns are inspectable, not fake scores.
 """
@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from .engine import MASTER, OVERLAY, EXECUTION_ORDER
+from .engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
 from .storage import get_card
 
 def _datetime(value):
@@ -95,6 +95,38 @@ def _game_summary(game):
         "summaryIsNotConfirmedDeployment":True,
     }
 
+def _function_receipts(rows):
+    """Historical Step names describe original functions, never extra gates."""
+    details={}
+    for row in rows:
+        if row["gate"] not in MASTER:
+            continue
+        evidence=json.loads(row["details"]).get("evidence") or {}
+        details[row["gate"]]=evidence.get("originalFunctionEvidence") or []
+    return details
+
+def _functions_complete(rows):
+    nested=_function_receipts(rows)
+    for gate in MASTER:
+        actual=nested.get(gate,[])
+        if [x.get("step") for x in actual]!=STEPS_BY_GATE[gate]:
+            return False
+        for item in actual:
+            if item.get("disposition")!="PASS" and not (
+                item.get("step")=="Step13" and
+                (item.get("evidence") or {}).get("nonblocking") is True
+            ):
+                return False
+    return True
+
+def _functions_passed(rows):
+    return sum(
+        item.get("disposition")=="PASS" or (
+            item.get("step")=="Step13" and
+            (item.get("evidence") or {}).get("nonblocking") is True)
+        for values in _function_receipts(rows).values()
+        for item in values)
+
 def export_dashboard(con,date,stage,snapshot,root="state"):
     root=Path(root)
     card=get_card(con,date)
@@ -108,7 +140,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
         "doesNotSelectOrReplaceScorers":True,
         "games":[_game_summary(g) for g in snapshot.get("games",[])],
         "masterOrder":MASTER,
-        "overlayOrder":OVERLAY,
+        "originalFunctionNames":OVERLAY,
+        "oneOriginalGatePipeline":True,
         "executionOrder":EXECUTION_ORDER,
         "legs":[],
     }
@@ -121,8 +154,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
             stages=("CONFIRMED","PROJECTED") if stage=="CONFIRMED" else (
                 "PROJECTED","CONFIRMED")
             # The saved card is the authority.  A later CONFIRMED review
-            # may have source gaps, but must not replace the original 36/36
-            # PROJECTED selection receipts with an incomplete phase.
+            # may have source gaps, but must not replace the original
+            # projected G0-G18 receipts with an incomplete phase.
             # Keep both phase outcomes separately; choose the strongest
             # *actual pre-puck* certified trace for the published card.
             phase_rows={}
@@ -150,7 +183,7 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                         batches.setdefault(past["evaluated_at"],[]).append(past)
                 # A coherent but incomplete historic run is still valuable
                 # evidence. Restore its REAL FAIL/NOT_EXECUTED gates too;
-                # only a 36/36 PASS cohort may be called certified.
+                # only a complete G0-G18 receipt may be called certified.
                 archived=[]
                 ranked=[]
                 for timestamp,batch in batches.items():
@@ -173,7 +206,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                         and all(by_gate[gate]["disposition"]=="PASS"
                             and json.loads(by_gate[gate]["details"]).get(
                                 "executionIndex")==index
-                            for index,gate in enumerate(EXECUTION_ORDER)))
+                            for index,gate in enumerate(EXECUTION_ORDER))
+                        and _functions_complete(rows))
                 def pass_count(rows):
                     return sum(row["disposition"]=="PASS" for row in rows)
                 used_archive=bool(archived and not fully_certified(candidates)
@@ -191,7 +225,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                     and all(pre_puck[gate]["disposition"]=="PASS"
                         and json.loads(pre_puck[gate]["details"]).get(
                             "executionIndex")==index
-                        for index,gate in enumerate(EXECUTION_ORDER)))
+                        for index,gate in enumerate(EXECUTION_ORDER))
+                    and _functions_complete(list(pre_puck.values())))
                 phase_reviews[selectedStage]={
                     "available":bool(candidates),
                     "recoveredArchivedOriginal":used_archive,
@@ -199,9 +234,8 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                     "masterPassed":sum(gate in MASTER and
                         row["disposition"]=="PASS"
                         for gate,row in pre_puck.items()),
-                    "overlayPassed":sum(gate in OVERLAY and
-                        row["disposition"]=="PASS"
-                        for gate,row in pre_puck.items()),
+                    "originalFunctionsPassed":_functions_passed(list(pre_puck.values())),
+                    "overlayPassed":_functions_passed(list(pre_puck.values())),
                     "fullOriginalOrderPass":complete,
                     "nonpassingGates":{gate:pre_puck[gate]["disposition"]
                         if gate in pre_puck else "NO_PREPUCK_RECEIPT"
@@ -271,8 +305,18 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                 "executionOrderVerified":order_verified,
                 "masterPassed":sum(r["gate"] in MASTER and r["status"]=="PASS"
                                    for r in ordered),
-                "overlayPassed":sum(r["gate"] in OVERLAY and r["status"]=="PASS"
-                                    for r in ordered),
+                "originalFunctionsPassed":sum(
+                    fn.get("disposition")=="PASS" or (
+                        fn.get("step")=="Step13" and
+                        (fn.get("evidence") or {}).get("nonblocking") is True)
+                    for r in ordered
+                    for fn in (r.get("evidence") or {}).get("originalFunctionEvidence",[])),
+                "overlayPassed":sum(
+                    fn.get("disposition")=="PASS" or (
+                        fn.get("step")=="Step13" and
+                        (fn.get("evidence") or {}).get("nonblocking") is True)
+                    for r in ordered
+                    for fn in (r.get("evidence") or {}).get("originalFunctionEvidence",[])),
                 "totalMaster":len(MASTER),
                 "totalOverlay":len(OVERLAY),
                 "sourceVerifiedPregameGateCount":sum(r["status"]=="PASS" and
