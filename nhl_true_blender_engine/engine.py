@@ -1067,33 +1067,55 @@ def g18_source_vector(item):
         return None
     cover=(game.get('coverage') or {}).get(item.get('attackTeam'))
     cd=evidence_data(cover)
-    if not cd or cd.get('comparison')!='RECENT_OPPONENT_SHOT_ORIGIN_SHARES_AGAINST_PEER_MEDIAN':
+    # G9's actual authoritative NHL PBP method is *attempts PER GAME*,
+    # compared with an independent peer-team median.  The former G18
+    # comparator expected obsolete "share"/"peerMedianShare" fields that the
+    # real collector never emits; >3 fully qualified games therefore could
+    # not produce a Core regardless of their verified G0-G17 evidence.
+    if not cd or cd.get('sourceType')!='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY':
+        return None
+    if cd.get('comparison')!='RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN':
+        return None
+    if cd.get('lowShotVolumeIsNotEvidenceOfDefensiveStrength') is not True:
         return None
     if zone not in (cd.get('greenWeakZones') or []):
         return None
     defense_zone=(cd.get('zoneConcessions') or {}).get(zone)
     if not isinstance(defense_zone,dict):
         return None
+    if (type(defense_zone.get('attemptsAgainst')) is not int
+            or defense_zone['attemptsAgainst']<16
+            or type(defense_zone.get('gameCount')) is not int
+            or defense_zone['gameCount']<6
+            or type(defense_zone.get('peerTeamsCompared')) is not int
+            or defense_zone['peerTeamsCompared']<6):
+        return None
     try:
         pct=Decimal(str(goalie_area['leagueSavePctgPercentile']))
-        share=Decimal(str(defense_zone['share']))
-        median=Decimal(str(defense_zone['peerMedianShare']))
+        per_game=Decimal(str(defense_zone['attemptsPerGame']))
+        median=Decimal(str(defense_zone['peerMedianAttemptsPerGame']))
     except (KeyError,InvalidOperation,TypeError,ValueError):
         return None
-    if not (Decimal(0)<=pct<=Decimal(1) and
-            Decimal(0)<=median<share<=Decimal(1)):
+    if not (pct.is_finite() and per_game.is_finite() and median.is_finite()
+            and Decimal(0)<=pct<=Decimal(1)
+            and Decimal(0)<=median<per_game):
         return None
-    source_urls=list(filter(None,[
-        c['player'].get('release',{}).get('sourceUrl'),
-        gd.get('goalieProfileSourceUrl'),
+    # Each independently observed evidence family must supply its own HTTPS
+    # provenance. An expected starter can use its time-stamped goalie
+    # branch receipt; no invented "goalieProfileSourceUrl" is necessary.
+    source_urls=[
+        (c['player'].get('release') or {}).get('sourceUrl'),
+        gd.get('goalieProfileSourceUrl') or g.get('sourceUrl'),
         cover.get('sourceUrl'),
-        c['player'].get('deployment',{}).get('sourceUrl')]))
-    if len(source_urls)!=4 or not all(x.startswith('https://') for x in source_urls):
+        (c['player'].get('deployment') or {}).get('sourceUrl')]
+    if any(not isinstance(u,str) or not u.startswith('https://')
+           for u in source_urls):
         return None
-    # Explicit procedural separation from already certified G18 finalists.
-    # No weighted scoring or made-up prior.
+    # Existing original G18 evidence priority, WITHOUT synthetic weights:
+    # credited OWN goals -> independently observed goalie weakness ->
+    # opponent's above-peer shot-attempt rate -> OWN on-net attempts.
     key=(int(route['ownedGoals']),Decimal(1)-pct,
-         share-median,int(route['attempts']))
+         per_game-median,int(route['attempts']))
     proof={
         'gameId':str(game['id']),'playerId':str(c['player']['id']),
         'player':c['player'].get('name'),'attackingTeam':item.get('attackTeam'),
@@ -1101,12 +1123,15 @@ def g18_source_vector(item):
         'ownScoringRoute':zone,'directOwnedGoals':int(route['ownedGoals']),
         'ownOnNetShots':int(route['attempts']),
         'goalieLeagueSavePctgPercentile':str(pct),
-        'independentDefenseZoneShare':str(share),
-        'independentDefensePeerMedian':str(median),
+        'independentDefenseAttemptsPerGame':str(per_game),
+        'independentDefensePeerMedianAttemptsPerGame':str(median),
+        'independentDefenseExcessAttemptsPerGame':str(per_game-median),
+        'defenseSampleGames':defense_zone['gameCount'],
+        'defensePeerTeamsCompared':defense_zone['peerTeamsCompared'],
         'sourceUrls':sorted(set(source_urls)),
         'priorityWithoutWeights':['directOwnGoalsFromExactScoringLane',
            'goaliePeerSaveWeaknessInMatchingLane',
-           'opponentDefensiveShotShareAboveIndependentPeerMedian',
+           'opponentDefenseAttemptsPerGameAboveIndependentPeerMedian',
            'ownShotPressureFromMatchingLane'],
         'method':'G18_VERIFIED_DIRECT_ROUTE_SOURCE_COMPARISON',
         'notAMarketOrChalkScore':True,
