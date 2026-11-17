@@ -195,3 +195,66 @@ async def fetch_and_ingest_lineups(con,snapshot,date,stage):
     except (httpx.HTTPError,ValueError,IndexError) as exc:
         return {"status":"SOURCE_UNAVAILABLE","source":URL,
                 "error":f"{type(exc).__name__}: {exc}"}
+
+
+async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
+    """Use the existing multi-source structured parser, not unparsed HTML.
+
+    Evidence is projected unless a source explicitly proves confirmation.
+    Conflicting line assignments remain unresolved and cannot pass G6.
+    """
+    import asyncio
+    from datetime import datetime,timezone
+    from deployment_sources import fetch_deployment
+    from .enrichment import ingest
+    from .secondary_sources import TEAM_SLUGS
+    teams=sorted({team for game in snapshot['games']
+                  for team in (game['home'],game['away'])})
+    results=await asyncio.gather(*(asyncio.to_thread(
+        fetch_deployment,team,TEAM_SLUGS.get(team),mode='confirmed'
+        if stage=='CONFIRMED' else 'projected') for team in teams),
+        return_exceptions=True)
+    observed=datetime.now(timezone.utc).isoformat(timespec='seconds')
+    inserted=0; unmatched=[]; reports={}
+    for team,result in zip(teams,results):
+        if isinstance(result,Exception):
+            reports[team]={'error':str(result)}
+            continue
+        rows,meta=result
+        reports[team]=meta
+        for game in snapshot['games']:
+            if team not in (game['home'],game['away']):
+                continue
+            roster=(game.get('rosters',{}).get(team) or {}).get('data',{})
+            players=roster.get('players') or []
+            for row in rows:
+                if row.get('conflicts') or row.get('line') is None:
+                    continue
+                player=unique_official_player(row.get('playerName'),players)
+                if player is None:
+                    unmatched.append({'team':team,'name':row.get('playerName')})
+                    continue
+                url=row.get('lineSourcePath') or row.get('lineSource')
+                if not isinstance(url,str) or not url.startswith('https://'):
+                    continue
+                line=row['line']
+                try:
+                    line=int(line)
+                except (ValueError,TypeError):
+                    continue
+                if not 1<=line<=4:
+                    continue
+                # No confirmed claim: the sources are projected line reports.
+                payload={'EV':('D' if player.get('position')=='D' else 'F')+str(line),
+                         'status':'PROJECTED',
+                         'sourceType':'MULTISOURCE_PROJECTED_LINEUP',
+                         'lineEvidence':row.get('lineEvidence',[]),
+                         'powerPlayEvidence':row.get('powerPlayEvidence',[])}
+                if row.get('powerPlayUnit') is not None:
+                    payload['PP']=row['powerPlayUnit']
+                ingest(con,{'evidence_id':f'multisource-{date}-{stage}-{game["id"]}-{player["id"]}-{observed}',
+                    'slate_date':date,'stage':stage,'game_id':game['id'],
+                    'player_id':player['id'],'kind':'PLAYER_DEPLOYMENT',
+                    'source_url':url,'observed_at':observed,'payload':payload})
+                inserted+=1
+    return {'deploymentRecords':inserted,'unmatched':unmatched,'sources':reports}
