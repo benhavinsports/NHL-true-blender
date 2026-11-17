@@ -35,6 +35,36 @@ def retract(root="state", now=None):
             or len({(str(x["gameId"]),str(x["playerId"]))
                     for x in manifest["upstreamSurvivors"]}) != 4):
         raise ValueError("Retraction manifest identity/evidence mismatch")
+    # This is a one-time migration. Once the exact old card and versions
+    # have been archived, later live slates MUST NOT revalidate the original
+    # four-survivor snapshot against fresh, changed player evidence.
+    db_path = root / "true_blender.sqlite"
+    checkpoint = open_db(str(db_path))
+    try:
+        checkpoint.execute("""CREATE TABLE IF NOT EXISTS card_retractions (
+            slate_date TEXT PRIMARY KEY, card_id TEXT NOT NULL,
+            original_fingerprint TEXT NOT NULL,
+            retraction_reason TEXT NOT NULL,
+            original_card TEXT NOT NULL, original_versions TEXT NOT NULL,
+            upstream_survivors TEXT NOT NULL,
+            retracted_at_utc TEXT NOT NULL
+        )""")
+        archived = checkpoint.execute(
+            "SELECT * FROM card_retractions WHERE slate_date=?", (DATE,)
+        ).fetchone()
+        active = checkpoint.execute(
+            "SELECT * FROM cards WHERE slate_date=?", (DATE,)
+        ).fetchone()
+        if archived:
+            if (archived["card_id"] != CARD_ID
+                    or archived["original_fingerprint"] != ORIGINAL_FINGERPRINT):
+                raise ValueError("Existing retraction archive identity mismatch")
+            if active and active["fingerprint"] == ORIGINAL_FINGERPRINT:
+                raise ValueError("Retracted original returned to active canonical cards")
+            return {"status": "NEW_CORRECTED_CARD_EXISTS" if active else
+                    "ORIGINAL_ALREADY_RETRACTED", "originalCardId": CARD_ID}
+    finally:
+        checkpoint.close()
     run_path = root / "site_runs" / (DATE + ".json")
     source_run = json.loads(run_path.read_text(encoding="utf-8"))
     observed = source_run.get("allG18QualifiedSurvivors") or []
