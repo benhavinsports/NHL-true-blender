@@ -44,9 +44,56 @@ def test_independent_g0_g9_lane_separation_permits_direct_primary():
     assert proof["positiveDirectGateEvidence"]["G0ThruG17SourcePass"] is True
 
 
-def test_unseparated_original_lane_tie_never_gets_forced_primary():
+def test_fully_passed_direct_recipient_is_not_rejected_for_old_preg0_lane_tie():
+    # Positive goalie, defense, goal-credit, rival and contradiction gates
+    # establish the scorer route, even if PRE-G0 primary origin was tied.
     player,release,goalie,coverage,gates=scene(False)
+    path,proof=adjudicate_scoring_path(
+        player,[],release,goalie,coverage,gates,[],False)
+    assert path=="PRIMARY", proof
+    assert proof["primaryOriginIsSourceDistinct"] is True
+    assert proof["positiveDirectGateEvidence"]["G0ThruG17SourcePass"] is True
+
+
+def test_unresolved_upstream_gate_never_gets_forced_primary():
+    player,release,goalie,coverage,gates=scene(False)
+    # An actual unresolved G9 blocks the direct route: an old pre-G0 tie
+    # cannot be treated as proof of shooting into unmeasured defense.
+    gates["G9"]["disposition"]="NOT_EXECUTED"
     path,proof=adjudicate_scoring_path(
         player,[],release,goalie,coverage,gates,[],False)
     assert path is None, proof
     assert proof["primaryOriginIsSourceDistinct"] is False
+
+
+def test_entire_three_game_engine_carries_upstream_survivor_into_g18(tmp_path):
+    # Integrated gate run, not a front-end card label or a monkeypatched PASS.
+    from nhl_true_blender_engine.tests.test_engine import snapshot, DATE
+    from nhl_true_blender_engine.storage import open_db
+    from nhl_true_blender_engine.engine import execute
+    import json
+    snap=snapshot(3)
+    first=snap["games"][0]
+    skater=first["rosters"][first["away"]]["data"]["players"][0]
+    release=skater["release"]["data"]
+    release["primaryWasTiedBeforeG0"]=True
+    release["originalPrimaryOrigin"]=release["zone"]
+    # No convenient pre-G0 G0-matched flag is supplied. Every relevant gate
+    # must independently pass as it would for real source-backed data.
+    con=open_db(str(tmp_path/"survivor.sqlite"))
+    try:
+        result=execute(con,snap,DATE,"CONFIRMED")
+        gid=str(first["id"]); pid=str(skater["id"])
+        rows=con.execute(
+            "SELECT gate,disposition FROM gates WHERE game_id=? AND player_id=?",
+            (gid,pid)).fetchall()
+        verdicts={row["gate"]:row["disposition"] for row in rows}
+        assert len(verdicts)==20, verdicts
+        assert all(outcome=="PASS" for outcome in verdicts.values()), verdicts
+        assert result["uniqueGameSurvivors"]==3, result["errors"]
+        assert result["card"] is not None, result["errors"]
+        assert any(str(leg["gameId"])==gid and str(leg["playerId"])==pid
+                   and leg["path"]=="PRIMARY"
+                   for leg in result["card"]["current_legs"])
+    finally:
+        con.close()
