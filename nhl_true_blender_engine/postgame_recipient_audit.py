@@ -30,8 +30,23 @@ def _name(person):
             (string(person.get("firstName"))+" "+string(person.get("lastName"))).strip() or
             "NHL player "+str(person.get("playerId","unknown")))
 
-def pregame_gate(con, date, leg, gate):
-    """Return recorded source support, never a post-puck retroactive gate."""
+def pregame_gate(con, date, leg, gate, root="state"):
+    """Return the original locked source-backed gate, not later diagnostics."""
+    from .postgame_recalibration import _audit_original_gate_proof
+    saved=get_card(con,date)
+    if saved and gate in ("G0","G10","G10.5","G15","G17"):
+        original,origin=_audit_original_gate_proof(
+            con,date,saved,leg,root)
+        row=original.get(gate)
+        if row and origin.get("noMixedGateRuns") is True:
+            details=json.loads(row["details"])
+            return {"gate":gate,"stage":row["stage"],
+                    "status":row["disposition"],
+                    "evaluatedAt":row["evaluated_at"],
+                    "evidence":details.get("evidence") or {},
+                    "sourceIds":details.get("sourceIds") or [],
+                    "prePuckOnly":True,
+                    "originalGateAuditProvenance":origin}
     prior=[]
     puck=_time(leg.get("startUTC"))
     if puck is None:
