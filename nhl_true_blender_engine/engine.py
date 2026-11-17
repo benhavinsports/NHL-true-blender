@@ -971,7 +971,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          {'recentOwnAttempts':recent_shots,
           'shotContinuation':shot_review,
           'noOneOffPressureCalledContinuation':True},
+         # Missing appearance dates are an evidence gap, not proof that
+         # the player failed to repeat his own shot pressure.
          eliminate=bool(receipt(shots) and shot_review['valid']
+                        and shot_review['datedAppearanceAlignmentVerified']
                         and not shot_review['repeatedOwnShotPressure']),
          source_ids=[shots['sourceUrl']] if receipt(shots) else [])
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
