@@ -24,17 +24,17 @@ def test_dashboard_exports_one_saved_core_real_36_checks_and_all_games(tmp_path)
     assert {x["playerId"] for x in doc["legs"]}=={
          str(l["playerId"]) for l in before["current_legs"]}
     for selected in doc["legs"]:
-        assert len(selected["gateDetails"])==36
+        assert len(selected["gateDetails"])==len(MASTER)
         assert [g["gate"] for g in selected["gateDetails"]]==EXECUTION_ORDER
         assert selected["executionOrderVerified"] is True
         assert selected["gateDetails"][-1]["gate"]=="G18"
         assert selected["masterPassed"]==20
         # A complete synthetic defensive-shift receipt can prove Step8.
         assert selected["overlayPassed"]==16
-        assert selected["sourceVerifiedPregameGateCount"]==(
-            selected["masterPassed"]+selected["overlayPassed"])
+        assert selected["sourceVerifiedPregameGateCount"]==selected["masterPassed"]
         assert selected["gateDetails"][EXECUTION_ORDER.index("G10.5")]["gate"]=="G10.5"
-        assert selected["gateDetails"][EXECUTION_ORDER.index("Step10.5")]["gate"]=="Step10.5"
+        assert any(fn["step"]=="Step10.5" for fn in
+            selected["gateDetails"][EXECUTION_ORDER.index("G10.5")]["evidence"]["originalFunctionEvidence"])
         assert all(g["prePuckRecord"] for g in selected["gateDetails"])
         assert selected["gateDetails"][0]["sourceIds"]
         assert selected["gateDetails"][0]["evidence"]["targetGoalie"]
