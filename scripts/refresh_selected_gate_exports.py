@@ -82,11 +82,27 @@ def refresh(root="state"):
             temp.write_text(json.dumps(candidate, sort_keys=True, indent=2, default=str)+"\n",
                             encoding="utf-8")
             temp.replace(path)
+            latest_leg=candidate["legs"][0] if candidate.get("legs") else {}
+            cursor=con.execute("""
+                SELECT stage, COUNT(*) AS total, MIN(evaluated_at) AS first,
+                    MAX(evaluated_at) AS last
+                FROM gates WHERE slate_date=? AND game_id=? AND player_id=?
+                GROUP BY stage""", (date,latest_leg.get("gameId"),
+                                    latest_leg.get("playerId"))).fetchall()
+            past=con.execute("""
+                SELECT stage, COUNT(*) AS total, MIN(evaluated_at) AS first,
+                    MAX(evaluated_at) AS last
+                FROM gate_history WHERE slate_date=? AND game_id=? AND player_id=?
+                GROUP BY stage""", (date,latest_leg.get("gameId"),
+                                    latest_leg.get("playerId"))).fetchall()
             updated.append({"date": date,
                             "fullyCertifiedLegs": full_pass_count(candidate),
                             "legs": len(candidate["legs"]),
                             "sourcePhases": [x["stageOfGateRecords"]
-                                for x in candidate["legs"]]})
+                                for x in candidate["legs"]],
+                            "reviews": latest_leg.get("separatePhaseReviews"),
+                            "activeRaw": [dict(row) for row in cursor],
+                            "archivedRaw": [dict(row) for row in past]})
     finally:
         con.close()
     return {"status": "READ_ONLY_EXPORT", "updated": updated,
