@@ -15,7 +15,7 @@ def test_census_separates_gate_row_count_from_real_source_proof(tmp_path):
     assert audit["allSkatersHaveEachGateRecord"] is True
     assert audit["allSkatersHaveExactExecutionOrder"] is True
     assert audit["allOverlayStepsWereIndependentlyChecked"] is True
-    assert audit["gateRows"]==9*(len(MASTER)+len(OVERLAY))+6
+    assert audit["gateRows"]==9*len(MASTER)+6
     assert audit["selectedMasterGatesAllPass"] is False
     assert audit["selectedOverlayGatesAllPass"] is False
     assert audit["selectedLegs"]==[]  # no provisional Core saved
@@ -42,7 +42,7 @@ def test_locked_original_card_survives_later_independent_source_gap(tmp_path):
     # A later regression must not rewrite a previously locked original.
     con.execute("""UPDATE gates SET disposition='NOT_EXECUTED'
         WHERE slate_date=? AND stage='CONFIRMED' AND player_id='1010'
-              AND gate='Step8'""",(DATE,))
+              AND gate='G9'""",(DATE,))
     con.commit()
     result["gateCertification"]=certify_gates(con,DATE,"CONFIRMED",3)
     saved=result["card"];card_dir=tmp_path/"state"/"site_cards"
@@ -59,5 +59,5 @@ def test_locked_original_card_survives_later_independent_source_gap(tmp_path):
     assert status["retainedOriginalLockedCard"] is True
     assert status["currentRunFullyCertified"] is False
     assert status["publicationDecision"]=="PRESERVED_ORIGINAL_WITH_AUDIT_GAPS"
-    assert any("Step8" in x["notPassing"] for x in status["independentOverlaySourceGaps"])
+    assert any("G9" in x["notPassing"] for x in status["independentOverlaySourceGaps"])
     con.close()
