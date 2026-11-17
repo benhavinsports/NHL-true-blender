@@ -164,3 +164,41 @@ def test_archived_partial_projected_receipts_stay_visible_without_fake_pass(tmp_
         assert entry["separatePhaseReviews"]["PROJECTED"]["nonpassingGates"]["G6"]=="NOT_EXECUTED"
         assert next(g for g in entry["gateDetails"] if g["gate"]=="G6")["status"]=="NOT_EXECUTED"
     con.close()
+
+
+
+def test_historical_source_committed_core_receipt_uses_its_actual_order():
+    """Preserve pre-puck legacy master + overlay chronology, not fabricate interleave."""
+    from pathlib import Path
+    from scripts.refresh_selected_gate_exports import recover_committed_original
+    root = Path(__file__).resolve().parents[2] / "state"
+    frozen = json.loads((root / "site_cards" / "2026-11-16.json").read_text())
+    original = json.loads(
+        (root / "site_gates" / "2026-11-16-original-projected.json").read_text())
+    # Simulate a later confirmed matrix without complete G2/G6/G17/G18.
+    later = json.loads(json.dumps(original))
+    later["stage"] = "CONFIRMED"
+    for leg in later["legs"]:
+        leg["masterPassed"] = 16
+        leg["overlayPassed"] = 15
+        leg["executionOrderVerified"] = False
+        leg["separatePhaseReviews"] = {"CONFIRMED": {
+            "available": True, "fullOriginalOrderPass": False,
+            "masterPassed": 16, "overlayPassed": 15,
+            "nonpassingGates": {"G6": "NOT_EXECUTED"}}}
+    recovered = recover_committed_original(root, "2026-11-16", frozen, later)
+    assert recovered["cardId"] == frozen["cardId"]
+    assert recovered["fingerprint"] == frozen["fingerprint"]
+    assert recovered["historicalOrderPreserved"] is True
+    assert recovered["currentEngineUsesDifferentOverlayPlacement"] is True
+    assert recovered["savedOriginalStage"] == "PROJECTED"
+    assert len(recovered["legs"]) == 2
+    for leg in recovered["legs"]:
+        assert leg["sourceGateArchive"] is True
+        assert leg["masterPassed"] == 20
+        assert leg["overlayPassed"] == 16
+        assert leg["stageOfGateRecords"] == "PROJECTED"
+        assert leg["separatePhaseReviews"]["CONFIRMED"]["masterPassed"] == 16
+        assert leg["separatePhaseReviews"]["PROJECTED"]["fullOriginalOrderPass"] is True
+    changed = dict(frozen, fingerprint="WRONG_CARD")
+    assert recover_committed_original(root,"2026-11-16",changed,later) is later
