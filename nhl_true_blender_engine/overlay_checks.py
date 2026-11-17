@@ -13,7 +13,7 @@ STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
 
 def independent_overlay(game,attacker,player,teammates,goalie,release,
-                        recurrence,challenger_rows,stage,receipt,evidence_data,gate_record):
+                        recurrence,challenger_rows,stage,receipt,evidence_data,gate_record,only_steps=None):
     records=[]
     g=goalie.get('data') or {}
     weak=g.get('weakZones') or {}
@@ -42,6 +42,8 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     def src(*rows):
         return sorted(set(row['sourceUrl'] for row in rows if receipt(row)))
     def emit(step,ok,evidence,sources=(),contradiction=False,neutral=False):
+        if only_steps is not None and step not in only_steps:
+            return
         if not isinstance(evidence,dict):
             raise ValueError('Overlay evidence must be a recorded dictionary')
         verdict=('PASS' if ok else 'ELIMINATED' if contradiction else 'NOT_EXECUTED')
