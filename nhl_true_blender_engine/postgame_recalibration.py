@@ -162,8 +162,8 @@ def _original_slate_gate_proof(root, slate_date, card, leg):
     """Read actual immutable selected-card evidence, never stitch multiple runs.
 
     A saved original projected receipt is superior to whichever current gate
-    matrix happened to survive after confirmation/grade. Identity, 36-row order,
-    timestamps and source attribution must agree with the one frozen card.
+    matrix happened to survive after confirmation/grade. Identity, the
+    original saved order, timestamps and provenance must match the frozen card.
     """
     if root is None:
         return None
@@ -197,7 +197,7 @@ def _original_slate_gate_proof(root, slate_date, card, leg):
             for selected in legs:
                 trace=selected.get("gateDetails") or []
                 start=_clock(selected.get("startUTC"))
-                if (not start or len(trace)!=36
+                if (not start or len(trace)!=len(order)
                         or selected.get("executionOrderVerified") is not True):
                     break
                 entries={}
@@ -222,7 +222,7 @@ def _original_slate_gate_proof(root, slate_date, card, leg):
                         "details":encode({"evidence":row.get("evidence") or {},
                                           "sourceIds":sources})
                     }
-                if len(entries)!=36:
+                if len(entries)!=len(order):
                     break
                 proof[(str(selected["gameId"]),str(selected["playerId"]))]=entries
             if len(proof)!=len(expected):
@@ -232,7 +232,7 @@ def _original_slate_gate_proof(root, slate_date, card, leg):
                 return selected,{"receiptType":"ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
                                   "file":path.name,
                                   "stage":next(iter(selected.values()))["stage"],
-                                  "individualOrderedChecks":36,
+                                  "individualOrderedChecks":len(order),
                                   "cardFingerprintMatched":True,
                                   "noMixedGateRuns":True}
         except (OSError,ValueError,TypeError,KeyError):
@@ -241,7 +241,7 @@ def _original_slate_gate_proof(root, slate_date, card, leg):
 
 
 def _stored_pregame_gate_proof(con, slate_date, leg):
-    """Prefer one complete timestamped 36-gate DB cohort over mixed gate rows."""
+    """Prefer a coherent timestamped original gate cohort over mixed rows."""
     from .engine import MASTER, OVERLAY, EXECUTION_ORDER
 
     puck=_clock(leg.get("startUTC"))
@@ -264,9 +264,9 @@ def _stored_pregame_gate_proof(con, slate_date, leg):
     coherent=[]
     for (origin,stage,when),rows in groups.items():
         by_gate={row["gate"]:row for row in rows}
-        if len(rows)!=36 or len(by_gate)!=36:
-            continue
         for order in (EXECUTION_ORDER,legacy):
+            if len(rows)!=len(order) or len(by_gate)!=len(order):
+                continue
             if set(by_gate)!=set(order):
                 continue
             if all(json.loads(by_gate[g]["details"]).get("executionIndex")==idx
@@ -280,7 +280,7 @@ def _stored_pregame_gate_proof(con, slate_date, leg):
         stage,when,origin,rows=coherent[0]
         return rows,{"receiptType":"SAME_EXECUTION_DATABASE_GATE_COHORT",
                      "stage":stage,"evaluatedAt":when,"databaseOrigin":origin,
-                     "individualOrderedChecks":36,"noMixedGateRuns":True}
+                     "individualOrderedChecks":len(rows),"noMixedGateRuns":True}
     # Legacy standalone test/diagnostic records can still be inspected, but
     # explicitly mark that their complete execution is NOT certified.
     by_gate={}
