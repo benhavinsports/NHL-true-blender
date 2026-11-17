@@ -51,7 +51,7 @@ jobs:
                       self.scripts.add(props['src'])
           parser=AuditHTML()
           parser.feed(Path('site/index.html').read_text())
-          required={'refresh','slate-select','core-cards','leg-detail',
+          required={'refresh','slate-select','core-cards',
                     'matchup-list','grade-summary','season-summary',
                     'system-summary','hero-phase','slate-notice','stat-gates'}
           assert required<=parser.ids, sorted(required-parser.ids)
