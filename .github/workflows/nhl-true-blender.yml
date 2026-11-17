@@ -76,6 +76,13 @@ jobs:
       - name: Probe live source schemas without claiming passes
         continue-on-error: true
         run: python -m scripts.diagnose_live_pipeline
+      - name: Retract invalid historical Nov 17 G18 ranking before new selection
+        if: steps.verification.outcome == 'success'
+        run: |
+          # Explicit user-authorized, exact-fingerprint one-time retraction.
+          # Preserve original cards/versions/gate history in card_retractions.
+          # There is NO player substitution or manual Core in this operation.
+          python -m scripts.retract_invalid_core
       - name: Run scheduled autonomous Blender phase
         if: steps.verification.outcome == 'success'
         id: engine
