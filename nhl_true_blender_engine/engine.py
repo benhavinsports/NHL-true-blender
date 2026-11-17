@@ -1912,7 +1912,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                             for player in players]
             # Pass 1 only establishes who passed G0-G10 (teammate-independent).
             stopped=stopped_before_g10_5([
-                evaluate_skater(scoped_game,team,x,players,branch,stage)[0]
+                evaluate_skater(scoped_game,team,x,players,branch,stage,defer_g18=True)[0]
                 for x in scoped_players])
             for scoped in scoped_players:
                 # Bind the G0 direction receipt to every skater checked after
