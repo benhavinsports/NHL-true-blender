@@ -61,6 +61,42 @@ def ingest(con, record):
     return record_evidence(con,record)
 
 
+def _attach_goalie_profile(prior, wrapper):
+    """Attach one coherent goalie profile, never a fieldwise hybrid.
+
+    A partial research result cannot replace a previously sourced complete
+    profile. A later equally complete observation may replace it as a unit.
+    This does not infer goalie weakness or change the starter's status.
+    """
+    data=wrapper['data']
+    current=prior['data']
+    def complete(value):
+        return (isinstance(value.get('sample'), dict)
+                and value.get('counterevidence') is not None
+                and isinstance(value.get('weakZones'), dict)
+                and isinstance(value.get('strengthZones'), dict)
+                and (value.get('sourceReviewed') is True
+                     or value.get('fullySourceComparedAreas', 0)>0
+                     or bool(value.get('weakZones'))))
+    if current.get('goalieProfileEvidenceId') and complete(current) and not complete(data):
+        return False
+    # Profile-specific fields are replaced together; never retain old weak
+    # zones while applying a new sample or counterevidence denominator.
+    profile_keys=('weakZones','strengthZones','sample','counterevidence',
+                  'sourceReviewed','fullySourceComparedAreas','sourceClass',
+                  'sourceType','evidenceScope','observedAreas','goalMouthEvidence',
+                  'baselineGoalMouthEvidence','goalMouthBaselineReview',
+                  'historicalPbpSources','historicalSampleAsOf','sourceGameIds')
+    for key in profile_keys:
+        current.pop(key,None)
+    current.update({k:v for k,v in data.items()
+                    if k not in ('goalieId','team','status')})
+    current['goalieProfileSourceUrl']=wrapper['sourceUrl']
+    current['goalieProfileObservedAt']=wrapper['observedAt']
+    current['goalieProfileEvidenceId']=wrapper['evidenceId']
+    return True
+
+
 def attach(con, snapshot, date, stage):
     """Project/confirmed remain independent. Projected does not become confirmed by reuse."""
     if stage in ('WATCH','CONFIRMED'):
@@ -104,11 +140,7 @@ def attach(con, snapshot, date, stage):
                 matched=[x for x in existing
                          if x['data'].get('goalieId')==data.get('goalieId')]
                 for prior in matched:
-                    prior['data'].update({k:v for k,v in data.items()
-                        if k not in ('goalieId','team','status')})
-                    prior['data']['goalieProfileSourceUrl']=wrapper['sourceUrl']
-                    prior['data']['goalieProfileObservedAt']=wrapper['observedAt']
-                    prior['data']['goalieProfileEvidenceId']=wrapper['evidenceId']
+                    _attach_goalie_profile(prior,wrapper)
                 if matched:refs.append(row['evidence_id'])
                 continue
             prior=next((x for x in existing
