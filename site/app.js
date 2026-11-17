@@ -336,6 +336,10 @@ function renderDetails(){
  compliance.appendChild(pill(data?passedAll?"ALL 36 PASSED · ORDER VERIFIED":"EVIDENCE REVIEW":"AWAITING EXPORT",
      data?passedAll?"success":"warning":"neutral"));
  body.appendChild(compliance);
+ if(state.gateData?.currentEngineUsesDifferentOverlayPlacement){
+   body.appendChild(el("div","notice warning",
+      "This original projected receipt is preserved in its actual historic execution order: G0–G17, overlay 0–14, then G18. It contains 36 recorded PASS checks, but does NOT claim the newer interleaved overlay order was executed on that historical run."));
+ }
  // These are independent source reviews, not two different Core cards.
  // A later incomplete confirmation must never hide the original verified
  // projected receipt or visually promote a projected lineup to confirmed.
