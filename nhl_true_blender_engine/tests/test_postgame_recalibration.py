@@ -259,7 +259,6 @@ def test_season_calibration_records_only_source_verified_original_g0_g105_miss_p
                     "pregameG105Verdict":"DEFEATED"}]
             }]
         }
-    }
     (folder/"2026-11-15-recipient-audit.json").write_text(
         json.dumps(audit("2026-11-15")))
     # A report from a different original Core must NOT affect the sample.
