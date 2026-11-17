@@ -1562,3 +1562,27 @@ a{color:#a4d6d4}
 @media(prefers-reduced-motion:reduce){
   .pool-flip-inner,.card-flip-inner{transition:none!important}
 }
+
+
+/* Final responsive editorial hierarchy: the status marker must never inherit
+   the decorative oversized suit styling from the original card-table CSS. */
+.play-stage-heading > .core-readonly-mark{
+  flex:0 0 auto;
+  color:#ddc595;
+  font:800 10px/1.2 Inter,Arial,sans-serif!important;
+  letter-spacing:.10em;
+  padding:9px 11px;
+  max-width:none;
+  text-shadow:none;
+  white-space:nowrap;
+}
+.play-stage-heading h1{white-space:nowrap}
+@media(max-width:650px){
+  .play-stage-heading > .core-readonly-mark{
+    font-size:8px!important;
+    padding:7px 6px;
+    letter-spacing:.045em;
+  }
+  .play-stage-heading{align-items:end;gap:7px}
+  .play-stage-heading h1{font-size:35px;line-height:1.1}
+}
