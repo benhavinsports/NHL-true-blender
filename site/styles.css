@@ -1125,3 +1125,10 @@ body{
 @media(prefers-reduced-motion:reduce){
   .pool-flip-inner{transition:none}
 }
+
+/* Flip-card faces never intercept touches from the other side. */
+.pool-flip-card.is-flipped .pool-front{pointer-events:none}
+.pool-flip-card:not(.is-flipped) .pool-back{pointer-events:none}
+/* Compact slate title: no decorative box colliding with its typography. */
+.run-rail .slate-name{border:0;box-shadow:none;text-align:left;min-width:0;padding:0;background:none}
+.run-rail .slate-name strong{white-space:normal;overflow-wrap:anywhere}
