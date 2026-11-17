@@ -7,20 +7,39 @@ from __future__ import annotations
 from datetime import datetime,timezone
 import hashlib
 import json
-from .engine import all_goalie_branches,challenger_proof,player_releases,release_matched_to_g0_target,receipt,evidence_data
+from .engine import (all_goalie_branches,challenger_proof,player_releases,
+                     release_matched_to_g0_target,g0_source_coherent_scorer_goalie,
+                     receipt,evidence_data)
 from .enrichment import ingest
 
 SCOPE="DERIVED_CROSS_SOURCE_G17"
 
-def review_all_candidates(con,snapshot,date,stage):
+def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
+    """Review real independent G17 inputs, including the actual G0 goalie source.
+
+    Before G0 the normal pass investigates both attack directions. When G0
+    independently decides an attacker, re-review that one documented
+    attack/goalie origin from the very same PBP/EDGE source used in skater G5.
+    Never replace a source conflict with a PASS or overwrite stored evidence.
+    """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
     created=0;unresolved=0;examples=[]
     for game in snapshot.get("games",[]):
-        for attacker,defender in ((game["away"],game["home"]),
-                                  (game["home"],game["away"])):
+        decision=(selected_directions or {}).get(str(game["id"]))
+        if selected_directions is not None and not decision:
+            continue
+        directions=((decision["attacker"],decision["defender"]),) if decision else (
+            (game["away"],game["home"]),(game["home"],game["away"]))
+        for attacker,defender in directions:
             roster=(game.get("rosters",{}).get(attacker) or {}).get("data",{})
             teammates=roster.get("players",[])
             branches=all_goalie_branches(game,stage).get(defender,[])
+            if decision:
+                # No goalie selected by the reviewer: source coherence applies
+                # ONLY to the exact independently selected G0 attacker and
+                # official opposing goalie identity.
+                branches=[g0_source_coherent_scorer_goalie(game,decision,b)
+                          for b in branches]
             for p in teammates:
                 # G17 must review the SAME player-owned route that G5 will
                 # evaluate after the goalie-first G0 decision.
@@ -62,8 +81,8 @@ def review_all_candidates(con,snapshot,date,stage):
                         dep.get("status") in ("PROJECTED","CONFIRMED"))
                 known_contradiction=any(b["observedStrongerArea"]
                                         for b in usable)
-                source_unresolved=(not branches or not usable or
-                    not lineup_available or rival_ok is not True or
+                source_unresolved=(len(branches)!=1 if decision else not branches) or (
+                    not usable or not lineup_available or rival_ok is not True or
                     known_contradiction)
                 status="UNRESOLVED_CONTRADICTION" if source_unresolved else "CROSS_SOURCE_REVIEW_SATISFIED"
                 contradiction={
@@ -99,6 +118,10 @@ def review_all_candidates(con,snapshot,date,stage):
                     "scope":"observed shot origins, NOT anatomical goal-mouth coordinates",
                     "anatomicalWeaknessCertified":False,
                     "notGoalScoreCertainty":True,
+                    "sameIndependentlySelectedG0GoalieSourceAsScorerG5":
+                        bool(decision and len(branches)==1 and
+                             usable and len(usable)==1),
+                    "G0SelectionDoesNotCopyG17Verdict":True,
                 }
                 sources=[p["release"]["sourceUrl"]]+[
                     b["goalieWeakProfileUrl"] or b["starterSourceUrl"] for b in opposing]
