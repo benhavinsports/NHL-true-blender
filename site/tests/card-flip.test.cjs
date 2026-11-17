@@ -215,3 +215,25 @@ test("public HTML never renders the duplicate behind-the-pick audit",()=>{
  assert.ok(!html.includes('id="master-gate-deck"'));
 
 });
+
+
+test("scouting visual identity has no poker suit, cartoon rink or editable dashboard UI",()=>{
+ const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ const pool=fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8");
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ assert.ok(html.includes("NHL SCOUTING INTELLIGENCE"));
+ assert.ok(html.includes("THE AUTHORITATIVE SELECTION"));
+ assert.ok(!html.includes("♠"));
+ assert.ok(!html.includes("hand-ornament"));
+ assert.ok(!js.includes('"rink-center"'));
+ assert.ok(!js.includes('"face-corner"'));
+ assert.ok(js.includes('"card-profile-number"'));
+ assert.ok(!pool.includes('"pool-card-suit"'));
+ assert.ok(pool.includes("pool-card-open"));
+ assert.ok(css.includes("SCOUTING INTELLIGENCE"));
+ assert.ok(css.includes("body.pool-card-open"));
+ assert.ok(html.includes('id="pool-list"'));
+ assert.ok(html.includes('id="core-cards"'));
+ assert.ok(!html.includes('id="system"'));
+});
