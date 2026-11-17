@@ -262,7 +262,7 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
         "noOutcomeOnlyRulePatch":True,
     }
 
-async def collect_official_recipients(con,date,nhl):
+async def collect_official_recipients(con,date,nhl,root="state"):
     """Re-check every official scorer from the final two NHL data feeds."""
     card=get_card(con,date)
     if not card or not card.get("grade"):
@@ -280,7 +280,7 @@ async def collect_official_recipients(con,date,nhl):
         pbp[gid]=await nhl.play_by_play(gid)
         box[gid]=await nhl.boxscore(gid)
     report=compare_official_goal_recipients(card,date,games,pbp,box,
-           lambda leg,gate: pregame_gate(con,date,leg,gate))
+           lambda leg,gate: pregame_gate(con,date,leg,gate,root=root))
     for leg in report["selectedLegs"]:
         original=next(x for x in card["current_legs"]
                       if str(x["gameId"])==leg["gameId"] and
