@@ -98,6 +98,9 @@ jobs:
               if not path.exists():
                   print("NOT_CREATED")
                   continue
+              if name.endswith(".json"):
+                  print(json.dumps(json.loads(path.read_text()),sort_keys=True))
+                  continue
               for line in path.read_text().splitlines():
                   row=json.loads(line)
                   if "selections" in name:
