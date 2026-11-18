@@ -1,5 +1,8 @@
 name: Historical replay regression
 on:
+  push:
+    branches:
+      - audit/historical-season-replay
   workflow_dispatch:
     inputs:
       start_date:
