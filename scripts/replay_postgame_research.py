@@ -131,10 +131,16 @@ async def audit_day(selection, manifest, root):
                 record["onNetByApproximateZone"] = dict(Counter(
                     zone for x in by_shooter.get(pid, []) if x["type"] in ON_NET
                     for zone in x["approximateZones"]))
+                record["shotEventLocations"] = [
+                    {"eventId": x["eventId"], "type": x["type"],
+                     "x": x.get("x"), "y": x.get("y"),
+                     "approximateZones": x["approximateZones"],
+                     "goalieId": x.get("goalieId"),
+                     "period": x.get("period"), "timeInPeriod": x.get("timeInPeriod")}
+                    for x in by_shooter.get(pid, [])
+                ]
                 record["goalEvents"] = [
-                    {"eventId": x["eventId"], "x": x.get("x"), "y": x.get("y"),
-                     "approximateZones": x["approximateZones"], "goalieId": x.get("goalieId")}
-                    for x in by_shooter.get(pid, []) if x["type"] == "goal"
+                    x for x in record["shotEventLocations"] if x["type"] == "goal"
                 ]
             scorers = sorted(
                 [x for x in players.values() if x["goals"] > 0],
@@ -166,7 +172,6 @@ async def audit_day(selection, manifest, root):
             continue
         game_audit = audited[gid]
         actual = game_audit["players"].get(pid)
-        shots = [x for x in extract_events_for_audit_placeholder(game_audit) if x.get("shooterId") == pid] if False else []
         candidate_rows.append({
             "gameId": gid, "matchup": game_audit["matchup"],
             "playerId": pid, "player": names.get(pid),
@@ -176,10 +181,12 @@ async def audit_day(selection, manifest, root):
             "officialGoals": actual["goals"] if actual else 0,
             "officialOnNetShots": actual["onNetShots"] if actual else 0,
             "officialApproximateOnNetZones": actual["onNetByApproximateZone"] if actual else {},
+            "officialShotEventLocations": actual["shotEventLocations"] if actual else [],
             "G10_5PregameComparison": (row.get("nonpassReasons") or {}).get("G10.5"),
         })
 
-    # Add every same-lane challenger referenced by G10.5 and postgame result.
+    # Add every same-lane challenger referenced by a failed G10.5 comparison.
+    # Survivor path receipts also preserve the direct-primary IDs they displaced.
     g105_reviews = []
     seen_pairs = set()
     for row in matrix:
@@ -214,6 +221,40 @@ async def audit_day(selection, manifest, root):
                 "postgameDoesNotProvePregameDecisionWrong": True,
             })
 
+    for survivor in survivors:
+        gid, pid = str(survivor["gameId"]), str(survivor["playerId"])
+        for displaced in ((survivor.get("pathClassificationEvidence") or {}).get(
+                "G10_5DisplacedPrimaryEvidence") or []):
+            challenger_id = str(displaced.get("displacedDirectPrimaryPlayerId") or "")
+            key = (gid, pid, challenger_id)
+            if not challenger_id or key in seen_pairs:
+                continue
+            seen_pairs.add(key)
+            candidate_actual = audited[gid]["players"].get(pid)
+            challenger_actual = audited[gid]["players"].get(challenger_id)
+            g105_reviews.append({
+                "gameId": gid, "matchup": audited[gid]["matchup"],
+                "candidateId": pid, "candidate": survivor.get("player"),
+                "challengerId": challenger_id, "challenger": names.get(challenger_id),
+                "pregameVerdict": displaced.get("G10_5Verdict"),
+                "pregameSameLane": displaced.get("sameLane"),
+                "pregameCandidate": {
+                    "ownedGoals": displaced.get("directGoalCreditCandidate"),
+                    "shotsOnGoal": survivor.get("ownShotsOnGoal"),
+                },
+                "pregameChallenger": {
+                    "ownedGoals": displaced.get("directGoalCreditPrior"),
+                    "shotsOnGoal": None,
+                    "shotsOnGoalNotIncludedInSurvivorPathReceipt": True,
+                },
+                "candidateOfficialGoals": candidate_actual["goals"] if candidate_actual else 0,
+                "candidateOfficialOnNetShots": candidate_actual["onNetShots"] if candidate_actual else 0,
+                "challengerOfficialGoals": challenger_actual["goals"] if challenger_actual else 0,
+                "challengerOfficialOnNetShots": challenger_actual["onNetShots"] if challenger_actual else 0,
+                "challengerParticipation": "LISTED_IN_BOXSCORE" if challenger_actual else "NOT_LISTED_IN_BOXSCORE",
+                "postgameDoesNotProvePregameDecisionWrong": True,
+            })
+
     g0 = engine.get("g0TwoGoalieDirectionDecisions") or {}
     g0_comparison = []
     for gid, game in game_rows.items():
@@ -238,7 +279,6 @@ async def audit_day(selection, manifest, root):
         gid, pid = str(survivor["gameId"]), str(survivor["playerId"])
         actual = audited[gid]["players"].get(pid)
         route = survivor.get("ownRouteZone")
-        shots = [x for x in extract_events_for_audit_placeholder(audited[gid]) if x.get("shooterId") == pid] if False else []
         # Events are represented in the player's reconciled boxscore detail.
         zones = (actual or {}).get("onNetByApproximateZone", {})
         lane_shots = int(zones.get(route, 0)) if route else 0
