@@ -75,7 +75,7 @@ def _parse_matchups(text,schedule_games):
             game=next((g for g in schedule_games if g.get("away")==away and g.get("home")==home),None)
             matchups.append({"awayName":away_name,"homeName":home_name,
                 "away":away,"home":home,"startTimeUTC":text[i+3],
-                "gameId":game.get("gameId") if game else None,
+                "gameId":(game.get("gameId") or game.get("id")) if game else None,
                 "officialScheduleMatch":game is not None})
     return matchups
 
