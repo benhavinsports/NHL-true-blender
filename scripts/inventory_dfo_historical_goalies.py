@@ -126,19 +126,27 @@ def fetch(day,outdir,manifest_schedule):
         slate_cutoff=(datetime.fromisoformat(min(start_times).replace("Z","+00:00"))-
                       timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00","Z") if start_times else None
         cards=_parse_goalie_cards(parser)
-        matchups=_parse_matchups(parser.text,schedule_games)
         for goalie in cards:
+            image_team=re.search(r"[_-]([A-Z]{3})-",goalie.get("imageUrl") or "")
+            goalie["imageTeamAbbrev"]=image_team.group(1) if image_team else None
             goalie["reportUpdatedBeforeSlateCutoff"]=_before(goalie.get("reportUpdatedAt"),slate_cutoff) if slate_cutoff else None
+        matchups=_parse_matchups(parser.text,schedule_games)
         games=[]
         for idx,match in enumerate(matchups):
             pair=cards[idx*2:idx*2+2]
             game={**match,"awayGoalie":pair[0] if len(pair)>0 else None,
                   "homeGoalie":pair[1] if len(pair)>1 else None,
                   "goaliePairComplete":len(pair)==2}
-            for side in ("awayGoalie","homeGoalie"):
+            for side,team in (("awayGoalie",match.get("away")),("homeGoalie",match.get("home"))):
                 goalie=game[side]
                 if goalie:
+                    goalie["assignedTeam"]=team
+                    goalie["imageTeamAbbrevMatchesAssignedTeam"]=(
+                        goalie.get("imageTeamAbbrev")==team if goalie.get("imageTeamAbbrev") else None)
                     goalie["reportUpdatedBeforeGameStart"]=_before(goalie.get("reportUpdatedAt"),match["startTimeUTC"])
+            game["pairTeamIdentityMatches"]=all(
+                game[side].get("imageTeamAbbrevMatchesAssignedTeam") is True
+                for side in ("awayGoalie","homeGoalie") if game.get(side) and game[side].get("imageTeamAbbrev"))
             games.append(game)
         raw_path=outdir/f"{day}.html";raw_path.write_bytes(raw)
         statuses=[x for x in parser.text if x in STATUSES]
