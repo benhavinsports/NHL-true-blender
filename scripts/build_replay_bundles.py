@@ -67,10 +67,20 @@ def build_day(source, day, out, schedule_row):
     scheduled_games = schedule_row.get("games") or []
     if not scheduled_games:
         return None
-    starts = [g.get("startTimeUTC") for g in scheduled_games if g.get("startTimeUTC")]
-    if len(starts) != len(scheduled_games):
-        raise ValueError(f"Official schedule has a game without startTimeUTC: {day}")
-    first_start = min(datetime.fromisoformat(x.replace("Z", "+00:00")) for x in starts)
+    # Official calendar uses gameId; engine snapshots use id. Normalize once.
+    normalized_schedule_games = []
+    starts = []
+    for source_game in scheduled_games:
+        game = dict(source_game)
+        game["id"] = str(game.get("id") or game.get("gameId") or "")
+        start_value = game.get("startTimeUTC") or game.get("startUTC")
+        if not game["id"] or not start_value:
+            raise ValueError(f"Official schedule game missing identity or start time: {day}: {source_game}")
+        game["startTimeUTC"] = start_value
+        starts.append(datetime.fromisoformat(start_value.replace("Z", "+00:00")))
+        normalized_schedule_games.append(game)
+    scheduled_games = normalized_schedule_games
+    first_start = min(starts)
     cutoff_dt = first_start - timedelta(minutes=5)
     cutoff = cutoff_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
 
