@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import gzip
 import tempfile
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -66,6 +67,8 @@ def replay_day(root, day, default_stage, bundle):
         # saved cutoff. Preserve it in the snapshot: execute() excludes that
         # game using the historical clock while continuing later games.
     evidence = verified_bytes(root, bundle['evidenceDb'], bundle['evidenceDbSha256'])
+    if bundle['evidenceDb'].endswith('.gz'):
+        evidence = gzip.decompress(evidence)
     with tempfile.TemporaryDirectory(prefix='blender-replay-') as temp:
         db = Path(temp) / 'replay.sqlite'
         db.write_bytes(evidence)
