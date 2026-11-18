@@ -5,7 +5,7 @@
   "cardId": "NHL-2026-11-17-CANONICAL",
   "originalFingerprint": "55311253a1b8994d8fd6054fdd34f609562ab6e95e8e9285b89b26585f5f62f2",
   "originalRevision": 3,
-  "status": "PRELIMINARY_OFFICIAL_NHL_RECAP_AND_FROZEN_GATE_CROSSCHECK",
+  "status": "SUPPLEMENTAL_RECAP_CROSSCHECK_SUPERSEDED_BY_OFFICIAL_PBP_BOXSCORE_AUDIT",
   "sourceScope": "Official NHL game summaries/team recaps cross-checked against the immutable pregame gate export",
   "completePbpBoxscoreReconciliation": false,
   "postgameObservationOnly": true,
@@ -199,5 +199,8 @@
   ],
   "patchDecision": "NO_PATCH_ACTIVATED_PENDING_CAUSAL_VERIFICATION",
   "postgameRecipientAuditStatus": "SOURCE_VERIFICATION_PENDING; exact failure reason will be preserved by the repaired runner",
-  "officialGrade": "LOSS_0_OF_3"
+  "officialGrade": "LOSS_0_OF_3",
+  "supplementalOnly": true,
+  "supersededBy": "state/site_runs/2026-11-17-recipient-audit.json",
+  "supersedingAuditStatus": "OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON"
 }
