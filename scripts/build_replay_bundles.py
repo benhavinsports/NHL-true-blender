@@ -94,8 +94,10 @@ def build_day(source, day, out, schedule_row):
     eligible = [r for r in all_rows if r["stage"] in ("OFFICIAL", "PROJECTED", "CONFIRMED")]
     rows = [r for r in eligible if datetime.fromisoformat(
         r["observed_at"].replace("Z", "+00:00")) <= cutoff_dt]
-    if not rows:
-        return None
+    # A date with no same-day receipts may still have legitimate pre-cutoff
+    # archived observations from earlier dates. Preserve the scheduled slate
+    # and let the engine report missing evidence instead of silently dropping
+    # that date from the historical calendar.
     stage = "CONFIRMED" if any(r["stage"] == "CONFIRMED" for r in rows) else "PROJECTED"
 
     schedules = [r for r in rows if r["kind"] == "GAME_SCHEDULE" and r["stage"] == "OFFICIAL"]
