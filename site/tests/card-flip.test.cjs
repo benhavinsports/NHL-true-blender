@@ -264,7 +264,7 @@ test("Core card fronts are real photo-led collector designs with saved NHL IDs",
    assert.ok(descendants(back).filter(n=>n.classList.contains("flip-gate-row")).length===20);
  }
  const first=descendants(cards[0]).find(n=>n.classList.contains("collector-photo"));
- assert.equal(first.listeners.error instanceof Function,true);
+ assert.equal(typeof first.listeners.error,"function");
  first.listeners.error();
  assert.ok(first.src.includes("/mugs/nhl/20262027/"),
      "If official NHL action still is unavailable, official headshot should be attempted");
