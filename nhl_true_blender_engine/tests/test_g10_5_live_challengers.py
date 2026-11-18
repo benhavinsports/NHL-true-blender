@@ -27,8 +27,13 @@ def test_eliminated_rival_cannot_eliminate_and_is_listed(tmp_path):
             disp,ev=_gate(con,'1011',gate)
             assert disp=='PASS', (gate,disp,ev)
             assert ev['challengersStoppedBeforeG10_5']['1010'].endswith(':ELIMINATED')
-            assert '1010' in ev['eliminatedChallengersExcluded']
+            assert '1010' in ev['eliminatedChallengersExcludedFromDisplacement']
             assert not ev.get('routeOwnedByStrongerRival')
+            rows={str(x['challengerId']):x for x in ev['comparisonRows']}
+            assert '1010' in rows
+            assert rows['1010']['comparisonOnlyPriorGateEliminated'] is True
+            assert rows['1010']['canDisplaceAtG10_5'] is False
+            assert rows['1010']['priorGateDisposition'].endswith(':ELIMINATED')
     finally:
         con.close()
 
