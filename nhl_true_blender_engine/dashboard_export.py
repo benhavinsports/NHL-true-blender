@@ -325,6 +325,40 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
             })
     output=root/"site_gates"/f"{date}.json"
     output.parent.mkdir(parents=True,exist_ok=True)
+    # A later incomplete CONFIRMED (or duplicate PROJECTED) research run is
+    # permitted to record its phase in SQLite and run diagnostics. It must
+    # NEVER overwrite the independently verified receipt of the already
+    # published Core with the same card identity. The old failure stamped
+    # CONFIRMED onto original PROJECTED G0-G18 rows, orphaning their proof
+    # while leaving the selected players/fingerprint unchanged.
+    saved_public=root/"site_cards"/f"{date}.json"
+    if output.is_file() and saved_public.is_file() and card:
+        try:
+            saved=json.loads(saved_public.read_text(encoding="utf-8"))
+            original=json.loads(output.read_text(encoding="utf-8"))
+            matches=(saved.get("cardId")==card["card_id"]
+                     and saved.get("fingerprint")==card["fingerprint"]
+                     and saved.get("revision")==card["revision"]
+                     and saved.get("stage")==card["stage"]
+                     and original.get("fingerprint")==card["fingerprint"])
+            if matches:
+                from scripts.preserved_core_receipt import verified_original_receipt
+                if verified_original_receipt(root,date,saved) is not None:
+                    # Source proof is unchanged and remains pre-puck. Returning
+                    # here neither certifies a new run nor changes a Core.
+                    return {"path":str(output),
+                            "gameCount":len(original.get("games",[])),
+                            "cardId":original.get("cardId"),
+                            "selectedLegCount":len(original.get("legs",[])),
+                            "selectedGateRecordCount":sum(
+                                leg.get("sourceVerifiedPregameGateCount",0)
+                                for leg in original.get("legs",[])),
+                            "preservedOriginalSourceCohort":True,
+                            "newReviewStageStoredSeparately":stage}
+        except (OSError,ValueError,KeyError,TypeError):
+            # A corrupt or mismatched old export must never get a free PASS.
+            # Its validity is independently rechecked on the output path.
+            pass
     temp=output.with_suffix(".tmp")
     temp.write_text(json.dumps(payload,sort_keys=True,indent=2,default=str)+"\n",
                     encoding="utf-8")
