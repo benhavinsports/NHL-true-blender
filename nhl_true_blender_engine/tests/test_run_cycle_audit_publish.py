@@ -45,6 +45,16 @@ def test_publishes_read_only_miss_audit_without_changing_frozen_card(tmp_path):
         "notACertifiedRecipientComparison": True,
     }
     patch = {"activated": [], "decisions": []}
+    preliminary = {
+        "status": "PRELIMINARY_OFFICIAL_NHL_RECAP_AND_FROZEN_GATE_CROSSCHECK",
+        "cardId": card_id,
+        "originalFingerprint": "immutable-fingerprint",
+        "originalRevision": 3,
+        "selectedLegs": [{"player": "Sam Reinhart", "lockedGoals": 0}],
+    }
+    sidecar = tmp_path / "site_runs" / f"{date}-preliminary-miss-audit.json"
+    sidecar.parent.mkdir(parents=True)
+    sidecar.write_text(json.dumps(preliminary), encoding="utf-8")
 
     _publish_official_grade(
         tmp_path, date, grade, misses, patch, recipient
@@ -64,5 +74,6 @@ def test_publishes_read_only_miss_audit_without_changing_frozen_card(tmp_path):
     assert audit["postgameRecipientAudit"] == recipient
     assert audit["patchAdjudication"] == patch
     assert audit["status"] == "SOURCE_VERIFICATION_PENDING"
+    assert audit["preliminaryOfficialRecapCrosscheck"] == preliminary
     assert audit["readOnly"] is True
     assert audit["noRetrospectiveScorerOverride"] is True
