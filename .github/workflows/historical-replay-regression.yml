@@ -1,7 +1,18 @@
 name: Historical replay regression
 on:
-  # Historical replay is expensive and runs only at deliberate, batched checkpoints.
+  # Run only deliberate, batched historical checkpoints.
   workflow_dispatch:
+    inputs:
+      start_date:
+        description: "First NHL slate date (YYYY-MM-DD)"
+        required: true
+        default: "${{ inputs.start_date }}"
+        type: string
+      end_date:
+        description: "Last NHL slate date (YYYY-MM-DD)"
+        required: true
+        default: "${{ inputs.end_date }}"
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -26,15 +37,15 @@ jobs:
         run: |
           mkdir -p state/replay
           python scripts/inspect_historical_archive.py > state/replay/source-inventory.json
-      - name: Fetch official NHL schedule from opening night through Nov 17
+      - name: Fetch official NHL schedule from ${{ inputs.start_date }} through ${{ inputs.end_date }}
         env:
           PYTHONPATH: .
-        run: python scripts/fetch_official_slate_calendar.py --start 2026-09-29 --end 2026-11-17 --output state/replay/official_schedule.json
-      - name: Build point-in-time bundles and official schedule calendar from opening night through Nov 17
+        run: python scripts/fetch_official_slate_calendar.py --start ${{ inputs.start_date }} --end ${{ inputs.end_date }} --output state/replay/official_schedule.json
+      - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date }} through ${{ inputs.end_date }}
         id: build_bundles
         env:
           PYTHONPATH: .
-        run: python scripts/build_replay_bundles.py --start 2026-09-29 --end 2026-11-17 --output state/replay
+        run: python scripts/build_replay_bundles.py --start ${{ inputs.start_date }} --end ${{ inputs.end_date }} --output state/replay
       - name: Prepare pre-G0 baseline engine package without changing this branch
         run: |
           mkdir -p /tmp/blender-baseline/nhl_true_blender_engine /tmp/blender-baseline/scripts
@@ -57,7 +68,7 @@ jobs:
           from pathlib import Path
           source=Path("state/replay/manifest.json")
           manifest=json.loads(source.read_text())
-          start,end="2026-09-29","2026-10-05"
+          start,end="${{ inputs.start_date }}","2026-10-05"
           subset={**manifest,"start":start,"end":end}
           subset["officialSchedule"]={k:v for k,v in manifest["officialSchedule"].items() if start<=k<=end}
           subset["slates"]={k:v for k,v in manifest["slates"].items() if start<=k<=end}
@@ -72,7 +83,7 @@ jobs:
           PYTHONPATH: .
         run: |
           python scripts/replay_historical_season.py state/replay/opening-week-manifest.json state/replay/opening-week-selections.jsonl --grades state/replay/opening-week-grades.jsonl
-      - name: Replay full opening-night through Nov 17 period and grade frozen selections
+      - name: Replay full ${{ inputs.start_date }} through ${{ inputs.end_date }} period and grade frozen selections
         id: full_period
         continue-on-error: true
         env:
@@ -145,7 +156,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: historical-replay-opening-night-through-nov17
+          name: historical-replay-${{ inputs.start_date }}-through-${{ inputs.end_date }}
           path: state/replay/
           if-no-files-found: error
       - name: Run full engine regression suite
