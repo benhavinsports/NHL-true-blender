@@ -28,6 +28,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/fetch_official_slate_calendar.py --start 2026-09-29 --end 2026-11-17 --output state/replay/official_schedule.json
       - name: Build point-in-time bundles and official schedule calendar from opening night through Nov 17
+        id: build_bundles
         env:
           PYTHONPATH: .
         run: python scripts/build_replay_bundles.py --start 2026-09-29 --end 2026-11-17 --output state/replay
@@ -91,11 +92,11 @@ jobs:
         run: |
           python scripts/replay_postgame_research.py state/replay/manifest.json state/replay/selections.jsonl state/replay/postgame-research.jsonl
       - name: Compare baseline and patched frozen selections
-        if: always()
+        if: steps.build_bundles.outcome == 'success' && steps.opening_week.outcome == 'success' && steps.full_period.outcome == 'success' && steps.baseline_period.outcome == 'success'
         run: |
           python scripts/compare_historical_replays.py state/replay/baseline/selections.jsonl state/replay/baseline/grades.jsonl state/replay/selections.jsonl state/replay/grades.jsonl state/replay/baseline-vs-patched.json
       - name: Build per-slate and aggregate G0-G18 audit report
-        if: always()
+        if: steps.build_bundles.outcome == 'success' && steps.full_period.outcome == 'success' && steps.postgame_research.outcome == 'success'
         run: |
           python scripts/summarize_historical_replay.py state/replay/manifest.json state/replay/selections.jsonl state/replay/grades.jsonl state/replay/postgame-research.jsonl state/replay/baseline-vs-patched.json state/replay/audit-report.json --dfo state/replay/dfo-goalie-archive.json
       - name: Summarize actual replay and grade ledgers
