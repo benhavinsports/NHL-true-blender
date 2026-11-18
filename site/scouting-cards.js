@@ -84,6 +84,87 @@ function section(area,label,body){
  row.appendChild(create("strong","scout-context-value",body));
  area.appendChild(row);
 }
+// Source-to-visual mapping. The illustrated areas are schematic categories,
+// NOT exact NHL EDGE event coordinates and never goalie anatomy.
+function normalizeZone(zone){
+ return String(zone||"").toLowerCase().replace(/[^a-z]/g,"").replace("centerpoint","point");
+}
+function rinkGraphic(origin){
+ const field=create("div","scout-rink-panel");
+ const header=create("div","scout-visual-label");
+ header.appendChild(create("span","","SHOT ORIGIN / SCHEMATIC"));
+ header.appendChild(create("span","scout-visual-index","G4 · G5"));
+ field.appendChild(header);
+ const rink=create("div","scout-rink-map");
+ rink.setAttribute("aria-label","Schematic rink origin map. Source lane: "+show(origin));
+ const rinkNet=create("span","scout-rink-net","GOAL");
+ rink.appendChild(rinkNet);
+ const zones=[
+  ["L POINT","lpoint"],["POINT","point"],["R POINT","rpoint"],
+  ["L CIRCLE","lcircle"],["HIGH SLOT","highslot"],["R CIRCLE","rcircle"],
+  ["","empty-l"],["LOW SLOT","lowslot"],["","empty-r"]
+ ];
+ const originKey=normalizeZone(origin);
+ let matched=false;
+ for(const [title,key] of zones){
+  const active=!!title&&originKey===key;
+  const marker=create("span","scout-rink-zone"+(active?" active":"")+
+    (!title?" is-empty":""),title);
+  if(active){matched=true;marker.setAttribute("aria-current","true");}
+  rink.appendChild(marker);
+ }
+ field.appendChild(rink);
+ const foot=create("div","scout-rink-foot");
+ foot.appendChild(create("span","",matched?"OBSERVED AREA":"AREA NOT PLOTTED"));
+ foot.appendChild(create("strong","",show(origin)));
+ field.appendChild(foot);
+ field.appendChild(create("p","scout-chart-disclaimer",
+   "Category diagram · not shot coordinates or goalie anatomy"));
+ return field;
+}
+function barPanel({attPer,peerPer,attempts,onNet,games,origin}){
+ const area=create("section","scout-pressure-card");
+ const header=create("div","scout-module-title");
+ header.appendChild(create("span","","OPPONENT DEFENSIVE COVERAGE"));
+ header.appendChild(create("span","scout-visual-index","G9"));
+ area.appendChild(header);
+ area.appendChild(create("p","scout-module-sub",
+   "Observed "+show(origin)+" shot-origin concessions · historical game sample"));
+ if(numbers(attPer)&&attPer>=0&&numbers(peerPer)&&peerPer>=0){
+  const max=Math.max(attPer,peerPer,1);
+  const makeRow=(label,value,kind)=>{
+   const row=create("div","scout-compare-row");
+   const rowTitle=create("div","scout-compare-head");
+   rowTitle.appendChild(create("span","",label));
+   rowTitle.appendChild(create("strong","",value.toFixed(2)+" / game"));
+   row.appendChild(rowTitle);
+   const track=create("div","scout-compare-track");
+   const fill=create("span","scout-compare-fill "+kind);
+   fill.style.width=(100*value/max).toFixed(1)+"%";
+   track.appendChild(fill);row.appendChild(track);area.appendChild(row);
+  };
+  makeRow("OPPONENT ATTEMPTS CONCEDED",attPer,"concession");
+  makeRow("OTHER-TEAM PEER MEDIAN",peerPer,"peer");
+ }else area.appendChild(create("div","scout-unreported","Comparable defense rates not available in the saved source"));
+ const footer=create("div","scout-pressure-footer");
+ footer.appendChild(create("strong","",numbers(attempts)?attempts+" attempts":"— attempts"));
+ footer.appendChild(create("strong","",numbers(onNet)?onNet+" on-net":"— on-net"));
+ footer.appendChild(create("span","",numbers(games)?games+" games reviewed":"Sample unreported"));
+ area.appendChild(footer);
+ area.appendChild(create("p","scout-chart-disclaimer",
+   "Observed defense concessions, not a prediction or a Blender ranking weight."));
+ return area;
+}
+function sideIntel(title,value,sub,ref){
+ const card=create("div","scout-intel-tile");
+ const heading=create("div","scout-intel-heading");
+ heading.appendChild(create("span","",title));
+ heading.appendChild(create("b","",ref));
+ card.appendChild(heading);
+ card.appendChild(create("strong","scout-intel-value",value));
+ card.appendChild(create("span","scout-intel-sub",sub));
+ return card;
+}
 function status(rec){
  if(!rec)return {ok:false,text:"NO SOURCE RECEIPT"};
  if(rec.status==="PASS"&&rec.prePuckRecord===true)return {ok:true,text:"SOURCE VERIFIED"};
