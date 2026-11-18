@@ -72,6 +72,8 @@ def main():
             "core":[{"player":x.get("player"),"playerId":x.get("playerId"),"gameId":x.get("gameId")} for x in legs],
             "gateCounts":counts,"firstNonpassing":(s.get("firstNonpassingGateAudit") or {}).get("firstNonpassingGateCounts"),
             "grade":grade_summary(g),"G16":e.get("g16FinalistCompetition"),
+            "g0PostgameTeamGoalComparisons":pg.get("g0TeamGoalComparisons"),
+            "G10_5PostgameComparisons":pg.get("G10_5PregameVsOfficialScorers"),
             "postgameResearchStatus":pg.get("status"),"samePoolBaseline":pg.get("samePoolBaseline")
         })
     graded=[x for x in per if (x.get("grade") or {}).get("status")=="GRADED_FINAL_BOXSCORE_AND_PBP"]
@@ -82,13 +84,47 @@ def main():
     dressed=sum(r.get("participation")=="LISTED_AS_DRESSED_SKATER" for x in graded for r in (x.get("grade") or {}).get("playerResults",[]))
     absent=sum(r.get("participation")=="NOT_LISTED_IN_OFFICIAL_BOXSCORE" for x in graded for r in (x.get("grade") or {}).get("playerResults",[]))
     core3=[x for x in graded if (x.get("grade") or {}).get("legs")==3]
-    g105=[];g105rows=[]
-    for report in post.values():
-        if report.get("status")!="OFFICIAL_POSTGAME_RESEARCH_COMPLETE":continue
-        cmap={(x.get("gameId"),x.get("playerId")):x for x in report.get("candidateFirstGateAndOfficialScoring",[])}
-        g105 += [x for x in cmap.values() if x.get("firstNonpassingMasterGate")=="G10.5"]
-        g105rows += [x for x in report.get("G10_5PregameVsOfficialScorers",[])
-                     if (cmap.get((x.get("gameId"),x.get("candidateId"))) or {}).get("firstNonpassingMasterGate")=="G10.5"]
+    g105_merit=[];g105_blocked=[];g105rows=[]
+    g0_selected=[]
+    for day, report_row in post.items():
+        if report_row.get("status")!="OFFICIAL_POSTGAME_RESEARCH_COMPLETE":continue
+        selection=sels.get(day) or {}
+        matrix=(selection.get("gateDiagnostics") or {}).get("candidateGateMatrix") or []
+        dispositions={(str(x.get("gameId")),str(x.get("playerId"))):
+                      (x.get("masterDispositions") or {}).get("G10.5")
+                      for x in matrix if not str(x.get("playerId","")).startswith("G0_RESEARCH:")}
+        cmap={(x.get("gameId"),x.get("playerId")):x
+              for x in report_row.get("candidateFirstGateAndOfficialScoring",[])}
+        for key,candidate in cmap.items():
+            if candidate.get("firstNonpassingMasterGate")!="G10.5":continue
+            status=dispositions.get((str(key[0]),str(key[1])))
+            if status=="ELIMINATED":g105_merit.append(candidate)
+            elif status=="NOT_EXECUTED":g105_blocked.append(candidate)
+        for row in report_row.get("G10_5PregameVsOfficialScorers",[]):
+            key=(str(row.get("gameId")),str(row.get("candidateId")))
+            if dispositions.get(key)=="ELIMINATED" and cmap.get((row.get("gameId"),row.get("candidateId")),{}).get("firstNonpassingMasterGate")=="G10.5":
+                g105rows.append(row)
+        for row in report_row.get("g0TeamGoalComparisons",[]):
+            if row.get("pregameAttackSideWasSelected"):
+                g0_selected.append(row)
+    challengers={}
+    for row in g105rows:
+        if row.get("challengerOfficialGoals",0)>0:
+            key=(row.get("gameId"),row.get("challengerId"))
+            prior=challengers.get(key,{"player":row.get("challenger"),"goals":0,"shotsInLane":0,"goalsInLane":0})
+            prior["goals"]=max(prior["goals"],row.get("challengerOfficialGoals",0))
+            prior["shotsInLane"]=max(prior["shotsInLane"],row.get("challengerOnNetShotsInPregameApproximateLane",0) or 0)
+            prior["goalsInLane"]=max(prior["goalsInLane"],row.get("challengerGoalsInPregameApproximateLane",0) or 0)
+            challengers[key]=prior
+    candidate_lane={}
+    for row in g105rows:
+        if row.get("candidateOfficialGoals",0)>0:
+            key=(row.get("gameId"),row.get("candidateId"))
+            prior=candidate_lane.get(key,{"player":row.get("candidate"),"goals":0,"shotsInLane":0,"goalsInLane":0})
+            prior["goals"]=max(prior["goals"],row.get("candidateOfficialGoals",0))
+            prior["shotsInLane"]=max(prior["shotsInLane"],row.get("candidateOnNetShotsInPregameApproximateLane",0) or 0)
+            prior["goalsInLane"]=max(prior["goalsInLane"],row.get("candidateGoalsInPregameApproximateLane",0) or 0)
+            candidate_lane[key]=prior
     report={
         "dateRange":{"start":manifest["start"],"end":manifest["end"]},
         "officialSchedule":{"scheduledSlates":len(scheduled),"verifiedOffDays":len(off),
@@ -105,15 +141,30 @@ def main():
             "fullCardsGraded":len(graded),
             "Core3":{"cards":len(core3),"hits":sum((x.get("grade") or {}).get("hits") or 0 for x in core3),
                      "legs":sum((x.get("grade") or {}).get("legs") or 0 for x in core3),
-                     "fullCardsHit":sum((x.get("grade") or {}).get("result")=="WIN" for x in core3)}},
+                     "fullCardsHit":sum((x.get("grade") or {}).get("result")=="WIN" for x in core3)},
+            "otherCardSizes":dict(Counter((x.get("grade") or {}).get("legs") for x in graded if (x.get("grade") or {}).get("legs")!=3))},
         "gateBreakdown":{"order":GATES,"aggregate":{g:dict(agg[g]) for g in GATES},
                          "playerCandidateDenominator":sum(gate_counts(x)[0] for x in sels.values() if x.get("status")=="REPLAYED"),
                          "G0ReportedAsGameDirectionsSeparately":True},
-        "G10_5":{"firstFailureCandidates":len(g105),
-            "firstFailureCandidatesWhoScored":sum(x.get("officialGoals",0)>0 for x in g105),
-            "sameLaneComparisonRows":len(g105rows),
-            "challengersWhoScored":len(set((x.get("gameId"),x.get("challengerId")) for x in g105rows if x.get("challengerOfficialGoals",0)>0)),
-            "scoredCandidates":[{"player":x.get("player"),"gameId":x.get("gameId"),"goals":x.get("officialGoals")} for x in g105 if x.get("officialGoals",0)>0],
+        "G0PostgameTeamGoalComparison":{
+            "selectedAttackSides":len(g0_selected),
+            "selectedSideScoredMore":sum((x.get("pregameAttackSideGoals") or 0)>(x.get("oppositeSideGoals") or 0) for x in g0_selected),
+            "oppositeSideScoredMore":sum((x.get("pregameAttackSideGoals") or 0)<(x.get("oppositeSideGoals") or 0) for x in g0_selected),
+            "ties":sum((x.get("pregameAttackSideGoals") or 0)==(x.get("oppositeSideGoals") or 0) for x in g0_selected),
+            "teamGoalsAreNotIndividualRouteProof":True},
+        "G10_5":{
+            "firstMeritFailureCandidates":len(g105_merit),
+            "meritFailureCandidatesWhoScored":sum(x.get("officialGoals",0)>0 for x in g105_merit),
+            "evidenceBlockedAtG10_5":len(g105_blocked),
+            "evidenceBlockedCandidatesWhoScored":sum(x.get("officialGoals",0)>0 for x in g105_blocked),
+            "sameLaneComparisonRowsForMeritFailures":len(g105rows),
+            "meritFailureChallengersWhoScored":len(challengers),
+            "scoredChallengersWithOnNetShotInSameApproximateLane":sum(x["shotsInLane"]>0 for x in challengers.values()),
+            "scoredChallengersWithGoalInSameApproximateLane":sum(x["goalsInLane"]>0 for x in challengers.values()),
+            "scoredMeritFailureCandidates":[{"player":x.get("player"),"gameId":x.get("gameId"),"goals":x.get("officialGoals")} for x in g105_merit if x.get("officialGoals",0)>0],
+            "scoredChallengers":[{"player":v["player"],"goals":v["goals"],"onNetShotsInLane":v["shotsInLane"],"goalsInLane":v["goalsInLane"]} for v in challengers.values()],
+            "scoredMeritFailureCandidatesLaneOpportunities":[{"player":v["player"],"goals":v["goals"],"onNetShotsInLane":v["shotsInLane"],"goalsInLane":v["goalsInLane"]} for v in candidate_lane.values()],
+            "fullComparisonRowsAreInPostgameResearchJsonl":True,
             "postgameIsDiagnosticNotPregameProof":True},
         "baselineVersusPatch":{"baselineEngineRef":cmp.get("baselineEngineRef"),
             "sameInputRows":cmp.get("sameInputRows"),"changedG0Dates":cmp.get("changedG0Dates"),
@@ -136,7 +187,14 @@ def main():
         core=", ".join(y["player"] or y["playerId"] for y in x["core"]) or "—"
         g=x.get("grade") or {};gt=f"{g.get('hits')}/{g.get('legs')} {g.get('result')}" if g.get("legs") else g.get("status","—")
         md.append(f"| {x['date']} | {x['games']} | {x['replayStatus']} | {sum(y['status']=='SURVIVOR' for y in x['survivors'])} | {core} | {x['gateCertified']} | {gt} |")
-    md += ["","G0 game-direction counts are separate in the JSON per-slate records.",
+    md += ["","## G0 postgame side comparison",
+           f"- Selected attack sides: {len(g0_selected)}; selected side outscored the opposite side: {sum((x.get('pregameAttackSideGoals') or 0)>(x.get('oppositeSideGoals') or 0) for x in g0_selected)}/{len(g0_selected)}.",
+           "- Team goals are not evidence of an individual skater's route.",
+           "", "## G10.5 postgame diagnostic",
+           f"- Merit failures: {len(g105_merit)}; merit-failed candidates who scored: {sum(x.get('officialGoals',0)>0 for x in g105_merit)}.",
+           f"- Evidence-blocked at G10.5: {len(g105_blocked)}.",
+           f"- Same-lane comparison rows for merit failures: {len(g105rows)}; scored challengers: {len(challengers)}.",
+           "- Full candidate/challenger rows, including approximate-lane opportunities, are in postgame-research.jsonl.",
            "",report["pointInTimeQualification"]]
     out.with_suffix(".md").write_text("\n".join(md)+"\n")
     print(json.dumps({"json":str(out),"markdown":str(out.with_suffix(".md")),
