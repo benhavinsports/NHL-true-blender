@@ -58,8 +58,9 @@ def _date_inventory(payload, kind):
 
 
 def build_day(source, day, out):
-    card = source.execute(
-        "SELECT stage, first_issued_at FROM cards WHERE slate_date=? ORDER BY first_issued_at LIMIT 1", (day,)
+    # Read only the issuance clock, never card identity, legs, grade, or result.
+    card_clock = source.execute(
+        "SELECT first_issued_at FROM cards WHERE slate_date=? ORDER BY first_issued_at LIMIT 1", (day,)
     ).fetchone()
     jobs = source.execute(
         "SELECT mode, status, started_at, finished_at FROM jobs WHERE slate_date=? "
@@ -72,7 +73,10 @@ def build_day(source, day, out):
     # A historical selection is not a prerequisite. If no original card was
     # issued, anchor replay to the actual recorded engine-job start, not to a
     # wall-clock timestamp or a postgame result.
-    cutoff = (card["first_issued_at"] if card and card["first_issued_at"]
+    cutoff_source = ("ORIGINAL_ISSUANCE_TIMESTAMP_CLOCK_ONLY"
+                     if card_clock and card_clock["first_issued_at"] else
+                     "RECORDED_ENGINE_JOB_START")
+    cutoff = (card_clock["first_issued_at"] if card_clock and card_clock["first_issued_at"]
               else usable[0]["started_at"])
     if not cutoff:
         return None
