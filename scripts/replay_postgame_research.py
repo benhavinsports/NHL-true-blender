@@ -224,6 +224,13 @@ async def audit_day(selection, manifest, root):
             challenger_actual = audited[gid]["players"].get(challenger_id)
             candidate_comparison = comparison.get("candidate") or {}
             challenger_comparison = comparison.get("challenger") or {}
+            lane = candidate_comparison.get("zone")
+            candidate_lane_shots = int((candidate_actual or {}).get("onNetByApproximateZone", {}).get(lane, 0)) if lane else 0
+            challenger_lane_shots = int((challenger_actual or {}).get("onNetByApproximateZone", {}).get(lane, 0)) if lane else 0
+            candidate_lane_goals = sum(lane in (event.get("approximateZones") or [])
+                                       for event in (candidate_actual or {}).get("goalEvents", [])) if lane else 0
+            challenger_lane_goals = sum(lane in (event.get("approximateZones") or [])
+                                        for event in (challenger_actual or {}).get("goalEvents", [])) if lane else 0
             g105_reviews.append({
                 "gameId": gid, "matchup": audited[gid]["matchup"],
                 "candidateId": pid, "candidate": names.get(pid),
@@ -236,6 +243,10 @@ async def audit_day(selection, manifest, root):
                 "candidateOfficialOnNetShots": candidate_actual["onNetShots"] if candidate_actual else 0,
                 "challengerOfficialGoals": challenger_actual["goals"] if challenger_actual else 0,
                 "challengerOfficialOnNetShots": challenger_actual["onNetShots"] if challenger_actual else 0,
+                "candidateOnNetShotsInPregameApproximateLane": candidate_lane_shots,
+                "challengerOnNetShotsInPregameApproximateLane": challenger_lane_shots,
+                "candidateGoalsInPregameApproximateLane": candidate_lane_goals,
+                "challengerGoalsInPregameApproximateLane": challenger_lane_goals,
                 "challengerParticipation": "LISTED_IN_BOXSCORE" if challenger_actual else "NOT_LISTED_IN_BOXSCORE",
                 "postgameDoesNotProvePregameDecisionWrong": True,
             })
@@ -251,6 +262,13 @@ async def audit_day(selection, manifest, root):
             seen_pairs.add(key)
             candidate_actual = audited[gid]["players"].get(pid)
             challenger_actual = audited[gid]["players"].get(challenger_id)
+            lane = displaced.get("sameLane")
+            candidate_lane_shots = int((candidate_actual or {}).get("onNetByApproximateZone", {}).get(lane, 0)) if lane else 0
+            challenger_lane_shots = int((challenger_actual or {}).get("onNetByApproximateZone", {}).get(lane, 0)) if lane else 0
+            candidate_lane_goals = sum(lane in (event.get("approximateZones") or [])
+                                       for event in (candidate_actual or {}).get("goalEvents", [])) if lane else 0
+            challenger_lane_goals = sum(lane in (event.get("approximateZones") or [])
+                                        for event in (challenger_actual or {}).get("goalEvents", [])) if lane else 0
             g105_reviews.append({
                 "gameId": gid, "matchup": audited[gid]["matchup"],
                 "candidateId": pid, "candidate": survivor.get("player"),
@@ -270,6 +288,10 @@ async def audit_day(selection, manifest, root):
                 "candidateOfficialOnNetShots": candidate_actual["onNetShots"] if candidate_actual else 0,
                 "challengerOfficialGoals": challenger_actual["goals"] if challenger_actual else 0,
                 "challengerOfficialOnNetShots": challenger_actual["onNetShots"] if challenger_actual else 0,
+                "candidateOnNetShotsInPregameApproximateLane": candidate_lane_shots,
+                "challengerOnNetShotsInPregameApproximateLane": challenger_lane_shots,
+                "candidateGoalsInPregameApproximateLane": candidate_lane_goals,
+                "challengerGoalsInPregameApproximateLane": challenger_lane_goals,
                 "challengerParticipation": "LISTED_IN_BOXSCORE" if challenger_actual else "NOT_LISTED_IN_BOXSCORE",
                 "postgameDoesNotProvePregameDecisionWrong": True,
             })
