@@ -32,6 +32,16 @@ def evidence_id(day, game_id, team, goalie_id, report_at):
     return "dfo-historical-goalie-" + hashlib.sha256(raw.encode()).hexdigest()[:28]
 
 
+def official_game_start(game):
+    """Read either canonical NHL or legacy Blender schedule start field.
+
+    The official-calendar collector persists startUTC, while some consumers
+    use startTimeUTC. Treating only one alias as valid silently blocked every
+    DFO receipt even though the dated goalie reports and game IDs were valid.
+    """
+    return parse_utc(game.get("startTimeUTC") or game.get("startUTC"))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("manifest", type=Path)
@@ -51,7 +61,7 @@ def main():
             games = schedule_row.get("games") or []
             if not games:
                 continue
-            starts = [parse_utc(g.get("startTimeUTC")) for g in games]
+            starts = [official_game_start(g) for g in games]
             if any(x is None for x in starts):
                 rejected.append({"date": day, "reason": "OFFICIAL_GAME_START_MISSING"})
                 continue
