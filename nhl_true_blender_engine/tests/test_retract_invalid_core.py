@@ -116,7 +116,7 @@ def test_new_independent_card_can_be_issued_after_retraction(tmp_path):
             "gameState":"FUT"}
            for i in range(1,4)]
     new=save_card(con,DATE,"PROJECTED",fresh,11,
-                  now=datetime(2026,11,17,12,tzinfo=timezone.utc))
+                  now=datetime(2026,11,17,12,0,2,tzinfo=timezone.utc))
     assert new["fingerprint"]!=ORIGINAL_FINGERPRINT
     assert new["revision"]==1
     assert get_card(con,DATE)["current_legs"]==fresh
