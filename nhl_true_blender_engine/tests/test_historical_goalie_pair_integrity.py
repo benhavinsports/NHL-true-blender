@@ -98,3 +98,21 @@ def test_later_game_uses_its_own_pregame_cutoff(tmp_path, monkeypatch):
         ]
     finally:
         con.close()
+
+
+def test_missing_earlier_card_does_not_shift_verified_later_matchup():
+    """Unique image team IDs can recover later pairings without positional guesses."""
+    from scripts.inventory_dfo_historical_goalies import TEAM_ABBREV
+    # A first-game card is missing; positional slicing would shift the next pair.
+    cards = [
+        {"name": "First Away", "imageTeamAbbrev": "BOS"},
+        {"name": "Later Away", "imageTeamAbbrev": "LAK"},
+        {"name": "Later Home", "imageTeamAbbrev": "SJS"},
+    ]
+    by_team = {}
+    for card in cards:
+        by_team.setdefault(card["imageTeamAbbrev"], []).append(card)
+    assert len(by_team.get("NYR", [])) == 0
+    assert len(by_team["LAK"]) == len(by_team["SJS"]) == 1
+    assert by_team["LAK"][0]["name"] == "Later Away"
+    assert by_team["SJS"][0]["name"] == "Later Home"
