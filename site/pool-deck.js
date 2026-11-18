@@ -44,6 +44,56 @@ function toggle(holder,key){
    if(back)back.setAttribute("aria-expanded",String(active));
  }
 }
+
+/* Original NHL player IDs come from the saved survivor receipt, never from
+   a UI-generated selection. Prefer official action photos; try official
+   season/team headshots before showing a quiet typographic fallback. */
+function collectorPortrait(survivor,g,date){
+ const art=create("div","pool-collector-art");
+ art.setAttribute("aria-hidden","true");
+ art.appendChild(create("span","collector-foil-rings"));
+ const id=String(survivor.playerId||"");
+ const year=Number(String(date||"").slice(0,4));
+ const season=Number.isInteger(year)&&year>=2020&&year<=2040?
+   String(year)+String(year+1):"20262027";
+ const matchup=String(g.matchup||"").split("@");
+ const teams=[survivor.attackTeam,g.attackTeam,...matchup]
+   .filter(x=>typeof x==="string"&&/^[A-Z]{3}$/.test(x));
+ const distinct=[...new Set(teams)];
+ const choices=/^\d{7,8}$/.test(id)?[
+   ["https://assets.nhle.com/mugs/actionshots/1296x729/"+id+".jpg","action"],
+   ...distinct.map(team=>["https://assets.nhle.com/mugs/nhl/"+season+"/"+team+"/"+id+".png","headshot"])
+ ]:[];
+ if(choices.length){
+   const img=create("img","pool-collector-photo");
+   img.alt=survivor.player+" NHL player photo";
+   img.loading="lazy";img.decoding="async";img.draggable=false;
+   let at=0;
+   img.addEventListener("load",()=>{
+     art.classList.add("has-photo");
+     art.classList.toggle("is-headshot",choices[at][1]==="headshot");
+   });
+   img.addEventListener("error",()=>{
+     at++;
+     if(at<choices.length)img.src=choices[at][0];
+     else{img.remove();art.classList.add("photo-unavailable");}
+   });
+   img.src=choices[0][0];art.appendChild(img);
+ }else art.classList.add("photo-unavailable");
+ art.appendChild(create("span","pool-collector-shade"));
+ if(distinct.length){
+   const crest=create("img","pool-collector-crest");
+   crest.alt="";crest.loading="lazy";
+   crest.src="https://assets.nhle.com/logos/nhl/svg/"+distinct[0]+"_light.svg";
+   crest.addEventListener("error",()=>crest.remove());
+   art.appendChild(crest);
+ }
+ const initials=String(survivor.player||"").trim().split(/\s+/)
+     .map(name=>name[0]||"").join("").slice(0,2).toUpperCase();
+ art.appendChild(create("span","pool-collector-fallback",initials));
+ return art;
+}
+
 function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  const survivor=g.status==="SURVIVOR"&&g.survivor?g.survivor:null;
  const gameKey=String(g.gameId);
@@ -57,14 +107,15 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  const rotator=create("div","pool-flip-inner");
  // Front is an actual, fully clickable button. The back contains separate
  // independent controls and source links, never links nested inside a button.
- const front=create("div","pool-face pool-front");
+ const front=create("div","pool-face pool-front"+(survivor?" photo-collector-front":""));
+ if(survivor)front.appendChild(collectorPortrait(survivor,g,latest?.date||visibleDate));
  const turn=create("button","pool-front-turn");turn.type="button";
  turn.setAttribute("aria-expanded",String(active));
  turn.setAttribute("aria-label",
    "Flip "+(survivor?.player||g.matchup||"game")+" card to inspect original evidence");
  const head=create("div","pool-card-head");
  head.appendChild(create("span","pool-matchup",String(g.matchup||"Matchup unavailable").replace("@"," @ ")));
- head.appendChild(create("span","pool-card-series","SCOUTING / NHL"));
+ head.appendChild(create("span","pool-card-series","TRUE BLENDER · NHL"));
  turn.appendChild(head);
  turn.appendChild(create("span","pool-overline",
    savedCore?"IN THE CORE":survivor?"GAME SURVIVOR":"SOURCE REVIEW"));
@@ -90,7 +141,7 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  turn.addEventListener("click",()=>toggle(holder,gameKey));
  front.appendChild(turn);
  // Back always renders factual, compact original engine evidence first.
- const back=create("div","pool-face pool-back");
+ const back=create("div","pool-face pool-back scouting-report-back");
  const top=create("div","pool-back-bar");
  top.appendChild(create("strong","",survivor?.player||String(g.matchup||"Matchup")));
  const backTurn=create("button","pool-back-turn","← CLOSE");
@@ -101,7 +152,14 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
  top.appendChild(backTurn);back.appendChild(top);
  const info=create("div","pool-back-content");
  if(survivor){
-   info.appendChild(create("p","pool-back-subtitle","REAL SCORING PATH · "+String(latest?.gameSurvivorDisplayStage||latest?.stage||"STAGE UNREPORTED")));
+   info.appendChild(create("p","pool-back-subtitle","MATCHUP SCOUTING / "+
+     String(latest?.gameSurvivorDisplayStage||latest?.gameSurvivorDisplayProvenance?.sourceStage||
+       latest?.stage||"STAGE UNREPORTED")));
+   const snapshot=create("div","pool-scout-scorecard");
+   fact(snapshot,"MATCHUP",String(g.matchup||"Unreported").replace("@"," @ "));
+   fact(snapshot,"PATH",String(survivor.routeLabel||"Not verified"));
+   fact(snapshot,"OPPOSING GOALIE",String(survivor.goalieId||"Unreported"));
+   info.appendChild(snapshot);
    fact(info,"G0 · Target goalie",String(survivor.goalieId||"Unreported")+
        " · "+String(survivor.goalieStatus||"Unconfirmed"));
    fact(info,"G4/G5 · Own release",String(survivor.ownRouteZone||"Not recorded")+
@@ -124,7 +182,7 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts){
    const key=gameKey+":"+String(survivor.playerId);
    const receipts=latest?.gameSurvivorGateReceipts?.[key];
    if(Array.isArray(receipts)&&receipts.length){
-     info.appendChild(create("strong","pool-gate-heading","ORIGINAL G0–G18 · TAP TO INSPECT"));
+     info.appendChild(create("strong","pool-gate-heading","G0–G18 · SOURCE-VERIFIED SCOUTING RECORD"));
      const byGate=new Map(receipts.map(rec=>[rec.gate,rec]));
      for(const gate of gates){
        const rec=byGate.get(gate)||{gate,status:"NOT_RECORDED",
