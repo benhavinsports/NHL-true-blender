@@ -2,7 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 import httpx
 
@@ -19,6 +19,7 @@ def fetch_calendar(start: date, end: date):
             response = client.get(ROOT + cursor.isoformat())
             response.raise_for_status()
             payload = response.json()
+            downloaded_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
             game_week = payload.get("gameWeek")
             if not isinstance(game_week, list):
                 raise ValueError(f"Official NHL schedule omitted gameWeek for {cursor}")
@@ -42,7 +43,9 @@ def fetch_calendar(start: date, end: date):
                                   "startUTC": start_utc,
                                   "gameState": game.get("gameState") or "UNKNOWN"})
                 weeks.append({"date": day_text, "games": games,
-                              "officialSourceUrl": response.url.__str__()})
+                              "officialSourceUrl": response.url.__str__(),
+                              "downloadedAt": downloaded_at,
+                              "schedulePublicationTime": "OFFICIAL_SCHEDULE_PUBLISHED_2026-07-16"})
             next_start = payload.get("nextStartDate")
             if not next_start:
                 cursor += timedelta(days=7)
