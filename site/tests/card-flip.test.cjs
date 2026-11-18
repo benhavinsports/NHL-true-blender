@@ -423,3 +423,22 @@ test("unverified input never produces a fabricated visual shot source or verifie
  const text=descendants(back).map(n=>n.textContent||"").join(" ");
  assert.ok(text.includes("Original gate receipts are unavailable"));
 });
+
+
+test("Safari expanded cards hide mirrored photo face and show upright analytics back",()=>{
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const patch=css.slice(css.lastIndexOf("Safari/iOS FIX: expanding"));
+ assert.ok(patch.includes(".pool-collector-card.is-flipped .pool-flip-inner"));
+ assert.ok(patch.includes(".core-card.is-flipped .card-flip-inner"));
+ assert.match(patch,/transform:\s*none!important/);
+ assert.match(patch,/transform-style:\s*flat!important/);
+ assert.match(patch,/\.pool-collector-card\.is-flipped \.pool-face\.pool-front\s*\{\s*display:none!important/);
+ assert.match(patch,/\.pool-collector-card\.is-flipped \.pool-face\.pool-back\s*\{/);
+ assert.match(patch,/backface-visibility:visible!important/);
+ assert.match(patch,/pointer-events:auto!important/);
+ // CSS scoped exclusively to is-flipped: closed collector art stays intact.
+ assert.ok(!patch.includes(".collector-photo{"));
+ const pool=fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8");
+ assert.ok(pool.includes('back.appendChild(NHLScouting.report({'));
+ assert.ok(pool.includes('document.body?.classList?.toggle("pool-card-open"'));
+});
