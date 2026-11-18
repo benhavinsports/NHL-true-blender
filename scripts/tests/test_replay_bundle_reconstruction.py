@@ -1,0 +1,47 @@
+import json
+from datetime import datetime, timezone
+
+from scripts.build_replay_bundles import build_day
+from nhl_true_blender_engine.storage import open_db, record_evidence
+
+
+def test_build_day_does_not_require_saved_engine_job_or_card(tmp_path):
+    db_path = tmp_path / "archive.sqlite"
+    con = open_db(str(db_path))
+    try:
+        observed = "2026-10-01T18:00:00Z"
+        record_evidence(con, {
+            "evidence_id": "dated-context-1",
+            "slate_date": "2026-10-01",
+            "stage": "OFFICIAL",
+            "game_id": "2026020001",
+            "kind": "MATCH_CONTEXT",
+            "source_url": "https://example.test/context",
+            "observed_at": observed,
+            "payload": {
+                "awayLastGameDate": "2026-09-29",
+                "homeLastGameDate": "2026-09-29"
+            }
+        })
+        # Deliberately create no jobs or cards: neither is a valid prerequisite
+        # for reconstructing a historical slate from dated evidence.
+        schedule_row = {
+            "source": "https://api-web.nhle.com/v1/score/2026-10-01",
+            "downloadedAt": "2026-10-01T17:00:00Z",
+            "games": [{
+                "id": "2026020001", "away": "BOS", "home": "NYR",
+                "startTimeUTC": "2026-10-01T23:00:00Z"
+            }]
+        }
+        bundle = build_day(con, "2026-10-01", tmp_path / "out", schedule_row)
+        assert bundle is not None
+        assert bundle["stage"] == "PROJECTED"
+        assert bundle["cutoff"] == "2026-10-01T22:55:00Z"
+        snapshot = json.loads((tmp_path / "out" / bundle["snapshot"]).read_text())
+        assert [(g["id"], g["away"], g["home"]) for g in snapshot["games"]] == [
+            ("2026020001", "BOS", "NYR")
+        ]
+        assert con.execute("SELECT COUNT(*) FROM jobs").fetchone()[0] == 0
+        assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0] == 0
+    finally:
+        con.close()
