@@ -56,6 +56,10 @@ def input_data():
             "homeTeam":{"forwards":[],"defense":[]}}}}
     }
     def gate_reader(leg,gate):
+        if gate=="G0":
+            return {"gate":gate,"status":"PASS",
+                    "evidence":{"attacker":"CGY" if leg["gameId"]==ONE else "EDM"},
+                    "sourceIds":[ROOT+leg["gameId"]+"/play-by-play"]}
         if gate=="G10.5":
             target=(BACKLUND if leg["playerId"]==FROST else DRAISAITL)
             rows=[{"challengerId":target,"status":"DEFEATED",
