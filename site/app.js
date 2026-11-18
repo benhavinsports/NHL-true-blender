@@ -241,6 +241,69 @@ function flipSelectedFromNavigation(){
  const core=$("core");
  if(core)core.scrollIntoView({behavior:"smooth",block:"start"});
 }
+// NHL pictures are presentation only. Player identities come from saved Core.
+function corePhotoTeams(leg){
+ const gate=detailsData(leg)?.gateDetails?.find(x=>x.gate==="G0");
+ const attacker=gate?.evidence?.selectedAttacker||gate?.evidence?.attacker;
+ const match=String(leg.matchup||"").split("@");
+ const teams=[attacker,...match].filter(x=>typeof x==="string"&&/^[A-Z]{3}$/.test(x));
+ return [...new Set(teams)];
+}
+function corePhoto(leg){
+ const art=el("div","card-illustration collector-art");
+ const id=String(leg.playerId||"");
+ const seasonYear=Number(String(state.selectedDate||"").slice(0,4));
+ const season=Number.isInteger(seasonYear)&&seasonYear>=2020&&seasonYear<=2040?
+   String(seasonYear)+String(seasonYear+1):"20262027";
+ const options=/^\d{7,8}$/.test(id)?[
+   ["https://assets.nhle.com/mugs/actionshots/1296x729/"+id+".jpg","action"],
+   ...corePhotoTeams(leg).map(team=>[
+      "https://assets.nhle.com/mugs/nhl/"+season+"/"+team+"/"+id+".png","headshot"])
+ ]:[];
+ art.appendChild(el("span","collector-foil-rings"));
+ if(options.length){
+   let idx=0;
+   const img=el("img","collector-photo");
+   img.alt=leg.player+" NHL player photo";img.loading="lazy";
+   img.decoding="async";img.draggable=false;
+   img.addEventListener("load",()=>{
+     art.classList.add("has-photo");
+     art.classList.toggle("is-headshot",options[idx][1]==="headshot");
+   });
+   img.addEventListener("error",()=>{
+     idx++;
+     if(idx<options.length)img.src=options[idx][0];
+     else {img.remove();art.classList.add("photo-unavailable");}
+   });
+   img.src=options[0][0];art.appendChild(img);
+ }else art.classList.add("photo-unavailable");
+ const shade=el("span","collector-photo-shade");
+ shade.setAttribute("aria-hidden","true");art.appendChild(shade);
+ const team=corePhotoTeams(leg)[0];
+ if(team){
+   const mark=el("img","collector-team-crest");
+   mark.alt="";mark.loading="lazy";
+   mark.src="https://assets.nhle.com/logos/nhl/svg/"+team+"_light.svg";
+   mark.addEventListener("error",()=>mark.remove());
+   art.appendChild(mark);
+ }
+ const initials=el("span","collector-fallback",String(leg.player||"")
+     .split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase());
+ initials.setAttribute("aria-hidden","true");art.appendChild(initials);
+ return art;
+}
+function coreScoringStats(leg){
+ const ownRelease=detailsData(leg)?.gateDetails?.find(x=>x.gate==="G4")
+   ?.evidence?.ownRelease||{};
+ const survivor=(state.latest?.gameSurvivorPool||[]).find(x=>
+   String(x.gameId)===String(leg.gameId)&&
+   String(x.survivor?.playerId)===String(leg.playerId))?.survivor;
+ const goals=typeof ownRelease.ownedGoals==="number"?ownRelease.ownedGoals:survivor?.ownedGoals;
+ const shots=typeof ownRelease.attempts==="number"?ownRelease.attempts:survivor?.ownShotsOnGoal;
+ return typeof goals==="number"&&typeof shots==="number"?
+   goals+" credited goals · "+shots+" on-net shots":
+   "Original scoring proof on the reverse";
+}
 function coreCard(leg,i){
  // This real 3-D flip is only an evidence viewer. The saved engine selects.
  const path=auditedPath(leg),key=String(leg.gameId)+":"+String(leg.playerId);
@@ -253,31 +316,31 @@ function coreCard(leg,i){
  if(key===state.flippedLeg)button.classList.add("is-flipped");
  const inner=el("div","card-flip-inner");
  const front=el("div","card-face card-front");
- const top=el("div","card-head");
- top.appendChild(el("span","card-index","SELECTION "+String(i+1).padStart(2,"0")));
- top.appendChild(pill(path.display,pathClass(path.display)));
+ const teams=corePhotoTeams(leg),team=teams[0]||"NHL";
+ const top=el("div","card-head collector-masthead");
+ top.appendChild(el("span","card-index","TRUE BLENDER"));
+ top.appendChild(el("span","collector-series","PREMIER · "+String(i+1).padStart(2,"0")+"/03"));
  front.appendChild(top);
- // Editorial scouting-card typography replaces poker suits and rink cartoons.
- // The visual number is an index only; every player and outcome stays sourced.
- const artwork=el("div","card-illustration");
- artwork.appendChild(el("span","card-profile-caption","TRUE BLENDER / NHL"));
- artwork.appendChild(el("strong","card-profile-number",String(i+1).padStart(2,"0")));
- artwork.appendChild(el("span","card-profile-rule"));
- front.appendChild(artwork);
- const plate=el("div","card-nameplate");
- plate.appendChild(el("div","player-name",leg.player));
- plate.appendChild(el("div","card-match",String(leg.matchup||"Game source unavailable").replace("@"," @ ")));
- front.appendChild(plate);
- const metadata=el("div","card-meta");
- metadata.appendChild(el("div","","PUCK DROP · "+etTime(leg.startUTC)));
+ front.appendChild(corePhoto(leg));
+ const plate=el("div","card-nameplate collector-nameplate");
+ const names=String(leg.player||"").trim().split(/\s+/);
+ const surname=names.pop()||"PLAYER";
+ plate.appendChild(el("span","collector-given",names.join(" ").toUpperCase()));
+ plate.appendChild(el("strong","player-name",surname.toUpperCase()));
+ plate.appendChild(el("span","collector-team-line",team+" · "+String(leg.matchup||"").replace("@"," @ ")));
+ const route=el("div","collector-path-row");
+ route.appendChild(pill(path.display,pathClass(path.display)));
  const origin=String(leg.directRoute||"").split("/").pop().trim();
- metadata.appendChild(el("div","","SHOT ORIGIN · "+(origin||"Inspect source evidence")));
+ route.appendChild(el("span","collector-origin",origin||"SHOT ORIGIN ON BACK"));
+ plate.appendChild(route);
+ plate.appendChild(el("span","collector-stats",coreScoringStats(leg)));
  if(path.review&&path.display!==path.original)
-   metadata.appendChild(el("div","tiny","Original frozen label: "+path.original));
- front.appendChild(metadata);
- const bottom=el("div","card-bottom");
- bottom.appendChild(el("span","","VIEW SOURCE EVIDENCE"));
- bottom.appendChild(el("span","tiny-arrow","↗"));front.appendChild(bottom);
+   plate.appendChild(el("span","collector-original-label","Original: "+path.original));
+ front.appendChild(plate);
+ const bottom=el("div","card-bottom collector-flip-line");
+ bottom.appendChild(el("span","","FLIP FOR SCOUTING EVIDENCE"));
+ bottom.appendChild(el("span","tiny-arrow","↗"));
+ front.appendChild(bottom);
  inner.appendChild(front);
  const back=el("div","card-face card-back");
  const backHead=el("div","flip-back-heading");
