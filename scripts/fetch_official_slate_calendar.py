@@ -36,7 +36,7 @@ def fetch_calendar(start: date, end: date):
                     away = (game.get("awayTeam") or {}).get("abbrev")
                     home = (game.get("homeTeam") or {}).get("abbrev")
                     game_id = game.get("id")
-                    start_utc = game.get("startTimeUTC")
+                    start_utc = game.get("startTimeUTC") or game.get("startUTC")
                     if game_id is None or not away or not home or not start_utc:
                         raise ValueError(f"Official NHL schedule game missing ID/teams/start: {day_text}")
                     # Canonical replay consumers use id + startTimeUTC. Keep the
