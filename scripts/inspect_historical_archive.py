@@ -47,6 +47,14 @@ def main():
             report["evidence"]["timeRange"] = rows(con,
                 "SELECT MIN(observed_at) AS firstObservedAt, "
                 "MAX(observed_at) AS lastObservedAt FROM evidence")[0]
+        if "jobs" in tables:
+            report["jobTimings"] = rows(con,
+                "SELECT slate_date, mode, status, started_at, finished_at "
+                "FROM jobs ORDER BY slate_date, started_at")
+        if "cards" in tables:
+            report["cardTimings"] = rows(con,
+                "SELECT slate_date, stage, first_issued_at, updated_at, grade "
+                "FROM cards ORDER BY slate_date")
         print(json.dumps(report, sort_keys=True, indent=2))
     finally:
         con.close()
