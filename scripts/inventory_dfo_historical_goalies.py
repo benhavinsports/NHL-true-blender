@@ -102,7 +102,7 @@ def _image_team_abbrev(image_url):
     match = re.search(r"[_-]([A-Z]{3})-", image_url)
     if match:
         return match.group(1)
-    if re.search(r"[_-]Utah-\\d", image_url, re.I):
+    if re.search(r"[_-]Utah-\d", image_url, re.I):
         return "UTA"
     return None
 
