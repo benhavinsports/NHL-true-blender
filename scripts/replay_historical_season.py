@@ -180,7 +180,6 @@ def main():
                        'officialSchedule': schedule_row,
                        'reason': ('Scheduled slate has no archived point-in-time pregame bundle'
                                   if scheduled else 'No official schedule/off-day receipt')}
-                status_counts[status] += 1
                 failures += 1
             else:
                 try:
