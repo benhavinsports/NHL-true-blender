@@ -201,8 +201,11 @@ def main():
     if not RAW_DB.is_file():
         raise SystemExit("Canonical database missing; restore state/true_blender.sqlite.gz first")
     args.output.mkdir(parents=True, exist_ok=True)
-    if not args.schedule.is_file():
-        raise SystemExit("Official NHL schedule calendar is missing; fetch it before building replay bundles")
+    # Refresh the authoritative NHL calendar for this exact replay window.
+    # Never trust a stale cached calendar from an earlier run.
+    calendar = asyncio.run(official_schedule(start, end))
+    args.schedule.parent.mkdir(parents=True, exist_ok=True)
+    args.schedule.write_text(json.dumps(calendar, indent=2), encoding="utf-8")
     official_calendar = json.loads(args.schedule.read_text(encoding="utf-8"))
     if official_calendar.get("start") != start.isoformat() or official_calendar.get("end") != end.isoformat():
         raise SystemExit("Official NHL schedule calendar date range does not match requested replay window")
