@@ -18,6 +18,7 @@ class FakeNode{
    this.tagName=tag;this.childNodes=[];this.dataset={};this.attributes={};
    Object.defineProperty(this,'children',{get:()=>this.childNodes});
    this.listeners={};this.hidden=false;this._className="";this._classes=new Set();
+   this.style={};
    this.classList={
      add:(name)=>this._classes.add(name),
      contains:(name)=>this._classes.has(name),
@@ -67,6 +68,7 @@ function appContext(){
  };
  const sandbox={document,BlenderGateFacts:facts,Date,Intl,URL,Set,Map,Promise,console};
  vm.createContext(sandbox);
+ vm.runInContext(fs.readFileSync(path.join(root,"site/scouting-cards.js"),"utf8"),sandbox);
  vm.runInContext(fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8"),sandbox);
  const script=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
  assert.ok(script.includes("boot().catch("));
@@ -289,4 +291,71 @@ test("CSS keeps the photograph collector face full-height within rotating card",
  assert.match(last,/height\s*:\s*100%/);
  // If the entire front is position:relative, every absolutely positioned
  // child renders above a 0px-height box and the real cards look empty.
+});
+
+
+test("every qualified survivor has a photo-led collector front and a professional analytics back",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("renderPool()",sandbox);
+ const cards=elements["pool-list"].childNodes.filter(n=>n.classList.contains("pool-flip-card"));
+ for(const [i,g] of run.gameSurvivorPool.entries()){
+   if(!g.survivor)continue;
+   const front=descendants(cards[i]).find(n=>n.classList.contains("pool-front"));
+   const back=descendants(cards[i]).find(n=>n.classList.contains("pool-back"));
+   const photo=descendants(front).find(n=>n.classList.contains("collector-photo"));
+   assert.ok(photo,"Missing player photo on "+g.matchup);
+   assert.ok(photo.src.includes(g.survivor.playerId+".jpg"),"wrong player ID");
+   assert.ok(descendants(front).some(n=>n.classList.contains("collector-foil-rings")));
+   assert.ok(descendants(back).some(n=>n.classList.contains("scout-report")));
+   assert.ok(descendants(back).some(n=>n.classList.contains("scout-metrics")));
+   assert.ok(descendants(back).some(n=>n.classList.contains("scout-path-strip")));
+   assert.ok(descendants(back).some(n=>n.classList.contains("scout-context")));
+ }
+});
+
+test("both Core and survivor backs use the same real 20-gate expandable scouting system",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("renderCards()",sandbox);
+ const card=elements["core-cards"].childNodes[0];
+ const back=descendants(card).find(n=>n.classList.contains("card-back"));
+ assert.ok(descendants(back).some(n=>n.classList.contains("scout-report")));
+ const gates=descendants(back).filter(n=>n.classList.contains("scout-gate"));
+ assert.equal(gates.length,20);
+ assert.ok(gates.every(n=>n.tagName==="details"),"every original gate must expand independently");
+ assert.ok(descendants(back).filter(n=>n.classList.contains("scout-metric")).length===4);
+ assert.ok(descendants(back).some(n=>n.classList.contains("scout-conversion")));
+ const reportText=descendants(back).map(n=>n.textContent||"").join(" ");
+ assert.ok(reportText.includes("OPPOSING GOALIE"));
+ assert.ok(reportText.includes("DEFENSIVE COVERAGE"));
+ assert.ok(reportText.includes("RECIPIENT SEPARATION"));
+ assert.ok(reportText.includes("CONTRADICTION CHECK"));
+ assert.ok(reportText.includes("ORIGINAL G0–G18"));
+ const player=saved.legs[0];
+ const row=(run.gameSurvivorPool||[]).find(x=>String(x.survivor?.playerId)===String(player.playerId));
+ assert.ok(gates.find(x=>x.dataset.gate==="G10.5"));
+ assert.ok(gates.find(x=>x.dataset.gate==="G17"));
+ assert.ok(gates.find(x=>x.dataset.gate==="G18"));
+});
+
+test("a missing gate receipt never appears as a verified decision on report back",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("state.gateData=null;renderCards()",sandbox);
+ const back=descendants(elements["core-cards"].childNodes[0])
+   .find(n=>n.classList.contains("card-back"));
+ const text=descendants(back).map(n=>n.textContent||"").join(" ");
+ assert.ok(text.includes("Missing evidence is never displayed as passed"));
+ assert.equal(descendants(back).filter(n=>n.classList.contains("scout-gate-verdict is-pass")).length,0);
+});
+
+test("cards share real NHL photo IDs but no shared renderer changes the selected Core",()=>{
+ const c=fs.readFileSync(path.join(root,"site/scouting-cards.js"),"utf8");
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
+ assert.ok(html.includes('./scouting-cards.js'));
+ assert.ok(html.indexOf('./scouting-cards.js')<html.indexOf('./pool-deck.js'));
+ assert.ok(c.includes("mugs/actionshots/1296x729/"));
+ assert.ok(!c.includes("selectCore("));
+ assert.ok(!c.includes("replaceCard("));
+ assert.ok(js.includes("NHLScouting.report({"));
+ assert.ok(js.includes("corePhoto(leg)"));
 });
