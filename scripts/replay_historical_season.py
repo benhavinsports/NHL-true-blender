@@ -44,7 +44,10 @@ def assert_database_as_of(con, cutoff):
         raise ValueError(f'Evidence database is contaminated by {len(future)} post-cutoff receipt(s): {future[:10]}')
 
 
-def replay_day(root, day, stage, bundle):
+def replay_day(root, day, default_stage, bundle):
+    stage = bundle.get('stage', default_stage)
+    if stage not in ('PROJECTED', 'CONFIRMED'):
+        raise ValueError('Each replay bundle requires PROJECTED or CONFIRMED stage')
     cutoff = timestamp(bundle['cutoff'])
     inputs = bundle['inputs']
     if not inputs or any(not row['source'] or timestamp(row['availableAt']) > cutoff
@@ -57,8 +60,11 @@ def replay_day(root, day, stage, bundle):
     for game in games:
         start = game.get('startTimeUTC') or game.get('startUTC')
         state = game.get('gameState') or game.get('state')
-        if not start or cutoff >= timestamp(start) or state not in ('FUT', 'PRE'):
-            raise ValueError('Expected a pregame snapshot with start times after cutoff')
+        if not start or state not in ('FUT', 'PRE', 'LIVE', 'CRIT', 'OFF', 'FINAL', 'GAME_OVER'):
+            raise ValueError('Historical snapshot requires an official start time and recognized game state')
+        # A slate can contain an earlier game that was already live at the
+        # saved cutoff. Preserve it in the snapshot: execute() excludes that
+        # game using the historical clock while continuing later games.
     evidence = verified_bytes(root, bundle['evidenceDb'], bundle['evidenceDbSha256'])
     with tempfile.TemporaryDirectory(prefix='blender-replay-') as temp:
         db = Path(temp) / 'replay.sqlite'
@@ -124,10 +130,10 @@ def main():
     if args.grades and (args.grades.exists() or args.grades.resolve() == args.output.resolve()):
         parser.error('--grades must be a fresh path different from the selection ledger')
     manifest = json.loads(args.manifest.read_text(encoding='utf-8'))
-    stage = manifest['stage']
+    stage = manifest.get('stage')
     start, end = date.fromisoformat(manifest['start']), date.fromisoformat(manifest['end'])
-    if stage not in ('PROJECTED', 'CONFIRMED') or end < start:
-        parser.error('Expected PROJECTED or CONFIRMED and a valid date range')
+    if (stage not in (None, 'PROJECTED', 'CONFIRMED') or end < start):
+        parser.error('Expected a valid date range and optional PROJECTED/CONFIRMED default stage')
     failures = 0
     with args.output.open('x', encoding='utf-8') as out:
         for offset in range((end - start).days + 1):
