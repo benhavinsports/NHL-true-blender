@@ -304,8 +304,11 @@ test("every qualified survivor has a photo-led collector front and a professiona
    const back=descendants(cards[i]).find(n=>n.classList.contains("pool-back"));
    const photo=descendants(front).find(n=>n.classList.contains("collector-photo"));
    assert.ok(photo,"Missing player photo on "+g.matchup);
-   assert.ok(photo.src.includes(g.survivor.playerId+".jpg"),"wrong player ID");
+   assert.ok(photo.src.includes("/"+g.survivor.playerId+".png"),"Survivor photo must prefer official NHL player portrait");
    assert.ok(descendants(front).some(n=>n.classList.contains("collector-foil-rings")));
+   assert.ok(descendants(front).some(n=>n.classList.contains("collector-pool-nameplate")));
+   assert.ok(descendants(front).some(n=>n.classList.contains("pool-player-name")&&
+     n.textContent===g.survivor.player),"Nameplate must retain actual saved survivor identity");
    assert.ok(descendants(back).some(n=>n.classList.contains("scout-report")));
    assert.ok(descendants(back).some(n=>n.classList.contains("scout-metrics")));
    assert.ok(descendants(back).some(n=>n.classList.contains("scout-path-strip")));
