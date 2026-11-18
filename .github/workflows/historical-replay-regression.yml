@@ -73,6 +73,7 @@ jobs:
         env:
           PYTHONPATH: /tmp/blender-baseline:.
         run: |
+          mkdir -p state/replay/baseline
           python /tmp/blender-baseline/scripts/replay_historical_season.py state/replay/manifest.json state/replay/baseline/selections.jsonl --grades state/replay/baseline/grades.jsonl
       - name: Audit all official scorers, G10.5 challengers, G0 sides and shot routes
         id: postgame_research
