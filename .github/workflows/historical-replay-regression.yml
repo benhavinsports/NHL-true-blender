@@ -93,7 +93,7 @@ jobs:
       - name: Build per-slate and aggregate G0-G18 audit report
         if: always()
         run: |
-          python scripts/summarize_historical_replay.py state/replay/manifest.json state/replay/selections.jsonl state/replay/grades.jsonl state/replay/postgame-research.jsonl state/replay/baseline-vs-patched.json state/replay/audit-report.json
+          python scripts/summarize_historical_replay.py state/replay/manifest.json state/replay/selections.jsonl state/replay/grades.jsonl state/replay/postgame-research.jsonl state/replay/baseline-vs-patched.json state/replay/audit-report.json --dfo state/replay/dfo-goalie-archive.json
       - name: Summarize actual replay and grade ledgers
         if: always()
         run: |
@@ -101,7 +101,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("state/replay")
-          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md"):
+          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md","dfo-goalie-archive.json"):
               path=root/name
               print(f"## {name}")
               if not path.exists():
