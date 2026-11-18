@@ -343,7 +343,16 @@ async def audit_day(selection, manifest, root):
     return {
         "date": day, "status": "OFFICIAL_POSTGAME_RESEARCH_COMPLETE",
         "cardId": (engine.get("card") or {}).get("card_id"),
-        "coreSize": len(core), "g0TeamGoalComparisons": g0_comparison,
+        "coreSize": len(core),
+        "g0DirectionSummary": {
+            "scheduledGames": len(game_rows),
+            "directionsRequired": len(game_rows) * 2,
+            "directionsWithCompleteGoalieProfiles": engine.get("g0Complete"),
+            "attackSidesSelected": len(g0),
+            "gamesWithoutSelectedAttackSide": len(game_rows) - len(g0),
+        },
+        "g0TeamGoalComparisons": g0_comparison,
+        "G16FinalistCompetition": engine.get("g16FinalistCompetition"),
         "allGameOfficialResults": audited,
         "candidateFirstGateAndOfficialScoring": candidate_rows,
         "G10_5PregameVsOfficialScorers": g105_reviews,
