@@ -60,6 +60,28 @@ def _publish_official_grade(root,date,grade,audits,patch_adjudication=None,recip
                 or old.get('hits')!=hits or old.get('legs')!=len(graded)):
         raise PublicationConflict('Already published grade conflicts with official frozen record')
     prior['gradeJson']=json.dumps(report,sort_keys=True)
+    # Keep the audit independently addressable on the canonical frozen card.
+    # This is a read-only receipt: it never changes the selected legs, their
+    # fingerprint/revision, or any pregame gate verdict.
+    audit_report={
+        'slateDate':date,
+        'cardId':grade['card_id'],
+        'originalFingerprint':prior.get('fingerprint'),
+        'originalRevision':prior.get('revision'),
+        'missAudits':audits,
+        'postgameRecipientAudit':recipient_audit or {
+            'status':'OFFICIAL_SCORER_COMPARISON_PENDING'},
+        'patchAdjudication':patch_adjudication or {},
+        'status':(
+            'OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON'
+            if (recipient_audit or {}).get('status')==
+               'OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON'
+            else 'SOURCE_VERIFICATION_PENDING'),
+        'readOnly':True,
+        'noRetrospectiveScorerOverride':True,
+        'noOutcomeOnlyRulePatch':True,
+    }
+    prior['auditJson']=json.dumps(audit_report,sort_keys=True)
     prior['status']='FROZEN_GRADED'
     _write(path,prior)
     return report
@@ -123,6 +145,12 @@ async def execute_cycle(mode, date, root='state'):
                         recipient_audit={
                             'status':'SOURCE_VERIFICATION_PENDING',
                             'errorType':type(exc).__name__,
+                            'error':str(exc)[:1200],
+                            'failedAtET':datetime.now(ET).isoformat(timespec='seconds'),
+                            'attemptedGameIds':sorted({
+                                str(x.get('gameId')) for x in
+                                (card.get('current_legs') or [])
+                                if x.get('gameId') is not None}),
                             'doesNotOverrideOfficialGrade':True,
                             'notACertifiedRecipientComparison':True}
                     finally:
