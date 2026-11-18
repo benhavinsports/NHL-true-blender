@@ -11,8 +11,12 @@ from zoneinfo import ZoneInfo
 ET = ZoneInfo('America/New_York')
 
 
-def stamp():
-    return datetime.now(ET).isoformat(timespec='seconds')
+def stamp(now=None):
+    \"\"\"Return an ET timestamp from the execution clock, including replay cutoffs.\"\"\"
+    value = now or datetime.now(timezone.utc)
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError('Persistence clock must be timezone-aware')
+    return value.astimezone(ET).isoformat(timespec='microseconds')
 
 
 def encode(obj):
@@ -116,8 +120,8 @@ def get_card(con, slate_date):
                    ('initial_legs', 'current_legs', 'grade'))
 
 
-def log_job(con, run_id, date, mode, status, details, finished=True):
-    now = stamp()
+def log_job(con, run_id, date, mode, status, details, finished=True, now=None):
+    now_stamp = stamp(now)
     with transaction(con):
         row = con.execute('SELECT status FROM jobs WHERE run_id=?', (run_id,)).fetchone()
         if row and row['status'] == 'COMPLETE':
@@ -125,7 +129,7 @@ def log_job(con, run_id, date, mode, status, details, finished=True):
         con.execute('''INSERT INTO jobs VALUES (?,?,?,?,?,?,?)
             ON CONFLICT(run_id) DO UPDATE SET
             finished_at=excluded.finished_at,status=excluded.status,details=excluded.details''',
-            (run_id, date, mode, now, now if finished else None, status, encode(details)))
+            (run_id, date, mode, now_stamp, now_stamp if finished else None, status, encode(details)))
     return True
 
 
@@ -147,7 +151,7 @@ def record_evidence(con, item):
     return True
 
 
-def save_gates(con, date, stage, records):
+def save_gates(con, date, stage, records, now=None):
     """Replace the CURRENT execution matrix; archive prior receipts first.
 
     The previous UPSERT accumulated player traces from earlier G0 attack
@@ -160,7 +164,7 @@ def save_gates(con, date, stage, records):
     # execution cohort. Per-row second-resolution clocks could flip halfway
     # through a skater's gates, making genuine original receipts impossible to
     # recover as one run after a later diagnostic overwrite.
-    batch_timestamp=datetime.now(ET).isoformat(timespec='microseconds')
+    batch_timestamp=stamp(now)
     with transaction(con):
         previous=con.execute(
             """SELECT slate_date,stage,game_id,player_id,gate,disposition,
@@ -176,7 +180,7 @@ def save_gates(con, date, stage, records):
                    (snapshot_hash,slate_date,stage,game_id,player_id,
                     gate,disposition,details,evaluated_at,archived_at)
                    VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                (digest,*payload,row['evaluated_at'],stamp()))
+                (digest,*payload,row['evaluated_at'],stamp(now)))
         # Records from the last run are replaced as a set. Gate history is
         # archived rather than silently erased or allowed to count as live.
         con.execute("DELETE FROM gates WHERE slate_date=? AND stage=?",
@@ -323,6 +327,8 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
     if stage not in ('PROJECTED','MIXED','CONFIRMED'):
         raise ValueError('Unknown card stage')
     now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError('Card persistence clock must be timezone-aware')
     with transaction(con):
         existing = get_card(con, slate_date)
         if existing:
@@ -347,7 +353,7 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
             revision = existing['revision']+1
             card_id = existing['card_id']
             con.execute('UPDATE cards SET current_legs=?,stage=?,fingerprint=?,revision=?,updated_at=? WHERE slate_date=?',
-                        (encode(legs),stage,new_hash,revision,stamp(),slate_date))
+                        (encode(legs),stage,new_hash,revision,stamp(now),slate_date))
         else:
             for leg in legs:
                 if game_started(leg, now):
@@ -360,7 +366,7 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
             # be distinguishable from the original revoked card. A pair
             # of second-rounded stamp() values can wrongly make issuance
             # look older/equal to the retraction event.
-            issued_at=datetime.now(ET).isoformat(timespec='microseconds')
+            issued_at=stamp(now)
             con.execute('''INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?)''',
                         (slate_date,card_id,encode(legs),encode(legs),stage,new_hash,revision,issued_at,issued_at,None))
         con.execute('''INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)''',
@@ -402,6 +408,8 @@ def grade_frozen_card(con, slate_date, goal_counts, sources, all_final):
 
 def record_watch(con, event, start_utc, now=None):
     if now is None: now=datetime.now(timezone.utc)
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError('Watch clock must be timezone-aware')
     start=datetime.fromisoformat(start_utc.replace('Z','+00:00'))
     if now>=start: raise ValueError('Pregame watch frozen at puck drop')
     if not event.get('source_url','').startswith('https://'):
@@ -411,5 +419,5 @@ def record_watch(con, event, start_utc, now=None):
             return False
         con.execute('INSERT INTO watch_events VALUES (?,?,?,?,?,?,?,?,?)',
             (event['event_id'],event['slate_date'],event['game_id'],event['category'],
-             encode(event['old']),encode(event['new']),event['source_url'],stamp(),encode(event['dependent_gates'])))
+             encode(event['old']),encode(event['new']),event['source_url'],stamp(now),encode(event['dependent_gates'])))
     return True
