@@ -36,7 +36,14 @@ def independent_no_weak_goalie(team):
 
 def both_goalies_full(s):
     for g in s["games"]:
-        g["goalies"][g["away"]]=[independent_no_weak_goalie(g["away"])]
+        measured=independent_no_weak_goalie(g["away"])
+        # The full-card fixture needs a quantitative second goalie origin;
+        # a source-reviewed empty profile alone must not select the opposite
+        # attack side by absence of weak-zone labels.
+        measured["data"]["weakZones"]={"Point":{
+            "shotsAgainst":68,"goalsAgainst":2,
+            "leagueSavePctgPercentile":.95}}
+        g["goalies"][g["away"]]=[measured]
     return s
 
 def test_g0_cannot_choose_one_goalie_just_because_opposite_profile_is_missing(con):
