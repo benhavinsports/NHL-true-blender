@@ -12,7 +12,7 @@ ET = ZoneInfo('America/New_York')
 
 
 def stamp(now=None):
-    \"\"\"Return an ET timestamp from the execution clock, including replay cutoffs.\"\"\"
+    """Return an ET timestamp from the execution clock, including replay cutoffs."""
     value = now or datetime.now(timezone.utc)
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError('Persistence clock must be timezone-aware')
