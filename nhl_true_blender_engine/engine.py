@@ -2370,33 +2370,12 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         if len(options)!=2 or not all(o['goalieProfileEvidenced'] for o in options):
             errors.append(f"{match['id']} G0 both attack directions REQUIRE independent goalie profiles; one-sided source presence is NOT a selection rule")
             continue
-        def weakness_vector(direction):
-            profiles=direction['targetGoalies']
-            if len(profiles)!=1:
-                return None
-            zones=profiles[0]['weakZones']
-            if not isinstance(zones,dict):
-                return None
-            # The goalie may have NO weak origins in a separately observed,
-            # sufficient NHL EDGE/PBP sample: that is source-backed negative
-            # evidence, not an unresolved or assumed weakness.
-            if not zones and not profiles[0].get('profileReviewed'):
-                return None
-            # G0 compares evidence-backed goalie-origin lanes. Never
-            # infer glove/blocker/five-hole from these rink coordinates.
-            return set(zones)
-        left,right=(weakness_vector(x) for x in options)
-        if left is not None and right is not None and left!=right:
-            if left>right:
-                selected_directions[str(match['id'])]=options[0]
-                continue
-            if right>left:
-                selected_directions[str(match['id'])]=options[1]
-                continue
-        # Source-based comparison covers the important case where both
-        # goalies are weak from the SAME area (set equality). More exposed
-        # goalie must be worse by BOTH empirical goal rate and published
-        # league save-percentile; otherwise keep G0 unresolved.
+        # Never choose an attack side from the NUMBER or containment of
+        # weak-zone labels. Different zone sets are not a vulnerability
+        # comparison: each goalie must be compared using its source-backed
+        # per-origin peer percentile and observed goals/on-net shots below.
+        # Same-origin and cross-origin comparators are the only quantitative
+        # G0 decisions; unresolved or noncomparable profiles remain unresolved.
         comparative=compare_g0_same_origin(options[0],options[1])
         if comparative is not None:
             selected_directions[str(match['id'])]={**comparative,
