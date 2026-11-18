@@ -143,12 +143,20 @@ def fetch(day,outdir,manifest_schedule):
             goalie["imageTeamAbbrev"]=image_team.group(1) if image_team else None
             goalie["reportUpdatedBeforeSlateCutoff"]=_before(goalie.get("reportUpdatedAt"),slate_cutoff) if slate_cutoff else None
         matchups=_parse_matchups(parser.text,schedule_games)
+        # A missing card shifts every later positional pair. Refuse to
+        # associate identities with games unless the complete card sequence
+        # is unambiguous. Missing evidence must not become a false starter.
+        positional_pairs_verified=(len(cards)==2*len(matchups)
+                                   and len(matchups)==len(schedule_games)
+                                   and all(x.get("officialScheduleMatch") is True
+                                           for x in matchups))
         games=[]
         for idx,match in enumerate(matchups):
-            pair=cards[idx*2:idx*2+2]
+            pair=cards[idx*2:idx*2+2] if positional_pairs_verified else []
             game={**match,"awayGoalie":pair[0] if len(pair)>0 else None,
                   "homeGoalie":pair[1] if len(pair)>1 else None,
-                  "goaliePairComplete":len(pair)==2}
+                  "goaliePairComplete":len(pair)==2,
+                  "positionalPairingVerified":positional_pairs_verified}
             for side,team in (("awayGoalie",match.get("away")),("homeGoalie",match.get("home"))):
                 goalie=game[side]
                 if goalie:
