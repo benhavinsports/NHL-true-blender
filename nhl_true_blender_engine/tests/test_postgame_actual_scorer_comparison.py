@@ -170,3 +170,33 @@ def test_postgame_scorer_review_prioritizes_original_committed_projected_gate(tm
     assert result["originalGateAuditProvenance"]["individualOrderedChecks"]==36
     assert con.execute("SELECT disposition FROM gates WHERE gate='G10.5'").fetchone()[0]=="NOT_EXECUTED"
     con.close()
+
+
+def test_scratched_locked_scorer_is_valid_official_zero_and_audit_continues():
+    card,games,pbp,box,gate_reader=input_data()
+    leg=card["current_legs"][0]
+    # Remove the locked player from the dressed roster. He has no PBP goal.
+    box[ONE]["data"]["playerByGameStats"]["awayTeam"]["forwards"]=[
+        p for p in box[ONE]["data"]["playerByGameStats"]["awayTeam"]["forwards"]
+        if str(p["playerId"]) != FROST
+    ]
+    result=compare_official_goal_recipients(card,DATE,games,pbp,box,gate_reader)
+    scratched=result["selectedLegs"][0]
+    assert scratched["chosenGoals"]==0
+    assert scratched["lockedPlayerParticipation"]=="SCRATCHED_OR_NOT_DRESSED_OFFICIAL_ZERO"
+    assert scratched["lockedTeam"]=="CGY"
+    assert result["missesReviewed"]==2
+
+def test_scratched_locked_scorer_with_pbp_goal_still_fails_closed():
+    card,games,pbp,box,gate_reader=input_data()
+    box[ONE]["data"]["playerByGameStats"]["awayTeam"]["forwards"]=[
+        p for p in box[ONE]["data"]["playerByGameStats"]["awayTeam"]["forwards"]
+        if str(p["playerId"]) != FROST
+    ]
+    pbp[ONE]["data"]["plays"].append({
+        "typeDescKey":"goal","eventId":99,
+        "periodDescriptor":{"number":3,"periodType":"REG"},
+        "timeInPeriod":"01:00","details":{"scoringPlayerId":int(FROST)}
+    })
+    with pytest.raises(SourceUnavailable,match="absent from official boxscore but credited"):
+        compare_official_goal_recipients(card,DATE,games,pbp,box,gate_reader)
