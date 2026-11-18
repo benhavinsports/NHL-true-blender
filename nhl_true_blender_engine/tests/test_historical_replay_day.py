@@ -85,7 +85,7 @@ def test_replay_input_database_rejects_future_and_non_pregame_evidence(tmp_path)
         storage.record_evidence(db, {
             "evidence_id": "future-row", "slate_date": "2026-11-17",
             "stage": "PROJECTED", "kind": "FIXTURE", "source_url": "https://example.org/future",
-            "observed_at": (cutoff + timedelta(seconds=1)).isoformat(), "payload": {},
+            "observed_at": (cutoff + timedelta(seconds=1)).isoformat(), "payload": {"fixture": True},
         })
         with pytest.raises(ValueError, match="post-cutoff"):
             assert_database_as_of(db, cutoff)
@@ -97,7 +97,7 @@ def test_replay_input_database_rejects_future_and_non_pregame_evidence(tmp_path)
         storage.record_evidence(db, {
             "evidence_id": "postgame-row", "slate_date": "2026-11-17",
             "stage": "POSTGAME", "kind": "FIXTURE", "source_url": "https://example.org/postgame",
-            "observed_at": (cutoff - timedelta(hours=1)).isoformat(), "payload": {},
+            "observed_at": (cutoff - timedelta(hours=1)).isoformat(), "payload": {"fixture": True},
         })
         with pytest.raises(ValueError, match="disallowed non-pregame"):
             assert_database_as_of(db, cutoff)
