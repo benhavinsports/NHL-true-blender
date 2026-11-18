@@ -371,7 +371,7 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
                         (slate_date,card_id,encode(legs),encode(legs),stage,new_hash,revision,issued_at,issued_at,None))
         con.execute('''INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)''',
                     (f'{card_id}-v{revision}',slate_date,card_id,revision,stage,new_hash,
-                     encode(legs),encode(rationale),stamp()))
+                     encode(legs),encode(rationale),stamp(now)))
     return get_card(con,slate_date)
 
 
