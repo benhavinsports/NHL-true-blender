@@ -4,20 +4,8 @@ from nhl_true_blender_engine.edge_derived_routes import skater_owned_routes
 
 SRC="https://api-web.nhle.com/v1/edge/skater-shot-location-detail/"
 def wrapped(pid,data):
-    routes=data.get("allRoutes",[])
-    recent={x["zone"]:{"shotsOnGoal":x["sog"],"ownedGoals":x["ownedGoals"],
-        "sourceUrls":[SRC+str(pid)+"/recent/"+x["zone"]]} for x in routes}
-    return {"id":str(pid),"name":"Skater",
-        "deployment":{"sourceUrl":SRC+str(pid)+"/deployment","observedAt":"2026-11-15T12:00:00Z",
-            "data":{"EV":"EV2","status":"PROJECTED"}},
-        "finishOwnership":{"sourceUrl":SRC+str(pid)+"/finish","observedAt":"2026-11-15T12:00:00Z",
-            "data":{"recipient":True,"creditedGoalsVerified":True}},
-        "recentOrigin":{"sourceUrl":SRC+str(pid)+"/recent","observedAt":"2026-11-15T12:00:00Z",
-            "data":{"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
-                "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-                "rinkBinsApproximateNotNhlEdgePolygons":True,
-                "historicalOwnGoalCreditOnly":True,"zoneCounts":recent}},
-        "release":{"sourceUrl":SRC+str(pid)+"/now","observedAt":"2026-11-15T12:00:00Z",
+    return {"id":str(pid),"name":"Skater","release":{
+        "sourceUrl":SRC+str(pid)+"/now","observedAt":"2026-11-15T12:00:00Z",
         "data":data}}
 def test_tied_primary_rival_is_still_compared_from_verified_same_area():
     a=wrapped(1,{"zone":"Low Slot","archetype":"OBSERVED_OWN_SHOT_ORIGIN",

@@ -13,11 +13,6 @@ def ev(kind,ident,data):
 def build(deployment=True,better_rival=False):
     p1={"id":"1","name":"Shooter 1","position":"C",
         "availability":"PROJECTED_ACTIVE",
-        "finishOwnership":ev("finish",1,{"recipient":True,"creditedGoalsVerified":True}),
-        "recentOrigin":ev("recent",1,{"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
-            "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-            "rinkBinsApproximateNotNhlEdgePolygons":True,"historicalOwnGoalCreditOnly":True,
-            "zoneCounts":{"Low Slot":{"shotsOnGoal":36,"ownedGoals":8,"sourceUrls":[URL+"recent/1"]}}}),
         "release":ev("edge",1,{"archetype":"OBSERVED_OWN_SHOT_ORIGIN",
             "zone":"Low Slot","attempts":36,"ownedGoals":8,
             "allRoutes":[{"zone":"Low Slot","sog":36,"ownedGoals":8}]})}
@@ -25,14 +20,6 @@ def build(deployment=True,better_rival=False):
         p1["deployment"]=ev("lines",1,{"EV":"F1","status":"PROJECTED"})
     p2={"id":"2","name":"Shooter 2","position":"D",
         "availability":"PROJECTED_ACTIVE",
-        "deployment":ev("lines",2,{"EV":"D2","status":"PROJECTED"}),
-        "finishOwnership":ev("finish",2,{"recipient":True,"creditedGoalsVerified":True}),
-        "recentOrigin":ev("recent",2,{"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
-            "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-            "rinkBinsApproximateNotNhlEdgePolygons":True,"historicalOwnGoalCreditOnly":True,
-            "zoneCounts":{"Low Slot":{"shotsOnGoal":18 if not better_rival else 45,
-                "ownedGoals":3 if not better_rival else 11,"sourceUrls":[URL+"recent/2"]},
-                "High Slot":{"shotsOnGoal":19,"ownedGoals":2,"sourceUrls":[URL+"recent/2"]}}}),
         "release":ev("edge",2,{"archetype":"OBSERVED_OWN_SHOT_ORIGIN",
             "zone":"High Slot","attempts":19,"ownedGoals":2,
             "allRoutes":[{"zone":"High Slot","sog":19,"ownedGoals":2},

@@ -83,19 +83,7 @@ def test_core2_two_game_slate_never_runs_cross_game_exclusion():
 def test_g105_rival_dominating_route_is_elimination_not_missing_evidence():
     src = 'https://api-web.nhle.com/v1/edge/skater-shot-location-detail/%s/now'
     def rel(pid, goals, shots):
-        return {'id': pid,
-                'deployment': {'sourceUrl': src % pid + '/deployment','observedAt':'x',
-                               'data': {'EV':'L1','status':'PROJECTED'}},
-                'finishOwnership': {'sourceUrl': src % pid + '/finish','observedAt':'x',
-                                    'data': {'recipient':goals>0,'creditedGoalsVerified':True}},
-                'recentOrigin': {'sourceUrl':src % pid + '/recent','observedAt':'x',
-                    'data': {'sourceType':'OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN',
-                        'scope':'RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY',
-                        'rinkBinsApproximateNotNhlEdgePolygons':True,
-                        'historicalOwnGoalCreditOnly':True,
-                        'zoneCounts':{'slot':{'shotsOnGoal':shots,'ownedGoals':goals,
-                            'sourceUrls':[src % pid + '/recent/slot']}}}},
-                'release': {'sourceUrl': src % pid, 'observedAt': 'x',
+        return {'id': pid, 'release': {'sourceUrl': src % pid, 'observedAt': 'x',
                 'data': {'archetype': 'wrist', 'zone': 'slot', 'attempts': shots,
                          'ownedGoals': goals,
                          'allRoutes': [{'zone': 'slot', 'sog': shots, 'ownedGoals': goals}]}}}

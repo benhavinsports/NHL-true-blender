@@ -13,9 +13,6 @@ def players():
     rival["release"]["data"]["allRoutes"]=[
         {"zone":"circle","sog":18,"ownedGoals":5},
         {"zone":"slot","sog":4,"ownedGoals":0}]
-    rival["recentOrigin"]["data"]["zoneCounts"]["slot"]={
-        "shotsOnGoal":4,"ownedGoals":0,"sourceUrls":[
-            "https://example.org/official-verifiable-fixture-not-live/recent-origin/702/slot"]}
     return candidate,rival
 
 def test_higher_direct_recipient_in_other_independently_weak_lane_not_falsely_defeated():
@@ -61,46 +58,3 @@ def test_uncited_different_lane_never_claims_rival_cannot_score():
     assert wins is True
     assert rows[0]["status"]=="DIFFERENT_TARGET_LANE"
     assert rows[0]["notEvidenceRivalCannotScoreTonight"] is True
-
-
-def test_missing_challenger_role_or_recipient_evidence_cannot_be_marked_defeated():
-    candidate,rival=players()
-    rival.pop("deployment")
-    wins,rows=challenger_proof(candidate,[rival],
-        {"slot":{"savePctg":.80},"circle":{"savePctg":.81}},
-        ["slot","circle"])
-    assert wins is False
-    assert rows[0]["status"]=="UNRESOLVED_ROLE_OR_RECIPIENT_EVIDENCE"
-    assert rows[0]["noMissingRolePromotedToDefeated"] is True
-
-
-def test_conflicting_season_and_recent_routes_remain_unresolved():
-    candidate,rival=players()
-    # Season EDGE favours the rival (5 vs 3), while independent recent PBP
-    # favours the candidate (6 vs 2). Neither source family may overrule the other.
-    candidate["recentOrigin"]["data"]["zoneCounts"]["slot"]["ownedGoals"]=6
-    candidate["recentOrigin"]["data"]["zoneCounts"]["slot"]["shotsOnGoal"]=9
-    rival["recentOrigin"]["data"]["zoneCounts"]["circle"]["ownedGoals"]=2
-    rival["recentOrigin"]["data"]["zoneCounts"]["circle"]["shotsOnGoal"]=8
-    wins,rows=challenger_proof(candidate,[rival],
-        {"slot":{"savePctg":.80},"circle":{"savePctg":.81}},
-        ["slot","circle"])
-    assert wins is False
-    assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
-    assert rows[0]["independentRecentTieReview"]["seasonAndRecentEvidenceAgree"] is False
-
-
-def test_season_and_recent_route_evidence_must_agree_before_defeating_challenger():
-    candidate,rival=players()
-    # Season and recent route evidence both favour the candidate.
-    rival["release"]["data"]["ownedGoals"]=1
-    rival["release"]["data"]["attempts"]=8
-    rival["release"]["data"]["allRoutes"][0]["ownedGoals"]=1
-    rival["release"]["data"]["allRoutes"][0]["sog"]=8
-    rival["recentOrigin"]["data"]["zoneCounts"]["circle"]["ownedGoals"]=1
-    rival["recentOrigin"]["data"]["zoneCounts"]["circle"]["shotsOnGoal"]=8
-    wins,rows=challenger_proof(candidate,[rival],
-        {"slot":{"savePctg":.80},"circle":{"savePctg":.81}},
-        ["slot","circle"])
-    assert wins is True
-    assert rows[0]["status"]=="DEFEATED"

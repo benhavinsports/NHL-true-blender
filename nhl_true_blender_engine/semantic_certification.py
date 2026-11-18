@@ -107,15 +107,9 @@ def audit_gate(gate, evidence, source_ids, stage):
              'G10_HISTORICAL_GOAL_CREDIT_NOT_SEPARATED')
     elif gate=='G10.5':
         rows=e.get('comparisonRows')
-        decision_rows=[r for r in rows if not r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
-        prior_rows=[r for r in rows if r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
-        prior_safe=all(r.get('canDisplaceAtG10_5') is False and
-                       str(r.get('priorGateDisposition') or '').endswith(':ELIMINATED')
-                       for r in prior_rows)
         need(e.get('allAlternativesScanned') is True and isinstance(rows,list) and
-             prior_safe and
              all(r.get('status') in ('DEFEATED','DIFFERENT_TARGET_LANE',
-                   'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in decision_rows),
+                   'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows),
              'G10_5_UNRESOLVED_DIRECT_RIVAL')
     elif gate=='G11':
         need(e.get('recentOwnAttempts') is not None,'G11_RECENT_SHOTS_NOT_PROVED')
@@ -173,15 +167,10 @@ def audit_gate(gate, evidence, source_ids, stage):
              'G15_MISSING_SEPARATE_GOAL_CREDIT_AND_RELEASE_SOURCES')
     elif gate=='G16':
         rows=e.get('challengerRows')
-        decision_rows=[r for r in rows if not r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
-        prior_rows=[r for r in rows if r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
-        prior_safe=all(r.get('canDisplaceAtG10_5') is False and
-                       str(r.get('priorGateDisposition') or '').endswith(':ELIMINATED')
-                       for r in prior_rows)
         need(isinstance(rows,list) and e.get('includesDepthAndDefense') is True
-             and e.get('everyOtherActiveTeammate')==len(rows) and prior_safe and
+             and e.get('everyOtherActiveTeammate')==len(rows) and
              all(r.get('status') in ('DEFEATED','DIFFERENT_TARGET_LANE',
-                 'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in decision_rows),
+                 'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows),
              'G16_RIVAL_COMPETITION_NOT_RESOLVED')
     elif gate=='G17':
         c=e.get('counterevidence') or {}
