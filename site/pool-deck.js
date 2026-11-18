@@ -72,7 +72,7 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts,date){
  head.appendChild(create("span","pool-matchup",
    String(g.matchup||"Matchup unavailable").replace("@"," @ ")));
  head.appendChild(create("span","pool-card-series",
-   savedCore?"CORE MEMBER":"NHL · GAME SURVIVOR"));
+   savedCore?"CORE MEMBER":survivor?"NHL · GAME SURVIVOR":"SOURCE REVIEW"));
  turn.appendChild(head);
  const player=create("div","pool-card-player collector-pool-nameplate");
  if(survivor){
