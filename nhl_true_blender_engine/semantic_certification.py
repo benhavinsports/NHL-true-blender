@@ -173,10 +173,15 @@ def audit_gate(gate, evidence, source_ids, stage):
              'G15_MISSING_SEPARATE_GOAL_CREDIT_AND_RELEASE_SOURCES')
     elif gate=='G16':
         rows=e.get('challengerRows')
+        decision_rows=[r for r in rows if not r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
+        prior_rows=[r for r in rows if r.get('comparisonOnlyPriorGateEliminated')] if isinstance(rows,list) else []
+        prior_safe=all(r.get('canDisplaceAtG10_5') is False and
+                       str(r.get('priorGateDisposition') or '').endswith(':ELIMINATED')
+                       for r in prior_rows)
         need(isinstance(rows,list) and e.get('includesDepthAndDefense') is True
-             and e.get('everyOtherActiveTeammate')==len(rows) and
+             and e.get('everyOtherActiveTeammate')==len(rows) and prior_safe and
              all(r.get('status') in ('DEFEATED','DIFFERENT_TARGET_LANE',
-                 'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows),
+                 'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in decision_rows),
              'G16_RIVAL_COMPETITION_NOT_RESOLVED')
     elif gate=='G17':
         c=e.get('counterevidence') or {}
