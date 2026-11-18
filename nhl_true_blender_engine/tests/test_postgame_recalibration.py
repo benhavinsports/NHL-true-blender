@@ -276,3 +276,64 @@ def test_season_calibration_records_only_source_verified_original_g0_g105_miss_p
     assert route["noOddsWeightsOrAutomaticRecipientOverride"] is True
     assert con.execute("SELECT COUNT(*) FROM patches").fetchone()[0]==0
     con.close()
+
+
+
+def test_official_recipient_conflicts_force_gate_replay_without_automatic_patch(tmp_path):
+    con=open_db(str(tmp_path/"recipient-review.sqlite"))
+    card_id=insert_card_and_grade(con,DATE)
+    insert_pregame_gate(con,"G10.5",{
+        "allAlternativesScanned":True,
+        "comparisonRows":[{"challengerId":"999","status":"DEFEATED"}]})
+    recipient_audit={
+        "status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",
+        "slateDate":DATE,"cardId":card_id,
+        "originalFingerprint":"synthetic-fingerprint","originalRevision":1,
+        "officialSourceUrls":[SOURCE],
+        "selectedLegs":[{
+            "gameId":"8888","lockedPlayerId":"888","lockedPlayer":"Synthetic Player",
+            "auditFlags":[
+                "LOCKED_SCORER_DID_NOT_SCORE",
+                "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
+                "OPPOSITE_G0_DIRECTION_SCORED_MORE_POSTGAME_ONLY"],
+            "sameAttackSideGoals":2,"oppositeAttackSideGoals":5,
+            "officialScorers":[{
+                "player":"Synthetic Teammate","playerId":"999","goals":2,
+                "sameAttackDirectionAsCore":True,"pregameG105Verdict":"DEFEATED",
+                "pregameG105ChallengerEvidence":{
+                    "candidate":{"ownedGoals":6,"shotsOnGoal":30,"zone":"Low Slot"},
+                    "challenger":{"ownedGoals":2,"shotsOnGoal":15,"zone":"Low Slot"},
+                    "sameLane":True,"sourceUrls":[PREGAME]}}],
+            "prePuckGateReceipts":{"G0":{"status":"PASS"},"G10.5":{"status":"PASS"}},
+            "pregameBothG0Directions":[{"sourceProfileEvidenced":True}]
+        }]
+    }
+    result=adjudicate_misses(con,DATE,recipient_audit=recipient_audit)
+    decision=result["decisions"][0]
+    assert decision["status"]=="PREGAME_GATE_REPLAY_REQUIRED"
+    assert decision["recipientAuditReview"]["reviewTargets"]==["G10.5","G0"]
+    assert decision["recipientAuditReview"]["officialScorersMarkedDefeated"][0]["playerId"]=="999"
+    assert decision["outcomeWasNotUsedAsPatchProof"] is True
+    assert result["activated"]==[]
+    assert con.execute("SELECT COUNT(*) FROM patches").fetchone()[0]==0
+    status=con.execute("SELECT status FROM postgame_patch_decisions").fetchone()[0]
+    assert status=="REVIEW_REQUIRED"
+    con.close()
+
+
+def test_recipient_audit_from_different_card_cannot_trigger_review(tmp_path):
+    con=open_db(str(tmp_path/"recipient-wrong-card.sqlite"))
+    card_id=insert_card_and_grade(con,DATE)
+    audit={
+        "status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",
+        "cardId":card_id,"originalFingerprint":"different-fingerprint",
+        "originalRevision":1,"officialSourceUrls":[SOURCE],
+        "selectedLegs":[{
+            "gameId":"8888","lockedPlayerId":"888",
+            "auditFlags":["SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY"],
+            "officialScorers":[{"playerId":"999","goals":1,
+                "sameAttackDirectionAsCore":True,"pregameG105Verdict":"DEFEATED"}]}]}
+    result=adjudicate_misses(con,DATE,recipient_audit=audit)
+    assert result["decisions"][0]["status"]=="NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+    assert result["activated"]==[]
+    con.close()
