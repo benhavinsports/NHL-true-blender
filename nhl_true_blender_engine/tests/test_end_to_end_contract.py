@@ -24,6 +24,13 @@ def player(pid, attempts, goals):
         "mappedGoals": ev({"goals": [{"goalId": str(pid)+":"+str(i), "date": "2026-11-01", "sourceUrl": SRC} for i in range(goals)]}),
         "officialGoalTotal": ev({"goals": goals}),
         "finishOwnership": ev({"recipient": True, "creditedGoalsVerified": True}),
+        "recentOrigin": ev({
+            "sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+            "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+            "rinkBinsApproximateNotNhlEdgePolygons":True,
+            "historicalOwnGoalCreditOnly":True,
+            "zoneCounts":{"slot":{"shotsOnGoal":attempts,"ownedGoals":goals,
+                "sourceUrls":[SRC+"/recent-origin/"+str(pid)]}}}),
         "pressure": ev({"recentAppearanceShots": [attempts, 1],
             "appearances": [{"date": "2026-11-01"}, {"date": "2026-11-02"}],
             "evidenceType": "OFFICIAL_HISTORICAL_SHOT_EVENTS"}),
