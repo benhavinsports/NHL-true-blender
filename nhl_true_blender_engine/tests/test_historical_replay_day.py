@@ -110,3 +110,19 @@ def test_replay_input_database_rejects_future_and_non_pregame_evidence(tmp_path)
             assert_database_as_of(db, cutoff)
     finally:
         db.close()
+
+def test_replay_input_database_rejects_same_day_historical_event_even_if_downloaded_early(tmp_path):
+    db = open_db(str(tmp_path / "same-day-event.sqlite"))
+    cutoff = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+    try:
+        storage.record_evidence(db, {
+            "evidence_id": "same-day-game-log", "slate_date": "2026-11-17",
+            "stage": "PROJECTED", "kind": "PLAYER_GAME_LOG",
+            "source_url": "https://example.org/player-log",
+            "observed_at": (cutoff - timedelta(hours=2)).isoformat(),
+            "payload": {"appearances": [{"date": "2026-11-17", "goals": 1}]},
+        })
+        with pytest.raises(ValueError, match="same-day/future event dates"):
+            assert_database_as_of(db, cutoff, "2026-11-17")
+    finally:
+        db.close()
