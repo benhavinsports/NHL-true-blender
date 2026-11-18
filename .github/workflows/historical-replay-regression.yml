@@ -1,6 +1,11 @@
 name: Historical replay regression
 on:
-  # Run only deliberate, batched historical checkpoints.
+  # A normal code commit must not launch a full expensive replay.
+  # One explicit trigger-file commit starts a single full replay.
+  push:
+    branches: [audit/historical-season-replay]
+    paths:
+      - "state/replay/trigger.json"
   workflow_dispatch:
     inputs:
       start_date:
@@ -37,7 +42,7 @@ jobs:
         run: |
           mkdir -p state/replay
           python scripts/inspect_historical_archive.py > state/replay/source-inventory.json
-      - name: Fetch official NHL schedule from ${{ inputs.start_date }} through ${{ inputs.end_date }}
+      - name: Fetch official NHL schedule from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         env:
           PYTHONPATH: .
         run: python scripts/fetch_official_slate_calendar.py --start ${{ inputs.start_date }} --end ${{ inputs.end_date }} --output state/replay/official_schedule.json
