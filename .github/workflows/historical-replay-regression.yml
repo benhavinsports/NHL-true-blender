@@ -21,6 +21,10 @@ jobs:
         run: |
           mkdir -p state/replay
           python scripts/inspect_historical_archive.py > state/replay/source-inventory.json
+      - name: Fetch official NHL schedule from opening night through Nov 17
+        env:
+          PYTHONPATH: .
+        run: python scripts/fetch_official_slate_calendar.py --start 2026-09-29 --end 2026-11-17 --output state/replay/official_schedule.json
       - name: Build point-in-time bundles and official schedule calendar from opening night through Nov 17
         env:
           PYTHONPATH: .
