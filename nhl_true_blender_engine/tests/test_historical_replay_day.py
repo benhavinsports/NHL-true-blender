@@ -58,6 +58,9 @@ def test_replay_day_issues_and_certifies_real_engine_card_with_wall_clock_after_
     assert len(card["current_legs"]) == 3
     assert result["gateCertification"]["selectedCoreOnlyFullyCertified"] is True
     assert result["historicalClockAppliedToEngineAndPersistence"] is True
+    assert result["databaseObservedAtCutoffVerified"] is True
+    assert result["databasePointInTimeVerified"] is False
+    assert result["pointInTimeAudit"]["status"] == "PARTIAL_PROVIDER_ASOF_NOT_EXPOSED"
     assert datetime.fromisoformat(card["first_issued_at"]) <= cutoff.astimezone(storage.ET)
     assert datetime.now(timezone.utc) > game_start
     assert result["engineResult"]["retroactiveCardMutation"] is False
@@ -67,7 +70,7 @@ def test_replay_input_database_rejects_existing_card_grade_patch_or_gate_state(t
     db = open_db(str(tmp_path / "contaminated.sqlite"))
     cutoff = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
     try:
-        assert_database_as_of(db, cutoff)
+        assert_database_as_of(db, cutoff, '2026-11-17')
         db.execute(
             "INSERT INTO patches VALUES (?,?,?,?,?,?)",
             ("old-outcome-patch", "[]", "{}", "{}", "{}", cutoff.isoformat()),
