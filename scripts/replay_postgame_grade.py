@@ -2,6 +2,12 @@
 from nhl_true_blender_engine.sources import NHLClient, credited_goals_from_pbp, SourceUnavailable
 
 
+def _display_name(value):
+    if isinstance(value, dict):
+        return value.get("default") or value.get("fullName")
+    return value if isinstance(value, str) else None
+
+
 async def grade_frozen_legs(legs):
     """Grade exact frozen IDs; distinguish dressed skaters from absent skaters."""
     keys = [(str(leg['gameId']), str(leg['playerId'])) for leg in legs]
@@ -75,7 +81,7 @@ async def grade_frozen_legs(legs):
             else:
                 goals = selected['goals']
                 participation = 'LISTED_AS_DRESSED_SKATER'
-                player_name = selected.get('name') or selected.get('firstName')
+                player_name = _display_name(selected.get('name')) or _display_name(selected.get('firstName'))
 
             results.append({
                 'gameId': game_id,
@@ -84,7 +90,7 @@ async def grade_frozen_legs(legs):
                 'participation': participation,
                 'goals': goals,
                 'result': 'HIT' if goals else 'MISS',
-                'officialPbpGoalEvents': event_ids,
+                'officialGoalEventIdsInGame': event_ids,
                 'boxscoreSourceUrl': box_report['url'],
                 'playByPlaySourceUrl': pbp_report['url'],
             })
