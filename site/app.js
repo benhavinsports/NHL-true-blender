@@ -173,6 +173,16 @@ function renderHeader(){
  setText("hero-sync",state.latest?.publishedAt?"Published "+etTime(state.latest.publishedAt):
     "Publication not available");
  const count=countSelected();
+ // Display only grounded saved-source numbers, never inferred picks.
+ const publicGames=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
+ const qualified=publicGames.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
+ const sourceStage=isLatest()&&publicGames.length?(
+   state.latest?.gameSurvivorDisplayProvenance?.sourceStage||
+   state.latest?.gameSurvivorDisplayStage||state.latest?.stage):null;
+ setText("overview-core-count",count?String(count):"—");
+ setText("overview-survivor-count",publicGames.length?
+   String(qualified)+" / "+String(publicGames.length):"—");
+ setText("overview-source-phase",sourceStage||"—");
  setText("stat-legs",count?count+" / "+(count===2?"2":"3"):"—");
  setText("stat-phase",saved?s.phase:"AWAITING");
  const valid=state.gateData?.legs?.every(x=>x.masterPassed===x.totalMaster
@@ -789,9 +799,44 @@ function publishedSignature(latest,archived,season){
    patchCount:season?.verifiedAutomaticGuardPatches?.length,
  });
 }
+// Presentation-only section navigation. No changes to picks or evidence.
+function initWorkspaceNavigation(){
+ const links=Array.from(document.querySelectorAll?.(".main-nav a[data-nav]")||[]);
+ if(!links.length)return;
+ const ids=["core","pool","results"];
+ const activate=id=>{
+   if(!ids.includes(id))return;
+   for(const link of links){
+     if(link.dataset.nav===id)link.setAttribute("aria-current","page");
+     else link.removeAttribute?.("aria-current");
+   }
+ };
+ for(const link of links)
+   link.addEventListener("click",()=>activate(link.dataset.nav));
+ const fragment=String(window.location?.hash||"").replace("#","");
+ activate(ids.includes(fragment)?fragment:"core");
+ window.addEventListener?.("hashchange",()=>{
+   const id=String(window.location?.hash||"").replace("#","");
+   if(ids.includes(id))activate(id);
+ });
+ if(typeof IntersectionObserver!=="undefined"){
+   const observer=new IntersectionObserver(entries=>{
+     const active=entries.filter(item=>item.isIntersecting);
+     if(!active.length||document.body?.classList?.contains("pool-card-open")||
+          document.body?.classList?.contains("core-report-open"))return;
+     active.sort((a,b)=>b.intersectionRatio-a.intersectionRatio);
+     activate(active[0].target.id);
+   },{rootMargin:"-24% 0px -57% 0px",threshold:[0,.15,.4]});
+   for(const id of ids){
+     const target=$(id);
+     if(target)observer.observe(target);
+   }
+ }
+}
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
  $("slate-select").addEventListener("change",e=>chooseDate(e.target.value));
+ initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
    json("./data/latest.json"),json("./data/cards-archive.json"),
