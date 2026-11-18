@@ -145,7 +145,9 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
         if missing_pbp_scorers-{chosen}:
             raise SourceUnavailable("Official PBP scorer missing from NHL boxscore "+game_id)
         for pid,n in counts.items():
-            if observed[pid]["goals"]!=n:
+            if pid not in observed and pid==chosen:
+                continue  # Checked below against the locked player's official PBP count.
+            if pid not in observed or observed[pid]["goals"]!=n:
                 raise SourceUnavailable("Official PBP/boxscore all-scorer mismatch "+game_id+" "+pid)
         # Roster members who didn't score also require zero in the PBP.
         for pid,p in observed.items():
