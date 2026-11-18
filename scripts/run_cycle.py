@@ -81,6 +81,20 @@ def _publish_official_grade(root,date,grade,audits,patch_adjudication=None,recip
         'noRetrospectiveScorerOverride':True,
         'noOutcomeOnlyRulePatch':True,
     }
+    preliminary_path=root/'site_runs'/f'{date}-preliminary-miss-audit.json'
+    if preliminary_path.is_file():
+        preliminary=json.loads(preliminary_path.read_text(encoding='utf-8'))
+        if (preliminary.get('cardId')!=grade['card_id'] or
+                preliminary.get('originalFingerprint')!=prior.get('fingerprint') or
+                preliminary.get('originalRevision')!=prior.get('revision')):
+            raise PublicationConflict('Preliminary miss audit does not match the immutable frozen card')
+        audit_report['preliminaryOfficialRecapCrosscheck']=preliminary
+    else:
+        # Preserve a previously attached preliminary audit across idempotent
+        # retries even if its sidecar was later archived elsewhere.
+        prior_audit=json.loads(prior.get('auditJson') or '{}')
+        if prior_audit.get('preliminaryOfficialRecapCrosscheck'):
+            audit_report['preliminaryOfficialRecapCrosscheck']=prior_audit['preliminaryOfficialRecapCrosscheck']
     prior['auditJson']=json.dumps(audit_report,sort_keys=True)
     prior['status']='FROZEN_GRADED'
     _write(path,prior)
