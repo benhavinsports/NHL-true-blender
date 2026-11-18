@@ -279,3 +279,14 @@ test("Mobile collector cards use a two-up grid with centered third, never a clip
  assert.ok(block.includes("collector-photo"));
  assert.ok(block.includes("collector-foil-rings"));
 });
+
+
+test("CSS keeps the photograph collector face full-height within rotating card",()=>{
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const last=css.slice(css.lastIndexOf("photo collector front is an entire flip plane"));
+ assert.ok(last.includes(".core-card .card-face.card-front"));
+ assert.match(last,/position\s*:\s*absolute/);
+ assert.match(last,/height\s*:\s*100%/);
+ // If the entire front is position:relative, every absolutely positioned
+ // child renders above a 0px-height box and the real cards look empty.
+});

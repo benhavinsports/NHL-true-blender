@@ -1821,3 +1821,10 @@ a{color:#a4d6d4}
   .collector-series{font-size:6px}
   .collector-origin{font-size:7px}
 }
+
+/* The photo collector front is an entire flip plane, NOT a normal-flow child.
+   Its name, photo and foil are overlaid. Position:relative made it 0px tall
+   with all children absolute, so actual live cards appeared blank. */
+.core-card .card-face.card-front{
+  position:absolute;inset:0;width:100%;height:100%;
+}
