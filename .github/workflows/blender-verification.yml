@@ -29,12 +29,14 @@ jobs:
       - name: Validate accessible browser dashboard and JavaScript syntax
         run: |
           node --check site/gate-facts.js
+          node --check site/scouting-cards.js
           node --check site/pool-deck.js
           node --check site/app.js
           node --test site/tests/card-flip.test.cjs
           python - <<'PY'
           from pathlib import Path
           from html.parser import HTMLParser
+          from urllib.parse import urlsplit, parse_qs
           class AuditHTML(HTMLParser):
               def __init__(self):
                   super().__init__()
@@ -56,9 +58,17 @@ jobs:
                     'pool-list','grade-summary','season-summary',
                     'hero-phase','slate-notice'}
           assert required<=parser.ids, sorted(required-parser.ids)
-          assert './styles.css' in parser.styles
-          assert './app.js' in parser.scripts
-          assert './pool-deck.js' in parser.scripts
+          style_paths={urlsplit(url).path for url in parser.styles}
+          script_paths={urlsplit(url).path for url in parser.scripts}
+          assert './styles.css' in style_paths
+          assert {'./app.js','./gate-facts.js',
+                  './scouting-cards.js','./pool-deck.js'}<=script_paths
+          # A mixed cached stylesheet and renderer can hide every player
+          # nameplate under the photo. Assets must share one cache version.
+          static_links=[*parser.styles,*parser.scripts]
+          versions={parse_qs(urlsplit(url).query).get('v',[''])[0]
+                    for url in static_links}
+          assert len(versions)==1 and '' not in versions, versions
           assert not {'system-summary','matchup-list','master-gate-deck'} & parser.ids
           assert Path('site/app.js').is_file() and Path('site/styles.css').is_file()
           print('Frontend passed syntax, unique IDs, evidence drilldown and asset linkage')
