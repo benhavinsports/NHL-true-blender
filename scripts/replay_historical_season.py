@@ -1,14 +1,6 @@
-"""Replay archived pregame bundles without live collectors or site publication.
-
-Run with python -m scripts.replay_historical_season MANIFEST OUTPUT.
-Manifest: start, end (ISO dates), stage (PROJECTED or CONFIRMED), and
-slates keyed by date. Each slate supplies cutoff, snapshot and evidenceDb
-(relative paths), snapshotSha256, evidenceDbSha256, and inputs: an inventory
-of all bundled evidence, with source and availableAt for each entry.
-The bundle producer must attest completeness; timestamps do not establish
-that a source or database is historically accurate by themselves.
-"""
+"""Replay archived pregame bundles, optionally grading a separate ledger."""
 import argparse
+import asyncio
 import hashlib
 import json
 import tempfile
@@ -20,6 +12,7 @@ from nhl_true_blender_engine.gate_census import certify_gates
 from nhl_true_blender_engine.first_gate_audit import first_gate_audit
 from nhl_true_blender_engine.gate_input_diagnostics import explain_live_blockers
 from nhl_true_blender_engine.storage import open_db
+from scripts.replay_postgame_grade import grade_frozen_legs
 
 
 def timestamp(value):
@@ -58,26 +51,60 @@ def replay_day(root, day, stage, bundle):
         con = open_db(str(db))
         try:
             result = execute(con, snapshot, day, stage)
-            certification = certify_gates(con, day, stage, result.get('games'))
-            diagnostics = explain_live_blockers(con, day, stage)
             return {'date': day, 'status': 'REPLAYED', 'cutoff': bundle['cutoff'],
                     'stage': stage, 'inputInventory': inputs,
                     'snapshotSha256': bundle['snapshotSha256'],
                     'evidenceDbSha256': bundle['evidenceDbSha256'],
                     'masterGateOrder': MASTER, 'overlayGateOrder': OVERLAY,
                     'engineResult': {k: v for k, v in result.items() if k != 'scan'},
-                    'gateCertification': certification,
+                    'gateCertification': certify_gates(con, day, stage, result.get('games')),
                     'firstNonpassingGateAudit': first_gate_audit(con, day, stage),
-                    'gateDiagnostics': diagnostics}
+                    'gateDiagnostics': explain_live_blockers(con, day, stage)}
         finally:
             con.close()
 
 
+async def grade_ledger(source, target):
+    failures = 0
+    with source.open(encoding='utf-8') as frozen, target.open('x', encoding='utf-8') as grades:
+        for line in frozen:
+            row = json.loads(line)
+            receipt = {'date': row['date'], 'selectionStatus': row['status'],
+                       'selectionRowSha256': hashlib.sha256(line.encode('utf-8')).hexdigest()}
+            try:
+                if row['status'] != 'REPLAYED':
+                    grade = {'status': 'NOT_REPLAYED'}
+                else:
+                    card = row['engineResult'].get('card')
+                    if not card:
+                        grade = {'status': 'NO_CORE'}
+                    elif row['gateCertification'].get('selectedCoreOnlyFullyCertified') is not True:
+                        grade = {'status': 'CORE_NOT_CERTIFIED'}
+                        failures += 1
+                    else:
+                        legs = card['current_legs']
+                        if len(legs) not in (2, 3) or len({x['gameId'] for x in legs}) != len(legs):
+                            raise ValueError('Invalid G18 card shape')
+                        receipt['cardId'] = card['card_id']
+                        receipt['fingerprint'] = card['fingerprint']
+                        grade = await grade_frozen_legs(legs)
+            except Exception as exc:
+                grade = {'status': 'GRADE_UNAVAILABLE', 'errorType': type(exc).__name__,
+                         'reason': str(exc)}
+                failures += 1
+            grades.write(json.dumps({**receipt, 'grade': grade}) + '\n')
+            grades.flush()
+    return failures
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('manifest', type=Path)
-    parser.add_argument('output', type=Path, help='New JSON Lines ledger; existing files are never overwritten')
+    parser.add_argument('manifest', type=Path, help='Pregame bundle manifest with start, end, stage and slates')
+    parser.add_argument('output', type=Path, help='New frozen selection JSONL ledger')
+    parser.add_argument('--grades', type=Path, help='New postgame JSONL ledger, written after selection closes')
     args = parser.parse_args()
+    if args.grades and (args.grades.exists() or args.grades.resolve() == args.output.resolve()):
+        parser.error('--grades must be a fresh path different from the selection ledger')
     manifest = json.loads(args.manifest.read_text(encoding='utf-8'))
     stage = manifest['stage']
     start, end = date.fromisoformat(manifest['start']), date.fromisoformat(manifest['end'])
@@ -100,6 +127,8 @@ def main():
                     failures += 1
             out.write(json.dumps(row, default=str) + '\n')
             out.flush()
+    if args.grades:
+        failures += asyncio.run(grade_ledger(args.output, args.grades))
     return int(bool(failures))
 
 
