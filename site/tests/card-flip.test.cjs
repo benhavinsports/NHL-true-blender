@@ -225,7 +225,7 @@ test("scouting visual identity has no poker suit, cartoon rink or editable dashb
  const pool=fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8");
  const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
  assert.ok(html.includes("NHL SCOUTING INTELLIGENCE"));
- assert.ok(html.includes("THE AUTHORITATIVE SELECTION"));
+ assert.ok(html.includes("THE LOCKED SELECTION"));
  assert.ok(!html.includes("♠"));
  assert.ok(!html.includes("hand-ornament"));
  assert.ok(!js.includes('"rink-center"'));
@@ -488,6 +488,7 @@ test("saved slate remains source-backed without duplicate public statistics",()=
  for(const id of ["hero-date","hero-phase","hero-sync","slate-notice"])
    elements[id]=new FakeNode("div");
  vm.runInContext(
+  'state.archive[0].stage="PROJECTED";'+
   'state.latest.currentRunFullyCertified=false;renderHeader();',
   sandbox);
  assert.ok(elements["hero-date"].textContent.includes("Nov"));
