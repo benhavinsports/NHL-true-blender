@@ -65,7 +65,10 @@ def main():
             if any(x is None for x in starts):
                 rejected.append({"date": day, "reason": "OFFICIAL_GAME_START_MISSING"})
                 continue
-            cutoff = min(starts) - timedelta(minutes=5)
+            # Freeze each matchup independently: a later game's verified
+            # starter report is eligible until that game's own puck drop.
+            # A slate-wide earliest-start cutoff incorrectly discarded
+            # evidence for every later game on the same date.
             page_url = page.get("url") or SOURCE + str(day)
             if page.get("httpStatus") != 200:
                 rejected.append({"date": day, "reason": "DATED_PAGE_UNAVAILABLE"})
@@ -89,6 +92,12 @@ def main():
                     rejected.append({"date": day, "reason": "OFFICIAL_MATCHUP_NOT_FOUND"})
                     continue
                 game_id = str(official.get("id") or official.get("gameId"))
+                game_start = official_game_start(official)
+                if game_start is None:
+                    rejected.append({"date": day, "gameId": game_id,
+                                     "reason": "OFFICIAL_GAME_START_MISSING"})
+                    continue
+                cutoff = game_start - timedelta(minutes=5)
                 for side, team in (("awayGoalie", game.get("away")), ("homeGoalie", game.get("home"))):
                     goalie = game.get(side)
                     if not goalie:
