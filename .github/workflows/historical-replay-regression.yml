@@ -6,12 +6,12 @@ on:
       start_date:
         description: "First NHL slate date (YYYY-MM-DD)"
         required: true
-        default: "${{ inputs.start_date }}"
+        default: "2026-09-29"
         type: string
       end_date:
         description: "Last NHL slate date (YYYY-MM-DD)"
         required: true
-        default: "${{ inputs.end_date }}"
+        default: "2026-11-17"
         type: string
 permissions:
   contents: read
