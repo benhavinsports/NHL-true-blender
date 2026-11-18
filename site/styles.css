@@ -2611,3 +2611,44 @@ body.core-report-open::before,body.pool-card-open::before{
   .scout-rink-map{min-height:150px}
   .scout-shot-panel{grid-template-columns:minmax(0,1fr);justify-items:center}
 }
+
+
+/* Safari/iOS FIX: expanding a collector card into the evidence workspace
+   must not rotate the PHOTO plane and then expose its mirrored reverse.
+   Rotating preserve-3d children inside fixed, clipped and filtered modal
+   parents is unreliable in WebKit. The front remains an untouched collector
+   card when closed. Opening switches to the REAL report face, fully readable.
+   This intentionally uses a 2D modal transition rather than 3D inside the
+   expanded workspace and preserves independent gate/source interactions. */
+.core-card.is-flipped .card-flip-inner,
+.pool-collector-card.is-flipped .pool-flip-inner{
+  transform:none!important;
+  transform-style:flat!important;
+  transition:none!important;
+}
+.core-card.is-flipped .card-face.card-front,
+.pool-collector-card.is-flipped .pool-face.pool-front{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.core-card.is-flipped .card-face.card-back,
+.pool-collector-card.is-flipped .pool-face.pool-back{
+  display:flex!important;
+  flex-direction:column;
+  transform:none!important;
+  -webkit-transform:none!important;
+  backface-visibility:visible!important;
+  -webkit-backface-visibility:visible!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:2;
+}
+.core-card.is-flipped .card-back .scout-report,
+.pool-collector-card.is-flipped .pool-back .scout-report{
+  transform:none!important;
+  -webkit-transform:none!important;
+  height:100%;
+  min-height:0;
+}
