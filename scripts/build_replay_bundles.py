@@ -133,6 +133,32 @@ def build_day(source, day, out, schedule_row):
             rosters[team] = {"sourceUrl": row["source_url"],
                              "observedAt": row["observed_at"],
                              "evidenceId": row["evidence_id"], "data": data}
+    # Reuse an earlier observed official roster only if it existed before
+    # this slate's cutoff. Never backfill with a present-day roster or
+    # postgame boxscore participants.
+    needed_teams = {team for game in games for team in (game["away"], game["home"])}
+    missing_teams = needed_teams - set(rosters)
+    carry_rows = []
+    if missing_teams:
+        candidates = source.execute(
+            """SELECT * FROM evidence
+               WHERE kind='TEAM_CURRENT_ROSTER' AND stage='OFFICIAL'
+                 AND slate_date<=? AND observed_at<=?
+               ORDER BY observed_at DESC, rowid DESC""",
+            (day, cutoff),
+        ).fetchall()
+        for row in candidates:
+            data = json.loads(row["payload"])
+            team = data.get("team")
+            if team not in missing_teams or not isinstance(data.get("players"), list):
+                continue
+            rosters[team] = {"sourceUrl": row["source_url"],
+                             "observedAt": row["observed_at"],
+                             "evidenceId": row["evidence_id"], "data": data}
+            carry_rows.append(row)
+            missing_teams.remove(team)
+            if not missing_teams:
+                break
     for game in games:
         game["rosters"] = {team: rosters.get(team) for team in (game["away"], game["home"])}
     snapshot = {"games": games}
@@ -141,7 +167,7 @@ def build_day(source, day, out, schedule_row):
     evidence_path = out / f"{day}-evidence.sqlite"
     con = open_db(str(evidence_path))
     try:
-        for row in rows:
+        for row in [*rows, *carry_rows]:
             record_evidence(con, {
                 "evidence_id": row["evidence_id"], "slate_date": row["slate_date"],
                 "stage": row["stage"], "game_id": row["game_id"],
@@ -163,7 +189,7 @@ def build_day(source, day, out, schedule_row):
     evidence_path.unlink()
 
     grouped = {}
-    for row in rows:
+    for row in [*rows, *carry_rows]:
         key = (row["kind"], row["source_url"])
         item = grouped.setdefault(key, {
             "kind": row["kind"], "source": row["source_url"],
@@ -198,6 +224,8 @@ def build_day(source, day, out, schedule_row):
         "evidenceDb": compressed_path.name, "evidenceDbSha256": sha256(compressed_path.read_bytes()),
         "inputs": inputs, "gameCount": len(games),
         "teamsWithOfficialRoster": sorted(rosters),
+        "historicalRosterCarryForwardCount": len(carry_rows),
+        "teamsMissingHistoricalRoster": sorted(missing_teams),
         "collectorObservedAtBeforeCutoff": True,
         "providerAvailabilityTimeIndependentlyVerified": False,
         "underlyingEventDateAudit": "KNOWN_DATED_EVENT_FIELDS_EXTRACTED; UNDATED_PROVIDER_AGGREGATES_REMAIN_UNVERIFIED"
