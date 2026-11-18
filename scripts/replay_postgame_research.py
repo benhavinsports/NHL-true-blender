@@ -36,7 +36,7 @@ def _roster_names(snapshot):
             for player in data.get("players") or []:
                 pid = str(player.get("id") or "")
                 if pid:
-                    names[pid] = player.get("name") or player.get("fullName")
+                    names[pid] = _display_name(player.get("name"), player.get("fullName"))
                     teams[(str(game["id"]), pid)] = team
     return names, teams
 
@@ -106,7 +106,7 @@ async def audit_day(selection, manifest, root):
                             raise SourceUnavailable(f"PBP/boxscore goal mismatch for {game_id}/{pid}")
                         players[pid] = {
                             "playerId": pid,
-                            "player": player.get("name") or names.get(pid),
+                            "player": _display_name(player.get("name"), names.get(pid)),
                             "team": team_code,
                             "goals": goals,
                             "listedInOfficialBoxscore": True,
@@ -144,7 +144,7 @@ async def audit_day(selection, manifest, root):
                 ]
             scorers = sorted(
                 [x for x in players.values() if x["goals"] > 0],
-                key=lambda x: (x["team"], x["player"] or "", x["playerId"]),
+                key=lambda x: (x["team"], str(x["player"] or ""), x["playerId"]),
             )
             audited[game_id] = {
                 "matchup": game["away"] + "@" + game["home"],
