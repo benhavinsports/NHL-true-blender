@@ -823,7 +823,9 @@ function initWorkspaceNavigation(){
  const updateFromScroll=()=>{
    if(document.body?.classList?.contains("pool-card-open")||
       document.body?.classList?.contains("core-report-open"))return;
-   const cutoff=Math.min(220,window.innerHeight*.32);
+   // The heading is already the active reading section once it enters the
+   // upper half of the phone viewport (not only the top third).
+   const cutoff=Math.min(540,window.innerHeight*.53);
    let current="core";
    for(const id of ids){
      const rect=$(id)?.getBoundingClientRect?.();
