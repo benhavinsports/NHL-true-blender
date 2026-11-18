@@ -316,8 +316,6 @@ jobs:
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
                           if card else None,
                   'verified':bool(card),
-                  'postgameGradeStatus':('OFFICIALLY_GRADED' if grade_report
-                     else 'AWAITING_ALL_GAMES_FINAL' if card else 'NO_LOCKED_CARD'),
                   'pathAudit':audited,
                   'pathAuditIsSeparateFromOriginalFrozenCard':True,
               }
@@ -339,6 +337,12 @@ jobs:
           grep -q 'id="slate-select"' site/index.html
           test -s site/styles.css
           test -s site/app.js
+          test -s site/public-deck.css
+          ! grep -q 'id="results"' site/index.html
+          ! grep -q 'id="grade-summary"' site/index.html
+          ! grep -q 'id="season-summary"' site/index.html
+          # The official season ledger is GitHub-only, never exposed by Pages.
+          rm -f site/data/season-history.json
           node --check site/gate-facts.js
           node --check site/pool-deck.js
           node --check site/app.js
