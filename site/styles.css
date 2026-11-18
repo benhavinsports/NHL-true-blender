@@ -1586,3 +1586,238 @@ a{color:#a4d6d4}
   .play-stage-heading{align-items:end;gap:7px}
   .play-stage-heading h1{font-size:35px;line-height:1.1}
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORE FRONT · PREMIUM HOCKEY COLLECTOR SERIES
+   Authentic photo-led portrait card with Art Deco concentric metallic foil.
+   Scouting dashboard and all original analytical card backs stay untouched.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.core-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;overflow:visible;padding:4px 0 8px;
+  scroll-snap-type:none;
+}
+.core-card,.core-card:nth-child(1),.core-card:nth-child(2),.core-card:nth-child(3){
+  flex:auto;min-width:0;width:100%;height:430px;min-height:430px;
+  padding:0;border-radius:12px;overflow:hidden;
+  border:2px solid #bd9b5d;
+  background:#08101b;
+  box-shadow:0 2px 0 #fce6a3a3 inset,0 14px 26px #0008;
+  transform:none;rotate:none;
+  --ink-accent:#cdb16e;
+  --paper-light:#101825;--paper-shadow:#060b13;
+}
+.core-card::before{
+  content:"";z-index:7;position:absolute;pointer-events:none;
+  inset:5px;border:1px solid #f1d29477;border-radius:7px;
+}
+.core-card::after{display:none}
+.core-card:hover{
+  transform:translateY(-3px);
+  border-color:#f1d18a;
+  box-shadow:0 2px 0 #fff1ba inset,0 20px 32px #0009;
+}
+.core-card[aria-pressed=true]{transform:none;border-color:#d3b47c;background:#0d1724}
+.core-card .card-flip-inner{border-radius:10px}
+.core-card .card-front{
+  display:block;isolation:isolate;position:relative;
+  overflow:hidden;border-radius:10px;
+  background:
+    radial-gradient(circle at 86% 30%,#263749 0%,transparent 45%),
+    linear-gradient(165deg,#152638,#070e17 68%,#03060b);
+  color:#f7f1e3;
+}
+.core-card .card-front::before{
+  content:"";pointer-events:none;position:absolute;inset:11px;z-index:6;
+  border:1px solid #c6a46458;
+  clip-path:polygon(0 0,93% 0,100% 5%,100% 100%,7% 100%,0 95%);
+}
+.core-card .card-front::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+   linear-gradient(111deg,transparent 8%,#fce6ad13 29%,transparent 44%),
+   linear-gradient(162deg,transparent 0%,#0000 42%,#02050a88 60%,#040810 77%,#03060a 100%);
+}
+.core-card .card-illustration.collector-art,
+.core-card.path-primary .card-illustration.collector-art,
+.core-card.path-transfer .card-illustration.collector-art,
+.core-card.path-who .card-illustration.collector-art{
+  position:absolute;inset:0;margin:0;padding:0;width:100%;height:100%;
+  min-height:0;border:0;border-radius:0;
+  background:
+    radial-gradient(ellipse at 48% 35%,#364758 0%,transparent 61%),
+    linear-gradient(140deg,#101f30,#060b13);
+  overflow:hidden;z-index:0;display:block;
+}
+.core-card .card-illustration.collector-art::before,
+.core-card .card-illustration.collector-art::after{display:none}
+.collector-photo{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  object-fit:cover;object-position:center 26%;
+  filter:grayscale(37%) contrast(1.13) saturate(.8);
+  z-index:1;
+}
+.collector-art.is-headshot .collector-photo{
+  object-fit:contain;object-position:center 8%;
+  height:82%;width:126%;left:-13%;top:5%;
+  filter:grayscale(16%) contrast(1.1) saturate(.87);
+}
+.collector-foil-rings{
+  position:absolute;inset:-15% -28%;z-index:2;pointer-events:none;
+  background:
+    repeating-radial-gradient(ellipse 240px 265px at 98% 36%,
+      transparent 0 12px,#e8c779b5 13px 14px,transparent 15px 23px),
+    repeating-radial-gradient(ellipse 180px 240px at 0% -4%,
+      transparent 0 15px,#f4da986e 16px 17px,transparent 18px 27px);
+  opacity:.57;mix-blend-mode:screen;
+  mask-image:linear-gradient(180deg,#000 0%,#000 47%,transparent 80%);
+}
+.collector-photo-shade{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:
+    linear-gradient(180deg,#01050aa8 0%,transparent 13%,#0000 35%,
+      #02060a60 51%,#02060bcf 67%,#03060bf6 82%,#03060b 100%),
+    linear-gradient(90deg,#050a1038,transparent 30%,#03071220);
+}
+.collector-team-crest{
+  position:absolute;z-index:3;right:16px;top:36%;
+  width:54px;height:54px;object-fit:contain;
+  opacity:.32;filter:grayscale(1) sepia(.8) brightness(1.4);
+}
+.collector-fallback{
+  display:none;position:absolute;top:28%;left:50%;
+  transform:translate(-50%,-50%);z-index:1;
+  font:900 110px/1 Inter,Arial,sans-serif;
+  letter-spacing:-.13em;color:#d7be7c38;
+}
+.collector-art.photo-unavailable .collector-fallback{display:block}
+.collector-art.has-photo .collector-fallback{display:none}
+.core-card .card-head.collector-masthead{
+  position:absolute;top:0;left:0;right:0;z-index:6;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:22px 19px 9px;min-height:0;
+  background:linear-gradient(#01050ac7,transparent);
+}
+.core-card .collector-masthead .card-index{
+  font:900 10px/1.1 Inter,Arial,sans-serif;
+  letter-spacing:.17em;color:#f7e2aa;
+}
+.collector-series{
+  color:#d0c39e;font:700 9px/1 Inter,Arial,sans-serif;
+  letter-spacing:.12em;white-space:nowrap;
+}
+.core-card .card-nameplate.collector-nameplate{
+  position:absolute;z-index:5;bottom:37px;left:0;right:0;
+  padding:0 18px 9px;
+  min-height:0;display:grid;align-content:end;justify-items:start;
+  text-align:left;background:none;border:0;box-shadow:none;
+}
+.collector-given{
+  font:800 12px/1.1 Inter,Arial,sans-serif;
+  color:#f9f5e9;letter-spacing:.095em;text-shadow:0 2px 5px #000;
+}
+.core-card .collector-nameplate .player-name{
+  font:950 clamp(25px,3.0vw,37px)/.98 Inter,Arial,sans-serif;
+  color:#fffefa;letter-spacing:-.055em;
+  overflow-wrap:anywhere;
+  text-transform:uppercase;text-shadow:0 3px 9px #000b;
+  margin:4px 0 6px;
+}
+.collector-team-line{
+  color:#e3ca8c;font:800 10px Inter,Arial,sans-serif;
+  letter-spacing:.12em;margin:0 0 9px;
+}
+.collector-path-row{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  margin-bottom:10px;width:100%;
+}
+.core-card .collector-path-row .pill,
+.core-card.path-primary .collector-path-row .pill,
+.core-card.path-transfer .collector-path-row .pill,
+.core-card.path-who .collector-path-row .pill{
+  display:inline-block;background:linear-gradient(115deg,#b58e4f,#e5cb91,#a57b41)!important;
+  border:1px solid #f1d49a!important;color:#121418!important;
+  font:900 10px Inter,Arial,sans-serif;letter-spacing:.04em;
+  padding:5px 9px;border-radius:4px;box-shadow:0 1px 7px #0004;
+}
+.collector-origin{
+  color:#f1eee7;font:750 11px Inter,Arial,sans-serif;
+  letter-spacing:.025em;
+}
+.collector-stats{
+  width:100%;border-top:1px solid #e0c98e7b;
+  padding-top:9px;color:#e1e7e5;
+  font:650 11px/1.35 Inter,Arial,sans-serif;
+  white-space:normal;
+}
+.collector-original-label{
+  color:#d9c8a0;font-size:9px;margin-top:4px;
+}
+.core-card .card-bottom.collector-flip-line{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;
+  display:flex;justify-content:space-between;align-items:center;
+  margin:0;padding:10px 18px 12px;
+  min-height:37px;border-top:1px solid #c8a86b54;
+  background:#060b11f0;color:#aebfc5;
+  font:750 9px Inter,Arial,sans-serif;letter-spacing:.11em;
+}
+.collector-flip-line .tiny-arrow{color:#e0c783;font-size:14px}
+.core-card .card-back{
+  border:0;border-radius:10px;background:#121e2b;
+}
+@media(max-width:1000px){
+  .core-grid{gap:12px}
+  .core-card .collector-nameplate .player-name{font-size:28px}
+}
+@media(max-width:650px){
+  /* Actual portrait cards: two readable fronts plus a centred third,
+     never a horizontally clipped half-card. */
+  .core-grid{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;overflow:visible;padding:0 0 9px;
+    scroll-snap-type:none;
+  }
+  .core-card,.core-card:nth-child(1),.core-card:nth-child(2),.core-card:nth-child(3){
+    flex:none;width:100%;height:282px;min-height:282px;
+    max-width:none;border-radius:9px;transform:none;rotate:none;
+  }
+  .core-grid>.core-card:nth-child(3){
+    grid-column:1/-1;justify-self:center;
+    width:calc((100% - 12px)/2);
+  }
+  .core-card .card-head.collector-masthead{padding:15px 11px 8px}
+  .core-card .collector-masthead .card-index{font-size:7px;letter-spacing:.07em}
+  .collector-series{font-size:7px;letter-spacing:.035em}
+  .core-card .card-nameplate.collector-nameplate{
+    bottom:32px;padding:0 10px 6px;
+  }
+  .collector-given{font-size:9px}
+  .core-card .collector-nameplate .player-name{
+    font-size:clamp(18px,5.5vw,23px);line-height:1;
+    margin:3px 0 5px;letter-spacing:-.055em;
+  }
+  .collector-team-line{font-size:8px;margin-bottom:7px}
+  .collector-path-row{gap:5px;margin-bottom:7px}
+  .core-card .collector-path-row .pill{font-size:8px;padding:4px 6px}
+  .collector-origin{font-size:8px}
+  .collector-stats{font-size:9px;padding-top:7px}
+  .collector-team-crest{width:35px;height:35px;right:11px;top:36%}
+  .core-card .card-bottom.collector-flip-line{
+    padding:8px 10px 9px;min-height:31px;font-size:7px;
+  }
+  .core-card .collector-foil-rings{opacity:.55}
+  .collector-photo{object-position:center 22%}
+  .card-front .card-illustration.collector-art{min-height:0;margin:0}
+}
+@media(max-width:350px){
+  .core-grid{gap:8px}
+  .core-card,.core-card:nth-child(1),.core-card:nth-child(2),.core-card:nth-child(3){
+    height:260px;min-height:260px;
+  }
+  .core-grid>.core-card:nth-child(3){width:calc((100% - 8px)/2)}
+  .core-card .collector-nameplate .player-name{font-size:18px}
+  .collector-series{font-size:6px}
+  .collector-origin{font-size:7px}
+}
