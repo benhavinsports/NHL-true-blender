@@ -40,12 +40,15 @@ def fixture(n=3):
     games=[]
     for i in range(n):
         away,home="A"+str(i),"H"+str(i)
-        # Both goalies are independently reviewed. Only the home goalie
-        # has an observed weak attack area: G0 selects the away attack.
+        # Both goalies have independently reviewed, measured origins.
+        # G0 must select by comparable peer vulnerability, not by the count
+        # or presence/absence of weak-zone labels.
         goalie=ev({"goalieId": "GH"+str(i), "team": home, "status": "CONFIRMED",
-                   "weakZones": {"slot": {"sample": 200}},
+                   "weakZones": {"slot": {"shotsAgainst": 50, "goalsAgainst": 8,
+                                          "leagueSavePctgPercentile": .05}},
                    "strengthZones": {"point": {"sample": 200}},
-                   "sample": {"shots": 200}, "counterevidence": {"reviewed": True}})
+                   "sample": {"shots": 200}, "counterevidence": {"reviewed": True},
+                   "sourceClass": "DERIVED_RINK_ORIGIN_NOT_ANATOMICAL"})
         shift_url="https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020300"
         shift_evidence={"shiftByShift":[{
              "zone":"slot","gameId":"2026020300","eventId":"11",
@@ -56,7 +59,9 @@ def fixture(n=3):
              "shiftSourceUrls":[shift_url],"actualDefensiveShiftMatches":1}
         no_weak_goalie=ev({
             "goalieId":"GA"+str(i),"team":away,"status":"CONFIRMED",
-            "weakZones":{},"strengthZones":{"slot":{"shotsAgainst":70,"goalsAgainst":1}},
+            "weakZones":{"point":{"shotsAgainst":70,"goalsAgainst":1,
+                                  "leagueSavePctgPercentile":.95}},
+            "strengthZones":{"slot":{"shotsAgainst":70,"goalsAgainst":1}},
             "observedAreas":{"slot":{"shotsAgainst":70,"goalsAgainst":1,"saves":69}},
             "sample":{"allZoneObservations":70},"sourceReviewed":True,
             "counterevidence":{"reviewedPeerSample":True},

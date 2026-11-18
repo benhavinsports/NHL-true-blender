@@ -1,0 +1,18 @@
+name: Historical replay regression
+on:
+  push:
+    branches: [audit/historical-season-replay]
+permissions:
+  contents: read
+jobs:
+  historical-issuance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+      - name: Run full engine regression suite, including the G0 attack-direction repair
+        run: python -m pytest -q nhl_true_blender_engine/tests

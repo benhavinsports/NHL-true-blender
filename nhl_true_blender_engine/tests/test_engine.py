@@ -49,9 +49,12 @@ def game(idx,win=True):
     rival=skater(1000+idx*10+1,'slot',11,1)
     d=skater(1000+idx*10+2,'point',1,0,'OUT')
     def goalie(gid,team):
-        return evidence({'goalieId':gid,'team':team,'status':'CONFIRMED','weakZones':{'slot':{'savePct':.8}},
+        return evidence({'goalieId':gid,'team':team,'status':'CONFIRMED',
+            'weakZones':{'slot':{'savePct':.8,'shotsAgainst':24,'goalsAgainst':8,
+                                 'leagueSavePctgPercentile':.05}},
             'strengthZones':{'point':{'savePct':.93}},'counterevidence':'strong at distance',
-            'sample':'dated 200 shot profile'})
+            'sample':'dated 200 shot profile',
+            'sourceClass':'DERIVED_RINK_ORIGIN_NOT_ANATOMICAL'})
     # A complete synthetic baseline has independently attributed team shifts.
     # Negative tests remove these receipts to verify that no Core is locked.
     shift_url='https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3D2026020300'
@@ -65,7 +68,9 @@ def game(idx,win=True):
     return {'id':str(5000+idx),'date':DATE,'away':away,'home':home,'startUTC':FUTURE,'gameState':'FUT',
         'goalies':{
             away:[evidence({'goalieId':'g'+away,'team':away,
-                'status':'CONFIRMED','weakZones':{},
+                'status':'CONFIRMED',
+                'weakZones':{'point':{'shotsAgainst':80,'goalsAgainst':2,
+                                      'leagueSavePctgPercentile':.95}},
                 'strengthZones':{'slot':{'savePct':.97}},
                 'sample':{'allZoneObservations':80,'source':'independent synthetic goalie report'},
                 'observedAreas':{'slot':{'shotsAgainst':80,'goalsAgainst':2,'saves':78}},
@@ -482,3 +487,38 @@ def test_stale_trigger_cannot_replace_core_or_fake_retraction_exception(con):
     still=get_card(con,DATE)
     assert still['fingerprint']==first['fingerprint']
     assert still['revision']==first['revision']
+
+
+def test_g0_different_weak_zone_set_sizes_do_not_choose_the_attacking_side(con):
+    """A larger weak-zone set cannot outrank the actual peer-ranked goalie."""
+    from nhl_true_blender_engine.engine import execute
+    from nhl_true_blender_engine.tests.test_engine import game
+
+    g=game(77)
+    away,home=g["away"],g["home"]
+    # The home goalie has MORE listed weak origins, but better peer ranks.
+    # The away goalie has one independently measured, more vulnerable origin.
+    home_profile=g["goalies"][home][0]["data"]
+    home_profile.update({
+        "sourceClass":"DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "weakZones":{
+            "Low Slot":{"shotsAgainst":50,"goalsAgainst":8,
+                        "leagueSavePctgPercentile":0.30},
+            "L Circle":{"shotsAgainst":45,"goalsAgainst":6,
+                        "leagueSavePctgPercentile":0.35},
+        },
+    })
+    away_profile=g["goalies"][away][0]["data"]
+    away_profile.update({
+        "sourceClass":"DERIVED_RINK_ORIGIN_NOT_ANATOMICAL",
+        "weakZones":{
+            "Low Slot":{"shotsAgainst":40,"goalsAgainst":10,
+                        "leagueSavePctgPercentile":0.10},
+        },
+    })
+    result=execute(con,{"games":[g]},DATE,"CONFIRMED")
+    decision=result["g0TwoGoalieDirectionDecisions"].get(str(g["id"]))
+    assert decision is not None, result["errors"]
+    assert decision["attackingTeam"]==home
+    assert decision["targetGoalieTeam"]==away
+    assert decision["goalieSourceMethod"]=="NHL_EDGE_SOURCE_PEER_PERCENTILE_CROSS_ORIGIN_G0"
