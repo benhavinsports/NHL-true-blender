@@ -2,7 +2,9 @@
 from __future__ import annotations
 import argparse, hashlib, json, re, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from urllib.parse import urlencode
+import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -81,6 +83,34 @@ def _before(a,b):
     except (AttributeError,ValueError):
         return None
 
+def _normalize_name(value):
+    return "".join(ch for ch in unicodedata.normalize("NFKD",value or "")
+                   if not unicodedata.combining(ch)).casefold().strip()
+
+def _resolve_nhl_player(name):
+    url="https://search.d3.nhle.com/api/v1/search/player?"+urlencode({
+        "culture":"en-us","limit":20,"q":name})
+    try:
+        req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+        with urllib.request.urlopen(req,timeout=20) as response:
+            payload=json.loads(response.read().decode("utf-8","replace"))
+        if isinstance(payload,dict):
+            payload=payload.get("suggestions") or payload.get("players") or []
+        exact=[x for x in payload if _normalize_name(x.get("name") or x.get("fullName"))==_normalize_name(name)]
+        goalies=[x for x in exact if (x.get("positionCode") or x.get("position")) in ("G","Goalie","Goalkeeper")]
+        if len(goalies)==1:
+            item=goalies[0]
+            return {"playerId":str(item.get("playerId") or item.get("id")),
+                    "officialName":item.get("name") or item.get("fullName"),
+                    "positionCode":item.get("positionCode") or item.get("position"),
+                    "currentTeamAbbrev":item.get("teamAbbrev"),
+                    "status":"EXACT_OFFICIAL_NHL_NAME_AND_GOALIE_MATCH","sourceUrl":url}
+        return {"status":"NO_UNIQUE_EXACT_NHL_GOALIE_MATCH","matchCount":len(exact),
+                "goalieMatchCount":len(goalies),"sourceUrl":url}
+    except Exception as exc:
+        return {"status":"OFFICIAL_NHL_PLAYER_SEARCH_UNAVAILABLE",
+                "errorType":type(exc).__name__,"error":str(exc)[:500],"sourceUrl":url}
+
 def fetch(day,outdir,manifest_schedule):
     url=f"https://www.dailyfaceoff.com/starting-goalies/{day}"
     request=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (compatible; HistoricalNHLResearch/1.0)"})
@@ -90,8 +120,13 @@ def fetch(day,outdir,manifest_schedule):
             raw=response.read();status=response.status;final_url=response.geturl()
         parser=PageText();parser.feed(raw.decode("utf-8","replace"))
         schedule_games=((manifest_schedule.get(day) or {}).get("games") or [])
+        start_times=[g.get("startTimeUTC") for g in schedule_games if g.get("startTimeUTC")]
+        slate_cutoff=(datetime.fromisoformat(min(start_times).replace("Z","+00:00"))-
+                      timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00","Z") if start_times else None
         cards=_parse_goalie_cards(parser)
         matchups=_parse_matchups(parser.text,schedule_games)
+        for goalie in cards:
+            goalie["reportUpdatedBeforeSlateCutoff"]=_before(goalie.get("reportUpdatedAt"),slate_cutoff) if slate_cutoff else None
         games=[]
         for idx,match in enumerate(matchups):
             pair=cards[idx*2:idx*2+2]
@@ -107,6 +142,7 @@ def fetch(day,outdir,manifest_schedule):
         statuses=[x for x in parser.text if x in STATUSES]
         return {
             "date":day,"url":final_url,"httpStatus":status,"downloadedAt":downloaded,
+            "slateCutoff":slate_cutoff,
             "pageSha256":hashlib.sha256(raw).hexdigest(),"bytes":len(raw),
             "pageTitleOrMeta":parser.meta[:30],"pageTimestamps":sorted(set(parser.times)),
             "goalieCards":cards,"matchupRecords":matchups,"games":games,
@@ -132,6 +168,18 @@ def main():
         futures=[pool.submit(fetch,day,rawdir,manifest.get("officialSchedule") or {}) for day in dates]
         for future in as_completed(futures):rows.append(future.result())
     rows.sort(key=lambda x:x["date"])
+    unique_names=sorted({g["name"] for page in rows for g in page.get("goalieCards",[])})
+    resolutions={}
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures={pool.submit(_resolve_nhl_player,name):name for name in unique_names}
+        for future in as_completed(futures):
+            resolutions[futures[future]]=future.result()
+    for page in rows:
+        for game in page.get("games",[]):
+            for side in ("awayGoalie","homeGoalie"):
+                goalie=game.get(side)
+                if goalie:
+                    goalie["nhlIdentityResolution"]=resolutions.get(goalie["name"])
     report={
         "source":"Daily Faceoff dated historical starting-goalie pages",
         "dateRange":[manifest["start"],manifest["end"]],
@@ -140,6 +188,9 @@ def main():
         "completeGamePairs":sum(x.get("completeGamePairs",0) for x in rows),
         "officialGamesMatched":sum(x.get("matchedOfficialGames",0) for x in rows),
         "goalieCardsParsed":sum(len(x.get("goalieCards",[])) for x in rows),
+        "goaliePlayerIdsResolved":sum(x.get("status")=="EXACT_OFFICIAL_NHL_NAME_AND_GOALIE_MATCH" for x in resolutions.values()),
+        "uniqueGoalieNames":len(unique_names),
+        "unresolvedGoalieNames":{k:v for k,v in resolutions.items() if v.get("status")!="EXACT_OFFICIAL_NHL_NAME_AND_GOALIE_MATCH"},
         "unavailableDates":[x["date"] for x in rows if not x.get("availableAsDatedHistoricalPage")],
         "pages":rows,"notUsedBySelector":True,
         "downloadTimeIsNotPagePublicationTime":True,
