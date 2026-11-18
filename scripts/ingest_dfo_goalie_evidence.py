@@ -75,6 +75,13 @@ def main():
                     rejected.append({"date": day, "matchup": [game.get("away"), game.get("home")],
                                      "reason": "MATCHUP_NOT_MATCHED_TO_OFFICIAL_SCHEDULE"})
                     continue
+                # Positional cards cannot be trusted if a card or matchup was
+                # omitted. Never attach a plausible-looking goalie to the
+                # wrong official game during historical replay.
+                if game.get("positionalPairingVerified") is not True:
+                    rejected.append({"date": day, "matchup": [game.get("away"), game.get("home")],
+                                     "reason": "GOALIE_PAIR_SEQUENCE_NOT_VERIFIED"})
+                    continue
                 official = next((g for g in games
                                  if g.get("away") == game.get("away")
                                  and g.get("home") == game.get("home")), None)
@@ -108,6 +115,10 @@ def main():
                                          "reason": "IMAGE_TEAM_IDENTITY_NOT_VERIFIED"})
                         continue
                     status_text = goalie.get("status")
+                    if status_text not in ("Confirmed", "Expected", "Projected", "Likely", "Probable", "Unconfirmed"):
+                        rejected.append({"date": day, "gameId": game_id, "team": team,
+                                         "reason": "UNRECOGNIZED_SOURCE_STARTER_STATUS"})
+                        continue
                     status = "CONFIRMED" if status_text == "Confirmed" else "EXPECTED"
                     stage = "CONFIRMED" if status == "CONFIRMED" else "PROJECTED"
                     observed_at = report_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
