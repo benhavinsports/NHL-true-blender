@@ -18,10 +18,14 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
-      - name: Build immutable pregame bundles from archived evidence (Nov 15–17 only)
+      - name: Fetch every official NHL scheduled slate from opening night through Nov 17
         env:
           PYTHONPATH: .
-        run: python scripts/build_replay_bundles.py --start 2026-11-15 --end 2026-11-17 --output state/replay
+        run: python scripts/fetch_official_slate_calendar.py --start 2026-10-07 --end 2026-11-17 --output state/replay/official_schedule.json
+      - name: Build immutable pregame bundles from archived evidence (opening night through Nov 17)
+        env:
+          PYTHONPATH: .
+        run: python scripts/build_replay_bundles.py --start 2026-10-07 --end 2026-11-17 --output state/replay --schedule state/replay/official_schedule.json
       - name: Replay original Blender gates against the saved historical inputs
         env:
           PYTHONPATH: .
