@@ -601,18 +601,25 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
         recent_rival=(rival_recent['ownedGoals'],rival_recent['shotsOnGoal'])
         recent_direction=(recent_candidate>recent_rival)-(recent_candidate<recent_rival)
 
-        # No raw season total may overrule a contradictory recent direct route.
-        # Agreement across both source scopes is required; ties/conflicts remain
-        # unresolved rather than being settled by a new weight or tiebreak.
-        if season_direction==0 or recent_direction==0 or season_direction!=recent_direction:
+        # Preserve the original independently sourced recent-route tie review:
+        # when season direct-goal/SOG evidence is tied, recent dated PBP may
+        # resolve it. When season evidence is already directional, recent PBP
+        # must agree; it cannot be ignored or overruled by season totals.
+        # Conflicts and recent ties remain unresolved, with no new weights.
+        if recent_direction==0 or (season_direction!=0 and season_direction!=recent_direction):
             status='NO_DECISIVE_ROUTE_SEPARATION'
             dominates=False
             defeated_by=False
             all_defeated=False
+            decision_source='UNRESOLVED_CONFLICT_OR_TIE'
         else:
-            dominates=season_direction>0 and recent_direction>0
-            defeated_by=season_direction<0 and recent_direction<0
+            decision_direction=recent_direction if season_direction==0 else season_direction
+            dominates=decision_direction>0
+            defeated_by=decision_direction<0
             status='DEFEATED' if dominates else 'RIVAL_DOMINATES'
+            decision_source=('RECENT_DATED_ROUTE_RESOLVED_SEASON_TIE'
+                             if season_direction==0 else
+                             'SEASON_AND_RECENT_ROUTE_AGREE')
             if not dominates:
                 all_defeated=False
 
@@ -632,7 +639,8 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 'method':'INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN',
                 'own':own_recent,'rival':rival_recent,
                 'sameRecentSampleMethod':True,
-                'seasonAndRecentEvidenceAgree':season_direction==recent_direction,
+                'seasonAndRecentEvidenceAgree':season_direction==recent_direction or season_direction==0,
+                'decisionSource':decision_source,
                 'seasonGoalAndShotEvidence':{'candidate':candidate_direct,'challenger':rival_direct},
                 'recentGoalAndShotEvidence':{'candidate':recent_candidate,'challenger':recent_rival},
                 'notAnatomicalPlacement':True},
