@@ -504,6 +504,39 @@ test("mobile section navigation is a read-only accessible control",()=>{
  assert.ok(html.includes('aria-current="page"'));
  assert.ok(js.includes("function initWorkspaceNavigation()"));
  assert.ok(js.includes('link.setAttribute("aria-current","page")'));
- assert.ok(js.includes("IntersectionObserver"));
+ assert.ok(js.includes('window.addEventListener?.("scroll",updateFromScroll'));
+ assert.ok(js.includes("getBoundingClientRect"));
+ assert.ok(!js.includes("const observer=new IntersectionObserver"));
  assert.ok(!js.includes("selectScorerFromNav"));
+});
+
+
+test("mobile editorial polish reduces repeated chrome without changing photo card styling",()=>{
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ const polish=css.slice(css.lastIndexOf("EDITORIAL FINISH / ACTUAL NHL SCOUTING DASHBOARD"));
+ assert.ok(polish.length>1000);
+ assert.ok(polish.includes(".results-section .system-grid"));
+ assert.ok(polish.includes("grid-template-columns:repeat(3,minmax(0,1fr))"));
+ assert.ok(polish.includes(".overview-main"));
+ assert.ok(polish.includes(".app-sidebar .main-nav a"));
+ assert.ok(polish.includes("height:55px"));
+ assert.ok(polish.includes(".overview-footer .phase-bar"));
+ assert.ok(polish.includes(".results-section .notice"));
+ assert.ok(!polish.includes("collector-photo{"));
+ assert.ok(!polish.includes(".core-card.is-flipped"));
+ assert.ok(!polish.includes(".pool-collector-card.is-flipped"));
+ assert.ok(js.includes("SAVED CORE · SOURCE RECHECK OPEN"));
+ assert.ok(!js.includes("SAVED ORIGINAL CORE · CURRENT RECHECK OPEN"));
+ assert.ok(js.includes("Official grade not yet published"));
+ assert.ok(!js.includes("The independent grade begins after every game"));
+});
+
+test("navigation follows current section while reading tall survivor and results lists",()=>{
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ assert.ok(js.includes('window.addEventListener?.("scroll",updateFromScroll'));
+ assert.ok(js.includes("rect.top<=cutoff"));
+ assert.ok(js.includes('document.body?.classList?.contains("pool-card-open")'));
+ assert.ok(js.includes('document.body?.classList?.contains("core-report-open")'));
+ assert.ok(js.includes('window.addEventListener?.("resize",updateFromScroll)'));
 });
