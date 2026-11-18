@@ -46,7 +46,7 @@ const EXPLAIN={
  Step14:"Final source contradiction review",
 };
 const state={
- latest:null,archive:[],season:null,selectedDate:null,selectedLeg:null,
+ latest:null,archive:[],selectedDate:null,selectedLeg:null,
  gateFilter:"all",gateData:null,gateLoadError:null,requestId:0,flippedLeg:null,
 };
 const $=id=>document.getElementById(id);
@@ -173,16 +173,6 @@ function renderHeader(){
  setText("hero-sync",state.latest?.publishedAt?"Published "+etTime(state.latest.publishedAt):
     "Publication not available");
  const count=countSelected();
- // Display only grounded saved-source numbers, never inferred picks.
- const publicGames=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
- const qualified=publicGames.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
- const sourceStage=isLatest()&&publicGames.length?(
-   state.latest?.gameSurvivorDisplayProvenance?.sourceStage||
-   state.latest?.gameSurvivorDisplayStage||state.latest?.stage):null;
- setText("overview-core-count",count?String(count):"—");
- setText("overview-survivor-count",publicGames.length?
-   String(qualified)+" / "+String(publicGames.length):"—");
- setText("overview-source-phase",sourceStage||"—");
  setText("stat-legs",count?count+" / "+(count===2?"2":"3"):"—");
  setText("stat-phase",saved?s.phase:"AWAITING");
  const valid=state.gateData?.legs?.every(x=>x.masterPassed===x.totalMaster
@@ -489,132 +479,6 @@ function renderMatchups(){
    holder.appendChild(panel);
  }
 }
-function renderGrade(){
- const saved=selectedEntry(),holder=$("grade-summary");holder.replaceChildren();
- const grade=saved?.grade||(isLatest()?state.latest?.postgameGrade:null);
- if(!saved){
-   holder.appendChild(el("div","notice","Official grade is available only for a saved original Core card."));
-   return;
- }
- if(!grade||grade.cardId!==saved.cardId){
-   holder.appendChild(el("div","notice","Official grade not yet published for this locked Core."));
-   return;
- }
- const result=grade.result;
- if(!["WIN","LOSS"].includes(result)||typeof grade.hits!=="number"||
-    grade.legs!==saved.current_legs.length){
-   holder.appendChild(el("div","notice warning","The grade does not reconcile to the original card; no outcome is displayed."));
-   return;
- }
- const box=el("div","stat-card");
- box.appendChild(pill(result,statusClass(result)));
- box.appendChild(el("strong","",grade.hits+" / "+grade.legs));
- box.appendChild(el("p","","Official credited goal scorers · original card ID preserved"));
- holder.appendChild(box);
- const lines=el("div","grade-lines");
- for(const p of grade.playerResults||[]){
-   const d=el("div","grade-line");
-   d.appendChild(el("span","",p.player+" · "+p.goals+" goal"+(p.goals===1?"":"s")));
-   d.appendChild(pill(p.result,statusClass(p.result)));lines.appendChild(d);
- }
- holder.appendChild(lines);
- // Original saved recipient-vs-actual scorer audit, re-checked against
- // every official NHL goal in these three matchups. This is not a re-pick.
- const recipientReview=grade.postgameRecipientAudit||{};
- if(recipientReview.status==="OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON" &&
-    recipientReview.cardId===saved.cardId){
-   const auditBox=el("details","collapse");
-   const summary=el("summary","","Flip postgame scorer audit • who scored instead?");
-   auditBox.appendChild(summary);
-   const important=el("div","notice warning",
-     "Retrospective outcome comparison, NOT a new Core or proof that an alternative scorer could have been known with certainty before puck drop.");
-   auditBox.appendChild(important);
-   for(const game of recipientReview.selectedLegs||[]){
-     const g=el("article","match");
-     const top=el("div","match-head");
-     top.appendChild(el("strong","",game.lockedPlayer));
-     top.appendChild(pill(game.chosenGoals?"HIT":"MISS",
-                             game.chosenGoals?"success":"danger"));
-     g.appendChild(top);
-     g.appendChild(el("p","",game.matchup+" • "+game.lockedTeam+
-       " goals: "+game.sameAttackSideGoals+
-       " • Opposing goals: "+game.oppositeAttackSideGoals));
-     const scorers=el("div","grade-lines");
-     for(const rival of game.officialScorers||[]){
-       const row=el("div","grade-line");
-       const fact=el("div");
-       fact.appendChild(el("strong","",rival.player+" · "+rival.goals+
-         " goal"+(rival.goals===1?"":"s")));
-       fact.appendChild(el("p","tiny muted",
-         rival.team+" · "+(rival.pregameG105Verdict?
-            "Original G10.5: "+rival.pregameG105Verdict:
-            rival.reasonNotPregameG105Compared==="OPPOSITE_G0_ATTACK_SIDE"?
-             "Outside selected G0 attack direction":"Original saved scorer")));
-       row.appendChild(fact);
-       if(rival.pregameG105Verdict==="DEFEATED")row.appendChild(pill("G10.5 REVIEW","warning"));
-       scorers.appendChild(row);
-     }
-     g.appendChild(scorers);
-     if((game.auditFlags||[]).includes("ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF")){
-       g.appendChild(el("p","archive-note",
-         "Audit: The old G15 PASS repeated historical goal credit rather than independently proving the future finishing role. Future G15 has been corrected."));
-     }
-     if(game.bothGoalieDirectionsWereFullySourceReviewedBeforePuck===false){
-       g.appendChild(el("p","archive-note",
-         "Pregame G0 source gap: Both opposing goalie attack directions were NOT independently evidenced before puck drop. The saved result cannot establish that the Blender compared both goalies completely."));
-     }
-     const sources=el("div","source-links");
-     unique(game.officialSources||[]).map(u=>link(u,"Official NHL scoring record")).filter(Boolean)
-          .forEach(a=>sources.appendChild(a));
-     g.appendChild(sources);
-     auditBox.appendChild(g);
-   }
-   holder.appendChild(auditBox);
- }else if(recipientReview.status){
-   holder.appendChild(el("div","notice",
-     "Detailed scorer-versus-recipient audit: "+recipientReview.status.replace(/_/g," ")+
-     ". The frozen official card grade remains unchanged."));
- }
- const audits=grade.missAudits||[];
- const p=el("p","small muted","Miss audits saved: "+audits.length+
-    " · Verified future-only policy guards: "+(grade.patchesApplied?.length||0)+
-    ". An ordinary miss does not change the rules.");
- holder.appendChild(p);
- const sourceList=el("details","collapse");
- sourceList.appendChild(el("summary","","Official scoring receipts"));
- const sourceBox=el("div","source-links");
- unique(grade.officialSources||[]).map(u=>link(u)).filter(Boolean).forEach(a=>sourceBox.appendChild(a));
- sourceList.appendChild(sourceBox);holder.appendChild(sourceList);
-}
-function renderSeason(){
- const host=$("season-summary");host.replaceChildren();
- const history=state.season||{};
- if(!history.officiallyGradedSlates){
-   host.appendChild(el("div","notice","No verified season performance totals have been published yet. Grades and recalibration appear here after official final games."));
-   return;
- }
- const grid=el("div","system-grid");
- for(const [label,num] of [["Wins",history.wins],["Losses",history.losses],["Individual goals",history.legHits+" / "+history.legOpportunities]]){
-   const d=el("div","system-stat");
-   d.appendChild(el("strong","",num));d.appendChild(el("span","",label));grid.appendChild(d);
- }
- host.appendChild(grid);
- const month=el("details","collapse");
- month.appendChild(el("summary","","Monthly recalibration • real graded slates only"));
- for(const [period,summary] of Object.entries(history.monthlyThreeSlateCalibration||{})){
-   month.appendChild(el("p","",period+" · "+summary.gradedSlatesAvailable+
-    " officially graded · "+summary.sampleCount+" recalibration samples · "+
-    summary.wins+" WIN / "+summary.losses+" LOSS"));
- }
- host.appendChild(month);
- const patches=history.verifiedAutomaticGuardPatches||[];
- host.appendChild(el("div","notice",patches.length?
-   "Source-validated future-only gate guards: "+patches.join(", "):
-   "No verified gate-contradiction patches have been activated. Misses alone cannot activate a correction."));
- const raw=el("a","small","Read official season history");
- raw.href="./data/season-history.json";raw.rel="noopener noreferrer";raw.target="_blank";
- host.appendChild(raw);
-}
 function renderSystem(){
  const host=$("system-summary");host.replaceChildren();
  const x=isLatest()?state.latest||{}:{};
@@ -749,7 +613,7 @@ function renderCompleteGateDeck(){
 }
 function renderAll(){
  renderPicker();renderHeader();renderCards();
- renderPool();renderGrade();renderSeason();
+ renderPool();
 }
 async function loadEvidence(date){
  const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;
@@ -787,22 +651,20 @@ function chooseDate(date){
  url.searchParams.set("slate",date);
  window.history.replaceState(null,"",url);
 }
-function publishedSignature(latest,archived,season){
+function publishedSignature(latest,archived){
  return JSON.stringify({
    publishedAt:latest?.publishedAt,cardId:latest?.card?.cardId,
-   stage:latest?.stage,grade:latest?.postgameGrade?.result,
-   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
+   stage:latest?.stage,
+   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision]),
     perGame:(latest?.gameSurvivorPool||[]).map(g=>[g.gameId,g.status,g.survivor?.playerId]),
     savedOriginalGateEvidenceVerified:latest?.savedOriginalGateEvidenceVerified,
-   seasonSize:season?.officiallyGradedSlates,
-   patchCount:season?.verifiedAutomaticGuardPatches?.length,
  });
 }
 // Presentation-only section navigation. No changes to picks or evidence.
 function initWorkspaceNavigation(){
  const links=Array.from(document.querySelectorAll?.(".main-nav a[data-nav]")||[]);
  if(!links.length)return;
- const ids=["core","pool","results"];
+ const ids=["core","pool"];
  const activate=id=>{
    if(!ids.includes(id))return;
    for(const link of links){
@@ -844,13 +706,11 @@ async function boot(){
  initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
-   json("./data/latest.json"),json("./data/cards-archive.json"),
-   json("./data/season-history.json")
+   json("./data/latest.json"),json("./data/cards-archive.json")
  ]);
  state.latest=values[0].status==="fulfilled"?values[0].value:null;
  state.archive=values[1].status==="fulfilled"?
     (values[1].value.cards||[]).filter(x=>x.verified===true&&Array.isArray(x.current_legs)):[];
- state.season=values[2].status==="fulfilled"?values[2].value:null;
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
@@ -866,7 +726,7 @@ async function boot(){
  state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
  renderAll();
  await loadEvidence(state.selectedDate);
- latestPublishedSignature=publishedSignature(state.latest,state.archive,state.season);
+ latestPublishedSignature=publishedSignature(state.latest,state.archive);
 }
 document.addEventListener?.("keydown",event=>{
  if(event.key!=="Escape"||!state.flippedLeg)return;
@@ -886,22 +746,20 @@ async function pollPublishedResults(){
  if(document.hidden||!state.selectedDate)return;
  const fresh=await Promise.allSettled([
    json("./data/latest.json"),
-   json("./data/cards-archive.json"),
-   json("./data/season-history.json")
+   json("./data/cards-archive.json")
  ]);
  if(fresh[0].status!=="fulfilled"||fresh[1].status!=="fulfilled")return;
  const next=fresh[0].value;
  const archived=(fresh[1].value.cards||[]).filter(x=>
    x.verified===true&&Array.isArray(x.current_legs));
- const season=fresh[2].status==="fulfilled"?fresh[2].value:state.season;
- const fingerprint=publishedSignature(next,archived,season);
+ const fingerprint=publishedSignature(next,archived);
  if(latestPublishedSignature===null){
    latestPublishedSignature=fingerprint;
    return;
  }
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
- state.latest=next;state.archive=archived;state.season=season;
+ state.latest=next;state.archive=archived;
  // Keep the user's open archive date and selected recipient when possible.
  const days=unique([next.date,...archived.map(x=>x.date)]);
  if(!days.includes(state.selectedDate))
