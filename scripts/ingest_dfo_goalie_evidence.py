@@ -99,6 +99,7 @@ def main():
                         continue
                     status_text = goalie.get("status")
                     status = "CONFIRMED" if status_text == "Confirmed" else "EXPECTED"
+                    stage = "CONFIRMED" if status == "CONFIRMED" else "PROJECTED"
                     observed_at = report_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
                     payload = {
                         "goalieId": str(player_id), "team": team, "status": status,
@@ -116,7 +117,7 @@ def main():
                     }
                     item = {
                         "evidence_id": evidence_id(day, game_id, team, player_id, observed_at),
-                        "slate_date": day, "stage": status,
+                        "slate_date": day, "stage": stage,
                         "game_id": game_id, "player_id": str(player_id),
                         "kind": "GOALIE_STARTER", "source_url": page_url,
                         "observed_at": observed_at, "payload": payload
@@ -124,7 +125,7 @@ def main():
                     try:
                         was_new = record_evidence(con, item)
                         imported.append({"date": day, "gameId": game_id, "team": team,
-                                         "goalieId": str(player_id), "stage": status,
+                                         "goalieId": str(player_id), "stage": stage,
                                          "evidenceId": item["evidence_id"], "inserted": was_new})
                     except (ValueError, sqlite3.IntegrityError) as exc:
                         rejected.append({"date": day, "gameId": game_id, "team": team,
