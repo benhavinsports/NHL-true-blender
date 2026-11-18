@@ -80,7 +80,7 @@ def test_replay_input_database_rejects_existing_card_grade_patch_or_gate_state(t
             ("old-outcome-patch", "[]", "{}", "{}", "{}", cutoff.isoformat()),
         )
         with pytest.raises(ValueError, match="contaminated: patches"):
-            assert_database_as_of(db, cutoff)
+            assert_database_as_of(db, cutoff, '2026-11-17')
     finally:
         db.close()
 
@@ -95,7 +95,7 @@ def test_replay_input_database_rejects_future_and_non_pregame_evidence(tmp_path)
             "observed_at": (cutoff + timedelta(seconds=1)).isoformat(), "payload": {"fixture": True},
         })
         with pytest.raises(ValueError, match="post-cutoff"):
-            assert_database_as_of(db, cutoff)
+            assert_database_as_of(db, cutoff, '2026-11-17')
     finally:
         db.close()
 
@@ -107,7 +107,7 @@ def test_replay_input_database_rejects_future_and_non_pregame_evidence(tmp_path)
             "observed_at": (cutoff - timedelta(hours=1)).isoformat(), "payload": {"fixture": True},
         })
         with pytest.raises(ValueError, match="disallowed non-pregame"):
-            assert_database_as_of(db, cutoff)
+            assert_database_as_of(db, cutoff, '2026-11-17')
     finally:
         db.close()
 
