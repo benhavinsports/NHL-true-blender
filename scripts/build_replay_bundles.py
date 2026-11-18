@@ -130,59 +130,6 @@ def build_day(source, day, out):
     }
 
 
-async def official_schedule(start, end):
-    """Enumerate dates from the official NHL schedule feed.
-
-    Schedule retrieval is for slate/off-day classification only. It is never
-    inserted into the selector evidence database as player or matchup proof.
-    """
-    client = NHLClient()
-    semaphore = asyncio.Semaphore(8)
-
-    async def one(day):
-        async with semaphore:
-            try:
-                payload = await client.get(f"schedule/{day}")
-                week = payload["data"].get("gameWeek")
-                if not isinstance(week, list):
-                    raise RuntimeError("Official NHL schedule omitted gameWeek")
-                date_row = next((x for x in week if x.get("date") == day), None)
-                if date_row is None:
-                    raise RuntimeError(f"Official NHL schedule did not return requested date {day}")
-                games = date_row.get("games")
-                if not isinstance(games, list):
-                    raise RuntimeError(f"Official NHL schedule omitted games array for {day}")
-                return day, {
-                    "source": payload["url"],
-                    "downloadedAt": payload["observedAt"],
-                    "games": [{
-                        "gameId": str(g["id"]),
-                        "away": g["awayTeam"]["abbrev"],
-                        "home": g["homeTeam"]["abbrev"],
-                        "startTimeUTC": g["startTimeUTC"],
-                        "gameState": g.get("gameState"),
-                    } for g in games],
-                    "verifiedOffDay": len(games) == 0,
-                }
-            except Exception as exc:
-                # Do not turn an unavailable schedule response into an off day.
-                return day, {"errorType": type(exc).__name__, "error": str(exc),
-                             "verifiedOffDay": False, "games": None}
-
-    try:
-        days = [(start.fromordinal(start.toordinal() + offset)).isoformat()
-                for offset in range((end - start).days + 1)]
-        rows = await asyncio.gather(*(one(day) for day in days))
-        result = dict(rows)
-        failures = {day: row for day, row in result.items() if row.get("games") is None}
-        if failures:
-            raise RuntimeError("Official NHL schedule retrieval incomplete: " +
-                               json.dumps(failures, sort_keys=True))
-        return result
-    finally:
-        await client.close()
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", required=True)
@@ -196,21 +143,36 @@ def main():
     if not RAW_DB.is_file():
         raise SystemExit("Canonical database missing; restore state/true_blender.sqlite.gz first")
     args.output.mkdir(parents=True, exist_ok=True)
-    # Fetch the authoritative schedule calendar in this run. The restored
-    # evidence archive does not contain this separate schedule file.
     if not args.schedule.is_file():
-        calendar = asyncio.run(official_schedule(start, end))
-        args.schedule.parent.mkdir(parents=True, exist_ok=True)
-        args.schedule.write_text(json.dumps(calendar, indent=2), encoding="utf-8")
+        raise SystemExit("Official NHL schedule calendar is missing; fetch it before building replay bundles")
     official_calendar = json.loads(args.schedule.read_text(encoding="utf-8"))
     if official_calendar.get("start") != start.isoformat() or official_calendar.get("end") != end.isoformat():
         raise SystemExit("Official NHL schedule calendar date range does not match requested replay window")
-    scheduled_slates = {
-        row["date"]: {"gameCount": len(row.get("games") or []),
-                      "games": row.get("games") or []}
-        for row in official_calendar.get("scheduledSlates", [])
+    calendar_days = official_calendar.get("calendarDays")
+    if not isinstance(calendar_days, list):
+        raise SystemExit("Official NHL schedule calendar lacks calendarDays")
+    official_schedule = {
+        row["date"]: {
+            "source": row.get("officialSourceUrl"),
+            "downloadedAt": row.get("downloadedAt"),
+            "schedulePublicationTime": row.get("schedulePublicationTime"),
+            "games": row.get("games") or [],
+            "verifiedOffDay": not bool(row.get("games")),
+        }
+        for row in calendar_days
         if start.isoformat() <= row["date"] <= end.isoformat()
     }
+    if set(official_schedule) != {
+        (start.fromordinal(start.toordinal() + n)).isoformat()
+        for n in range((end-start).days + 1)
+    }:
+        raise SystemExit("Official NHL schedule calendar does not cover every requested calendar date")
+    scheduled_slates = {
+        day: {"gameCount": len(row["games"]), "games": row["games"]}
+        for day, row in official_schedule.items() if row["games"]
+    }
+    verified_off_days = sorted(
+        day for day, row in official_schedule.items() if row["verifiedOffDay"])
     source = sqlite3.connect(f"file:{RAW_DB.resolve()}?mode=ro", uri=True)
     source.row_factory = sqlite3.Row
     try:
@@ -224,6 +186,9 @@ def main():
         source.close()
     missing_scheduled = sorted(set(scheduled_slates) - set(slates))
     manifest = {"start": start.isoformat(), "end": end.isoformat(),
+                "officialSchedule": official_schedule,
+                "scheduledDates": sorted(scheduled_slates),
+                "verifiedOffDays": verified_off_days,
                 "scheduledSlates": scheduled_slates,
                 "slates": slates,
                 "archiveCoverage": {
@@ -240,6 +205,7 @@ def main():
     print(json.dumps({"manifest": str(path),
                       "scheduledSlateCount": len(scheduled_slates),
                       "scheduledGameCount": sum(x["gameCount"] for x in scheduled_slates.values()),
+                      "verifiedOffDays": verified_off_days,
                       "bundledDates": sorted(slates),
                       "missingScheduledDates": missing_scheduled}, indent=2))
 
