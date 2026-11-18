@@ -84,6 +84,87 @@ function section(area,label,body){
  row.appendChild(create("strong","scout-context-value",body));
  area.appendChild(row);
 }
+// Source-to-visual mapping. The illustrated areas are schematic categories,
+// NOT exact NHL EDGE event coordinates and never goalie anatomy.
+function normalizeZone(zone){
+ return String(zone||"").toLowerCase().replace(/[^a-z]/g,"").replace("centerpoint","point");
+}
+function rinkGraphic(origin){
+ const field=create("div","scout-rink-panel");
+ const header=create("div","scout-visual-label");
+ header.appendChild(create("span","","SHOT ORIGIN / SCHEMATIC"));
+ header.appendChild(create("span","scout-visual-index","G4 · G5"));
+ field.appendChild(header);
+ const rink=create("div","scout-rink-map");
+ rink.setAttribute("aria-label","Schematic rink origin map. Source lane: "+show(origin));
+ const rinkNet=create("span","scout-rink-net","GOAL");
+ rink.appendChild(rinkNet);
+ const zones=[
+  ["L POINT","lpoint"],["POINT","point"],["R POINT","rpoint"],
+  ["L CIRCLE","lcircle"],["HIGH SLOT","highslot"],["R CIRCLE","rcircle"],
+  ["","empty-l"],["LOW SLOT","lowslot"],["","empty-r"]
+ ];
+ const originKey=normalizeZone(origin);
+ let matched=false;
+ for(const [title,key] of zones){
+  const active=!!title&&originKey===key;
+  const marker=create("span","scout-rink-zone"+(active?" active":"")+
+    (!title?" is-empty":""),title);
+  if(active){matched=true;marker.setAttribute("aria-current","true");}
+  rink.appendChild(marker);
+ }
+ field.appendChild(rink);
+ const foot=create("div","scout-rink-foot");
+ foot.appendChild(create("span","",matched?"OBSERVED AREA":"AREA NOT PLOTTED"));
+ foot.appendChild(create("strong","",show(origin)));
+ field.appendChild(foot);
+ field.appendChild(create("p","scout-chart-disclaimer",
+   "Category diagram · not shot coordinates or goalie anatomy"));
+ return field;
+}
+function barPanel({attPer,peerPer,attempts,onNet,games,origin}){
+ const area=create("section","scout-pressure-card");
+ const header=create("div","scout-module-title");
+ header.appendChild(create("span","","OPPONENT DEFENSIVE COVERAGE"));
+ header.appendChild(create("span","scout-visual-index","G9"));
+ area.appendChild(header);
+ area.appendChild(create("p","scout-module-sub",
+   "Observed "+show(origin)+" shot-origin concessions · historical game sample"));
+ if(numbers(attPer)&&attPer>=0&&numbers(peerPer)&&peerPer>=0){
+  const max=Math.max(attPer,peerPer,1);
+  const makeRow=(label,value,kind)=>{
+   const row=create("div","scout-compare-row");
+   const rowTitle=create("div","scout-compare-head");
+   rowTitle.appendChild(create("span","",label));
+   rowTitle.appendChild(create("strong","",value.toFixed(2)+" / game"));
+   row.appendChild(rowTitle);
+   const track=create("div","scout-compare-track");
+   const fill=create("span","scout-compare-fill "+kind);
+   fill.style.width=(100*value/max).toFixed(1)+"%";
+   track.appendChild(fill);row.appendChild(track);area.appendChild(row);
+  };
+  makeRow("OPPONENT ATTEMPTS CONCEDED",attPer,"concession");
+  makeRow("OTHER-TEAM PEER MEDIAN",peerPer,"peer");
+ }else area.appendChild(create("div","scout-unreported","Comparable defense rates not available in the saved source"));
+ const footer=create("div","scout-pressure-footer");
+ footer.appendChild(create("strong","",numbers(attempts)?attempts+" attempts":"— attempts"));
+ footer.appendChild(create("strong","",numbers(onNet)?onNet+" on-net":"— on-net"));
+ footer.appendChild(create("span","",numbers(games)?games+" games reviewed":"Sample unreported"));
+ area.appendChild(footer);
+ area.appendChild(create("p","scout-chart-disclaimer",
+   "Observed defense concessions, not a prediction or a Blender ranking weight."));
+ return area;
+}
+function sideIntel(title,value,sub,ref){
+ const card=create("div","scout-intel-tile");
+ const heading=create("div","scout-intel-heading");
+ heading.appendChild(create("span","",title));
+ heading.appendChild(create("b","",ref));
+ card.appendChild(heading);
+ card.appendChild(create("strong","scout-intel-value",value));
+ card.appendChild(create("span","scout-intel-sub",sub));
+ return card;
+}
 function status(rec){
  if(!rec)return {ok:false,text:"NO SOURCE RECEIPT"};
  if(rec.status==="PASS"&&rec.prePuckRecord===true)return {ok:true,text:"SOURCE VERIFIED"};
@@ -99,14 +180,48 @@ const GROUPS=[
 function gateRows(area,receipts,gates,gateNames,facts){
  const byGate=new Map((receipts||[]).map(x=>[x.gate,x]));
  const heading=create("div","scout-section-heading");
- heading.appendChild(create("strong","","ORIGINAL G0–G18 EVIDENCE"));
- heading.appendChild(create("span","","20 decisions · original order"));
+ heading.appendChild(create("strong","","GATE EVIDENCE"));
+ heading.appendChild(create("span","","Original G0–G18 · 20 checkpoints"));
  area.appendChild(heading);
  if(!Array.isArray(receipts)||!receipts.length){
   area.appendChild(create("p","scout-missing",
     "Original gate receipts are unavailable in this saved feed. Missing evidence is never displayed as passed."));
   return;
  }
+ // A visual 20-gate board belongs ABOVE the receipts; no duplicated
+ // evidence and no synthetic verdict. Tap a chip to open its real record.
+ const gateIndex=create("nav","scout-gate-index");
+ gateIndex.setAttribute("aria-label","Jump to original gate evidence");
+ const gateTargets=new Map();
+ for(const group of GROUPS){
+  for(const gate of group.gates){
+   if(Array.isArray(gates)&&!gates.includes(gate))continue;
+   const rec=byGate.get(gate);
+   const verdict=status(rec);
+   const chip=create("button","scout-gate-chip "+(verdict.ok?"is-pass":"is-unresolved"),gate);
+   chip.type="button";
+   chip.setAttribute("aria-label",gate+" · "+(gateNames?.[gate]||"original gate")+
+      " · "+verdict.text);
+   const indicator=create("span","scout-chip-dot",verdict.ok?"✓":"·");
+   chip.appendChild(indicator);
+   chip.addEventListener("click",()=>{
+     const target=gateTargets.get(gate);
+     if(!target)return;
+     target.open=true;
+     target.scrollIntoView?.({behavior:"smooth",block:"nearest"});
+   });
+   gateIndex.appendChild(chip);
+  }
+ }
+ area.appendChild(gateIndex);
+ const gateCounts=create("div","scout-gate-summary-line");
+ const certified=GROUPS.flatMap(g=>g.gates).filter(g=>{
+   const rec=byGate.get(g);return status(rec).ok;
+ }).length;
+ gateCounts.appendChild(create("strong","",certified+" / 20"));
+ gateCounts.appendChild(create("span","",
+   "Source-verified original pre-puck gate receipts · tap a number to inspect"));
+ area.appendChild(gateCounts);
  for(const group of GROUPS){
   const groupBox=create("section","scout-gate-group");
   groupBox.appendChild(create("h4","",group.name));
@@ -118,6 +233,7 @@ function gateRows(area,receipts,gates,gateNames,facts){
    const detail=create("details","scout-gate flip-gate-row pool-gate-proof "+
        (verdict.ok?"verified":"unresolved"));
    detail.dataset.gate=gate;
+   gateTargets.set(gate,detail);
    const sum=create("summary","scout-gate-summary");
    sum.appendChild(create("span","scout-gate-key",gate));
    const textWrap=create("span","scout-gate-labels");
@@ -195,51 +311,98 @@ function report({
   body.appendChild(create("div","scout-missing",missingReason));
   report.appendChild(body);return report;
  }
- const head=create("div","scout-path-strip");
- head.appendChild(create("span","scout-path-type",String(path||"PATH NOT VERIFIED")));
- head.appendChild(create("strong","",useOrigin));
- head.appendChild(create("span","scout-path-caption","Historical rink shot origin · not a forecast"));
- body.appendChild(head);
- const kpis=create("div","scout-metrics");
- metric(kpis,"G0","OPPOSING GOALIE",useGoalie?"#"+useGoalie:"Not reported",useStatus);
- metric(kpis,"G4","CREDITED GOALS",numbers(useGoals)?useGoals:"—","In selected origin");
- metric(kpis,"G4","ON-NET SHOTS",numbers(useShots)?useShots:"—","Own shots in origin");
- metric(kpis,"G6","DEPLOYMENT",
-   [ev.EV||ev.line?"EV "+(ev.EV||ev.line):null,
-    ev.powerPlayUnit?"PP"+ev.powerPlayUnit:null].filter(Boolean).join(" / ")||"Not reported",
-   ev.status||"Source stage not reported");
- body.appendChild(kpis);
+ // LIVE PRODUCT LAYOUT, historical data only: an at-a-glance dossier instead
+ // of four generic boxes. Every graphic is linked to its original source.
+ const intro=create("div","scout-report-intro");
+ const eyebrow=create("div","scout-report-eyebrow");
+ eyebrow.appendChild(create("span","","01 / MATCHUP SCOUTING"));
+ eyebrow.appendChild(create("span","scout-stage-indicator",String(stage||"UNVERIFIED")+" SOURCE"));
+ intro.appendChild(eyebrow);
+ const headline=create("div","scout-report-headline");
+ headline.appendChild(create("strong","",show(useOrigin)));
+ headline.appendChild(create("span","",String(path||"PATH UNVERIFIED")));
+ intro.appendChild(headline);
+ intro.appendChild(create("p","scout-report-deck",
+   "Measured shooting origin versus opposing goalie and defensive coverage"));
+ body.appendChild(intro);
+ const visual=create("div","scout-visual-layout");
+ visual.appendChild(rinkGraphic(useOrigin));
+ const shot=create("section","scout-shot-panel");
+ const shotHeader=create("div","scout-module-title");
+ shotHeader.appendChild(create("span","","SHOOTER · RECORDED ORIGIN"));
+ shotHeader.appendChild(create("span","scout-visual-index","G4"));
+ shot.appendChild(shotHeader);
+ const highlight=create("div","scout-shot-number");
+ highlight.appendChild(create("strong","",numbers(useGoals)?useGoals:"—"));
+ highlight.appendChild(create("span","","/ "+(numbers(useShots)?useShots:"—")));
+ shot.appendChild(highlight);
+ shot.appendChild(create("p","scout-shot-caption",
+   "Credited goals / own on-net shots from this origin"));
  if(numbers(useGoals)&&numbers(useShots)&&useShots>0&&useGoals>=0&&useGoals<=useShots){
-  const row=create("div","scout-conversion");
-  const text=create("div","scout-conversion-label");
-  text.appendChild(create("span","","OBSERVED AREA GOALS / SHOTS"));
-  text.appendChild(create("strong","",useGoals+" / "+useShots));
-  row.appendChild(text);
-  const track=create("div","scout-conversion-track");
-  const fill=create("span","scout-conversion-fill");
-  fill.style.width=(100*useGoals/useShots).toFixed(2)+"%";
-  track.appendChild(fill);row.appendChild(track);
-  row.appendChild(create("p","",
-    "Historical recorded totals only. This bar does not predict a goal."));
-  body.appendChild(row);
+  const percent=100*useGoals/useShots;
+  const radial=create("div","scout-shot-ring");
+  radial.style.background="conic-gradient(#83d6c4 0% "+
+    percent.toFixed(2)+"%,#2a4355 "+percent.toFixed(2)+"% 100%)";
+  const center=create("div","scout-shot-ring-center");
+  center.appendChild(create("strong","",percent.toFixed(1)+"%"));
+  center.appendChild(create("span","","historical goal share"));
+  radial.appendChild(center);shot.appendChild(radial);
  }
- const context=create("div","scout-context");
- context.appendChild(create("h4","","MATCHUP INTELLIGENCE"));
- if(numbers(concede.attemptsAgainst)){
-  section(context,"DEFENSIVE COVERAGE",
-    concede.attemptsAgainst+" observed attempts · "+
-    (numbers(concede.onNetShotsAgainst)?concede.onNetShotsAgainst+" on-net · ":"")+
-    (numbers(concede.gameCount)?concede.gameCount+" games":"sample unreported"));
- }else section(context,"DEFENSIVE COVERAGE","Source-specific concession count not reported");
- const g105=byGate.get("G10.5");
- const g17=byGate.get("G17");
- if(g105)section(context,"RECIPIENT SEPARATION",
-   status(g105).ok?"Direct teammate routes reviewed":"Review not source-certified");
- if(g17)section(context,"CONTRADICTION CHECK",
-   status(g17).ok?"Recorded cross-source review complete":"Unresolved in saved evidence");
- if(g16Decision)section(context,"G16 · CROSS-GAME COMPETITION",
-   String(g16Decision).replace(/_/g," ").toLowerCase());
- body.appendChild(context);
+ shot.appendChild(create("p","scout-chart-disclaimer",
+   "Past credited goals per on-net shot. Never a prediction."));
+ visual.appendChild(shot);body.appendChild(visual);
+ const matchupDashboard=create("section","scout-dashboard-module");
+ const matchHead=create("div","scout-module-title");
+ matchHead.appendChild(create("span","","02 / GOALIE & DEPLOYMENT"));
+ matchHead.appendChild(create("span","scout-visual-index","G0 · G3 · G6"));
+ matchupDashboard.appendChild(matchHead);
+ const compare=create("div","scout-intel-grid");
+ const weak=goalie.weakZones?.[useOrigin]||fromGate("G3").goalieWeakZones?.[useOrigin]||{};
+ const goalieDetail=[
+    useStatus,
+    numbers(weak.goalsAgainst)&&numbers(weak.shotsAgainst)?
+      weak.goalsAgainst+" allowed / "+weak.shotsAgainst+" on-net in origin":null
+   ].filter(Boolean).join(" · ");
+ compare.appendChild(sideIntel("OPPOSING GOALIE",
+   useGoalie?"#"+useGoalie:"Not reported",goalieDetail,"G0"));
+ const deploymentSummary=[
+   ev.EV?"EV "+ev.EV:typeof ev.line==="number"?"Line "+ev.line:null,
+   ev.powerPlayUnit?"PP"+ev.powerPlayUnit:null
+ ].filter(Boolean).join(" · ");
+ compare.appendChild(sideIntel("SKATER DEPLOYMENT",
+   deploymentSummary||"Not reported",String(ev.status||"Source unreported"),"G6"));
+ matchupDashboard.appendChild(compare);
+ body.appendChild(matchupDashboard);
+ const attPer=numbers(concede.attemptsPerGame)?concede.attemptsPerGame:null;
+ const peerPer=numbers(concede.peerMedianAttemptsPerGame)?concede.peerMedianAttemptsPerGame:null;
+ body.appendChild(barPanel({
+   attPer,peerPer,attempts:concede.attemptsAgainst,
+   onNet:concede.onNetShotsAgainst,games:concede.gameCount,
+   origin:useOrigin
+ }));
+ const review=create("section","scout-review-section");
+ const revHeader=create("div","scout-module-title");
+ revHeader.appendChild(create("span","","03 / RECIPIENT & COMPETITION"));
+ revHeader.appendChild(create("span","scout-visual-index","G10.5 · G16 · G17"));
+ review.appendChild(revHeader);
+ const reviews=create("div","scout-review-grid");
+ const g105=byGate.get("G10.5"),g17=byGate.get("G17");
+ const compared=fromGate("G10.5").comparisonRows;
+ const separation=status(g105).ok;
+ reviews.appendChild(sideIntel("RECIPIENT REVIEW",
+   separation&&Array.isArray(compared)?String(compared.length)+" rival paths":
+     separation?"Source reviewed":"Unverified",
+   separation?"Teammate scoring lanes compared":"Original gate check needed","G10.5"));
+ const contradiction=status(g17).ok;
+ reviews.appendChild(sideIntel("CONTRADICTIONS",
+   contradiction?"Reviewed":"Unresolved",
+   contradiction?"Recorded counterevidence examined":"Saved verification unavailable","G17"));
+ const decision=String(g16Decision||fromGate("G18").G16FinalistDecision||"").replace(/_/g," ");
+ reviews.appendChild(sideIntel("CROSS-GAME",
+   decision?decision.charAt(0).toUpperCase()+decision.slice(1).toLowerCase():"Not reported",
+   "Original G16 competition result","G16"));
+ review.appendChild(reviews);
+ body.appendChild(review);
  gateRows(body,receipts,null,gateNames,facts);
  const raw=create("div","scout-global-sources");
  const links=urls(sources);
