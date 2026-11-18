@@ -182,7 +182,7 @@ function report({
  title.appendChild(create("span","scout-subtitle",
    [team,matchup,String(stage||"UNVERIFIED")+" SOURCE"].filter(Boolean).join(" · ")));
  header.appendChild(title);
- const dismiss=create("button","scout-dismiss","CLOSE ✕");
+ const dismiss=create("button","scout-dismiss pool-back-turn","CLOSE ✕");
  dismiss.type="button";dismiss.setAttribute("aria-label","Return to front of "+(player||matchup||"card"));
  if(typeof close==="function")dismiss.addEventListener("click",close);
  header.appendChild(dismiss);report.appendChild(header);
@@ -233,7 +233,7 @@ function report({
    status(g105).ok?"Direct teammate routes reviewed":"Review not source-certified");
  if(g17)section(context,"CONTRADICTION CHECK",
    status(g17).ok?"Recorded cross-source review complete":"Unresolved in saved evidence");
- if(g16Decision)section(context,"CROSS-GAME COMPETITION",
+ if(g16Decision)section(context,"G16 · CROSS-GAME COMPETITION",
    String(g16Decision).replace(/_/g," ").toLowerCase());
  body.appendChild(context);
  gateRows(body,receipts,null,gateNames,facts);
