@@ -131,35 +131,56 @@ def build_day(source, day, out):
 
 
 async def official_schedule(start, end):
-    """Enumerate every calendar date from the official NHL daily score/schedule feed.
+    """Enumerate dates from the official NHL schedule feed.
 
     Schedule retrieval is for slate/off-day classification only. It is never
     inserted into the selector evidence database as player or matchup proof.
     """
     client = NHLClient()
-    result = {}
+    semaphore = asyncio.Semaphore(8)
+
+    async def one(day):
+        async with semaphore:
+            try:
+                payload = await client.get(f"schedule/{day}")
+                week = payload["data"].get("gameWeek")
+                if not isinstance(week, list):
+                    raise RuntimeError("Official NHL schedule omitted gameWeek")
+                date_row = next((x for x in week if x.get("date") == day), None)
+                if date_row is None:
+                    raise RuntimeError(f"Official NHL schedule did not return requested date {day}")
+                games = date_row.get("games")
+                if not isinstance(games, list):
+                    raise RuntimeError(f"Official NHL schedule omitted games array for {day}")
+                return day, {
+                    "source": payload["url"],
+                    "downloadedAt": payload["observedAt"],
+                    "games": [{
+                        "gameId": str(g["id"]),
+                        "away": g["awayTeam"]["abbrev"],
+                        "home": g["homeTeam"]["abbrev"],
+                        "startTimeUTC": g["startTimeUTC"],
+                        "gameState": g.get("gameState"),
+                    } for g in games],
+                    "verifiedOffDay": len(games) == 0,
+                }
+            except Exception as exc:
+                # Do not turn an unavailable schedule response into an off day.
+                return day, {"errorType": type(exc).__name__, "error": str(exc),
+                             "verifiedOffDay": False, "games": None}
+
     try:
-        for offset in range((end - start).days + 1):
-            day = start.fromordinal(start.toordinal() + offset).isoformat()
-            payload = await client.score(day)
-            games = payload["data"].get("games")
-            if not isinstance(games, list):
-                raise RuntimeError(f"Official NHL schedule omitted games array for {day}")
-            result[day] = {
-                "source": payload["url"],
-                "downloadedAt": payload["observedAt"],
-                "games": [{
-                    "gameId": str(g["id"]),
-                    "away": g["awayTeam"]["abbrev"],
-                    "home": g["homeTeam"]["abbrev"],
-                    "startTimeUTC": g["startTimeUTC"],
-                    "gameState": g.get("gameState"),
-                } for g in games],
-                "verifiedOffDay": len(games) == 0,
-            }
+        days = [(start.fromordinal(start.toordinal() + offset)).isoformat()
+                for offset in range((end - start).days + 1)]
+        rows = await asyncio.gather(*(one(day) for day in days))
+        result = dict(rows)
+        failures = {day: row for day, row in result.items() if row.get("games") is None}
+        if failures:
+            raise RuntimeError("Official NHL schedule retrieval incomplete: " +
+                               json.dumps(failures, sort_keys=True))
+        return result
     finally:
         await client.close()
-    return result
 
 
 def main():
