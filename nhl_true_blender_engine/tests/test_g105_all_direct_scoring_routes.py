@@ -13,6 +13,9 @@ def players():
     rival["release"]["data"]["allRoutes"]=[
         {"zone":"circle","sog":18,"ownedGoals":5},
         {"zone":"slot","sog":4,"ownedGoals":0}]
+    rival["recentOrigin"]["data"]["zoneCounts"]["slot"]={
+        "shotsOnGoal":4,"ownedGoals":0,"sourceUrls":[
+            "https://example.org/official-verifiable-fixture-not-live/recent-origin/702/slot"]}
     return candidate,rival
 
 def test_higher_direct_recipient_in_other_independently_weak_lane_not_falsely_defeated():
