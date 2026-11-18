@@ -362,3 +362,64 @@ test("cards share real NHL photo IDs but no shared renderer changes the selected
  assert.ok(js.includes("NHLScouting.report({"));
  assert.ok(js.includes("corePhoto(leg)"));
 });
+
+
+test("visual scouting back plots only sourced historical shot origin and defense metrics",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("renderCards()",sandbox);
+ const first=elements["core-cards"].childNodes[0];
+ const back=descendants(first).find(n=>n.classList.contains("card-back"));
+ const orig=saved.legs[0];
+ const g4=orig.gateDetails.find(g=>g.gate==="G4").evidence.ownRelease;
+ const g9=orig.gateDetails.find(g=>g.gate==="G9").evidence.zoneConcessionEvidence;
+ const markers=descendants(back).filter(n=>n.classList.contains("scout-rink-zone"));
+ assert.equal(markers.length,9);
+ const active=markers.filter(n=>n.classList.contains("active"));
+ assert.equal(active.length,1);
+ assert.equal(active[0].textContent.replace(/\s+/g," ").toLowerCase(),
+   String(g4.zone).toLowerCase());
+ const labels=descendants(back).map(n=>n.textContent||"").join(" ");
+ assert.ok(labels.includes("OPPONENT DEFENSIVE COVERAGE"));
+ assert.ok(labels.includes(g9.attemptsAgainst+" attempts"));
+ assert.ok(labels.includes(g9.attemptsPerGame.toFixed(2)+" / game"));
+ assert.ok(labels.includes(g9.peerMedianAttemptsPerGame.toFixed(2)+" / game"));
+ assert.ok(labels.includes("Category diagram"));
+ assert.ok(labels.includes("Never a prediction"));
+ assert.ok(descendants(back).some(n=>n.classList.contains("scout-shot-ring")));
+ assert.ok(descendants(back).some(n=>n.classList.contains("scout-compare-fill concession")));
+ assert.ok(descendants(back).some(n=>n.classList.contains("scout-compare-fill peer")));
+});
+
+test("20 visual gate chips jump to actual recorded evidence without changing pass status",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("renderCards()",sandbox);
+ const back=descendants(elements["core-cards"].childNodes[0])
+   .find(n=>n.classList.contains("card-back"));
+ const chips=descendants(back).filter(n=>n.classList.contains("scout-gate-chip"));
+ const gates=descendants(back).filter(n=>n.classList.contains("scout-gate"));
+ assert.equal(chips.length,20);
+ assert.equal(gates.length,20);
+ assert.deepEqual(chips.map(n=>n.childNodes[0]),saved.legs[0].gateDetails.map(g=>g.gate));
+ const g105=chips.find(n=>n.childNodes[0]==="G10.5");
+ const target=gates.find(n=>n.dataset.gate==="G10.5");
+ assert.equal(target.open,undefined);
+ g105.listeners.click();
+ assert.equal(target.open,true);
+ const g17=chips.find(n=>n.childNodes[0]==="G17");
+ assert.ok(g17);
+ g17.listeners.click();
+ assert.equal(gates.find(n=>n.dataset.gate==="G17").open,true);
+ assert.equal(gates.filter(n=>n.classList.contains("unresolved")).length,0);
+});
+
+test("unverified input never produces a fabricated visual shot source or verified gate chip",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("state.gateData=null;renderCards()",sandbox);
+ const back=descendants(elements["core-cards"].childNodes[0])
+   .find(n=>n.classList.contains("card-back"));
+ assert.equal(descendants(back).filter(n=>n.classList.contains("scout-gate-chip is-pass")).length,0);
+ assert.equal(descendants(back).filter(n=>n.classList.contains("scout-gate")).length,0);
+ assert.equal(descendants(back).filter(n=>n.classList.contains("scout-shot-ring")).length,0);
+ const text=descendants(back).map(n=>n.textContent||"").join(" ");
+ assert.ok(text.includes("Original gate receipts are unavailable"));
+});
