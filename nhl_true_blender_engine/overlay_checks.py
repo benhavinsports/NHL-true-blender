@@ -175,7 +175,11 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'independentShotOriginConcessionsAvailable':bool(cov.get('zoneConcessions')),
           'cannotInferSpecificLaneFromTeamShiftSample':not bool(area_shifts),
           'cannotInferShiftMatchupsFromShotOrigins':not bool(area_shifts)},
-         sorted(set(src(coverage)+shift_urls)))
+         sorted(set(src(coverage)+shift_urls)),
+         # The original rule keeps missing shift-by-shift evidence as
+         # uncertainty. It is a modifier, never a veto over a separately
+         # evidenced shooter-to-goalie route.
+         neutral=not sourced_team_shift_review)
     recent=pres.get('recentAppearanceShots')
     # Step9: check the actual per-appearance pressure observation, not the
     # presence of a nonnegative list or any previously recorded G11 PASS.
