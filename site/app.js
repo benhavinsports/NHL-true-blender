@@ -351,6 +351,21 @@ function coreCard(leg,i){
    "Original gate decisions • actual recorded reasons and evidence");
  back.appendChild(note);
  const data=detailsData(leg);
+ const scoutFacts=el("div","scout-facts");
+ const recorded=data?.gateDetails||[];
+ const verifiedCount=recorded.filter(rec=>rec.status==="PASS"&&rec.prePuckRecord===true).length;
+ for(const [label,value] of [
+   ["MATCHUP",String(leg.matchup||"Unknown").replace("@"," @ ")],
+   ["OPPOSING GOALIE",String(leg.opposingGoalieId||"Not sourced")],
+   ["DIRECT SHOT ROUTE",String(leg.directRoute||"No verified origin").split("/").pop().trim()],
+   ["ORIGINAL GATE RECORD",recorded.length?verifiedCount+" / "+MASTER.length+" VERIFIED":"Not published"]]){
+   const field=el("div","scout-fact");
+   field.appendChild(el("span","",label));
+   field.appendChild(el("strong","",value));
+   scoutFacts.appendChild(field);
+ }
+ back.appendChild(scoutFacts);
+ back.appendChild(el("div","scout-section-heading","ORIGINAL G0–G18 / OPEN ANY GATE TO INSPECT SOURCES"));
  if(!data||!Array.isArray(data.gateDetails)){
    back.appendChild(el("p","flip-gate-unavailable",
      state.gateLoadError||"Loading source gate evidence. No gate is presumed passed."));
@@ -358,13 +373,15 @@ function coreCard(leg,i){
    const byGate=new Map(data.gateDetails.map(x=>[x.gate,x]));
    for(const gate of MASTER){
      const rec=byGate.get(gate)||{gate,status:"NO_PREPUCK_RECEIPT",prePuckRecord:false,evidence:{},sourceIds:[]};
-     const row=el("div","flip-gate-row "+(rec.status==="PASS"?"verified":"unresolved"));
+     const wasPassed=rec.status==="PASS"&&rec.prePuckRecord===true;
+     const row=el("details","flip-gate-row "+(wasPassed?"verified":"unresolved"));
      row.dataset.gate=gate;
-     const rowTop=el("div","flip-gate-title");
+     const rowTop=el("summary","flip-gate-title");
      rowTop.appendChild(el("strong","",gate+" · "+(EXPLAIN[gate]||"Original source check")));
-     rowTop.appendChild(el("span","",rec.status==="PASS"?"✓":"!"));
+     rowTop.appendChild(el("span","",wasPassed?"VERIFIED +":"REVIEW +"));
      row.appendChild(rowTop);
-     row.appendChild(el("p","",BlenderGateFacts.explanation(rec)));
+     const body=el("div","flip-gate-content");
+     body.appendChild(el("p","",BlenderGateFacts.explanation(rec)));
      const originalFunctions=(rec.evidence?.originalFunctionEvidence||[]);
      if(originalFunctions.length){
        const functions=el("div","flip-functions");
@@ -380,7 +397,7 @@ function coreCard(leg,i){
            facts.map(([k,v])=>k.replace(/([a-z])([A-Z])/g,"$1 $2")+": "+v).join(" · ")));
          functions.appendChild(functionRow);
        }
-       row.appendChild(functions);
+       body.appendChild(functions);
      }
      const sources=unique((rec.sourceIds||[]).filter(u=>typeof u==="string"&&u.startsWith("https://")));
      if(sources.length){
@@ -392,16 +409,18 @@ function coreCard(leg,i){
            sourceList.appendChild(a);
          }
        }
-       row.appendChild(sourceList);
+       body.appendChild(sourceList);
      }
+     row.appendChild(body);
      back.appendChild(row);
    }
  }
- back.appendChild(el("div","flip-back-end","TAP THE CARD TO TURN OVER · SCROLL FOR ALL ORIGINAL GATES"));
+ back.appendChild(el("div","flip-back-end","TAP ABOVE THE GATE LIST TO RETURN TO THE COLLECTOR FRONT"));
  inner.appendChild(back);
  button.appendChild(inner);
  button.addEventListener("click",event=>{
-   if(event?.target?.closest?.("a"))return;
+   // Expanding a gate or following its source must not flip the parent card.
+   if(event?.target?.closest?.("a, summary, details"))return;
    toggleCardFlip(key);
  });
  button.addEventListener("keydown",event=>{
