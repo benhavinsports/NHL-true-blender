@@ -10,6 +10,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Restore canonical SQLite archive
+        run: python scripts/ledger_persistence.py restore
+      - name: Inventory actual historical replay source coverage
+        run: python scripts/inspect_historical_archive.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
