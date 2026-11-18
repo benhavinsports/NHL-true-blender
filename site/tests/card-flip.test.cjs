@@ -494,7 +494,7 @@ test("saved slate remains source-backed without duplicate public statistics",()=
   sandbox);
  assert.ok(elements["hero-date"].textContent.includes("Nov"));
  const notice=descendants(elements["slate-notice"]).map(n=>n.textContent||"").join(" ");
- assert.ok(notice.includes("SAVED CORE")||notice.includes("PROJECTED")||notice.includes("SOURCE RECHECK OPEN"));
+ assert.ok(notice.includes("ARCHIVED")||notice.includes("SAVED CORE")||notice.includes("PROJECTED")||notice.includes("SOURCE RECHECK OPEN"));
  assert.ok(!fs.readFileSync(path.join(root,"site/index.html"),"utf8").includes('overview-core-count'));
  assert.ok(!fs.readFileSync(path.join(root,"site/index.html"),"utf8").includes('overview-survivor-count'));
 });
