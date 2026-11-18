@@ -99,14 +99,48 @@ const GROUPS=[
 function gateRows(area,receipts,gates,gateNames,facts){
  const byGate=new Map((receipts||[]).map(x=>[x.gate,x]));
  const heading=create("div","scout-section-heading");
- heading.appendChild(create("strong","","ORIGINAL G0–G18 EVIDENCE"));
- heading.appendChild(create("span","","20 decisions · original order"));
+ heading.appendChild(create("strong","","GATE EVIDENCE"));
+ heading.appendChild(create("span","","Original G0–G18 · 20 checkpoints"));
  area.appendChild(heading);
  if(!Array.isArray(receipts)||!receipts.length){
   area.appendChild(create("p","scout-missing",
     "Original gate receipts are unavailable in this saved feed. Missing evidence is never displayed as passed."));
   return;
  }
+ // A visual 20-gate board belongs ABOVE the receipts; no duplicated
+ // evidence and no synthetic verdict. Tap a chip to open its real record.
+ const gateIndex=create("nav","scout-gate-index");
+ gateIndex.setAttribute("aria-label","Jump to original gate evidence");
+ const gateTargets=new Map();
+ for(const group of GROUPS){
+  for(const gate of group.gates){
+   if(Array.isArray(gates)&&!gates.includes(gate))continue;
+   const rec=byGate.get(gate);
+   const verdict=status(rec);
+   const chip=create("button","scout-gate-chip "+(verdict.ok?"is-pass":"is-unresolved"),gate);
+   chip.type="button";
+   chip.setAttribute("aria-label",gate+" · "+(gateNames?.[gate]||"original gate")+
+      " · "+verdict.text);
+   const indicator=create("span","scout-chip-dot",verdict.ok?"✓":"·");
+   chip.appendChild(indicator);
+   chip.addEventListener("click",()=>{
+     const target=gateTargets.get(gate);
+     if(!target)return;
+     target.open=true;
+     target.scrollIntoView?.({behavior:"smooth",block:"nearest"});
+   });
+   gateIndex.appendChild(chip);
+  }
+ }
+ area.appendChild(gateIndex);
+ const gateCounts=create("div","scout-gate-summary-line");
+ const certified=GROUPS.flatMap(g=>g.gates).filter(g=>{
+   const rec=byGate.get(g);return status(rec).ok;
+ }).length;
+ gateCounts.appendChild(create("strong","",certified+" / 20"));
+ gateCounts.appendChild(create("span","",
+   "Source-verified original pre-puck gate receipts · tap a number to inspect"));
+ area.appendChild(gateCounts);
  for(const group of GROUPS){
   const groupBox=create("section","scout-gate-group");
   groupBox.appendChild(create("h4","",group.name));
@@ -118,6 +152,7 @@ function gateRows(area,receipts,gates,gateNames,facts){
    const detail=create("details","scout-gate flip-gate-row pool-gate-proof "+
        (verdict.ok?"verified":"unresolved"));
    detail.dataset.gate=gate;
+   gateTargets.set(gate,detail);
    const sum=create("summary","scout-gate-summary");
    sum.appendChild(create("span","scout-gate-key",gate));
    const textWrap=create("span","scout-gate-labels");
