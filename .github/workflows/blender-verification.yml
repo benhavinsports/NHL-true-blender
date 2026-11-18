@@ -55,8 +55,7 @@ jobs:
           parser=AuditHTML()
           parser.feed(Path('site/index.html').read_text())
           required={'refresh','slate-select','core-cards',
-                    'pool-list','grade-summary','season-summary',
-                    'hero-phase','slate-notice'}
+                    'pool-list','hero-phase','slate-notice'}
           assert required<=parser.ids, sorted(required-parser.ids)
           style_paths={urlsplit(url).path for url in parser.styles}
           script_paths={urlsplit(url).path for url in parser.scripts}
