@@ -311,7 +311,7 @@ def test_official_recipient_conflicts_force_gate_replay_without_automatic_patch(
     result=adjudicate_misses(con,DATE,recipient_audit=recipient_audit)
     decision=result["decisions"][0]
     assert decision["status"]=="PREGAME_GATE_REPLAY_REQUIRED"
-    assert decision["recipientAuditReview"]["reviewTargets"]==["G10.5","G0"]
+    assert decision["recipientAuditReview"]["reviewTargets"]==["G0","G10.5"]
     assert decision["recipientAuditReview"]["officialScorersMarkedDefeated"][0]["playerId"]=="999"
     assert decision["outcomeWasNotUsedAsPatchProof"] is True
     assert result["activated"]==[]
