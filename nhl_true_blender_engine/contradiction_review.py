@@ -83,7 +83,7 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                     [x for x in teammates if str(x["id"])!=str(p["id"]) and
                      x.get("availability") not in ("OUT","SCRATCHED","INJURED")],
                     branches[0]["data"].get("weakZones",{}) if len(branches)==1 else {},
-                    g9_green)
+                    g9_green,stage=stage)
                 lineup_available=bool(dep and dep.get("EV") and
                         dep.get("status") in ("PROJECTED","CONFIRMED"))
                 known_contradiction=any(b["observedStrongerArea"]
