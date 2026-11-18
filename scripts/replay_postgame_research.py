@@ -27,6 +27,16 @@ def _approx_zones(event):
     ))))
 
 
+def _display_name(value, fallback=None):
+    if isinstance(value, dict):
+        value = value.get("default") or value.get("fullName") or value.get("name")
+    if isinstance(value, str) and value.strip():
+        return value
+    if isinstance(fallback, dict):
+        fallback = fallback.get("default") or fallback.get("fullName")
+    return fallback if isinstance(fallback, str) else None
+
+
 def _roster_names(snapshot):
     names = {}
     teams = {}
