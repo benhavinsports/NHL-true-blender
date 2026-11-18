@@ -150,14 +150,27 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
             if p["goals"]!=counts.get(pid,0):
                 raise SourceUnavailable("Official PBP/boxscore disagreement on "+game_id+" "+pid)
         chosen=str(leg["playerId"])
-        if chosen not in observed:
-            raise SourceUnavailable("Locked scorer absent from official boxscore "+game_id+" "+chosen)
-        chosen_team=observed[chosen]["team"]
+        # A frozen scorer may be scratched and therefore absent from the
+        # dressed-player boxscore. That is a valid official zero only when
+        # NHL play-by-play also contains no credited goal for that player.
+        # Use the original pre-puck G0 attacker to retain attack-side context;
+        # never infer a team from the postgame score or substitute a scorer.
         g0=gate_reader(leg,"G0")
         g10=gate_reader(leg,"G10")
         g105=gate_reader(leg,"G10.5")
         g15=gate_reader(leg,"G15")
         g17=gate_reader(leg,"G17")
+        if chosen in observed:
+            chosen_team=observed[chosen]["team"]
+            selected_participation="DRESSED_IN_OFFICIAL_BOXSCORE"
+        else:
+            if int(counts.get(chosen,0)) != 0:
+                raise SourceUnavailable("Locked scorer absent from official boxscore but credited in PBP "+game_id+" "+chosen)
+            attacker=((g0 or {}).get("evidence") or {}).get("attacker")
+            if attacker not in (game["away"],game["home"]):
+                raise SourceUnavailable("Scratched locked scorer lacks original G0 attack-team proof "+game_id+" "+chosen)
+            chosen_team=attacker
+            selected_participation="SCRATCHED_OR_NOT_DRESSED_OFFICIAL_ZERO"
         lookup={}
         if g105 is not None:
             for row in g105["evidence"].get("comparisonRows") or []:
@@ -206,7 +219,7 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
                     else None),
                 "notProofPregameDecisionWasCausallyWrong":True,
             })
-        selected_goals=observed[chosen]["goals"]
+        selected_goals=int(observed[chosen]["goals"]) if chosen in observed else 0
         own_team_goals=sum(x["goals"] for x in observed.values() if x["team"]==chosen_team)
         other_team_goals=sum(x["goals"] for x in observed.values() if x["team"]!=chosen_team)
         false_feeder_claim=bool(g10 and
@@ -235,7 +248,7 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
             "lockedPath":leg["path"],
             "lockedTeam":chosen_team,
             "originalOpponentGoalieId":leg.get("opposingGoalieId"),
-            "chosenGoals":selected_goals,
+            "chosenGoals":selected_goals,\n            "lockedPlayerParticipation":selected_participation,
             "sameAttackSideGoals":own_team_goals,
             "oppositeAttackSideGoals":other_team_goals,
             "officialScorers":scorers,
