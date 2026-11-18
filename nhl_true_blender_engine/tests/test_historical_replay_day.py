@@ -79,7 +79,7 @@ def test_replay_day_issues_and_certifies_real_engine_card_with_wall_clock_after_
      ("run","2026-11-17","PROJECTED","2026-11-17T09:00:00+00:00",None,"COMPLETE","{}")),
     ("cards", "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?)",
      ("2026-11-17","card","[]","[]","PROJECTED","fingerprint",1,"2026-11-17T10:00:00+00:00","2026-11-17T10:00:00+00:00",None)),
-    ("card_versions", "INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?,?)",
+    ("card_versions", "INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)",
      ("version","2026-11-17","card",1,"PROJECTED","fingerprint","[]","{}","2026-11-17T10:00:00+00:00")),
     ("grades", "INSERT INTO grades VALUES (?,?,?,?,?,?,?)",
      ("card","2026-11-17","LOSS","[]","[]","[]","2026-11-18T00:00:00+00:00")),
