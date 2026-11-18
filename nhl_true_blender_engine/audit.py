@@ -73,7 +73,7 @@ def _issued_gate_receipts(con, date, card, leg):
     }
 
 
-def audit_misses(con, date):
+def audit_misses(con, date, recipient_audit=None):
     configure_audit_table(con)
     card = get_card(con, date)
     if not card or not card["grade"]:
@@ -83,6 +83,10 @@ def audit_misses(con, date):
         return []
     original = {(str(leg["gameId"]), str(leg["playerId"])): leg
                 for leg in card["current_legs"]}
+    from .postgame_recalibration import (
+        _verified_recipient_audit, _recipient_review_signals)
+    recipient_rows = _verified_recipient_audit(
+        card, date, None, recipient_audit)
     result = []
     for outcome in json.loads(grade["legs"]):
         if outcome["result"] == "HIT":
@@ -97,9 +101,15 @@ def audit_misses(con, date):
                            if row["disposition"] != "PASS"), key=lambda gate: GATE_INDEX[gate])
         earliest = sorted(set(absent + failures), key=lambda gate: GATE_INDEX[gate])
         earliest = earliest[0] if earliest else None
-        # Missing historical receipts are audit gaps, not proof the player
-        # failed the original scoring path. Nor do they justify patching it.
-        conclusion = ("ORIGINAL_LOCK_GATE_RECEIPTS_UNVERIFIED" if earliest else
+        # Official recipient anomalies trigger a source replay of the named
+        # original gates. They are NOT themselves proof of a pregame defect and
+        # never activate a patch or substitute the eventual scorer.
+        recipient_item=(recipient_rows or {}).get((game_id,pid))
+        review_signal=_recipient_review_signals(recipient_item)
+        if review_signal:
+            earliest=review_signal["reviewTargets"][0]
+        conclusion = ("PREGAME_GATE_REPLAY_REQUIRED" if review_signal else
+                      "ORIGINAL_LOCK_GATE_RECEIPTS_UNVERIFIED" if earliest else
                       "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT")
         patches = []  # Outcome or missing records alone cannot activate a patch.
         detail = {
@@ -110,6 +120,7 @@ def audit_misses(con, date):
             "nonpassingOriginalGateRows": failures,
             "firstUnverifiedGate": earliest,
             "officialGoalCount": int(outcome["goals"]),
+            "recipientAuditReview": review_signal,
             "provenPatchApplication": False,
             "futurePatchRequiresIndependentPregameSourceContradiction": True,
         }
@@ -135,6 +146,8 @@ def audit_misses(con, date):
             "player": outcome["player"], "gameId": game_id,
             "earliestGate": earliest, "patchesToAudit": patches,
             "conclusion": conclusion, "auditStage": scope["stage"],
+            "reviewTargets": review_signal["reviewTargets"] if review_signal else [],
+            "recipientAuditReview": review_signal,
             "originalLockReceiptCount": len(rows),
         })
     return result
