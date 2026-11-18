@@ -178,11 +178,20 @@ async def official_final_grade(client, con, slate_date):
         if not official_player_counts:
             raise SourceUnavailable('NHL boxscore skater goal totals unavailable for '+gid)
         player_id=str(leg['playerId'])
+        # NHL boxscores list dressed skaters only. A frozen scorer who was
+        # scratched will therefore be absent from playerByGameStats. Official
+        # PBP is the authoritative credited-goal event ledger: absence from
+        # the boxscore is a valid zero ONLY when PBP also records zero goals.
+        # If PBP credits a goal to an absent boxscore player, fail closed.
+        credited_from_pbp=int(counts.get(player_id,0))
         if player_id not in official_player_counts:
-            raise SourceUnavailable('NHL boxscore did not confirm frozen player participation '+player_id)
-        credited=int(official_player_counts[player_id])
-        if counts.get(player_id,0)!=credited:
-            raise SourceUnavailable('NHL PBP and official boxscore goal credit disagree '+gid+' / '+player_id)
+            if credited_from_pbp != 0:
+                raise SourceUnavailable('NHL PBP credited frozen player absent from official boxscore '+gid+' / '+player_id)
+            credited=0
+        else:
+            credited=int(official_player_counts[player_id])
+            if credited_from_pbp!=credited:
+                raise SourceUnavailable('NHL PBP and official boxscore goal credit disagree '+gid+' / '+player_id)
         verified[(gid,player_id)]=credited
         sources.extend([pbp['url'],box['url']])
     return {'grade':grade_frozen_card(con,slate_date,verified,sources,True),
