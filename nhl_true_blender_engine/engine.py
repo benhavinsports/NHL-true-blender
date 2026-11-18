@@ -1089,31 +1089,49 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          source_ids=sorted(set(x['sourceUrl'] for x in
              (ownership, season_history if verified_season_goals else None)
              if receipt(x))))
-    # G10.5/G16 compare against MEANINGFUL challengers only. A teammate
-    # already ELIMINATED before G10.5 cannot own a route (G18 never reopens
-    # eliminated candidates). An unresolved teammate is still compared but
-    # cannot eliminate; it can only keep the decision NOT_EXECUTED.
-    rivals=[x for x in live_teammates if str(x['id'])!=str(player['id']) and
+    # G10.5 must retain a comparison record for EVERY available same-team
+    # direct challenger. Earlier-gate eliminations remain final and cannot
+    # displace the current candidate; however, hiding those comparisons made
+    # "all alternatives scanned" falsely describe a filtered pool as complete.
+    # Run the decision comparison on the original live pool, then separately
+    # research prior-eliminated teammates for transparent comparison-only rows.
+    rivals=[x for x in teammates if str(x['id'])!=str(player['id']) and
+            x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
+    decision_rivals=[x for x in live_teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     # Use the actual G9 coverage finding and G4 shooter release, only now.
-    wins,rows=challenger_proof(player,rivals,weak,
-        (coverage_data or {}).get('greenWeakZones'))
-    # A same-route rival whose OWN direct evidence is strictly stronger owns
-    # the route: that is a genuine G10.5 recipient-separation loss, not an
-    # unresolved source gap. Unresolved rows (missing rival source, exact
-    # ties) remain NOT_EXECUTED so research continues instead of a fake loss.
-    route_owned_by=sorted(str(r['challengerId']) for r in rows
+    green=(coverage_data or {}).get('greenWeakZones')
+    wins,decision_rows=challenger_proof(player,decision_rivals,weak,green)
+    _,all_rows=challenger_proof(player,rivals,weak,green)
+    decision_ids={str(x['id']) for x in decision_rivals}
+    rows=[]
+    for row in all_rows:
+        item=dict(row)
+        rid=str(item.get('challengerId'))
+        if rid not in decision_ids:
+            item['comparisonOnlyPriorGateEliminated']=True
+            item['priorGateDisposition']=stopped.get(rid)
+            item['canDisplaceAtG10_5']=False
+        else:
+            item['comparisonOnlyPriorGateEliminated']=False
+            item['canDisplaceAtG10_5']=True
+        rows.append(item)
+    # Only a same-route rival who passed G0-G10 can own the route here.
+    # Missing evidence and exact ties remain unresolved, never fabricated.
+    route_owned_by=sorted(str(r['challengerId']) for r in decision_rows
                           if r.get('status')=='RIVAL_DOMINATES'
                           and str(r['challengerId']) not in unresolved_before)
-    unresolved_dominators=sorted(str(r['challengerId']) for r in rows
+    unresolved_dominators=sorted(str(r['challengerId']) for r in decision_rows
                           if r.get('status')=='RIVAL_DOMINATES'
                           and str(r['challengerId']) in unresolved_before)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
+          'decisionAlternativesScanned':len(decision_rows)==len(decision_rivals),
+          'priorGateEliminationsRemainFinal':True,
           'noGuessTransfer':True,
           'challengersStoppedBeforeG10_5':{k:v for k,v in sorted(stopped.items())
                                            if k!=str(player['id'])} or None,
-          'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
+          'eliminatedChallengersExcludedFromDisplacement':sorted(eliminated_before-{str(player['id']}) or None,
           'unresolvedChallengersCannotEliminate':unresolved_dominators or None,
           'routeOwnedByStrongerRival':route_owned_by or None},
          eliminate=bool(route_owned_by),
