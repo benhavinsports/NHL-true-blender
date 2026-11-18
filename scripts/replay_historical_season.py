@@ -31,29 +31,94 @@ def verified_bytes(root, path, digest):
     return data
 
 
-def assert_database_as_of(con, cutoff):
-    """Reject a bundle whose persisted receipts contain post-cutoff knowledge."""
-    # Replay storage must be evidence-only. Existing selections, grades,
-    # gate receipts, or activated patches are prohibited inputs.
+def _event_dates(kind, payload):
+    """Return explicit historical event dates, excluding slate/schedule as-of labels."""
+    if kind == "GAME_SCHEDULE":
+        return []
+    found = set()
+    if kind == "MATCH_CONTEXT":
+        for key in ("awayLastGameDate", "homeLastGameDate"):
+            value = payload.get(key)
+            if isinstance(value, str):
+                found.add(value[:10])
+        return sorted(found)
+    ignored = {
+        "slateDate", "currentDate", "nextDate", "prevDate",
+        "publishedAsOfSlateDate", "historicalSampleAsOf",
+    }
+    event_keys = {
+        "date", "gameDate", "eventDate", "lastGameDate",
+        "awayLastGameDate", "homeLastGameDate",
+    }
+    def walk(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key not in ignored and key in event_keys and isinstance(item, str):
+                    candidate = item[:10]
+                    try:
+                        datetime.fromisoformat(candidate)
+                    except ValueError:
+                        pass
+                    else:
+                        found.add(candidate)
+                walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+    walk(payload)
+    return sorted(found)
+
+
+def assert_database_as_of(con, cutoff, slate_date):
+    """Reject contaminated receipts and audit explicit event dates in SQLite payloads."""
     for table in ("gates", "gate_history", "jobs", "cards", "card_versions",
                   "grades", "patches", "watch_events"):
         count = con.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
         if count:
             raise ValueError(f"Replay database is contaminated: {table} contains {count} pre-existing row(s)")
-    rows = con.execute("SELECT evidence_id, observed_at, stage FROM evidence").fetchall()
+    rows = con.execute(
+        "SELECT evidence_id, observed_at, stage, kind, payload FROM evidence"
+    ).fetchall()
     future = []
+    dated_kinds = {}
+    undated_kinds = {}
     for row in rows:
         try:
-            observed = timestamp(row['observed_at'])
+            observed = timestamp(row["observed_at"])
         except (TypeError, ValueError, AttributeError):
-            raise ValueError('Evidence database contains an invalid or timezone-free observation timestamp')
+            raise ValueError("Evidence database contains an invalid or timezone-free observation timestamp")
         if observed > cutoff:
-            future.append(row['evidence_id'])
-        if row['stage'] not in ("OFFICIAL", "PROJECTED", "CONFIRMED"):
+            future.append(row["evidence_id"])
+        if row["stage"] not in ("OFFICIAL", "PROJECTED", "CONFIRMED"):
             raise ValueError(f"Replay database contains disallowed non-pregame evidence stage: {row['stage']}")
+        try:
+            payload = json.loads(row["payload"])
+        except (TypeError, ValueError):
+            raise ValueError(f"Evidence payload is invalid JSON: {row['evidence_id']}")
+        dates = _event_dates(row["kind"], payload)
+        if dates:
+            dated_kinds[row["kind"]] = dated_kinds.get(row["kind"], 0) + 1
+            invalid = [d for d in dates if d >= slate_date]
+            if invalid:
+                raise ValueError(
+                    f"Evidence contains same-day/future event dates for {row['kind']} "
+                    f"{row['evidence_id']}: {invalid[:5]}")
+        else:
+            undated_kinds[row["kind"]] = undated_kinds.get(row["kind"], 0) + 1
     if future:
-        raise ValueError(f'Evidence database is contaminated by {len(future)} post-cutoff receipt(s): {future[:10]}')
-
+        raise ValueError(
+            f"Evidence database is contaminated by {len(future)} post-cutoff receipt(s): {future[:10]}")
+    return {
+        "isolatedEvidenceDatabase": True,
+        "preExistingCardsGradesGatesAndPatches": False,
+        "collectorObservedAtAtOrBeforeCutoff": True,
+        "knownHistoricalEventDatesStrictlyBeforeSlate": True,
+        "datedEventReceiptCountsByKind": dated_kinds,
+        "receiptsWithoutExplicitUnderlyingEventDatesByKind": undated_kinds,
+        "providerInternalAsOfTimeIndependentlyVerified": False,
+        "status": "PARTIAL_PROVIDER_ASOF_NOT_EXPOSED",
+        "limitation": "Collector observation time is known; provider publication/as-of time is not exposed for every source payload.",
+    }
 
 def replay_day(root, day, default_stage, bundle):
     stage = bundle.get('stage', default_stage)
@@ -61,9 +126,12 @@ def replay_day(root, day, default_stage, bundle):
         raise ValueError('Each replay bundle requires PROJECTED or CONFIRMED stage')
     cutoff = timestamp(bundle['cutoff'])
     inputs = bundle['inputs']
-    if not inputs or any(not row['source'] or timestamp(row['availableAt']) > cutoff
-                         for row in inputs):
-        raise ValueError('Missing source inventory or evidence after cutoff')
+    if not inputs or any(
+        not row.get('source') or
+        timestamp(row.get('collectorObservedAtEarliest') or row.get('availableAt')) > cutoff
+        for row in inputs
+    ):
+        raise ValueError('Missing source inventory or collector observation after cutoff')
     snapshot = json.loads(verified_bytes(root, bundle['snapshot'], bundle['snapshotSha256']))
     games = snapshot['games']
     if not games:
@@ -84,7 +152,7 @@ def replay_day(root, day, default_stage, bundle):
         db.write_bytes(evidence)
         con = open_db(str(db))
         try:
-            assert_database_as_of(con, cutoff)
+            point_in_time_audit = assert_database_as_of(con, cutoff, day)
             result = execute(con, snapshot, day, stage, now=cutoff)
             return {'date': day, 'status': 'REPLAYED', 'cutoff': bundle['cutoff'],
                     'stage': stage, 'inputInventory': inputs,
@@ -96,7 +164,9 @@ def replay_day(root, day, default_stage, bundle):
                     'firstNonpassingGateAudit': first_gate_audit(con, day, stage),
                     'gateDiagnostics': explain_live_blockers(con, day, stage),
                     'historicalClockAppliedToEngineAndPersistence': True,
-                    'databasePointInTimeVerified': True}
+                    'databaseObservedAtCutoffVerified': True,
+                    'databasePointInTimeVerified': False,
+                    'pointInTimeAudit': point_in_time_audit}
         finally:
             con.close()
 
