@@ -431,25 +431,39 @@ def independently_dated_origin_route(player,zone):
             "notAnNhlEdgeAreaPolygon":True}
 
 
-def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None):
-    """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
+def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None, stage='PROJECTED'):
+    """Compare every live same-lane recipient without allowing one evidence
+    family to erase conflicting direct-route, role/access, or recent evidence.
 
-    NHL EDGE independently measures each skater's shots on goal and own goals
-    in each area. Requiring every competitor's separate prior-game goal log
-    would discard a real same-lane threat merely because that player hasn't
-    scored in the sampled last-eight games; the rival's observed season zone
-    data remains valid challenger evidence.
-
-    G10.5 compares DIRECT credited goals from the exact same target area
-    before shot volume (which is supporting pressure, not a scored goal).
-    This is categorical, source-linked separation with NO ranking weights;
-    equal own-goal counts are compared on observed SOG, and equal results
-    remain unresolved. All teammates and alternative routes remain audited.
+    The pre-existing direct-goal/SOG comparison remains categorical and
+    unweighted. A candidate defeats a challenger only when (1) both have
+    independently verified recipient and deployment/access evidence and
+    (2) their dated recent own-origin comparison agrees with the season
+    origin comparison. Conflicting or missing evidence stays unresolved.
     """
     base=player_releases(candidate)
     rows=[]; all_defeated=True
     if not base:
         return None,[]
+
+    def role_access(person):
+        dep=person.get('deployment')
+        data=evidence_data(dep) if receipt(dep) else None
+        valid=bool(data and data.get('EV') and
+                   data.get('status') in (
+                       ('CONFIRMED',) if stage=='CONFIRMED'
+                       else ('PROJECTED','CONFIRMED')))
+        return valid,data
+
+    def direct_recipient(person):
+        wrapper=person.get('finishOwnership')
+        data=evidence_data(wrapper) if receipt(wrapper) else None
+        return bool(data and data.get('recipient') is True and
+                    data.get('creditedGoalsVerified') is True),data
+
+    candidate_role_ok,candidate_role=role_access(candidate)
+    candidate_recipient_ok,candidate_recipient=direct_recipient(candidate)
+
     for rival in challengers:
         if str(rival['id'])==str(candidate['id']):
             continue
@@ -470,11 +484,6 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 zdata.get('verifiedNoSameLaneOnNetRoute') is True and
                 zdata.get('observedOnNetShotsAcrossAllReportedOrigins')==0 and
                 zdata.get('ownedGoalsAcrossAllReportedOrigins')==0):
-                # All roster teammates were scanned. This official EDGE
-                # season-zero player has NO evidenced direct scoring
-                # shots in the candidate's specific rink lane, not a
-                # phantom comparison rival. Do not claim he cannot score
-                # for the first time tonight or fabricate a G4 route.
                 rows.append({'challengerId':str(rival['id']),
                              'status':'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE',
                              'sourceUrls':[zero['sourceUrl']],
@@ -493,13 +502,11 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'status':'RELEASE_PROVENANCE_MISSING'})
             all_defeated=False
             continue
-        # A rival does not become a defeated goal recipient merely because
-        # its best scoring route differs from this candidate's route. G0 can
-        # identify MULTIPLE independently weak areas for the same goalie.
-        # G10.5 must compare the rival's strongest actually recorded OWN
-        # finishing route through ANY jointly viable G0+G9 area.
-        # Earlier code ignored goalie_weak_zones entirely and compared only
-        # the candidate's lane, falsely defeating other direct recipients.
+        # A rival does not become defeated merely because its best scoring
+        # route differs from this candidate's route. G0 can identify multiple
+        # independently weak areas for the same goalie. G10.5 compares the
+        # rival's strongest actually recorded OWN route through any jointly
+        # viable G0+G9 area.
         all_routes=release.get('allRoutes') or []
         if not all_routes and release.get('zone'):
             all_routes=[{'zone':release['zone'],'sog':release.get('attempts'),
@@ -524,9 +531,29 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'notEvidenceRivalCannotScoreTonight':True,
                          'sourceUrls':[wrapper['sourceUrl']]})
             continue
-        # Own direct goal credit first; on-net shots break only goal ties.
-        # Routes with exactly matching evidence do not require an arbitrary
-        # choice to compare THIS rival with the candidate.
+
+        # Deployment/access and independently verified goal-recipient role
+        # are part of the original challenger decision, not decorative fields.
+        rival_role_ok,rival_role=role_access(rival)
+        rival_recipient_ok,rival_recipient=direct_recipient(rival)
+        if not (candidate_role_ok and rival_role_ok and
+                candidate_recipient_ok and rival_recipient_ok):
+            all_defeated=False
+            rows.append({
+                'challengerId':str(rival['id']),
+                'status':'UNRESOLVED_ROLE_OR_RECIPIENT_EVIDENCE',
+                'candidateRoleAccess':candidate_role,
+                'challengerRoleAccess':rival_role,
+                'candidateRecipientEvidence':candidate_recipient,
+                'challengerRecipientEvidence':rival_recipient,
+                'roleReviewIncomplete':True,
+                'noMissingRolePromotedToDefeated':True,
+                'sourceUrls':[wrapper['sourceUrl']] +
+                    ([rival['deployment']['sourceUrl']] if receipt(rival.get('deployment')) else []) +
+                    ([rival['finishOwnership']['sourceUrl']] if receipt(rival.get('finishOwnership')) else []),
+            })
+            continue
+
         priority=lambda x:(x['ownedGoals'],x.get('sog',x.get('attempts')))
         target=max(viable,key=priority)
         tied_zones=sorted({x['zone'] for x in viable if priority(x)==priority(target)})
@@ -540,65 +567,89 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'sourceUrl':wrapper['sourceUrl']})
             all_defeated=False
             continue
-        # G10.5 is DIRECT RECIPIENT separation, not a requirement for a
-        # scorer to lead every teammate in BOTH shots and goals. A skater
-        # with 7 actual goals on this lane is not disproved by a teammate
-        # with 6 actual goals and more harmless on-net shots.
-        # Compare OWN credited goals first; use SOG only if the OWN goal
-        # counts are equal. No fame/PP status/odds or numeric weights.
+
         candidate_direct=(base['ownedGoals'],base['attempts'])
         rival_direct=(opponent_goals,opponent_shots)
-        dominates=candidate_direct>rival_direct
-        defeated_by=rival_direct>candidate_direct
-        recent_tie_proof=None
-        if candidate_direct==rival_direct:
-            # A season NHL EDGE tie is not permission to choose chalk or
-            # arbitrarily move G10.5. Research BOTH players' independent,
-            # dated, directly credited NHL PBP shots from their own routes.
-            # Positive evidence must exist for BOTH, using the same source
-            # method. Missing/identical observations stay unresolved.
-            own_recent=independently_dated_origin_route(candidate,base["zone"])
-            rival_recent=independently_dated_origin_route(rival,target["zone"])
-            if own_recent and rival_recent:
-                pair_a=(own_recent["ownedGoals"],own_recent["shotsOnGoal"])
-                pair_b=(rival_recent["ownedGoals"],rival_recent["shotsOnGoal"])
-                recent_tie_proof={
-                    "method":"INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN",
-                    "own":own_recent,"rival":rival_recent,
-                    "sameRecentSampleMethod":True,
-                    "seasonGoalAndShotTieReviewed":True,
-                    "notAnatomicalPlacement":True}
-                if pair_a!=pair_b:
-                    dominates=pair_a>pair_b
-                    defeated_by=pair_b>pair_a
-        if not dominates:
+        season_direction=(candidate_direct>rival_direct)-(candidate_direct<rival_direct)
+
+        # The November 8 recipient patch requires recent-form evidence to be
+        # carried into G10.5, not consulted only when season totals tie.
+        # Both players must use the same official dated PBP origin method.
+        own_recent=independently_dated_origin_route(candidate,base['zone'])
+        rival_recent=independently_dated_origin_route(rival,target['zone'])
+        if not (own_recent and rival_recent):
             all_defeated=False
+            rows.append({
+                'challengerId':str(rival['id']),
+                'status':'UNRESOLVED_RECENT_DIRECT_ROUTE_EVIDENCE',
+                'candidate':{'zone':base['zone'],'shotsOnGoal':base['attempts'],
+                             'ownedGoals':base['ownedGoals']},
+                'challenger':{'zone':target['zone'],'shotsOnGoal':opponent_shots,
+                              'ownedGoals':opponent_goals},
+                'roleReviewIncomplete':False,
+                'recentRouteReviewIncomplete':True,
+                'candidateRecentRoute':own_recent,
+                'challengerRecentRoute':rival_recent,
+                'sourceUrls':sorted(set(
+                    [candidate['release']['sourceUrl'],wrapper['sourceUrl']] +
+                    ([candidate['recentOrigin']['sourceUrl']] if receipt(candidate.get('recentOrigin')) else []) +
+                    ([rival['recentOrigin']['sourceUrl']] if receipt(rival.get('recentOrigin')) else []))),
+            })
+            continue
+
+        recent_candidate=(own_recent['ownedGoals'],own_recent['shotsOnGoal'])
+        recent_rival=(rival_recent['ownedGoals'],rival_recent['shotsOnGoal'])
+        recent_direction=(recent_candidate>recent_rival)-(recent_candidate<recent_rival)
+
+        # No raw season total may overrule a contradictory recent direct route.
+        # Agreement across both source scopes is required; ties/conflicts remain
+        # unresolved rather than being settled by a new weight or tiebreak.
+        if season_direction==0 or recent_direction==0 or season_direction!=recent_direction:
+            status='NO_DECISIVE_ROUTE_SEPARATION'
+            dominates=False
+            defeated_by=False
+            all_defeated=False
+        else:
+            dominates=season_direction>0 and recent_direction>0
+            defeated_by=season_direction<0 and recent_direction<0
+            status='DEFEATED' if dominates else 'RIVAL_DOMINATES'
+            if not dominates:
+                all_defeated=False
+
         rows.append({
             'challengerId':str(rival['id']),
-            'status':'DEFEATED' if dominates else
-                     'RIVAL_DOMINATES' if defeated_by else
-                     'NO_DECISIVE_ROUTE_SEPARATION',
+            'status':status,
             'candidate':{'zone':base['zone'],'shotsOnGoal':base['attempts'],
                          'ownedGoals':base['ownedGoals']},
             'challenger':{'zone':target['zone'],'shotsOnGoal':opponent_shots,
                           'ownedGoals':opponent_goals},
             'sourceUrls':sorted(set(
-                [candidate['release']['sourceUrl'],wrapper['sourceUrl']] +
-                (recent_tie_proof['own']['sourceUrls']+
-                 recent_tie_proof['rival']['sourceUrls']
-                 if recent_tie_proof else []))),
-            'independentRecentTieReview':recent_tie_proof,
+                [candidate['release']['sourceUrl'],wrapper['sourceUrl'],
+                 candidate['recentOrigin']['sourceUrl'],rival['recentOrigin']['sourceUrl'],
+                 candidate['deployment']['sourceUrl'],rival['deployment']['sourceUrl'],
+                 candidate['finishOwnership']['sourceUrl'],rival['finishOwnership']['sourceUrl']])),
+            'independentRecentTieReview':{
+                'method':'INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN',
+                'own':own_recent,'rival':rival_recent,
+                'sameRecentSampleMethod':True,
+                'seasonAndRecentEvidenceAgree':season_direction==recent_direction,
+                'seasonGoalAndShotEvidence':{'candidate':candidate_direct,'challenger':rival_direct},
+                'recentGoalAndShotEvidence':{'candidate':recent_candidate,'challenger':recent_rival},
+                'notAnatomicalPlacement':True},
             'sameLane':target['zone']==base['zone'],
             'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
             'allRivalJointlyViableZones':sorted({x['zone'] for x in viable}),
             'jointlyViableRouteTiedZones':tied_zones,
             'goalieWeaknessAndDefenseBothRequired':defensive_areas is not None,
-            'rivalEVRole':evidence_data(rival.get('deployment')),
-            'roleReviewIncomplete':not receipt(rival.get('deployment')),
+            'candidateRoleAccess':candidate_role,
+            'rivalEVRole':rival_role,
+            'roleReviewIncomplete':False,
+            'candidateRecipientEvidence':candidate_recipient,
+            'rivalRecipientEvidence':rival_recipient,
             'noSeasonTotalInvented':True,
             'comparisonPriority':['ownedGoalsFromSameShotOrigin','onNetShotPressureOnlyWhenGoalsEqual'],
             'noFameOddsOrPPShortcut':True,
-            'rule':'direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights',
+            'rule':'season direct own-goal/SOG and recent dated own-goal/SOG evidence must agree; no combined weights',
         })
     return all_defeated,rows
 
