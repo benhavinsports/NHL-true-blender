@@ -4,7 +4,18 @@ SRC="https://api-web.nhle.com/v1/edge/skater-shot-location-detail/"
 def p(pid,zone,shots,goals,additional=None):
     areas=[{"zone":zone,"sog":shots,"ownedGoals":goals}]
     areas.extend(additional or [])
+    recent={row["zone"]:{"shotsOnGoal":row["sog"],"ownedGoals":row["ownedGoals"],
+             "sourceUrls":[SRC+str(pid)+"/recent/"+row["zone"]]} for row in areas}
     return {"id":str(pid),"name":"Fixture "+str(pid),"availability":"PROJECTED_ACTIVE",
+            "deployment":{"sourceUrl":SRC+str(pid)+"/deployment","observedAt":"2026-11-15T12:00:00Z",
+                          "data":{"EV":"EV2","status":"PROJECTED"}},
+            "finishOwnership":{"sourceUrl":SRC+str(pid)+"/finish","observedAt":"2026-11-15T12:00:00Z",
+                               "data":{"recipient":goals>0,"creditedGoalsVerified":True}},
+            "recentOrigin":{"sourceUrl":SRC+str(pid)+"/recent","observedAt":"2026-11-15T12:00:00Z",
+                "data":{"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+                        "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+                        "rinkBinsApproximateNotNhlEdgePolygons":True,
+                        "historicalOwnGoalCreditOnly":True,"zoneCounts":recent}},
             "release":{"sourceUrl":SRC+str(pid)+"/now",
                        "observedAt":"2026-11-15T12:00:00Z",
                        "data":{"archetype":"OBSERVED_OWN_SHOT_ORIGIN",
@@ -64,5 +75,5 @@ def test_all_meaningful_challengers_have_explicit_outcomes():
     favorite=p(1,"Low Slot",30,6)
     rivals=[p(2,"High Slot",31,7),p(3,"Low Slot",9,0)]
     yes,rows=challenger_proof(favorite,rivals,{"Low Slot":{}})
-    assert yes and len(rows)==2
-    assert [x["status"] for x in rows]==["DIFFERENT_TARGET_LANE","DEFEATED"]
+    assert yes is False and len(rows)==2
+    assert [x["status"] for x in rows]==["DIFFERENT_TARGET_LANE","UNRESOLVED_ROLE_OR_RECIPIENT_EVIDENCE"]
