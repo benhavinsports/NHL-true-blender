@@ -45,12 +45,36 @@ jobs:
       - name: Fetch official NHL schedule from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         env:
           PYTHONPATH: .
-        run: python scripts/fetch_official_slate_calendar.py --start ${{ inputs.start_date }} --end ${{ inputs.end_date }} --output state/replay/official_schedule.json
-      - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date }} through ${{ inputs.end_date }}
+        run: python scripts/fetch_official_slate_calendar.py --start ${{ inputs.start_date || '2026-09-29' }} --end ${{ inputs.end_date || '2026-11-17' }} --output state/replay/official_schedule.json
+      - name: Create preliminary official-schedule manifest for historical collectors
+        env:
+          PYTHONPATH: .
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path("state/replay/official_schedule.json").read_text())
+          days=sorted(x["date"] for x in c.get("calendarDays",[]) if x.get("games"))
+          Path("state/replay/collector-manifest.json").write_text(json.dumps({
+              "start":c["start"],"end":c["end"],"scheduledDates":days,
+              "officialSchedule":{x["date"]:x for x in c["calendarDays"]}
+          },indent=2))
+          PY
+      - name: Inventory dated Daily Faceoff goalie reports for every scheduled date
+        id: dfo_archive
+        continue-on-error: true
+        run: python scripts/inventory_dfo_historical_goalies.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json
+      - name: Ingest validated historical goalie evidence into canonical Blender ledger
+        id: dfo_ingestion
+        if: steps.dfo_archive.outcome == 'success'
+        env:
+          PYTHONPATH: .
+        run: python scripts/ingest_dfo_goalie_evidence.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json
+      - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         id: build_bundles
         env:
           PYTHONPATH: .
-        run: python scripts/build_replay_bundles.py --start ${{ inputs.start_date }} --end ${{ inputs.end_date }} --output state/replay
+        run: python scripts/build_replay_bundles.py --start ${{ inputs.start_date || '2026-09-29' }} --end ${{ inputs.end_date || '2026-11-17' }} --output state/replay
       - name: Prepare pre-G0 baseline engine package without changing this branch
         run: |
           mkdir -p /tmp/blender-baseline/nhl_true_blender_engine /tmp/blender-baseline/scripts
@@ -58,10 +82,6 @@ jobs:
           git show dd3bf67:nhl_true_blender_engine/engine.py > /tmp/blender-baseline/nhl_true_blender_engine/engine.py
           cp scripts/replay_historical_season.py /tmp/blender-baseline/scripts/
           cp scripts/replay_postgame_grade.py /tmp/blender-baseline/scripts/
-      - name: Inventory dated Daily Faceoff goalie reports for every scheduled date
-        id: dfo_archive
-        continue-on-error: true
-        run: python scripts/inventory_dfo_historical_goalies.py state/replay/manifest.json state/replay/dfo-goalie-archive.json
       - name: Probe 5V5 Hockey dated pregame forward-line archive
         id: historical_lines
         continue-on-error: true
@@ -73,7 +93,7 @@ jobs:
           from pathlib import Path
           source=Path("state/replay/manifest.json")
           manifest=json.loads(source.read_text())
-          start,end="${{ inputs.start_date }}","2026-10-05"
+          start,end="${{ inputs.start_date || '2026-09-29' }}","2026-10-05"
           subset={**manifest,"start":start,"end":end}
           subset["officialSchedule"]={k:v for k,v in manifest["officialSchedule"].items() if start<=k<=end}
           subset["slates"]={k:v for k,v in manifest["slates"].items() if start<=k<=end}
@@ -88,7 +108,7 @@ jobs:
           PYTHONPATH: .
         run: |
           python scripts/replay_historical_season.py state/replay/opening-week-manifest.json state/replay/opening-week-selections.jsonl --grades state/replay/opening-week-grades.jsonl
-      - name: Replay full ${{ inputs.start_date }} through ${{ inputs.end_date }} period and grade frozen selections
+      - name: Replay full ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }} period and grade frozen selections
         id: full_period
         continue-on-error: true
         env:
@@ -161,7 +181,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: historical-replay-${{ inputs.start_date }}-through-${{ inputs.end_date }}
+          name: historical-replay-${{ inputs.start_date || '2026-09-29' }}-through-${{ inputs.end_date || '2026-11-17' }}
           path: state/replay/
           if-no-files-found: error
       - name: Run full engine regression suite
