@@ -301,8 +301,77 @@ def _audit_original_gate_proof(con, slate_date, card, leg, root):
         return original
     return _stored_pregame_gate_proof(con,slate_date,leg)
 
-def adjudicate_misses(con, slate_date, root=None):
-    """Commit deterministic, source-auditable decisions for the original misses."""
+def _verified_recipient_audit(card, slate_date, root, supplied):
+    """Return only the official scorer comparison tied to this exact frozen card."""
+    if supplied is None and root is not None:
+        from pathlib import Path
+        path=Path(root)/"site_runs"/f"{slate_date}-recipient-audit.json"
+        try:
+            supplied=json.loads(path.read_text(encoding="utf-8"))
+        except (OSError,ValueError):
+            supplied=None
+    if not isinstance(supplied,dict):
+        return None
+    expected={(str(x["gameId"]),str(x["playerId"])) for x in card["current_legs"]}
+    rows=supplied.get("selectedLegs") or []
+    actual={(str(x.get("gameId")),str(x.get("lockedPlayerId"))) for x in rows}
+    urls=supplied.get("officialSourceUrls") or []
+    if (supplied.get("status")!="OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON"
+            or supplied.get("cardId")!=card["card_id"]
+            or supplied.get("originalFingerprint")!=card["fingerprint"]
+            or supplied.get("originalRevision")!=card["revision"]
+            or actual!=expected or len(rows)!=len(expected)
+            or not urls or not all(isinstance(x,str) and x.startswith(OFFICIAL) for x in urls)):
+        return None
+    return {(str(x["gameId"]),str(x["lockedPlayerId"])):x for x in rows}
+
+
+def _recipient_review_signals(item):
+    """Translate postgame anomalies into review targets, never automatic picks or patches."""
+    if not isinstance(item,dict):
+        return None
+    flags=set(item.get("auditFlags") or [])
+    targets=[]
+    scorer_rows=[]
+    if "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY" in flags:
+        targets.append("G10.5")
+        scorer_rows=[{
+            "player":x.get("player"),"playerId":x.get("playerId"),
+            "goals":x.get("goals"),"pregameG105Verdict":x.get("pregameG105Verdict"),
+            "pregameG105ChallengerEvidence":x.get("pregameG105ChallengerEvidence"),
+            "reasonNotPregameG105Compared":x.get("reasonNotPregameG105Compared")
+        } for x in item.get("officialScorers",[])
+          if x.get("sameAttackDirectionAsCore") is True
+          and x.get("goals",0)>0
+          and x.get("pregameG105Verdict")=="DEFEATED"]
+    if ("OPPOSITE_G0_DIRECTION_SCORED_MORE_POSTGAME_ONLY" in flags or
+            "OPPOSING_G0_ATTACK_DIRECTION_NOT_COMPLETELY_SOURCE_REVIEWED" in flags):
+        targets.append("G0")
+    if "ORIGINAL_G10_FUTURE_FEEDER_ROLE_WAS_OVERCLAIMED" in flags:
+        targets.append("G10")
+    if "ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF" in flags:
+        targets.append("G15")
+    if not targets:
+        return None
+    return {
+        "status":"PREGAME_GATE_REPLAY_REQUIRED",
+        "reviewTargets":list(dict.fromkeys(targets)),
+        "postgameSignals":sorted(flags),
+        "lockedPlayer":item.get("lockedPlayer"),
+        "lockedPlayerId":item.get("lockedPlayerId"),
+        "sameAttackSideGoals":item.get("sameAttackSideGoals"),
+        "oppositeAttackSideGoals":item.get("oppositeAttackSideGoals"),
+        "officialScorersMarkedDefeated":scorer_rows,
+        "pregameBothG0Directions":item.get("pregameBothG0Directions"),
+        "prePuckGateReceipts":item.get("prePuckGateReceipts"),
+        "postgameOutcomesAreReviewTriggersNotPregameProof":True,
+        "doesNotSelectOrRecommendAnAlternative":True,
+        "doesNotActivateAPatchByItself":True
+    }
+
+
+def adjudicate_misses(con, slate_date, root=None, recipient_audit=None):
+    """Commit source-auditable miss decisions and preserve unresolved replay signals."""
     setup(con)
     card=get_card(con,slate_date)
     if not card or not card.get("grade"):
@@ -318,6 +387,7 @@ def adjudicate_misses(con, slate_date, root=None):
         raise ValueError("Cannot adjudicate patches without official NHL scoring evidence")
     legs={ (str(l["gameId"]),str(l["playerId"])):l for l in card["current_legs"] }
     outcomes=json.loads(graded["legs"])
+    recipient_rows=_verified_recipient_audit(card,slate_date,root,recipient_audit)
     decisions=[];activated=[]
     for outcome in outcomes:
         if outcome["result"]!="MISS":
@@ -331,6 +401,8 @@ def adjudicate_misses(con, slate_date, root=None):
         # diagnostic as the only available pre-puck evidence.
         by_gate,gate_provenance=_audit_original_gate_proof(
             con,slate_date,card,leg,root)
+        recipient_item=(recipient_rows or {}).get((game_id,pid))
+        review_signal=_recipient_review_signals(recipient_item)
         applicable=[]
         for gate,patch_id in GUARD_POLICIES.items():
             row=by_gate.get(gate)
@@ -344,19 +416,27 @@ def adjudicate_misses(con, slate_date, root=None):
                 continue
             applicable.append((gate,patch_id,defect,sources,row["stage"]))
         if not applicable:
+            review_required=bool(review_signal)
             note={"cardId":card["card_id"],"slateDate":slate_date,
                   "gameId":game_id,"playerId":pid,
-                  "status":"NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT",
+                  "status":("PREGAME_GATE_REPLAY_REQUIRED" if review_required
+                            else "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"),
                   "outcome":"MISS","officialGoals":outcome["goals"],
                   "codeAutomaticallyChanged":False,
                   "gateAuditProvenance":gate_provenance,
-                  "reason":"A scoreless game alone is not contradictory pregame gate evidence.",
+                  "reason":("Official scorer comparison exposed a contradiction signal; "
+                            "the original gate evidence must be replayed before ruling "
+                            "out a defect." if review_required else
+                            "No source-backed pregame contradiction was established."),
+                  "recipientAuditReview":review_signal,
+                  "outcomeWasNotUsedAsPatchProof":True,
                   "officialSources":official_sources}
             decisions.append(note)
             with transaction(con):
                 con.execute("""INSERT OR IGNORE INTO postgame_patch_decisions VALUES
                     (?,?,?,?,?,?,?,?)""",(slate_date,card["card_id"],game_id,pid,
-                    "NONE","NO_PATCH_WARRANTED",encode(note),stamp()))
+                    "NONE","REVIEW_REQUIRED" if review_required else "NO_PATCH_WARRANTED",
+                    encode(note),stamp()))
         for gate,patch_id,defect,sources,phase in applicable:
             decision={"cardId":card["card_id"],"slateDate":slate_date,
                 "gameId":game_id,"playerId":pid,"gate":gate,
@@ -365,6 +445,7 @@ def adjudicate_misses(con, slate_date, root=None):
                 "gateAuditProvenance":gate_provenance,
                 "frozenPregameStage":phase,
                 "provedPreGameDecisionContradiction":defect,
+                "recipientAuditReview":review_signal,
                 "outcomeWasNotUsedAsPatchProof":True,
                 "futureOnly":True,"cardFingerprintUnchanged":card["fingerprint"],
                 "noRetrospectiveScorerOverride":True}
