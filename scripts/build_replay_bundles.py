@@ -1,7 +1,7 @@
 """Rebuild point-in-time replay bundles from the canonical evidence ledger.
 
-Only dates with a saved original card, complete engine job, official schedule,
-and pre-cutoff source receipts are bundled. Missing dates are never fabricated.
+Only dates with a completed engine job, official schedule, and pre-cutoff source
+receipts are bundled. An original card is not required. Missing dates are never fabricated.
 """
 from __future__ import annotations
 import argparse
@@ -23,6 +23,38 @@ RAW_DB = Path("state/true_blender.sqlite")
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _date_inventory(payload, kind):
+    """Extract only dated historical observations; do not confuse schedule dates with events."""
+    dates = set()
+    as_of = set()
+    def walk(value, key=None):
+        if isinstance(value, dict):
+            for k, v in value.items():
+                if isinstance(v, str) and len(v) >= 10:
+                    if k in ("asOf", "asOfDate", "historicalSampleAsOf", "publishedAsOfSlateDate",
+                             "lastUpdated", "updatedAt", "publishedAt"):
+                        as_of.add(v)
+                    elif k in ("date", "gameDate", "eventDate", "lastGameDate",
+                               "awayLastGameDate", "homeLastGameDate"):
+                        dates.add(v[:10])
+                walk(v, k)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item, key)
+    if kind not in ("GAME_SCHEDULE",):
+        walk(payload)
+    if kind == "MATCH_CONTEXT":
+        dates = set()
+        for key in ("awayLastGameDate", "homeLastGameDate"):
+            value = payload.get(key)
+            if isinstance(value, str):
+                dates.add(value[:10])
+    # These fields describe the slate/provider's as-of label, not an event
+    # occurring on the slate date.
+    dates = {x for x in dates if x}
+    return sorted(dates), sorted(as_of)
 
 
 def build_day(source, day, out):
@@ -108,25 +140,47 @@ def build_day(source, day, out):
     compressed_path.write_bytes(gzip.compress(db_bytes, compresslevel=6, mtime=0))
     evidence_path.unlink()
 
-    inputs = [{"kind": row["kind"], "source": row["source_url"],
-               "availableAt": row["availableAt"]}
-              for row in source.execute(
-                  f"SELECT kind, source_url, MIN(observed_at) AS availableAt "
-                  f"FROM evidence WHERE slate_date=? AND stage IN ({placeholders}) "
-                  "GROUP BY kind, source_url ORDER BY kind, source_url",
-                  (day, *allowed)).fetchall()
-              if row["source_url"] and row["availableAt"] and
-              datetime.fromisoformat(row["availableAt"].replace("Z", "+00:00")) <= cutoff_dt]
-    # The inventory above is intentionally conservative: it lists every
-    # source family/URL represented by the filtered ledger, while the DB hash
-    # commits to every individual immutable receipt.
+    grouped = {}
+    for row in rows:
+        key = (row["kind"], row["source_url"])
+        item = grouped.setdefault(key, {
+            "kind": row["kind"], "source": row["source_url"],
+            "collectorObservedAtEarliest": row["observed_at"],
+            "collectorObservedAtLatest": row["observed_at"],
+            "receiptCount": 0, "underlyingEventDates": set(),
+            "providerAsOfLabels": set(),
+        })
+        item["receiptCount"] += 1
+        item["collectorObservedAtEarliest"] = min(item["collectorObservedAtEarliest"], row["observed_at"])
+        item["collectorObservedAtLatest"] = max(item["collectorObservedAtLatest"], row["observed_at"])
+        event_dates, as_of = _date_inventory(json.loads(row["payload"]), row["kind"])
+        item["underlyingEventDates"].update(event_dates)
+        item["providerAsOfLabels"].update(as_of)
+    inputs = []
+    for item in grouped.values():
+        dates = sorted(item.pop("underlyingEventDates"))
+        as_of = sorted(item.pop("providerAsOfLabels"))
+        item["underlyingEventDateRange"] = [dates[0], dates[-1]] if dates else None
+        item["underlyingEventDateCount"] = len(dates)
+        item["providerAsOfLabels"] = as_of
+        item["providerAvailabilityTime"] = "NOT_INDEPENDENTLY_CAPTURED"
+        item["timeBasis"] = (
+            "DATED_HISTORICAL_EVENTS" if dates else
+            "PROVIDER_DATE_LABEL_ONLY" if as_of else
+            "PROVIDER_EVENT_WINDOW_NOT_EXPOSED")
+        inputs.append(item)
+    inputs.sort(key=lambda x: (x["kind"], x["source"] or ""))
+    # Collector download time is explicitly not represented as provider
+    # publication/availability time. The DB hash commits to every receipt.
     return {
         "stage": stage, "cutoff": cutoff,
         "snapshot": snapshot_path.name, "snapshotSha256": sha256(snapshot_bytes),
         "evidenceDb": compressed_path.name, "evidenceDbSha256": sha256(compressed_path.read_bytes()),
         "inputs": inputs, "gameCount": len(games),
         "teamsWithOfficialRoster": sorted(rosters),
-        "allEvidenceAtOrBeforeCutoff": True
+        "collectorObservedAtBeforeCutoff": True,
+        "providerAvailabilityTimeIndependentlyVerified": False,
+        "underlyingEventDateAudit": "KNOWN_DATED_EVENT_FIELDS_EXTRACTED; UNDATED_PROVIDER_AGGREGATES_REMAIN_UNVERIFIED"
     }
 
 
