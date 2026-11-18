@@ -1160,8 +1160,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     # Use the actual G9 coverage finding and G4 shooter release, only now.
     green=(coverage_data or {}).get('greenWeakZones')
-    wins,decision_rows=challenger_proof(player,decision_rivals,weak,green)
-    _,all_rows=challenger_proof(player,rivals,weak,green)
+    wins,decision_rows=challenger_proof(player,decision_rivals,weak,green,stage=stage)
+    _,all_rows=challenger_proof(player,rivals,weak,green,stage=stage)
     decision_ids={str(x['id']) for x in decision_rivals}
     rows=[]
     for row in all_rows:
