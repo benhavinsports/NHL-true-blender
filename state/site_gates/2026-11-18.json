@@ -1,0 +1,1598 @@
+{
+  "cardId": null,
+  "doesNotSelectOrReplaceScorers": true,
+  "executionOrder": [
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9",
+    "G10",
+    "G10.5",
+    "G11",
+    "G12",
+    "G13",
+    "G14",
+    "G15",
+    "G16",
+    "G17",
+    "G18"
+  ],
+  "fingerprint": null,
+  "games": [
+    {
+      "away": "BOS",
+      "defenseByAttackingTeam": {
+        "BOS": {
+          "actualDefensiveShiftMatches": 200,
+          "greenWeakZones": [
+            "High Slot",
+            "R Circle"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020066/play-by-play"
+        },
+        "DET": {
+          "actualDefensiveShiftMatches": 195,
+          "greenWeakZones": [
+            "Low Slot",
+            "L Circle",
+            "R Circle",
+            "Center Point"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020070/play-by-play"
+        }
+      },
+      "gameId": "2026020344",
+      "gameState": "FUT",
+      "goaliesByTeam": {
+        "BOS": [
+          {
+            "goalieId": "8480280",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480280/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "EXPECTED",
+            "weakZones": {
+              "Center Point": {
+                "goalsAgainst": 4,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.037,
+                "savePctg": 0.8518518518518519,
+                "saves": 23,
+                "shotsAgainst": 27,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480280/now"
+              },
+              "R Point": {
+                "goalsAgainst": 1,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.2222,
+                "savePctg": 0.9545454545454546,
+                "saves": 21,
+                "shotsAgainst": 22,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480280/now"
+              }
+            }
+          }
+        ],
+        "DET": [
+          {
+            "goalieId": "8480193",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480193/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "CONFIRMED",
+            "weakZones": {}
+          },
+          {
+            "goalieId": "8480193",
+            "observedAt": "2026-11-18T19:01:39+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8480193/now",
+            "sourceUrl": "https://daily.hockey/starting-goalies/2026-11-18",
+            "status": "EXPECTED",
+            "weakZones": {}
+          }
+        ]
+      },
+      "home": "DET",
+      "matchup": "BOS @ DET",
+      "rostersByTeam": {
+        "BOS": {
+          "availabilityReports": {
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 4
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Michael Eyssimont",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479591",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Morgan Geekie",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479987",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Tanner Jeannot",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479661",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Mark Kastelic",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480355",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Marat Khusnutdinov",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482177",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Sean Kuraly",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476374",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Elias Lindholm",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477496",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Fraser Minten",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483489",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Casey Mittelstadt",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479999",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "David Pastrnak",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477956",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "JJ Peterka",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482175",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Pavel Zacha",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478401",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Will Borgen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478840",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Connor Clifton",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477365",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Hampus Lindholm",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476854",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Mason Lohrei",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482511",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Charlie McAvoy",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479325",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Nikita Zadorov",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477507",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:07+00:00",
+          "recentFormEvidenceCount": 22,
+          "rosterPlayers": 22,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/BOS/current",
+          "unavailablePlayers": []
+        },
+        "DET": {
+          "availabilityReports": {
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 3
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Viktor Arvidsson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478042",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Michael Brandsegg-Nyg\u00e5rd",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484794",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "J.T. Compher",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477456",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Andrew Copp",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477429",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Alex DeBrincat",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479337",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Sheldon Dries",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480326",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Emmitt Finnie",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484471",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Marco Kasper",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483464",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Keegan Kolesar",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478434",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Carter Mazur",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482802",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Michael Rasmussen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479992",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Lucas Raymond",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482078",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Ben Chiarot",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475279",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Andreas Englund",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477971",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Justin Faulk",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475753",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Albert Johansson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481607",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Anton Johansson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483679",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Moritz Seider",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481542",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:07+00:00",
+          "recentFormEvidenceCount": 19,
+          "rosterPlayers": 21,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/DET/current",
+          "unavailablePlayers": []
+        }
+      },
+      "startUTC": "2026-11-19T00:30:00Z",
+      "summaryIsNotConfirmedDeployment": true
+    },
+    {
+      "away": "MTL",
+      "defenseByAttackingTeam": {
+        "MTL": {
+          "actualDefensiveShiftMatches": 181,
+          "greenWeakZones": [
+            "Point",
+            "L Point",
+            "R Point",
+            "Center Point"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020090/play-by-play"
+        },
+        "NJD": {
+          "actualDefensiveShiftMatches": 202,
+          "greenWeakZones": [
+            "Low Slot",
+            "L Circle",
+            "R Circle",
+            "L Point",
+            "R Point"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020092/play-by-play"
+        }
+      },
+      "gameId": "2026020345",
+      "gameState": "FUT",
+      "goaliesByTeam": {
+        "MTL": [
+          {
+            "goalieId": "8484170",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "EXPECTED",
+            "weakZones": {
+              "Center Point": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.1296,
+                "savePctg": 0.8888888888888888,
+                "saves": 24,
+                "shotsAgainst": 27,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now"
+              }
+            }
+          },
+          {
+            "goalieId": "8484170",
+            "observedAt": "2026-11-18T19:01:39+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now",
+            "sourceUrl": "https://www.dailyfaceoff.com/starting-goalies/2026-11-18",
+            "status": "CONFIRMED",
+            "weakZones": {
+              "Center Point": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.1296,
+                "savePctg": 0.8888888888888888,
+                "saves": 24,
+                "shotsAgainst": 27,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8484170/now"
+              }
+            }
+          }
+        ],
+        "NJD": [
+          {
+            "goalieId": "8476945",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476945/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "CONFIRMED",
+            "weakZones": {
+              "R Circle": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.2778,
+                "savePctg": 0.8636363636363636,
+                "saves": 19,
+                "shotsAgainst": 22,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476945/now"
+              }
+            }
+          },
+          {
+            "goalieId": "8476945",
+            "observedAt": "2026-11-18T19:01:38+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476945/now",
+            "sourceUrl": "https://www.nhl.com/news/montreal-canadiens-new-jersey-devils-game-preview-november-18-2026",
+            "status": "EXPECTED",
+            "weakZones": {
+              "R Circle": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.2778,
+                "savePctg": 0.8636363636363636,
+                "saves": 19,
+                "shotsAgainst": 22,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476945/now"
+              }
+            }
+          }
+        ]
+      },
+      "home": "NJD",
+      "matchup": "MTL @ NJD",
+      "rostersByTeam": {
+        "MTL": {
+          "availabilityReports": {
+            "INJURED": 4,
+            "PROJECTED_ACTIVE": 17,
+            "SCRATCHED": 2,
+            "UNVERIFIED": 1
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Owen Beck",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483424",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Zachary Bolduc",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482737",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Cole Caufield",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481540",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Kirby Dach",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481523",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Phillip Danault",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476479",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Jake Evans",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478133",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Oliver Kapanen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482775",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Alex Newhook",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481618",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Juraj Slafkovsk\u00fd",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483515",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Nick Suzuki",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480018",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Alexandre Texier",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480074",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Florian Xhekaj",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484403",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Alexandre Carrier",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478851",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Noah Dobson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480865",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Adam Engstrom",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483686",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Kaiden Guhle",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482087",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Lane Hutson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483457",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Arber Xhekaj",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482964",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:07+00:00",
+          "recentFormEvidenceCount": 21,
+          "rosterPlayers": 24,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/MTL/current",
+          "unavailablePlayers": [
+            {
+              "name": "Josh Anderson",
+              "status": "INJURED"
+            },
+            {
+              "name": "Ivan Demidov",
+              "status": "INJURED"
+            },
+            {
+              "name": "Chris Kreider",
+              "status": "INJURED"
+            },
+            {
+              "name": "Florian Xhekaj",
+              "status": "SCRATCHED"
+            },
+            {
+              "name": "Mike Matheson",
+              "status": "INJURED"
+            },
+            {
+              "name": "David Reinbacher",
+              "status": "SCRATCHED"
+            }
+          ]
+        },
+        "NJD": {
+          "availabilityReports": {
+            "INJURED": 2,
+            "PROJECTED_ACTIVE": 18,
+            "SCRATCHED": 2
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Jesper Boqvist",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480003",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Jesper Bratt",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479407",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Connor Brown",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477015",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Luke Evangelista",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482146",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Cody Glass",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479996",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Arseny Gritsyuk",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481721",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Lenni Hameenaho",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484177",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Nico Hischier",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480002",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Jack Hughes",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481559",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Timo Meier",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478414",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Stefan Noesen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476474",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Evan Rodrigues",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478542",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Declan Chisholm",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480990",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Brenden Dillon",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475455",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Dougie Hamilton",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476462",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Luke Hughes",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482684",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Brett Pesce",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477488",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Jonas Siegenthaler",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478399",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:07+00:00",
+          "recentFormEvidenceCount": 22,
+          "rosterPlayers": 22,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/NJD/current",
+          "unavailablePlayers": [
+            {
+              "name": "Amadeus Lombardi",
+              "status": "SCRATCHED"
+            },
+            {
+              "name": "Anthony Mantha",
+              "status": "INJURED"
+            },
+            {
+              "name": "Johnathan Kovacevic",
+              "status": "INJURED"
+            },
+            {
+              "name": "Anton Silaev",
+              "status": "SCRATCHED"
+            }
+          ]
+        }
+      },
+      "startUTC": "2026-11-19T00:30:00Z",
+      "summaryIsNotConfirmedDeployment": true
+    },
+    {
+      "away": "COL",
+      "defenseByAttackingTeam": {
+        "COL": {
+          "actualDefensiveShiftMatches": 171,
+          "greenWeakZones": [
+            "Point",
+            "L Point",
+            "R Point",
+            "Center Point"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020102/play-by-play"
+        },
+        "UTA": {
+          "actualDefensiveShiftMatches": 180,
+          "greenWeakZones": [
+            "Low Slot",
+            "Point",
+            "R Point",
+            "Center Point"
+          ],
+          "historicalShiftIsNotTonightLineup": true,
+          "observedAt": "2026-11-18T19:01:17+00:00",
+          "redStrongZones": [],
+          "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020100/play-by-play"
+        }
+      },
+      "gameId": "2026020346",
+      "gameState": "FUT",
+      "goaliesByTeam": {
+        "COL": [
+          {
+            "goalieId": "8478406",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478406/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "EXPECTED",
+            "weakZones": {
+              "Center Point": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.2407,
+                "savePctg": 0.9090909090909091,
+                "saves": 30,
+                "shotsAgainst": 33,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478406/now"
+              },
+              "L Point": {
+                "goalsAgainst": 1,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.3148,
+                "savePctg": 0.9545454545454546,
+                "saves": 21,
+                "shotsAgainst": 22,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478406/now"
+              },
+              "Outside R": {
+                "goalsAgainst": 3,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.1296,
+                "savePctg": 0.88,
+                "saves": 22,
+                "shotsAgainst": 25,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478406/now"
+              }
+            }
+          }
+        ],
+        "UTA": [
+          {
+            "goalieId": "8478872",
+            "observedAt": "2026-11-18T19:01:34+00:00",
+            "profileSourceUrl": null,
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "EXPECTED",
+            "weakZones": {}
+          },
+          {
+            "goalieId": "8482657",
+            "observedAt": "2026-11-18T19:01:39+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482657/now",
+            "sourceUrl": "https://www.dailyfaceoff.com/starting-goalies/2026-11-18",
+            "status": "EXPECTED",
+            "weakZones": {
+              "Low Slot": {
+                "goalsAgainst": 10,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.2222,
+                "savePctg": 0.782608695652174,
+                "saves": 36,
+                "shotsAgainst": 46,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482657/now"
+              },
+              "R Circle": {
+                "goalsAgainst": 4,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.1296,
+                "savePctg": 0.8,
+                "saves": 16,
+                "shotsAgainst": 20,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482657/now"
+              }
+            }
+          }
+        ]
+      },
+      "home": "UTA",
+      "matchup": "COL @ UTA",
+      "rostersByTeam": {
+        "COL": {
+          "availabilityReports": {
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 5
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Gavin Brindley",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484149",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "T.J. Hughes",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8486171",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Nazem Kadri",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475172",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Parker Kelly",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480448",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Gabriel Landeskog",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476455",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Artturi Lehkonen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477476",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Martin Necas",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480039",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Brock Nelson",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475754",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Logan O'Connor",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481186",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Nicolas Roy",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478462",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Jaden Schwartz",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475768",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Fedor Svechkov",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8482768",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Brent Burns",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8470613",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Noah Juulsen",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478454",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Brett Kulak",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476967",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Sam Malinski",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484258",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Mike Reilly",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476422",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Devon Toews",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478038",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:07+00:00",
+          "recentFormEvidenceCount": 20,
+          "rosterPlayers": 23,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/COL/current",
+          "unavailablePlayers": []
+        },
+        "UTA": {
+          "availabilityReports": {
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 8
+          },
+          "deploymentEvidence": [
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Daniil But",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484388",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Michael Carcone",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479619",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Logan Cooley",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8483431",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Lawson Crouse",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478474",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Barrett Hayton",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480849",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Clayton Keller",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479343",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Anders Lee",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8475314",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Jack McBain",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480855",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Liam O'Brien",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477070",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Kevin Stenlund",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8478831",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Vincent Trocheck",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8476389",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Kailer Yamamoto",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479977",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Nick DeSimone",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8480084",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Zac Jones",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8481708",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Andrew Peeke",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479369",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Mikhail Sergachev",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8479410",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Dmitri Simashev",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8484386",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "MacKenzie Weegar",
+              "observedAt": "2026-11-18T19:02:08+00:00",
+              "playerId": "8477346",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-18T19:01:08+00:00",
+          "recentFormEvidenceCount": 23,
+          "rosterPlayers": 26,
+          "sourceUrl": "https://api-web.nhle.com/v1/roster/UTA/current",
+          "unavailablePlayers": []
+        }
+      },
+      "startUTC": "2026-11-19T03:00:00Z",
+      "summaryIsNotConfirmedDeployment": true
+    }
+  ],
+  "legs": [],
+  "masterOrder": [
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9",
+    "G10",
+    "G10.5",
+    "G11",
+    "G12",
+    "G13",
+    "G14",
+    "G15",
+    "G16",
+    "G17",
+    "G18"
+  ],
+  "oneOriginalGatePipeline": true,
+  "originalFunctionNames": [
+    "Step0",
+    "Step1",
+    "Step2",
+    "Step3",
+    "Step4",
+    "Step5",
+    "Step6",
+    "Step7",
+    "Step8",
+    "Step9",
+    "Step10",
+    "Step10.5",
+    "Step11",
+    "Step12",
+    "Step13",
+    "Step14"
+  ],
+  "readOnly": true,
+  "revision": null,
+  "slateDate": "2026-11-18",
+  "stage": "PROJECTED"
+}
