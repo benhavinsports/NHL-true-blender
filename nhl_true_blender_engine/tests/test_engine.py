@@ -29,6 +29,13 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
             'mappedGoals':evidence({'goals':entries}),
             'officialGoalTotal':evidence({'goals':goals}),
             'finishOwnership':evidence({'recipient':True,'creditedGoalsVerified':True}),
+            'recentOrigin':evidence({
+                'sourceType':'OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN',
+                'scope':'RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY',
+                'rinkBinsApproximateNotNhlEdgePolygons':True,
+                'historicalOwnGoalCreditOnly':True,
+                'zoneCounts':{zone:{'shotsOnGoal':attempts,'ownedGoals':goals,
+                    'sourceUrls':[SRC+'/recent-origin/'+str(pid)]}}}),
             'pressure':evidence({'recentAppearanceShots':[3,4],
                 'appearances':[{'date':'2026-11-01'},{'date':'2026-11-02'}],
                 'evidenceType':'OFFICIAL_HISTORICAL_SHOT_EVENTS'}),
