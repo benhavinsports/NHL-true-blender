@@ -133,7 +133,8 @@ def fetch(day,outdir,manifest_schedule):
             raw=response.read();status=response.status;final_url=response.geturl()
         parser=PageText();parser.feed(raw.decode("utf-8","replace"))
         schedule_games=((manifest_schedule.get(day) or {}).get("games") or [])
-        start_times=[_official_game_start(g) for g in schedule_games]\n        start_times=[x for x in start_times if x is not None]
+        start_times=[_official_game_start(g) for g in schedule_games]
+        start_times=[x for x in start_times if x is not None]
         slate_cutoff=(min(start_times)-
                       timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00","Z") if start_times else None
         cards=_parse_goalie_cards(parser)
