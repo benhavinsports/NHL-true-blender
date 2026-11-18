@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a111a">
-  <meta name="description" content="NHL True Blender scouting intelligence: one authoritative Core, source-backed game survivors, original G0–G18 evidence, and official results.">
-  <title>True Blender | NHL Scouting Intelligence</title>
-  <link rel="stylesheet" href="./styles.css?v=20261118-refined-layout-v3">
-  <script defer src="./gate-facts.js?v=20261117-workspace-v1"></script>
-  <script defer src="./scouting-cards.js?v=20261117-workspace-v1"></script>
-  <script defer src="./pool-deck.js?v=20261117-workspace-v1"></script>
-  <script defer src="./app.js?v=20261118-refined-layout-v3"></script>
+  <meta name="theme-color" content="#080f18">
+  <meta name="description" content="True Blender NHL — the original source-evidenced Core 3 and every game survivor.">
+  <title>True Blender | The NHL Scouting Deck</title>
+  <link rel="stylesheet" href="./styles.css?v=20261117-deck-core">
+  <link rel="stylesheet" href="./public-deck.css?v=20261117-desk-v1">
+  <script defer src="./gate-facts.js?v=20261117-deck-core"></script>
+  <script defer src="./scouting-cards.js?v=20261117-deck-core"></script>
+  <script defer src="./pool-deck.js?v=20261117-deck-core"></script>
+  <script defer src="./app.js?v=20261117-desk-v1"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="wrap header-content">
-      <a href="#top" class="brand" aria-label="True Blender home">
+      <a class="brand" href="#top" aria-label="True Blender home">
         <span class="brand-mark" aria-hidden="true">TB</span>
         <span class="brand-copy">
           <strong>TRUE BLENDER</strong>
@@ -23,9 +24,9 @@
         </span>
       </a>
       <div class="header-utilities">
-        <span class="read-only-indicator"><span aria-hidden="true" class="indicator-mark"></span> SOURCE-LED · READ-ONLY</span>
-        <button id="refresh" type="button" class="action-btn header-action" aria-label="Refresh published NHL data">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <span class="header-broadcast"><span class="broadcast-dot" aria-hidden="true"></span> SOURCE-DRIVEN SCOUTING</span>
+        <button id="refresh" class="header-action" type="button" aria-label="Refresh published NHL slate">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
           </svg>
           <span>REFRESH</span>
@@ -34,130 +35,88 @@
     </div>
   </header>
 
-  <main id="top" class="wrap game-main app-workspace">
+  <main class="wrap game-main app-workspace public-deck" id="top">
     <div class="app-shell">
-      <aside class="app-sidebar" aria-label="Dashboard navigation">
-        <div class="sidebar-overline">WORKSPACE <span>01 / NHL</span></div>
+      <aside class="app-sidebar" aria-label="The scouting deck navigation">
+        <div class="sidebar-label">THE SCOUTING DECK</div>
         <nav class="main-nav" aria-label="Dashboard sections">
-          <a href="#core" data-nav="core" aria-current="page">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <rect x="4.5" y="3.5" width="15" height="17" rx="2"></rect>
-              <path d="M9 8.5h6M9 12h6M9 15.5h4"></path>
-            </svg><span>Core</span>
+          <a data-nav="core" href="#core" aria-current="page">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="5" y="3.5" width="14" height="17" rx="2"></rect>
+              <path d="M9 8h6m-6 4h6m-6 4h4"></path>
+            </svg>
+            <span>Core 3</span>
           </a>
-          <a href="#pool" data-nav="pool">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <rect x="3" y="4" width="7.5" height="7.5" rx="1.5"></rect>
-              <rect x="13.5" y="4" width="7.5" height="7.5" rx="1.5"></rect>
-              <rect x="3" y="14" width="7.5" height="6" rx="1.5"></rect>
-              <rect x="13.5" y="14" width="7.5" height="6" rx="1.5"></rect>
-            </svg><span>Survivors</span>
-          </a>
-          <a href="#results" data-nav="results">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M4 20V12M10 20V7M16 20V10M22 20V4"></path>
-              <path d="M2 20h20"></path>
-            </svg><span>Results</span>
+          <a data-nav="pool" href="#pool">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2.8" y="4" width="8.1" height="7.7" rx="1.5"></rect>
+              <rect x="13.1" y="4" width="8.1" height="7.7" rx="1.5"></rect>
+              <rect x="2.8" y="13.5" width="8.1" height="7.2" rx="1.5"></rect>
+              <rect x="13.1" y="13.5" width="8.1" height="7.2" rx="1.5"></rect>
+            </svg>
+            <span>Survivors</span>
           </a>
         </nav>
         <div class="sidebar-bottom">
-          <span class="sidebar-line"></span>
-          <span>ORIGINAL ENGINE</span>
+          <span class="sidebar-divider"></span>
+          <span>PRIVATE ENGINE · PUBLIC PROOF</span>
           <strong>G0–G18</strong>
-          <small>Evidence available on the back of each qualified card.</small>
+          <small>Scouting receipts live on the reverse of each card.</small>
         </div>
       </aside>
 
       <div class="app-content">
-        <section class="slate-overview" aria-label="Saved slate overview">
-          <div class="overview-topline">
-            <span>SCOUTING DESK <span aria-hidden="true">/</span> NHL</span>
-            <span class="overview-edition">PUBLISHED DATA</span>
+        <section class="slate-overview" aria-label="Saved NHL slate" id="slate-overview">
+          <div class="desk-headline">
+            <span class="desk-overline"><span class="desk-overline-mark"></span> TRUE BLENDER / NHL</span>
+            <span class="desk-edition">THE OFFICIAL DECK</span>
           </div>
-          <div class="overview-main">
-            <div class="overview-heading">
-              <span class="eyebrow">SELECTED SLATE · EASTERN TIME</span>
-              <h1 id="hero-date">Loading…</h1>
-              <span id="hero-phase" class="overview-run-phase" aria-live="polite">CHECKING SOURCE</span>
+          <div class="desk-main">
+            <div class="desk-primary">
+              <span class="desk-label">SAVED SLATE · ET</span>
+              <h1 id="hero-date">Loading slate…</h1>
+              <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
+                <span class="pill neutral">Checking source records</span>
+              </div>
             </div>
-            <div class="overview-control">
-              <label for="slate-select" class="eyebrow">VIEW SAVED SLATE</label>
-              <select id="slate-select" class="slate-picker" aria-label="Choose a saved NHL slate">
+            <div class="desk-controls">
+              <label for="slate-select" class="desk-label">BROWSE SLATES</label>
+              <select id="slate-select" class="slate-picker" aria-label="Select a saved NHL slate">
                 <option>Loading saved slates…</option>
               </select>
-            </div>
-          </div>
-          <div class="overview-footer">
-            <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
-              <span class="pill neutral">Loading verified engine data</span>
-            </div>
-            <div class="overview-facts" aria-label="Published slate summary">
-              <div class="overview-fact">
-                <strong id="overview-core-count">—</strong>
-                <span>CORE SAVED</span>
-              </div>
-              <div class="overview-fact">
-                <strong id="overview-survivor-count">—</strong>
-                <span>GAME SURVIVORS</span>
-              </div>
-              <div class="overview-fact">
-                <strong id="overview-source-phase">—</strong>
-                <span>POOL SOURCE</span>
-              </div>
+              <span id="hero-phase" class="desk-source-stage" aria-live="polite">Checking source</span>
             </div>
           </div>
         </section>
 
         <section id="core" class="section app-section core-section" aria-labelledby="core-title">
-          <div class="section-heading">
+          <div class="deck-section-intro">
             <div>
-              <span class="eyebrow">THE AUTHORITATIVE SELECTION</span>
-              <h2 id="core-title">Core <span class="gold-text">3</span></h2>
-              <p>The Blender’s saved scorer selection. Open a card to inspect the original evidence.</p>
+              <span class="deck-kicker"><span>01</span> THE LOCKED SELECTION</span>
+              <h2 id="core-title">The Core <em>3</em></h2>
             </div>
-            <span class="section-meta">SAVED CORE · READ ONLY</span>
+            <span class="deck-aside">THREE GAMES · ONE CARD</span>
           </div>
-          <div id="core-cards" class="core-grid" aria-label="Clickable authoritative Core scorer cards">
+          <div id="core-cards" class="core-grid" aria-label="Flip the three official Core collector cards">
             <div class="loading"></div><div class="loading"></div><div class="loading"></div>
           </div>
         </section>
 
         <section id="pool" class="section app-section pool-section" aria-labelledby="pool-title">
-          <div class="section-heading">
+          <div class="deck-section-intro">
             <div>
-              <span class="eyebrow">EVERY QUALIFIED MATCHUP</span>
+              <span class="deck-kicker"><span>02</span> EVERY QUALIFIED MATCHUP</span>
               <h2 id="pool-title">Game survivors</h2>
-              <p>One source-qualified player per game. Flip for the scouting report.</p>
             </div>
-            <span class="section-meta section-meta-neutral">SCOUTING COLLECTION</span>
+            <span class="deck-aside">TAP CARD · SCOUTING REPORT</span>
           </div>
-          <div id="pool-list" class="pool-deck" aria-label="Collector cards with verified game survivors and original evidence">
+          <div id="pool-list" class="pool-deck" aria-label="Source-backed NHL game survivors with original gate evidence">
             <div class="loading"></div>
           </div>
         </section>
 
-        <section id="results" class="section app-section results-section" aria-labelledby="results-title">
-          <div class="section-heading">
-            <div>
-              <span class="eyebrow">OFFICIAL PERFORMANCE</span>
-              <h2 id="results-title">Results & record</h2>
-              <p>Official goal credit and frozen-card grading.</p>
-            </div>
-          </div>
-          <div class="panel-grid">
-            <div class="section-panel">
-              <div class="subheading"><h3>Official Core grade</h3><span class="pill neutral">FROZEN CARD</span></div>
-              <div id="grade-summary" class="muted">Checking official results…</div>
-            </div>
-            <div class="section-panel">
-              <div class="subheading"><h3>Season record</h3><span class="pill neutral">OFFICIAL ONLY</span></div>
-              <div id="season-summary" class="muted">Checking season history…</div>
-            </div>
-          </div>
-        </section>
-
         <footer class="footer">
-          <span>TRUE BLENDER · AUTOMATED · READ-ONLY</span>
+          <span>TRUE BLENDER · SOURCE-BACKED · READ ONLY</span>
           <span id="hero-sync">Checking published feed…</span>
         </footer>
       </div>

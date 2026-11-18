@@ -225,7 +225,7 @@ test("scouting visual identity has no poker suit, cartoon rink or editable dashb
  const pool=fs.readFileSync(path.join(root,"site/pool-deck.js"),"utf8");
  const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
  assert.ok(html.includes("NHL SCOUTING INTELLIGENCE"));
- assert.ok(html.includes("THE AUTHORITATIVE SELECTION"));
+ assert.ok(html.includes("THE LOCKED SELECTION"));
  assert.ok(!html.includes("♠"));
  assert.ok(!html.includes("hand-ornament"));
  assert.ok(!js.includes('"rink-center"'));
@@ -444,57 +444,58 @@ test("Safari expanded cards hide mirrored photo face and show upright analytics 
 });
 
 
-test("professional workspace replaces stacked arcade page without disturbing actual card components",()=>{
+test("public deck is only Core and Survivors: no public grading, season or audit panels",()=>{
  const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
- const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ const deck=fs.readFileSync(path.join(root,"site/public-deck.css"),"utf8");
  assert.ok(html.includes('class="app-shell"'));
  assert.ok(html.includes('class="app-sidebar"'));
  assert.ok(html.includes('class="app-content"'));
  assert.ok(html.includes('class="slate-overview"'));
  assert.ok(html.includes('id="core-cards"'));
  assert.ok(html.includes('id="pool-list"'));
- assert.ok(html.includes('id="grade-summary"'));
- assert.ok(html.includes('id="season-summary"'));
  assert.ok(html.includes('id="slate-notice"'));
  assert.ok(html.includes('id="slate-select"'));
  assert.ok(html.includes('id="refresh"'));
+ assert.ok(!html.includes('id="results"'));
+ assert.ok(!html.includes('id="grade-summary"'));
+ assert.ok(!html.includes('id="season-summary"'));
+ assert.ok(!html.includes('data-nav="results"'));
+ assert.ok(!html.includes('href="#results"'));
  assert.ok(!html.includes('class="game-table"'));
  assert.ok(!html.includes('class="game-shell"'));
  assert.ok(!html.includes('class="hand-tray"'));
- assert.ok(!html.includes('class="arcade-header"'));
  assert.ok(!html.includes('id="system"'));
- for(const section of ["core","pool","results"]){
-   assert.ok(html.includes('href="#'+section+'" data-nav="'+section+'"'));
-   assert.ok(html.includes('id="'+section+'"'));
- }
- // Layout rules are scoped to workspace wrappers and must leave the
- // NHL photo collector fronts and source-backed report backs untouched.
- const shell=css.slice(css.lastIndexOf("SCOUTING WORKSPACE SHELL / DESIGN SYSTEM"));
- assert.ok(shell.includes("grid-template-columns:190px minmax(0,1fr)"));
- assert.ok(shell.includes("position:fixed;top:auto;left:0;right:0;bottom:0"));
- assert.ok(shell.includes("repeat(3,minmax(0,1fr))"));
- assert.ok(!shell.includes(".core-card .card-front"));
- assert.ok(!shell.includes(".pool-collector-card .pool-back"));
+ assert.ok(html.includes('href="#core" data-nav="core"')||
+           html.includes('data-nav="core" href="#core"'));
+ assert.ok(html.includes('href="#pool" data-nav="pool"')||
+           html.includes('data-nav="pool" href="#pool"'));
+ assert.ok(!js.includes('function renderGrade('));
+ assert.ok(!js.includes('function renderSeason('));
+ assert.ok(!js.includes('function renderSystem('));
+ assert.ok(!js.includes('function renderCompleteGateDeck('));
+ assert.ok(!js.includes('data/season-history.json'));
+ assert.ok(js.includes('renderPool();'));
+ assert.ok(deck.includes('grid-template-columns:178px minmax(0,1fr)'));
+ assert.ok(deck.includes('position:sticky'));
+ assert.ok(deck.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert.ok(!deck.includes('.core-card .card-front'));
+ assert.ok(!deck.includes('.pool-collector-card .pool-back'));
 });
 
-test("slate workspace uses the authoritative selected card and source-staged survivor count",()=>{
+test("saved slate remains source-backed without duplicate public statistics",()=>{
  const {sandbox,elements}=appContext();
- for(const id of ["hero-date","hero-phase","hero-sync",
-   "slate-notice","overview-core-count","overview-survivor-count",
-   "overview-source-phase"])elements[id]=new FakeNode("div");
+ for(const id of ["hero-date","hero-phase","hero-sync","slate-notice"])
+   elements[id]=new FakeNode("div");
  vm.runInContext(
-   'state.latest.gameSurvivorDisplayProvenance={sourceStage:"PROJECTED"};'+
-   'state.latest.currentRunFullyCertified=false;renderHeader();',sandbox);
- const pool=run.gameSurvivorPool||[];
- const count=pool.filter(x=>x.status==="SURVIVOR"&&x.survivor).length;
- assert.equal(elements["overview-core-count"].textContent,"3");
- assert.equal(elements["overview-survivor-count"].textContent,
-   count+" / "+pool.length);
- assert.equal(elements["overview-source-phase"].textContent,"PROJECTED");
- // Archive slate must not inherit another date's game-survivor pool.
- vm.runInContext('state.selectedDate="2026-11-16";renderHeader();',sandbox);
- assert.equal(elements["overview-survivor-count"].textContent,"—");
- assert.equal(elements["overview-source-phase"].textContent,"—");
+  'state.archive[0].stage="PROJECTED";'+
+  'state.latest.currentRunFullyCertified=false;renderHeader();',
+  sandbox);
+ assert.ok(elements["hero-date"].textContent.includes("Nov"));
+ const notice=descendants(elements["slate-notice"]).map(n=>n.textContent||"").join(" ");
+ assert.ok(notice.includes("SAVED CORE")||notice.includes("PROJECTED"));
+ assert.ok(!fs.readFileSync(path.join(root,"site/index.html"),"utf8").includes('overview-core-count'));
+ assert.ok(!fs.readFileSync(path.join(root,"site/index.html"),"utf8").includes('overview-survivor-count'));
 });
 
 test("mobile section navigation is a read-only accessible control",()=>{
@@ -511,28 +512,26 @@ test("mobile section navigation is a read-only accessible control",()=>{
 });
 
 
-test("mobile editorial polish reduces repeated chrome without changing photo card styling",()=>{
- const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+test("new premium app shell replaces bottom navigation without altering collector art",()=>{
+ const css=fs.readFileSync(path.join(root,"site/public-deck.css"),"utf8");
+ const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
  const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
- const polish=css.slice(css.lastIndexOf("EDITORIAL FINISH / ACTUAL NHL SCOUTING DASHBOARD"));
- assert.ok(polish.length>1000);
- assert.ok(polish.includes(".results-section .system-grid"));
- assert.ok(polish.includes("grid-template-columns:repeat(3,minmax(0,1fr))"));
- assert.ok(polish.includes(".overview-main"));
- assert.ok(polish.includes(".app-sidebar .main-nav a"));
- assert.ok(polish.includes("height:55px"));
- assert.ok(polish.includes(".overview-footer .phase-bar"));
- assert.ok(polish.includes(".results-section .notice"));
- assert.ok(!polish.includes("collector-photo{"));
- assert.ok(!polish.includes(".core-card.is-flipped"));
- assert.ok(!polish.includes(".pool-collector-card.is-flipped"));
- assert.ok(js.includes("SAVED CORE · SOURCE RECHECK OPEN"));
- assert.ok(!js.includes("SAVED ORIGINAL CORE · CURRENT RECHECK OPEN"));
- assert.ok(js.includes("Official grade not yet published"));
- assert.ok(!js.includes("The independent grade begins after every game"));
+ assert.ok(css.includes('top:57px;'));
+ assert.ok(css.includes('bottom:auto'));
+ assert.ok(css.includes('height:43px'));
+ assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert.ok(css.includes('.slate-overview'));
+ assert.ok(css.includes('.deck-section-intro'));
+ assert.ok(css.includes('scroll-margin-top:120px'));
+ assert.ok(!css.includes('.collector-photo{'));
+ assert.ok(!css.includes('.core-card.is-flipped'));
+ assert.ok(!css.includes('.pool-collector-card.is-flipped'));
+ assert.ok(html.includes('public-deck.css?v='));
+ assert.ok(js.includes('const ids=["core","pool"]'));
+ assert.ok(!js.includes('const ids=["core","pool","results"]'));
 });
 
-test("navigation follows current section while reading tall survivor and results lists",()=>{
+test("navigation follows the current Core or Survivor section",()=>{
  const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
  assert.ok(js.includes('window.addEventListener?.("scroll",updateFromScroll'));
  assert.ok(js.includes("rect.top<=cutoff"));
@@ -557,4 +556,19 @@ test("active nav switches when next section enters the upper half of phone",()=>
  assert.ok(js.includes("Math.min(540,window.innerHeight*.53)"));
  assert.ok(js.includes('window.addEventListener?.("scroll",updateFromScroll'));
  assert.ok(!js.includes("window.innerHeight*.32"));
+});
+
+
+test("public interface leaves official grading and recalibration in GitHub, not the browser",()=>{
+ const html=fs.readFileSync(path.join(root,"site/index.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ assert.ok(!html.includes("Official Core grade"));
+ assert.ok(!html.includes("Season record"));
+ assert.ok(!html.includes("Monthly recalibration"));
+ assert.ok(!html.includes("Results & record"));
+ assert.ok(!js.includes("renderGrade();"));
+ assert.ok(!js.includes("renderSeason();"));
+ assert.ok(!js.includes("state.season"));
+ assert.ok(!js.includes("grade-summary"));
+ assert.ok(!js.includes("season-summary"));
 });

@@ -46,7 +46,7 @@ const EXPLAIN={
  Step14:"Final source contradiction review",
 };
 const state={
- latest:null,archive:[],season:null,selectedDate:null,selectedLeg:null,
+ latest:null,archive:[],selectedDate:null,selectedLeg:null,
  gateFilter:"all",gateData:null,gateLoadError:null,requestId:0,flippedLeg:null,
 };
 const $=id=>document.getElementById(id);
@@ -173,16 +173,6 @@ function renderHeader(){
  setText("hero-sync",state.latest?.publishedAt?"Published "+etTime(state.latest.publishedAt):
     "Publication not available");
  const count=countSelected();
- // Display only grounded saved-source numbers, never inferred picks.
- const publicGames=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
- const qualified=publicGames.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
- const sourceStage=isLatest()&&publicGames.length?(
-   state.latest?.gameSurvivorDisplayProvenance?.sourceStage||
-   state.latest?.gameSurvivorDisplayStage||state.latest?.stage):null;
- setText("overview-core-count",count?String(count):"—");
- setText("overview-survivor-count",publicGames.length?
-   String(qualified)+" / "+String(publicGames.length):"—");
- setText("overview-source-phase",sourceStage||"—");
  setText("stat-legs",count?count+" / "+(count===2?"2":"3"):"—");
  setText("stat-phase",saved?s.phase:"AWAITING");
  const valid=state.gateData?.legs?.every(x=>x.masterPassed===x.totalMaster
@@ -415,341 +405,9 @@ function renderPool(){
    date:state.selectedDate
  });
 }
-function renderMatchups(){
- const holder=$("matchup-list");holder.replaceChildren();
- const games=state.gateData?.games||[];
- if(!games.length){
-   holder.appendChild(el("div","empty-state","The game-by-game source summary is available after the next independent engine export."));
-   return;
- }
- for(const game of games){
-   const panel=el("article","match");
-   const head=el("div","match-head");
-   head.appendChild(el("strong","",game.away+" @ "+game.home));
-   head.appendChild(pill(game.gameState||"SCHEDULED",statusClass(game.gameState)));
-   panel.appendChild(head);
-   panel.appendChild(el("p","","Puck drop · "+etTime(game.startUTC)));
-   const disclosure=el("details");
-   disclosure.appendChild(el("summary","","Goalies, rosters & defense sources"));
-   const group=el("div","match-data");
-   for(const team of [game.away,game.home]){
-     const part=el("div","match-team");
-     part.appendChild(el("strong","",team+" · goalie and roster evidence"));
-     const goalies=game.goaliesByTeam?.[team]||[];
-     for(const g of goalies){
-       const line=el("div","","Goalie ID "+(g.goalieId||"?")+" · "+(g.status||"unverified")+
-          " · "+Object.keys(g.weakZones||{}).length+" measured vulnerable origin"+(Object.keys(g.weakZones||{}).length===1?"":"s"));
-       part.appendChild(line);
-       const a=link(g.sourceUrl,"Starter report");
-       if(a){part.appendChild(a);part.appendChild(el("span",""," · "));}
-       const b=link(g.profileSourceUrl,"Goalie profile");
-       if(b)part.appendChild(b);
-     }
-     if(!goalies.length)part.appendChild(el("div","","No evidenced goalie branch in this export."));
-     const roster=game.rostersByTeam?.[team]||{};
-     part.appendChild(el("div","","Current roster: "+number(roster.rosterPlayers)+
-       " skaters · "+Object.entries(roster.availabilityReports||{}).map(([k,v])=>k+" "+v).join(" / ")));
-     const rosterLink=link(roster.sourceUrl,"Roster source");if(rosterLink)part.appendChild(rosterLink);
-     part.appendChild(el("div","","Recent-form logs with dated pressure data: "+
-       number(roster.recentFormEvidenceCount)+" roster players"));
-     if(roster.unavailablePlayers?.length){
-       part.appendChild(el("div","","Reported availability: "+
-         roster.unavailablePlayers.map(p=>p.name+" ("+p.status+")").join(", ")));
-     }
-     if(roster.deploymentEvidence?.length){
-       const lines=el("details","source-details");
-       lines.appendChild(el("summary","","View "+roster.deploymentEvidence.length+
-         " separately sourced EV / PP / PK assignments"));
-       const list=el("div","match-data");
-       for(const d of roster.deploymentEvidence){
-         const row=el("div","match-team");
-         row.appendChild(el("strong","",d.name||"Player "+d.playerId));
-         row.appendChild(el("div","",[
-           "EV "+(d.EV||"not reported"),
-           "PP "+(d.PP||"not reported"),
-           "PK "+(d.PK||"not reported"),
-           d.status||"status not reported"
-         ].join(" · ")));
-         const src=link(d.sourceUrl,"Lineup and PP unit source");
-         if(src)row.appendChild(src);
-         list.appendChild(row);
-       }
-       lines.appendChild(list);part.appendChild(lines);
-     }else part.appendChild(el("div","","No independently sourced line or PP assignments in this export."));
-     const c=game.defenseByAttackingTeam?.[team]||{};
-     part.appendChild(el("div","","Opponent coverage green zones: "+
-         (c.greenWeakZones?.join(", ")||"not reported")));
-     part.appendChild(el("div","","Opponent coverage avoid zones: "+
-         (c.redStrongZones?.join(", ")||"not reported")));
-     const covLink=link(c.sourceUrl,"Defensive coverage evidence");
-     if(covLink){part.appendChild(covLink);}
-     group.appendChild(part);
-   }
-   disclosure.appendChild(group);panel.appendChild(disclosure);
-   holder.appendChild(panel);
- }
-}
-function renderGrade(){
- const saved=selectedEntry(),holder=$("grade-summary");holder.replaceChildren();
- const grade=saved?.grade||(isLatest()?state.latest?.postgameGrade:null);
- if(!saved){
-   holder.appendChild(el("div","notice","Official grade is available only for a saved original Core card."));
-   return;
- }
- if(!grade||grade.cardId!==saved.cardId){
-   holder.appendChild(el("div","notice","Official grade not yet published for this locked Core."));
-   return;
- }
- const result=grade.result;
- if(!["WIN","LOSS"].includes(result)||typeof grade.hits!=="number"||
-    grade.legs!==saved.current_legs.length){
-   holder.appendChild(el("div","notice warning","The grade does not reconcile to the original card; no outcome is displayed."));
-   return;
- }
- const box=el("div","stat-card");
- box.appendChild(pill(result,statusClass(result)));
- box.appendChild(el("strong","",grade.hits+" / "+grade.legs));
- box.appendChild(el("p","","Official credited goal scorers · original card ID preserved"));
- holder.appendChild(box);
- const lines=el("div","grade-lines");
- for(const p of grade.playerResults||[]){
-   const d=el("div","grade-line");
-   d.appendChild(el("span","",p.player+" · "+p.goals+" goal"+(p.goals===1?"":"s")));
-   d.appendChild(pill(p.result,statusClass(p.result)));lines.appendChild(d);
- }
- holder.appendChild(lines);
- // Original saved recipient-vs-actual scorer audit, re-checked against
- // every official NHL goal in these three matchups. This is not a re-pick.
- const recipientReview=grade.postgameRecipientAudit||{};
- if(recipientReview.status==="OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON" &&
-    recipientReview.cardId===saved.cardId){
-   const auditBox=el("details","collapse");
-   const summary=el("summary","","Flip postgame scorer audit • who scored instead?");
-   auditBox.appendChild(summary);
-   const important=el("div","notice warning",
-     "Retrospective outcome comparison, NOT a new Core or proof that an alternative scorer could have been known with certainty before puck drop.");
-   auditBox.appendChild(important);
-   for(const game of recipientReview.selectedLegs||[]){
-     const g=el("article","match");
-     const top=el("div","match-head");
-     top.appendChild(el("strong","",game.lockedPlayer));
-     top.appendChild(pill(game.chosenGoals?"HIT":"MISS",
-                             game.chosenGoals?"success":"danger"));
-     g.appendChild(top);
-     g.appendChild(el("p","",game.matchup+" • "+game.lockedTeam+
-       " goals: "+game.sameAttackSideGoals+
-       " • Opposing goals: "+game.oppositeAttackSideGoals));
-     const scorers=el("div","grade-lines");
-     for(const rival of game.officialScorers||[]){
-       const row=el("div","grade-line");
-       const fact=el("div");
-       fact.appendChild(el("strong","",rival.player+" · "+rival.goals+
-         " goal"+(rival.goals===1?"":"s")));
-       fact.appendChild(el("p","tiny muted",
-         rival.team+" · "+(rival.pregameG105Verdict?
-            "Original G10.5: "+rival.pregameG105Verdict:
-            rival.reasonNotPregameG105Compared==="OPPOSITE_G0_ATTACK_SIDE"?
-             "Outside selected G0 attack direction":"Original saved scorer")));
-       row.appendChild(fact);
-       if(rival.pregameG105Verdict==="DEFEATED")row.appendChild(pill("G10.5 REVIEW","warning"));
-       scorers.appendChild(row);
-     }
-     g.appendChild(scorers);
-     if((game.auditFlags||[]).includes("ORIGINAL_G15_WAS_NOT_INDEPENDENT_FINISHER_PROOF")){
-       g.appendChild(el("p","archive-note",
-         "Audit: The old G15 PASS repeated historical goal credit rather than independently proving the future finishing role. Future G15 has been corrected."));
-     }
-     if(game.bothGoalieDirectionsWereFullySourceReviewedBeforePuck===false){
-       g.appendChild(el("p","archive-note",
-         "Pregame G0 source gap: Both opposing goalie attack directions were NOT independently evidenced before puck drop. The saved result cannot establish that the Blender compared both goalies completely."));
-     }
-     const sources=el("div","source-links");
-     unique(game.officialSources||[]).map(u=>link(u,"Official NHL scoring record")).filter(Boolean)
-          .forEach(a=>sources.appendChild(a));
-     g.appendChild(sources);
-     auditBox.appendChild(g);
-   }
-   holder.appendChild(auditBox);
- }else if(recipientReview.status){
-   holder.appendChild(el("div","notice",
-     "Detailed scorer-versus-recipient audit: "+recipientReview.status.replace(/_/g," ")+
-     ". The frozen official card grade remains unchanged."));
- }
- const audits=grade.missAudits||[];
- const p=el("p","small muted","Miss audits saved: "+audits.length+
-    " · Verified future-only policy guards: "+(grade.patchesApplied?.length||0)+
-    ". An ordinary miss does not change the rules.");
- holder.appendChild(p);
- const sourceList=el("details","collapse");
- sourceList.appendChild(el("summary","","Official scoring receipts"));
- const sourceBox=el("div","source-links");
- unique(grade.officialSources||[]).map(u=>link(u)).filter(Boolean).forEach(a=>sourceBox.appendChild(a));
- sourceList.appendChild(sourceBox);holder.appendChild(sourceList);
-}
-function renderSeason(){
- const host=$("season-summary");host.replaceChildren();
- const history=state.season||{};
- if(!history.officiallyGradedSlates){
-   host.appendChild(el("div","notice","No verified season performance totals have been published yet. Grades and recalibration appear here after official final games."));
-   return;
- }
- const grid=el("div","system-grid");
- for(const [label,num] of [["Wins",history.wins],["Losses",history.losses],["Individual goals",history.legHits+" / "+history.legOpportunities]]){
-   const d=el("div","system-stat");
-   d.appendChild(el("strong","",num));d.appendChild(el("span","",label));grid.appendChild(d);
- }
- host.appendChild(grid);
- const month=el("details","collapse");
- month.appendChild(el("summary","","Monthly recalibration • real graded slates only"));
- for(const [period,summary] of Object.entries(history.monthlyThreeSlateCalibration||{})){
-   month.appendChild(el("p","",period+" · "+summary.gradedSlatesAvailable+
-    " officially graded · "+summary.sampleCount+" recalibration samples · "+
-    summary.wins+" WIN / "+summary.losses+" LOSS"));
- }
- host.appendChild(month);
- const patches=history.verifiedAutomaticGuardPatches||[];
- host.appendChild(el("div","notice",patches.length?
-   "Source-validated future-only gate guards: "+patches.join(", "):
-   "No verified gate-contradiction patches have been activated. Misses alone cannot activate a correction."));
- const raw=el("a","small","Read official season history");
- raw.href="./data/season-history.json";raw.rel="noopener noreferrer";raw.target="_blank";
- host.appendChild(raw);
-}
-function renderSystem(){
- const host=$("system-summary");host.replaceChildren();
- const x=isLatest()?state.latest||{}:{};
- const audit=x.gateCertification||{};
- const saved=selectedEntry();
- const grid=el("div","system-grid");
- const rows=[
-  ["Games surveyed",number(x.games||state.gateData?.games?.length)],
-  ["Skaters evaluated",number(x.selectionFunnel?.surveyedEligibleSkaters||x.eligibleSkaterRows)],
-  ["Source gate rows",number(x.gateRows)],
-  ["Locked core legs",number(saved?.current_legs?.length)],
-  ["Selected gate pass",audit.selectedCoreOnlyFullyCertified===true?"YES":
-      saved?.verified===true?"SAVED":"—"],
-  ["Original revision",number(saved?.revision)]
- ];
- for(const [label,value] of rows){const d=el("div","system-stat");d.appendChild(el("strong","",value));d.appendChild(el("span","",label));grid.appendChild(d);}
- host.appendChild(grid);
- const twoGoalieDecisions=x.g0TwoGoalieDirectionDecisions||{};
- if(Object.keys(twoGoalieDecisions).length){
-   const panel=el("details","collapse");
-   const ready=Object.keys(twoGoalieDecisions).length;
-   panel.appendChild(el("summary","",
-     "G0 · BOTH goalies reviewed • "+ready+" game"+(ready===1?"":"s")+" source-selected"));
-   panel.appendChild(el("p","small muted",
-     "Source-backed goalie direction is decided before any skater gates. NHL EDGE origin percentile is not glove, blocker, or five-hole location."));
-   for(const [gameId,entry] of Object.entries(twoGoalieDecisions)){
-     const game=el("div","match");
-     const head=el("div","match-head");
-     head.appendChild(el("strong","",entry.attackingTeam+" ATTACKS "+entry.targetGoalieTeam+" • GAME "+gameId));
-     head.appendChild(pill(entry.bothGoaliesReviewedFirst===true?"2 GOALIES VERIFIED":"G0 SOURCE GAP",
-         entry.bothGoaliesReviewedFirst===true?"success":"warning"));
-     game.appendChild(head);
-     const proof=entry.decisionEvidence||{};
-     game.appendChild(el("p","small muted","Evidence method: "+
-        (entry.goalieSourceMethod||"Source-scoped goalie comparison").replace(/_/g," ")));
-     if(proof.winnerWeakOrigin){
-       game.appendChild(el("p","",
-          "Attacked goalie: "+proof.winnerWeakOrigin+" · save% peer percentile: "+
-          proof.winnerGoaliePeerSavePercentile+" · "+proof.winnerGoalsAllowedFromOrigin+
-          " allowed / "+proof.winnerGoalieOnNetShots+" on-net shots"));
-       game.appendChild(el("p","",
-          "Opposite goalie: "+proof.oppositeWeakOrigin+" · save% peer percentile: "+
-          proof.oppositeGoaliePeerSavePercentile+" · "+proof.oppositeGoalsAllowedFromOrigin+
-          " allowed / "+proof.oppositeGoalieOnNetShots+" on-net shots"));
-     }
-     const urls=el("div","source-links");
-     unique(proof.goalieSourceUrls||[]).map(u=>link(u,"NHL goalie evidence"))
-        .filter(Boolean).forEach(a=>urls.appendChild(a));
-     game.appendChild(urls);panel.appendChild(game);
-   }
-   const fallback=x.g0OfficialPbpFallback||{};
-   if(fallback.status){
-      panel.appendChild(el("p","small muted",
-       "Historical PBP fallback: "+fallback.status.replace(/_/g," ")+
-       " · goalie profiles recovered: "+(fallback.fallbackProfiles||0)));
-   }
-   host.appendChild(panel);
- }
- if(x.lineupSourceCoverage||x.edgeSourceCoverage){
-   const sources=el("details","collapse");
-   sources.appendChild(el("summary","","Official source connection summary"));
-   for(const [label,val] of [["Goalie/skater EDGE",x.edgeSourceCoverage],
-                            ["Lineups and PP",x.lineupSourceCoverage],
-                            ["Historical defensive shifts",x.historicalShiftCoverage]]){
-       if(!val||!Object.keys(val).length)continue;
-       const inner=el("details","code-details");
-       inner.appendChild(el("summary","",label));
-       inner.appendChild(el("pre","raw-json",JSON.stringify(val,null,2)));
-       sources.appendChild(inner);
-   }
-   host.appendChild(sources);
- }
- const details=el("details","collapse");
- details.appendChild(el("summary","","Full-pool elimination audit (not Core certification errors)"));
- const funnel=x.selectionFunnel||{};
- details.appendChild(el("p","","Evaluated "+number(funnel.surveyedEligibleSkaters)+
-   " skaters. Gate-eliminated: "+number(funnel.sourceEliminated)+
-   ". Insufficient evidence: "+number(funnel.notQualifiedIncompleteEvidence)+
-   ". Qualified but not selected: "+number(funnel.qualifiedButNotChosen)+
-   ". Rejected-player failures do not invalidate the certified Core."));
- const g16=x.g16FinalistCompetition;
- if(g16&&Array.isArray(g16.finalists)){
-   details.appendChild(el("p","","G16 cross-game finalist competition ("+
-     g16.finalistCount+" per-game survivors for Core "+g16.requiredCoreSize+"): "+
-     g16.finalists.map(f=>f.player+" "+f.ownedGoalsInMatchedLane+"G/"+
-       f.ownShotsOnGoalInMatchedLane+"SOG "+f.routeZone+" — "+
-       (String(f.g16Decision||"").startsWith("RETAINED")?"retained":
-        "excluded (dominated by "+(f.dominatedBy||[]).length+")")).join(" • ")));
- }
- if(x.errors?.length)details.appendChild(el("p","",
-   "Actual execution errors: "+x.errors.join(" • ")));
- if(x.nonselectedGameResearchNotes?.length)details.appendChild(el("p","",
-    "Unselected matchup research: "+x.nonselectedGameResearchNotes.join(" • ")));
- host.appendChild(details);
-}
-function renderCompleteGateDeck(){
-  // One gate deck; original source functions are nested under each gate.
-  // This deck is navigation only and never changes a Blender decision.
-  for(const [id,gates,type] of [
-    ["master-gate-deck",MASTER,"all"]
-  ]){
-    const holder=$(id);
-    if(!holder)continue;
-    holder.replaceChildren();
-    for(const [i,gate] of gates.entries()){
-      const card=el("button","gate-mini-card gate-mini-"+(i%5));
-      card.type="button";
-      card.dataset.gate=gate;
-      card.setAttribute("aria-label","Inspect "+gate+": "+(EXPLAIN[gate]||"Gate evidence"));
-      card.appendChild(el("span","mini-gate-code",gate));
-      card.appendChild(el("span","mini-gate-symbol","♠"));
-      card.appendChild(el("span","mini-gate-title",EXPLAIN[gate]||"Source check"));
-      card.addEventListener("click",()=>{
-        const saved=selectedEntry(),leg=saved?.current_legs?.find(x=>
-          String(x.gameId)+":"+String(x.playerId)===state.selectedLeg)||
-          saved?.current_legs?.[0];
-        if(!leg)return;
-        const key=String(leg.gameId)+":"+String(leg.playerId);
-        if(state.flippedLeg!==key)toggleCardFlip(key);
-        const coreCard=[...document.querySelectorAll("#core-cards .core-card")]
-          .find(x=>x.dataset.leg===key);
-        if(!coreCard)return;
-        coreCard.scrollIntoView({behavior:"smooth",block:"center"});
-        const back=coreCard.querySelector(".card-back");
-        const target=[...coreCard.querySelectorAll(".flip-gate-row")]
-          .find(x=>x.dataset.gate===gate);
-        if(back&&target)back.scrollTop=target.offsetTop-back.offsetTop;
-      });
-      holder.appendChild(card);
-    }
-  }
-}
 function renderAll(){
  renderPicker();renderHeader();renderCards();
- renderPool();renderGrade();renderSeason();
+ renderPool();
 }
 async function loadEvidence(date){
  const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;
@@ -787,22 +445,20 @@ function chooseDate(date){
  url.searchParams.set("slate",date);
  window.history.replaceState(null,"",url);
 }
-function publishedSignature(latest,archived,season){
+function publishedSignature(latest,archived){
  return JSON.stringify({
    publishedAt:latest?.publishedAt,cardId:latest?.card?.cardId,
-   stage:latest?.stage,grade:latest?.postgameGrade?.result,
-   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.grade?.result]),
+   stage:latest?.stage,
+   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision]),
     perGame:(latest?.gameSurvivorPool||[]).map(g=>[g.gameId,g.status,g.survivor?.playerId]),
     savedOriginalGateEvidenceVerified:latest?.savedOriginalGateEvidenceVerified,
-   seasonSize:season?.officiallyGradedSlates,
-   patchCount:season?.verifiedAutomaticGuardPatches?.length,
  });
 }
 // Presentation-only section navigation. No changes to picks or evidence.
 function initWorkspaceNavigation(){
  const links=Array.from(document.querySelectorAll?.(".main-nav a[data-nav]")||[]);
  if(!links.length)return;
- const ids=["core","pool","results"];
+ const ids=["core","pool"];
  const activate=id=>{
    if(!ids.includes(id))return;
    for(const link of links){
@@ -844,13 +500,11 @@ async function boot(){
  initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
-   json("./data/latest.json"),json("./data/cards-archive.json"),
-   json("./data/season-history.json")
+   json("./data/latest.json"),json("./data/cards-archive.json")
  ]);
  state.latest=values[0].status==="fulfilled"?values[0].value:null;
  state.archive=values[1].status==="fulfilled"?
     (values[1].value.cards||[]).filter(x=>x.verified===true&&Array.isArray(x.current_legs)):[];
- state.season=values[2].status==="fulfilled"?values[2].value:null;
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
@@ -866,7 +520,7 @@ async function boot(){
  state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
  renderAll();
  await loadEvidence(state.selectedDate);
- latestPublishedSignature=publishedSignature(state.latest,state.archive,state.season);
+ latestPublishedSignature=publishedSignature(state.latest,state.archive);
 }
 document.addEventListener?.("keydown",event=>{
  if(event.key!=="Escape"||!state.flippedLeg)return;
@@ -886,22 +540,20 @@ async function pollPublishedResults(){
  if(document.hidden||!state.selectedDate)return;
  const fresh=await Promise.allSettled([
    json("./data/latest.json"),
-   json("./data/cards-archive.json"),
-   json("./data/season-history.json")
+   json("./data/cards-archive.json")
  ]);
  if(fresh[0].status!=="fulfilled"||fresh[1].status!=="fulfilled")return;
  const next=fresh[0].value;
  const archived=(fresh[1].value.cards||[]).filter(x=>
    x.verified===true&&Array.isArray(x.current_legs));
- const season=fresh[2].status==="fulfilled"?fresh[2].value:state.season;
- const fingerprint=publishedSignature(next,archived,season);
+ const fingerprint=publishedSignature(next,archived);
  if(latestPublishedSignature===null){
    latestPublishedSignature=fingerprint;
    return;
  }
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
- state.latest=next;state.archive=archived;state.season=season;
+ state.latest=next;state.archive=archived;
  // Keep the user's open archive date and selected recipient when possible.
  const days=unique([next.date,...archived.map(x=>x.date)]);
  if(!days.includes(state.selectedDate))

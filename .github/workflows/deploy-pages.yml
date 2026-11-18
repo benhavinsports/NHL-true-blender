@@ -98,7 +98,6 @@ jobs:
                   continue
               if not current_match:
                   print('::warning::Current research incomplete; retaining only source-verified prior G18 receipt for '+saved_date)
-              grade=json.loads(saved.get('gradeJson') or '{}')
               entry={
                   'date':saved_date,'cardId':saved.get('cardId'),
                   'fingerprint':saved.get('fingerprint'),
@@ -106,7 +105,6 @@ jobs:
                   'stage':saved.get('stage'),
                   'cardStatus':saved.get('status'),
                   'current_legs':saved_legs,
-                  'grade':grade or None,
                   'verified':True,
                   'savedOriginalEvidenceVerified':bool(original_proof),
                   'currentRunSourceMatch':current_match,
@@ -152,8 +150,8 @@ jobs:
                        'monthlyThreeSlateCalibration':{},
                        'verifiedAutomaticGuardPatches':[],
                        'allOfficialGrades':[],'noSelectionsOrRetroactiveGradesInvented':True}
-          pathlib.Path('site/data/season-history.json').write_text(
-              json.dumps(history,default=str))
+          # The official grade ledger and season calibration stay in GitHub;
+          # public Pages never exports internal performance reports.
           if dates:
               date=dates[-1]
               status_path=root/'site_runs'/f'{date}.json'
@@ -318,9 +316,6 @@ jobs:
                           'revision':card.get('revision'),'fingerprint':card.get('fingerprint')}
                           if card else None,
                   'verified':bool(card),
-                  'postgameGrade':grade_report,
-                  'postgameGradeStatus':('OFFICIALLY_GRADED' if grade_report
-                     else 'AWAITING_ALL_GAMES_FINAL' if card else 'NO_LOCKED_CARD'),
                   'pathAudit':audited,
                   'pathAuditIsSeparateFromOriginalFrozenCard':True,
               }
@@ -336,12 +331,18 @@ jobs:
       - name: Verify dashboard is deployment entry point
         run: |
           test -s site/index.html
-          grep -q '<title>True Blender | NHL Scouting Intelligence</title>' site/index.html
+          grep -q '<title>True Blender | The NHL Scouting Deck</title>' site/index.html
           grep -q 'id="core-cards"' site/index.html
           ! grep -q 'id="leg-detail"' site/index.html
           grep -q 'id="slate-select"' site/index.html
           test -s site/styles.css
           test -s site/app.js
+          test -s site/public-deck.css
+          ! grep -q 'id="results"' site/index.html
+          ! grep -q 'id="grade-summary"' site/index.html
+          ! grep -q 'id="season-summary"' site/index.html
+          # The official season ledger is GitHub-only, never exposed by Pages.
+          rm -f site/data/season-history.json
           node --check site/gate-facts.js
           node --check site/pool-deck.js
           node --check site/app.js
