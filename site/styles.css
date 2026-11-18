@@ -1828,3 +1828,428 @@ a{color:#a4d6d4}
 .core-card .card-face.card-front{
   position:absolute;inset:0;width:100%;height:100%;
 }
+
+
+/* ========================================================================
+   COLLECTOR SERIES II — MATCHING SURVIVOR FRONTS
+   Genuine saved-player photographs, foil curves, integrated name and stats.
+   Core remains the premium gold edition; survivor cards use steel/soft gold.
+   ======================================================================== */
+.pool-deck{gap:14px}
+.pool-collector-card{
+  height:340px;filter:drop-shadow(0 10px 13px #0007);
+  border-radius:10px;
+}
+.pool-collector-card .pool-face.pool-front{
+  display:block;position:absolute;inset:0;overflow:hidden;
+  border-radius:10px;border:2px solid #b6a074;
+  background:#0a1421;
+  color:#f9f4e7;
+}
+.pool-collector-card:not(.core-pool-card) .pool-face.pool-front{
+  border-color:#9aabb5;
+}
+.pool-collector-card .pool-front::after{
+  z-index:7;inset:6px;border:1px solid #e4c98a77;
+  border-radius:6px;
+}
+.pool-collector-card:not(.core-pool-card) .pool-front::after{
+  border-color:#c0d3dc65;
+}
+.pool-collector-card .pool-front-turn{
+  display:block;position:relative;
+  padding:0;margin:0;width:100%;height:100%;
+  overflow:hidden;border:0;cursor:pointer;
+  background:
+   radial-gradient(ellipse at 52% 33%,#3a4a5c,#0b1422 69%);
+  text-align:left;color:#f6f4ef;
+}
+.pool-collector-card .pool-front-turn>.survivor-collector-art{
+  position:absolute;inset:0;width:100%;height:100%;
+  z-index:0;margin:0;padding:0;min-height:0;
+  display:block;background:
+   radial-gradient(ellipse at 56% 27%,#3b4a5a,transparent 68%),
+   #08121f;border:0;border-radius:0;
+}
+.pool-collector-card .survivor-collector-art::before,
+.pool-collector-card .survivor-collector-art::after{display:none}
+.pool-collector-card .survivor-collector-art .collector-photo{
+  object-position:center 27%;filter:grayscale(29%) contrast(1.16) saturate(.86);
+}
+.pool-collector-card .survivor-collector-art.is-headshot .collector-photo{
+  object-fit:contain;width:120%;left:-10%;height:83%;top:3%;
+}
+.pool-collector-card .survivor-collector-art .collector-photo-shade{
+  background:linear-gradient(180deg,#02060bd9,transparent 24%,
+    #040b120a 39%,#04091091 59%,#040811ee 77%,#040811 100%);
+}
+.pool-collector-card .survivor-collector-art .collector-foil-rings{
+  opacity:.65;
+}
+.pool-collector-card:not(.core-pool-card) .survivor-collector-art .collector-foil-rings{
+  filter:saturate(.58);opacity:.56;
+}
+.pool-collector-card .pool-card-head.collector-pool-masthead{
+  position:absolute;top:0;left:0;right:0;z-index:5;
+  margin:0;padding:17px 15px 9px;min-height:0;
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(#02060bbf,transparent);
+  gap:5px;
+}
+.pool-collector-card .pool-matchup{
+  color:#f4e4c1;font-size:10px;font-weight:850;
+  letter-spacing:.10em;white-space:nowrap;
+}
+.pool-collector-card .pool-card-series{
+  font-size:8px;font-weight:800;color:#d4c3a0;letter-spacing:.07em;
+}
+.pool-collector-card .pool-card-player.collector-pool-nameplate{
+  display:grid;position:absolute;z-index:6;
+  left:0;right:0;bottom:36px;
+  margin:0;padding:0 16px 8px;gap:7px;
+  min-height:0;align-content:end;
+  background:transparent;border:0;
+}
+.pool-collector-card .pool-team{
+  font:850 10px Inter,Arial,sans-serif;letter-spacing:.15em;
+  color:#e1c890;text-shadow:0 2px 6px #000;
+}
+.pool-collector-card .pool-player-name{
+  display:block;margin:0;max-width:100%;
+  color:#fffefa;
+  font:950 clamp(21px,2.4vw,32px)/1.02 Inter,Arial,sans-serif;
+  text-shadow:0 3px 9px #000d;
+  letter-spacing:-.045em;overflow-wrap:break-word;
+}
+.pool-collector-card .pool-route{
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+  margin:0;padding:0;
+}
+.pool-collector-card .pool-path{
+  background:linear-gradient(125deg,#c09a61,#e5d2a3,#b38e56);
+  color:#17212e;
+  border:1px solid #f2d497;border-radius:4px;
+  padding:5px 7px;font-size:9px;letter-spacing:.05em;
+}
+.pool-collector-card .pool-path.transfer,
+.pool-collector-card .pool-path.who{background:linear-gradient(125deg,#c09a61,#e5d2a3,#b38e56);
+  color:#17212e;border-color:#f2d497}
+.pool-collector-card .pool-origin{
+  color:#f4eee5;font-weight:750;font-size:10px;
+}
+.pool-collector-card .pool-short-proof{
+  display:block;width:100%;color:#e6ebea;font-size:10px;
+  padding-top:8px;border-top:1px solid #c9b78d8f;line-height:1.35;
+}
+.pool-collector-card .pool-turn-tip{
+  display:block;position:absolute;z-index:6;bottom:0;
+  left:0;right:0;margin:0;padding:11px 15px;
+  background:#050a11ee;border-top:1px solid #d3bd806e;
+  color:#b9c8ca;text-align:left;font-size:9px;
+}
+.pool-collector-card.unqualified .pool-front{
+  background:linear-gradient(155deg,#202934,#0e1924);
+  border-color:#667987;
+}
+.pool-collector-card.unqualified .pool-front-turn{background:transparent}
+.pool-collector-card.unqualified .pool-card-player{bottom:64px}
+.pool-collector-card.unqualified .pool-player-name{font-size:21px}
+.pool-collector-card .pool-back{overflow:hidden}
+
+/* ========================================================================
+   SCOUTING REPORT BACKS — PROFESSIONAL ANALYTICS, SHARED BY BOTH DECKS
+   Source receipts are read only; expanding a gate never changes the scorer.
+   ======================================================================== */
+.core-card .card-back,.pool-collector-card .pool-back{
+  border:1px solid #657889;
+  border-radius:9px;
+  background:#101a29;
+  color:#eef3f3;
+  padding:0;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.scout-report{
+  display:flex;flex-direction:column;
+  height:100%;min-height:0;width:100%;
+  background:
+   radial-gradient(circle at 95% 3%,#1d3b574f,transparent 36%),
+   linear-gradient(170deg,#142133,#0a1423 66%);
+  color:#edf3f6;
+  font:500 12px/1.45 Inter,Arial,sans-serif;
+  text-align:left;
+}
+.scout-header{
+  display:flex;align-items:start;justify-content:space-between;
+  gap:12px;padding:18px 17px 15px;
+  border-bottom:1px solid #5f7b905e;
+  background:linear-gradient(120deg,#1a2c42,#101c2d);
+  flex:0 0 auto;
+}
+.scout-title{display:grid;gap:4px;min-width:0;flex:1}
+.scout-eyebrow{
+  color:#8babc1;font:800 9px Inter,Arial,sans-serif;letter-spacing:.13em;
+}
+.scout-title>strong{
+  color:#f5f9f9;font:850 17px/1.05 Inter,Arial,sans-serif;
+  letter-spacing:-.035em;overflow-wrap:break-word;
+}
+.scout-subtitle{
+  color:#a3b9c5;font-size:10px;letter-spacing:.045em;
+  overflow-wrap:anywhere;
+}
+.scout-dismiss{
+  cursor:pointer;align-self:center;
+  font:850 10px Inter,Arial,sans-serif;letter-spacing:.08em;
+  color:#e8f0ee;background:#263c52;
+  border:1px solid #779bb07d;border-radius:6px;
+  padding:9px 10px;white-space:nowrap;
+}
+.scout-dismiss:hover,.scout-dismiss:focus-visible{
+  background:#35526b;outline:1px solid #b5e1e3;
+}
+.scout-body{
+  display:grid;align-content:start;gap:15px;
+  min-height:0;flex:1;
+  overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:#41697b #132236;
+  padding:16px 17px 28px;
+}
+.scout-path-strip{
+  display:flex;flex-direction:column;gap:5px;
+  background:linear-gradient(135deg,#1a3a50,#1b2c3d);
+  border:1px solid #5795a06b;
+  border-left:3px solid #85caca;
+  border-radius:8px;padding:13px 13px 14px;
+}
+.scout-path-type{
+  font:850 10px Inter,Arial,sans-serif;letter-spacing:.12em;
+  color:#a1d6d5;
+}
+.scout-path-strip strong{
+  font:900 clamp(19px,3vw,29px)/1.1 Inter,Arial,sans-serif;
+  letter-spacing:-.04em;color:#f4fafa;
+}
+.scout-path-caption{font-size:10px;color:#afc1ce}
+.scout-metrics{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+}
+.scout-metric{
+  display:grid;align-content:start;gap:5px;
+  min-width:0;min-height:110px;
+  padding:11px 12px;
+  border:1px solid #526b805e;border-radius:8px;
+  background:#1a2c40;
+}
+.scout-metric-ref{
+  font:850 10px Inter,Arial,sans-serif;color:#7ac2cb;
+}
+.scout-metric-title{
+  font:750 10px/1.4 Inter,Arial,sans-serif;letter-spacing:.065em;
+  color:#a9b8c3;
+}
+.scout-metric-value{
+  color:#f3f8f7;
+  font:850 16px/1.15 Inter,Arial,sans-serif;
+  overflow-wrap:anywhere;
+}
+.scout-metric-note{
+  color:#96b0c3;font-size:10px;
+}
+.scout-conversion{
+  display:grid;gap:8px;padding:12px;
+  border:1px solid #4a667660;border-radius:8px;
+  background:#101e2e;
+}
+.scout-conversion-label{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  color:#afc9ce;
+}
+.scout-conversion-label span{font-size:10px;font-weight:800;letter-spacing:.055em}
+.scout-conversion-label strong{font-size:13px;color:#e5f5f1}
+.scout-conversion-track{
+  height:7px;border-radius:8px;overflow:hidden;
+  background:#35485c;
+}
+.scout-conversion-fill{
+  display:block;height:100%;background:linear-gradient(90deg,#598eae,#91d4ce);
+  border-radius:inherit;
+}
+.scout-conversion>p{
+  font-size:10px;line-height:1.5;color:#8ea8b7;margin:0;
+}
+.scout-context{
+  border:1px solid #57758a5e;border-radius:8px;
+  background:#17283a;padding:11px 12px;
+}
+.scout-context h4{
+  margin:0 0 12px;color:#ecf2f2;
+  font:850 10px Inter,Arial,sans-serif;letter-spacing:.15em;
+}
+.scout-context-row{
+  display:grid;grid-template-columns:minmax(100px,.7fr) minmax(0,1.3fr);
+  gap:12px;align-items:start;
+  padding:10px 0;border-top:1px solid #48657963;
+}
+.scout-context-label{
+  color:#94afbf;font:800 9px/1.5 Inter,Arial,sans-serif;
+  letter-spacing:.05em;
+}
+.scout-context-value{
+  color:#e5eff2;font-size:12px;line-height:1.45;
+  font-weight:650;overflow-wrap:anywhere;
+}
+.scout-section-heading{
+  display:flex;align-items:end;justify-content:space-between;
+  gap:12px;padding:3px 2px 8px;
+  border-bottom:1px solid #6684946e;
+}
+.scout-section-heading strong{
+  font:900 12px Inter,Arial,sans-serif;letter-spacing:.12em;
+  color:#f0f7f6;
+}
+.scout-section-heading span{
+  color:#95aab5;font-size:10px;text-align:right;
+}
+.scout-gate-group{display:grid;gap:7px;min-width:0}
+.scout-gate-group h4{
+  color:#89c6c9;margin:5px 0;
+  font:900 10px Inter,Arial,sans-serif;letter-spacing:.12em;
+}
+.scout-gate.flip-gate-row,.scout-gate.pool-gate-proof{
+  display:block;margin:0;padding:0;border-radius:7px;
+  background:#17293b;border:1px solid #67809572;
+  overflow:hidden;min-width:0;
+}
+.scout-gate.unresolved{border-color:#9a796c88;background:#262a35}
+.scout-gate>summary.scout-gate-summary{
+  display:grid;grid-template-columns:39px minmax(0,1fr) auto;
+  align-items:center;gap:10px;padding:12px 11px;
+  list-style:none;cursor:pointer;min-height:63px;
+}
+.scout-gate>summary::-webkit-details-marker{display:none}
+.scout-gate-key{
+  color:#b5dbe2;background:#243e53;border:1px solid #517b93a8;
+  padding:7px 4px;text-align:center;font-size:11px;font-weight:850;
+  border-radius:5px;
+}
+.scout-gate-labels{display:grid;gap:3px;min-width:0}
+.scout-gate-labels>strong{
+  color:#eaf1f4;font-size:11px;font-weight:800;
+  line-height:1.3;
+}
+.scout-gate-teaser{
+  color:#9fb8c7;font-size:10px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.scout-gate-verdict{
+  font:850 10px Inter,Arial,sans-serif;
+  max-width:105px;text-align:right;color:#e0ad8b;
+}
+.scout-gate-verdict.is-pass{color:#8ad1b4;font-size:15px}
+.scout-gate[open] .scout-gate-summary{border-bottom:1px solid #506d806e}
+.scout-gate-reveal{display:grid;gap:10px;padding:12px}
+.scout-gate-reveal .scout-gate-full-proof{
+  color:#d9e8ee;margin:0;font-size:12px;
+  line-height:1.6;overflow-wrap:anywhere;
+}
+.scout-mini-heading{
+  display:block;grid-column:1/-1;
+  font:850 10px Inter,Arial,sans-serif;color:#9aafbc;
+  letter-spacing:.12em;
+}
+.scout-original-functions{
+  display:grid;gap:7px;
+  border-left:2px solid #639ca6;padding-left:11px;
+}
+.scout-original-function{
+  display:grid;gap:3px;padding:6px 0;
+}
+.scout-original-function strong{color:#b9d5df;font-size:11px}
+.scout-original-function p{color:#9bb8c7;font-size:10px;margin:0;line-height:1.5}
+.scout-gate-sources,.scout-global-sources{
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  border-top:1px solid #56738c5e;padding-top:10px;
+}
+.scout-global-sources{padding-bottom:10px}
+.scout-source{
+  display:inline-flex;align-items:center;
+  border:1px solid #5b9eaa8a;
+  color:#bce9e8;background:#203b4f;
+  border-radius:5px;padding:7px 9px;
+  font:800 10px Inter,Arial,sans-serif;line-height:1.25;
+}
+.scout-source:hover,.scout-source:focus-visible{
+  color:#f5ffff;background:#28556a;outline:1px solid #71bdc4;
+}
+.scout-missing{
+  display:block;padding:16px;
+  background:#242b39;border:1px solid #8c85765e;
+  color:#d7e1e1;border-radius:7px;
+  font-size:12px;line-height:1.6;
+}
+
+/* Flip the entire card into a true evidence workspace; links, accordions and
+   close control are independent, no tap accidentally flips another control. */
+body.core-report-open,body.pool-card-open{overflow:hidden}
+body.core-report-open::before,body.pool-card-open::before{
+  content:"";position:fixed;z-index:540;inset:0;
+  background:#020914e6;backdrop-filter:blur(7px);
+}
+.core-card.is-flipped,.pool-collector-card.is-flipped{
+  position:fixed!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:600!important;
+  width:min(650px,calc(100vw - 28px))!important;
+  max-width:none!important;
+  height:min(760px,calc(100dvh - 46px))!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  border:1px solid #7391a5!important;
+  border-radius:12px!important;
+  filter:drop-shadow(0 26px 35px #000c);
+  box-shadow:0 32px 65px #000a!important;
+}
+.core-card.is-flipped .card-flip-inner,
+.pool-collector-card.is-flipped .pool-flip-inner{height:100%}
+.core-card.is-flipped .card-back,
+.pool-collector-card.is-flipped .pool-back{
+  position:absolute;inset:0;width:100%;height:100%;
+  overflow:hidden;padding:0;
+  border-radius:10px!important;
+}
+.core-card.is-flipped .card-front,
+.pool-collector-card.is-flipped .pool-front{pointer-events:none}
+.core-card:not(.is-flipped) .card-back,
+.pool-collector-card:not(.is-flipped) .pool-back{pointer-events:none}
+@media(max-width:650px){
+  .pool-deck{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .pool-collector-card{height:282px;min-height:282px}
+  .pool-collector-card .pool-card-head.collector-pool-masthead{padding:14px 10px}
+  .pool-collector-card .pool-matchup{font-size:8px;letter-spacing:.045em}
+  .pool-collector-card .pool-card-series{font-size:7px;letter-spacing:0}
+  .pool-collector-card .pool-card-player.collector-pool-nameplate{
+    padding:0 10px 7px;bottom:31px;gap:6px;
+  }
+  .pool-collector-card .pool-player-name{font-size:clamp(17px,5.1vw,22px)}
+  .pool-collector-card .pool-team{font-size:8px}
+  .pool-collector-card .pool-path{font-size:8px;padding:4px 6px}
+  .pool-collector-card .pool-origin{font-size:8px}
+  .pool-collector-card .pool-short-proof{font-size:9px;line-height:1.35}
+  .pool-collector-card .pool-turn-tip{padding:9px 10px;font-size:7px}
+  .pool-collector-card .survivor-collector-art .collector-team-crest{
+    width:31px;height:31px;
+  }
+  .scout-header{padding:17px 14px 13px}
+  .scout-title>strong{font-size:21px}
+  .scout-eyebrow{font-size:8px}
+  .scout-dismiss{font-size:9px;padding:9px}
+  .scout-body{padding:15px 13px 28px;gap:12px}
+  .scout-metric{min-height:100px;padding:10px}
+  .scout-metric-value{font-size:15px}
+  .scout-context-row{grid-template-columns:minmax(88px,.7fr) minmax(0,1.3fr)}
+  .scout-gate>summary.scout-gate-summary{gap:7px;padding:11px 9px}
+  .scout-gate-labels>strong{font-size:11px}
+  .scout-gate-verdict{font-size:9px}
+}

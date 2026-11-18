@@ -44,193 +44,94 @@ function toggle(holder,key){
    if(back)back.setAttribute("aria-expanded",String(active));
  }
 }
-
-/* Original NHL player IDs come from the saved survivor receipt, never from
-   a UI-generated selection. Prefer official action photos; try official
-   season/team headshots before showing a quiet typographic fallback. */
-function collectorPortrait(survivor,g,date){
- const art=create("div","pool-collector-art");
- art.setAttribute("aria-hidden","true");
- art.appendChild(create("span","collector-foil-rings"));
- const id=String(survivor.playerId||"");
- const year=Number(String(date||"").slice(0,4));
- const season=Number.isInteger(year)&&year>=2020&&year<=2040?
-   String(year)+String(year+1):"20262027";
- const matchup=String(g.matchup||"").split("@");
- const teams=[survivor.attackTeam,g.attackTeam,...matchup]
-   .filter(x=>typeof x==="string"&&/^[A-Z]{3}$/.test(x));
- const distinct=[...new Set(teams)];
- const choices=/^\d{7,8}$/.test(id)?[
-   ["https://assets.nhle.com/mugs/actionshots/1296x729/"+id+".jpg","action"],
-   ...distinct.map(team=>["https://assets.nhle.com/mugs/nhl/"+season+"/"+team+"/"+id+".png","headshot"])
- ]:[];
- if(choices.length){
-   const img=create("img","pool-collector-photo");
-   img.alt=survivor.player+" NHL player photo";
-   img.loading="lazy";img.decoding="async";img.draggable=false;
-   let at=0;
-   img.addEventListener("load",()=>{
-     art.classList.add("has-photo");
-     art.classList.toggle("is-headshot",choices[at][1]==="headshot");
-   });
-   img.addEventListener("error",()=>{
-     at++;
-     if(at<choices.length)img.src=choices[at][0];
-     else{img.remove();art.classList.add("photo-unavailable");}
-   });
-   img.src=choices[0][0];art.appendChild(img);
- }else art.classList.add("photo-unavailable");
- art.appendChild(create("span","pool-collector-shade"));
- if(distinct.length){
-   const crest=create("img","pool-collector-crest");
-   crest.alt="";crest.loading="lazy";
-   crest.src="https://assets.nhle.com/logos/nhl/svg/"+distinct[0]+"_light.svg";
-   crest.addEventListener("error",()=>crest.remove());
-   art.appendChild(crest);
- }
- const initials=String(survivor.player||"").trim().split(/\s+/)
-     .map(name=>name[0]||"").join("").slice(0,2).toUpperCase();
- art.appendChild(create("span","pool-collector-fallback",initials));
- return art;
-}
-
-function card(holder,g,coreKeys,latest,gates,gateNames,facts){
+function card(holder,g,coreKeys,latest,gates,gateNames,facts,date){
  const survivor=g.status==="SURVIVOR"&&g.survivor?g.survivor:null;
  const gameKey=String(g.gameId);
  const savedCore=!!survivor&&coreKeys.has(gameKey+":"+String(survivor.playerId));
  const path=survivor?.routeLabel;
  const active=flippedKey===gameKey;
- const card=create("article","pool-flip-card"+(survivor?" qualified":" unqualified")+
-     (savedCore?" core-pool-card":"")+(active?" is-flipped":""));
- card.dataset.cardKey=gameKey;
- card.dataset.facing=active?"back":"front";
+ const card=create("article","pool-flip-card pool-collector-card"+
+    (survivor?" qualified":" unqualified")+
+    (savedCore?" core-pool-card":"")+(active?" is-flipped":""));
+ card.dataset.cardKey=gameKey;card.dataset.facing=active?"back":"front";
  const rotator=create("div","pool-flip-inner");
- // Front is an actual, fully clickable button. The back contains separate
- // independent controls and source links, never links nested inside a button.
- const front=create("div","pool-face pool-front"+(survivor?" photo-collector-front":""));
- if(survivor)front.appendChild(collectorPortrait(survivor,g,latest?.date||visibleDate));
+ const front=create("div","pool-face pool-front");
+ // A single accessible button covers the collector-card FRONT. The reverse
+ // contains independent focusable evidence controls (not nested buttons).
  const turn=create("button","pool-front-turn");turn.type="button";
  turn.setAttribute("aria-expanded",String(active));
- turn.setAttribute("aria-label",
-   "Flip "+(survivor?.player||g.matchup||"game")+" card to inspect original evidence");
- const head=create("div","pool-card-head");
- head.appendChild(create("span","pool-matchup",String(g.matchup||"Matchup unavailable").replace("@"," @ ")));
- head.appendChild(create("span","pool-card-series","TRUE BLENDER · NHL"));
- turn.appendChild(head);
- turn.appendChild(create("span","pool-overline",
-   savedCore?"IN THE CORE":survivor?"GAME SURVIVOR":"SOURCE REVIEW"));
- const player=create("div","pool-card-player");
+ turn.setAttribute("aria-label","Flip "+(survivor?.player||g.matchup||"game")+
+    " collector card to open scouting evidence");
  if(survivor){
-   player.appendChild(create("strong","pool-player-name",survivor.player));
+   turn.appendChild(NHLScouting.photo({
+     player:survivor.player,playerId:survivor.playerId,
+     team:survivor.attackTeam||g.attackTeam,matchup:g.matchup,date
+   }));
+ }
+ const head=create("div","pool-card-head collector-pool-masthead");
+ head.appendChild(create("span","pool-matchup",
+   String(g.matchup||"Matchup unavailable").replace("@"," @ ")));
+ head.appendChild(create("span","pool-card-series",
+   savedCore?"CORE MEMBER":survivor?"NHL · GAME SURVIVOR":"SOURCE REVIEW"));
+ turn.appendChild(head);
+ const player=create("div","pool-card-player collector-pool-nameplate");
+ if(survivor){
    player.appendChild(create("span","pool-team",survivor.attackTeam||g.attackTeam||""));
+   player.appendChild(create("strong","pool-player-name",survivor.player));
    const route=create("div","pool-route");
-   route.appendChild(create("span","pool-path "+(
-     path==="TRANSFER"?"transfer":path==="WHO"?"who":"primary"),path||"PATH UNVERIFIED"));
+   route.appendChild(create("span","pool-path "+
+     (path==="TRANSFER"?"transfer":path==="WHO"?"who":"primary"),
+     path||"PATH UNVERIFIED"));
    if(survivor.ownRouteZone)
      route.appendChild(create("span","pool-origin",survivor.ownRouteZone));
    player.appendChild(route);
    player.appendChild(create("span","pool-short-proof",
-     num(survivor.ownedGoals)+" goals  ·  "+num(survivor.ownShotsOnGoal)+" on-net shots"));
+     num(survivor.ownedGoals)+" credited goals · "+
+     num(survivor.ownShotsOnGoal)+" on-net shots"));
  }else{
    player.appendChild(create("strong","pool-player-name pool-unresolved","No survivor"));
    player.appendChild(create("span","pool-team",
-     g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?"GAME FROZEN":"REVIEW IN PROGRESS"));
+     g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?
+     "GAME FROZEN":"SOURCE REVIEW OPEN"));
  }
  turn.appendChild(player);
- turn.appendChild(create("span","pool-turn-tip","EXPLORE EVIDENCE  ↗"));
+ turn.appendChild(create("span","pool-turn-tip",
+   "FLIP · SCOUTING REPORT   ↗"));
  turn.addEventListener("click",()=>toggle(holder,gameKey));
  front.appendChild(turn);
- // Back always renders factual, compact original engine evidence first.
- const back=create("div","pool-face pool-back scouting-report-back");
- const top=create("div","pool-back-bar");
- top.appendChild(create("strong","",survivor?.player||String(g.matchup||"Matchup")));
- const backTurn=create("button","pool-back-turn","← CLOSE");
- backTurn.type="button";
- backTurn.setAttribute("aria-label","Turn "+(survivor?.player||g.matchup||"game")+" back to front");
- backTurn.setAttribute("aria-expanded",String(active));
- backTurn.addEventListener("click",()=>toggle(holder,gameKey));
- top.appendChild(backTurn);back.appendChild(top);
- const info=create("div","pool-back-content");
- if(survivor){
-   info.appendChild(create("p","pool-back-subtitle","MATCHUP SCOUTING / "+
-     String(latest?.gameSurvivorDisplayStage||latest?.gameSurvivorDisplayProvenance?.sourceStage||
-       latest?.stage||"STAGE UNREPORTED")));
-   const snapshot=create("div","pool-scout-scorecard");
-   fact(snapshot,"MATCHUP",String(g.matchup||"Unreported").replace("@"," @ "));
-   fact(snapshot,"PATH",String(survivor.routeLabel||"Not verified"));
-   fact(snapshot,"OPPOSING GOALIE",String(survivor.goalieId||"Unreported"));
-   info.appendChild(snapshot);
-   fact(info,"G0 · Target goalie",String(survivor.goalieId||"Unreported")+
-       " · "+String(survivor.goalieStatus||"Unconfirmed"));
-   fact(info,"G4/G5 · Own release",String(survivor.ownRouteZone||"Not recorded")+
-       " · "+num(survivor.ownedGoals)+" goals · "+
-       num(survivor.ownShotsOnGoal)+" shots on net");
-   const deployment=survivor.deployment||{};
-   fact(info,"G6 · Deployment",(deployment.EV||"EV not reported")+
-     (deployment.powerPlayUnit?" · PP"+deployment.powerPlayUnit:"")+
-     (deployment.status?" · "+deployment.status:""));
-   const defense=survivor.independentOpponentDefense||{};
-   if(typeof defense.attemptsAgainst==="number"){
-     fact(info,"G9 · Defense",num(defense.attemptsAgainst)+" attempts · "+
-       num(defense.onNetShotsAgainst)+" on-net · "+
-       num(defense.gameCount)+" games");
-   }
-   fact(info,"G16 · Cross-game",safeLabel(g.g16Decision||"no cross-game decision reported"));
-   const pathProof=survivor.pathClassificationEvidence||{};
-   if(pathProof.rationale)
-     info.appendChild(create("p","pool-back-reason",pathProof.rationale));
-   const key=gameKey+":"+String(survivor.playerId);
-   const receipts=latest?.gameSurvivorGateReceipts?.[key];
-   if(Array.isArray(receipts)&&receipts.length){
-     info.appendChild(create("strong","pool-gate-heading","G0–G18 · SOURCE-VERIFIED SCOUTING RECORD"));
-     const byGate=new Map(receipts.map(rec=>[rec.gate,rec]));
-     for(const gate of gates){
-       const rec=byGate.get(gate)||{gate,status:"NOT_RECORDED",
-         prePuckRecord:false,evidence:{},sourceIds:[]};
-       const proof=create("details","pool-gate-proof");
-       proof.dataset.gate=gate;
-       const summary=create("summary","");
-       summary.appendChild(create("span","",gate));
-       const passed=rec.status==="PASS"&&rec.prePuckRecord===true;
-       summary.appendChild(create("span","pool-gate-verdict"+(passed?" passed":" pending"),
-         passed?"✓":safeLabel(rec.status)));
-       proof.appendChild(summary);
-       proof.appendChild(create("p","",facts.explanation(rec)));
-       if(Array.isArray(rec.originalFunctions)&&rec.originalFunctions.length){
-         proof.appendChild(create("p","pool-function-proof",
-           rec.originalFunctions.map(f=>String(f.step)+" · "+String(f.status)).join(" · ")));
-       }
-       const refs=create("div","pool-gate-links");
-       unique(rec.sourceIds).forEach((u,i)=>source(refs,u,"Source "+(i+1)));
-       proof.appendChild(refs);
-       info.appendChild(proof);
-     }
-   }else{
-     info.appendChild(create("p","pool-receipt-pending",
-       "Full original gate receipt not published in this feed. The dated scoring-route evidence above remains inspectable; missing gate details are not marked passed."));
-   }
-   const links=create("div","pool-evidence-sources");
-   links.appendChild(create("strong","","SOURCES"));
-   unique([survivor.routeSource,survivor.goalieSourceUrl,
-     survivor.defenseSourceUrl,survivor.deploymentSourceUrl,
-     ...(pathProof.sourceUrls||[])]).slice(0,12).forEach((url,i)=>
-       source(links,url,"Evidence "+(i+1)));
-   info.appendChild(links);
- }else{
-   info.appendChild(create("p","pool-receipt-pending",
-     g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?
-       "This game is frozen after puck drop.":
-       "No source-qualified game survivor has been published."));
-   if(g.currentSourceBlocker)
-      fact(info,"Current source blocker",
-        g.currentSourceBlocker+" · "+(gateNames[g.currentSourceBlocker]||"unresolved"));
-   const failures=g.firstNonPassGateCounts||{};
-   for(const [gate,count] of Object.entries(failures))
-     fact(info,gate,String(count)+" skater evaluations");
- }
- back.appendChild(info);
- rotator.appendChild(front);rotator.appendChild(back);card.appendChild(rotator);
- holder.appendChild(card);
+ const back=create("div","pool-face pool-back");
+ const pathProof=survivor?.pathClassificationEvidence||{};
+ const receipts=survivor?latest?.gameSurvivorGateReceipts?.[
+    gameKey+":"+String(survivor.playerId)]:null;
+ back.appendChild(NHLScouting.report({
+    player:survivor?.player||null,
+    team:survivor?.attackTeam||g.attackTeam,
+    matchup:g.matchup,
+    stage:latest?.gameSurvivorDisplayStage||latest?.stage,
+    path:path,
+    goalieId:survivor?.goalieId,
+    goalieStatus:survivor?.goalieStatus,
+    origin:survivor?.ownRouteZone,
+    ownGoals:survivor?.ownedGoals,
+    ownShots:survivor?.ownShotsOnGoal,
+    defense:survivor?.independentOpponentDefense,
+    deployment:survivor?.deployment,
+    g16Decision:g.g16Decision,
+    receipts,
+    gateNames,facts,
+    sources:survivor?unique([
+      survivor.routeSource,survivor.goalieSourceUrl,
+      survivor.defenseSourceUrl,survivor.deploymentSourceUrl,
+      ...(pathProof.sourceUrls||[])
+    ]):[],
+    close:()=>toggle(holder,gameKey),
+    missingReason:survivor?null:
+      g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?
+        "This game is frozen after puck drop. No new scorer is being selected.":
+        "No original gate-qualified survivor has been published for this matchup."
+ }));
+ rotator.appendChild(front);rotator.appendChild(back);
+ card.appendChild(rotator);holder.appendChild(card);
 }
 function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
  if(date!==visibleDate){
@@ -263,7 +164,7 @@ function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
    stats.appendChild(note);
  }
  holder.appendChild(stats);
- for(const g of games)card(holder,g,coreKeys,latest,gates,gateNames,facts);
+ for(const g of games)card(holder,g,coreKeys,latest,gates,gateNames,facts,date);
 }
 document.addEventListener?.("keydown",event=>{
  if(event.key!=="Escape"||!flippedKey)return;
