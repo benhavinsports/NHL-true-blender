@@ -106,6 +106,9 @@ jobs:
               if name.endswith(".json"):
                   print(json.dumps(json.loads(path.read_text()),sort_keys=True))
                   continue
+              if name.endswith(".md"):
+                  print(path.read_text())
+                  continue
               for line in path.read_text().splitlines():
                   row=json.loads(line)
                   if "selections" in name:
