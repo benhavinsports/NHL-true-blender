@@ -70,17 +70,32 @@ def test_replay_day_issues_and_certifies_real_engine_card_with_wall_clock_after_
     assert result["engineResult"]["retroactiveCardMutation"] is False
 
 
-def test_replay_input_database_rejects_existing_card_grade_patch_or_gate_state(tmp_path):
-    db = open_db(str(tmp_path / "contaminated.sqlite"))
+@pytest.mark.parametrize(("table", "sql", "values"), [
+    ("gates", "INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)",
+     ("2026-11-17","PROJECTED","1","10","G0","PASS","{}","2026-11-17T10:00:00+00:00")),
+    ("gate_history", "INSERT INTO gate_history VALUES (?,?,?,?,?,?,?,?,?,?)",
+     ("hash","2026-11-17","PROJECTED","1","10","G0","PASS","{}","2026-11-17T10:00:00+00:00","2026-11-17T10:01:00+00:00")),
+    ("jobs", "INSERT INTO jobs VALUES (?,?,?,?,?,?,?)",
+     ("run","2026-11-17","PROJECTED","2026-11-17T09:00:00+00:00",None,"COMPLETE","{}")),
+    ("cards", "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?)",
+     ("2026-11-17","card","[]","[]","PROJECTED","fingerprint",1,"2026-11-17T10:00:00+00:00","2026-11-17T10:00:00+00:00",None)),
+    ("card_versions", "INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?,?)",
+     ("version","2026-11-17","card",1,"PROJECTED","fingerprint","[]","{}","2026-11-17T10:00:00+00:00")),
+    ("grades", "INSERT INTO grades VALUES (?,?,?,?,?,?,?)",
+     ("card","2026-11-17","LOSS","[]","[]","[]","2026-11-18T00:00:00+00:00")),
+    ("patches", "INSERT INTO patches VALUES (?,?,?,?,?,?)",
+     ("old-patch","[]","{}","{}","{}","2026-11-17T10:00:00+00:00")),
+    ("watch_events", "INSERT INTO watch_events VALUES (?,?,?,?,?,?,?,?,?)",
+     ("event","2026-11-17","1","GOALIE","{}","{}","https://example.org","2026-11-17T10:00:00+00:00","[]")),
+])
+def test_replay_input_database_rejects_any_existing_production_state(tmp_path, table, sql, values):
+    db = open_db(str(tmp_path / f"contaminated-{table}.sqlite"))
     cutoff = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
     try:
-        assert_database_as_of(db, cutoff, '2026-11-17')
-        db.execute(
-            "INSERT INTO patches VALUES (?,?,?,?,?,?)",
-            ("old-outcome-patch", "[]", "{}", "{}", "{}", cutoff.isoformat()),
-        )
-        with pytest.raises(ValueError, match="contaminated: patches"):
-            assert_database_as_of(db, cutoff, '2026-11-17')
+        assert_database_as_of(db, cutoff, "2026-11-17")
+        db.execute(sql, values)
+        with pytest.raises(ValueError, match=f"contaminated: {table}"):
+            assert_database_as_of(db, cutoff, "2026-11-17")
     finally:
         db.close()
 
