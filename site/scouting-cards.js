@@ -25,7 +25,7 @@ function link(url,label){
   return a;
  }catch(_){return null;}
 }
-function photo({player,playerId,team,matchup,date}){
+function photo({player,playerId,team,matchup,date,preferPortrait=false}){
  const art=create("div","card-illustration collector-art survivor-collector-art");
  art.appendChild(create("span","collector-foil-rings"));
  const pid=String(playerId||"");
@@ -33,10 +33,14 @@ function photo({player,playerId,team,matchup,date}){
  const season=Number.isInteger(yr)&&yr>=2020&&yr<=2040?String(yr)+String(yr+1):"20262027";
  const teams=[team,...String(matchup||"").split("@")]
    .filter(validTeam).filter((x,i,a)=>a.indexOf(x)===i);
- const options=/^\d{7,8}$/.test(pid)?[
-   ["https://assets.nhle.com/mugs/actionshots/1296x729/"+pid+".jpg","action"],
-   ...teams.map(t=>["https://assets.nhle.com/mugs/nhl/"+season+"/"+t+"/"+pid+".png","headshot"])
- ]:[];
+ const action=["https://assets.nhle.com/mugs/actionshots/1296x729/"+pid+".jpg","action"];
+ const portraits=teams.map(t=>[
+   "https://assets.nhle.com/mugs/nhl/"+season+"/"+t+"/"+pid+".png","headshot"]);
+ // A 16:9 actionshot fills a tiny portrait card with an unrecognizable
+ // blurred arena. Survivor cards try the player's NHL headshot first and
+ // keep official actionshots as fallback rather than forcing a crop.
+ const options=/^\d{7,8}$/.test(pid)?
+   (preferPortrait?[...portraits,action]:[action,...portraits]):[];
  if(options.length){
   let index=0;
   const img=create("img","collector-photo");
