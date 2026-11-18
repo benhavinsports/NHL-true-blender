@@ -23,7 +23,7 @@ def _setup(tmp_path, monkeypatch, stage="PROJECTED", confirmed_gap=True):
     card = {"card_id": "NHL-2026-11-16-CANONICAL", "stage": stage,
             "first_issued_at": LOCK, "updated_at": LATER if stage == "CONFIRMED" else LOCK,
             "grade": {"hits": 0, "legs": 1, "result": "LOSS"},
-            "current_legs": [leg]}
+            "current_legs": [leg], "fingerprint": "synthetic-fingerprint", "revision": 1}
     monkeypatch.setattr(audit, "get_card", lambda con, date: card)
     db.execute("""INSERT INTO grades VALUES (?,?,?,?,?,?,?)""",
         (card["card_id"], DATE, "LOSS",
@@ -85,4 +85,37 @@ def test_postissuance_gate_row_cannot_change_locked_audit(tmp_path, monkeypatch)
     result = audit.audit_misses(db, DATE)
     assert result[0]["earliestGate"] is None
     assert result[0]["originalLockReceiptCount"] == len(MASTER + OVERLAY)
+    db.close()
+
+
+
+def test_official_recipient_conflict_is_carried_into_immutable_miss_audit(tmp_path, monkeypatch):
+    db=_setup(tmp_path,monkeypatch)
+    recipient_audit={
+        "status":"OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON",
+        "cardId":"NHL-2026-11-16-CANONICAL",
+        "originalFingerprint":"synthetic-fingerprint","originalRevision":1,
+        "officialSourceUrls":["https://api-web.nhle.com/v1/score/2026-11-16"],
+        "selectedLegs":[{
+            "gameId":GAME,"lockedPlayerId":PLAYER,"lockedPlayer":"Cole Caufield",
+            "auditFlags":[
+                "SCORING_TEAMMATE_WAS_PREGAME_G105_DEFEATED_RETROSPECTIVELY",
+                "OPPOSITE_G0_DIRECTION_SCORED_MORE_POSTGAME_ONLY"],
+            "sameAttackSideGoals":1,"oppositeAttackSideGoals":3,
+            "officialScorers":[{
+                "player":"Synthetic Teammate","playerId":"999","goals":1,
+                "sameAttackDirectionAsCore":True,"pregameG105Verdict":"DEFEATED",
+                "pregameG105ChallengerEvidence":{"sameLane":True}}],
+            "prePuckGateReceipts":{"G0":{"status":"PASS"},"G10.5":{"status":"PASS"}}
+        }]
+    }
+    result=audit.audit_misses(db,DATE,recipient_audit=recipient_audit)
+    assert result[0]["conclusion"]=="PREGAME_GATE_REPLAY_REQUIRED"
+    assert result[0]["earliestGate"]=="G0"
+    assert result[0]["reviewTargets"]==["G0","G10.5"]
+    row=db.execute("SELECT conclusion,earliest_gate,source_comparison FROM miss_audits").fetchone()
+    assert row["conclusion"]=="PREGAME_GATE_REPLAY_REQUIRED"
+    assert row["earliest_gate"]=="G0"
+    assert json.loads(row["source_comparison"])["recipientAuditReview"]["doesNotActivateAPatchByItself"] is True
+    assert db.execute("SELECT COUNT(*) FROM patches").fetchone()[0]==0
     db.close()
