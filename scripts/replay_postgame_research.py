@@ -207,6 +207,13 @@ async def audit_day(selection, manifest, root):
         reasons = row.get("nonpassReasons") or {}
         g105 = reasons.get("G10.5") or {}
         comparisons = g105.get("firstDirectContradictions") or []
+        first_gate = row.get("firstNonpassingMasterGate")
+        gate_order = [f"G{i}" for i in range(1, 11)] + ["G10.5"] + [f"G{i}" for i in range(11, 19)]
+        first_index = gate_order.index(first_gate) if first_gate in gate_order else len(gate_order)
+        if first_index < gate_order.index("G10.5"):
+            continue
+        if (row.get("masterDispositions") or {}).get("G10.5") not in ("PASS", "ELIMINATED"):
+            continue
         for comparison in comparisons:
             challenger_id = str(comparison.get("challengerId") or "")
             key = (gid, pid, challenger_id)
@@ -215,14 +222,16 @@ async def audit_day(selection, manifest, root):
             seen_pairs.add(key)
             candidate_actual = audited[gid]["players"].get(pid)
             challenger_actual = audited[gid]["players"].get(challenger_id)
+            candidate_comparison = comparison.get("candidate") or {}
+            challenger_comparison = comparison.get("challenger") or {}
             g105_reviews.append({
                 "gameId": gid, "matchup": audited[gid]["matchup"],
                 "candidateId": pid, "candidate": names.get(pid),
                 "challengerId": challenger_id, "challenger": names.get(challenger_id),
                 "pregameVerdict": comparison.get("status"),
-                "pregameSameLane": comparison.get("candidate", {}).get("zone"),
-                "pregameCandidate": comparison.get("candidate"),
-                "pregameChallenger": comparison.get("challenger"),
+                "pregameSameLane": candidate_comparison.get("zone"),
+                "pregameCandidate": candidate_comparison,
+                "pregameChallenger": challenger_comparison,
                 "candidateOfficialGoals": candidate_actual["goals"] if candidate_actual else 0,
                 "candidateOfficialOnNetShots": candidate_actual["onNetShots"] if candidate_actual else 0,
                 "challengerOfficialGoals": challenger_actual["goals"] if challenger_actual else 0,
@@ -278,6 +287,7 @@ async def audit_day(selection, manifest, root):
             "pregameAttackSideWasSelected": bool(attack),
             "pregameAttackSideGoals": team_goals.get(attack) if attack else None,
             "oppositeSideGoals": team_goals.get(opponent) if opponent else None,
+            "actualTeamGoals": team_goals,
             "bothSidesWereSourceReviewedBeforeSelection": bool(decision.get("bothGoaliesReviewedFirst")),
             "teamGoalsAreNotProofOfIndividualScorerRoute": True,
         })
