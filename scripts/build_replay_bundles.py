@@ -10,7 +10,7 @@ import gzip
 import hashlib
 import json
 import sqlite3
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from nhl_true_blender_engine.enrichment import attach
@@ -57,52 +57,60 @@ def _date_inventory(payload, kind):
     return sorted(dates), sorted(as_of)
 
 
-def build_day(source, day, out):
-    # Read only the issuance clock, never card identity, legs, grade, or result.
-    card_clock = source.execute(
-        "SELECT first_issued_at FROM cards WHERE slate_date=? ORDER BY first_issued_at LIMIT 1", (day,)
-    ).fetchone()
-    jobs = source.execute(
-        "SELECT mode, status, started_at, finished_at FROM jobs WHERE slate_date=? "
-        "AND status='COMPLETE' ORDER BY finished_at DESC", (day,)
-    ).fetchall()
-    usable = [row for row in jobs if row["mode"] in ("PROJECTED", "CONFIRMED")]
-    if not usable:
+def build_day(source, day, out, schedule_row):
+    """Build a slate from dated evidence without requiring an old engine job or saved card.
+
+    The replay cutoff is derived from the official first puck-drop time. Cards,
+    prior engine jobs, grades and outcomes are never used to decide whether a
+    slate can be reconstructed.
+    """
+    scheduled_games = schedule_row.get("games") or []
+    if not scheduled_games:
         return None
-    stage = usable[0]["mode"]
-    # A historical selection is not a prerequisite. If no original card was
-    # issued, anchor replay to the actual recorded engine-job start, not to a
-    # wall-clock timestamp or a postgame result.
-    cutoff_source = ("ORIGINAL_ISSUANCE_TIMESTAMP_CLOCK_ONLY"
-                     if card_clock and card_clock["first_issued_at"] else
-                     "RECORDED_ENGINE_JOB_START")
-    cutoff = (card_clock["first_issued_at"] if card_clock and card_clock["first_issued_at"]
-              else usable[0]["started_at"])
-    if not cutoff:
-        return None
-    from datetime import datetime
-    cutoff_dt = datetime.fromisoformat(cutoff.replace("Z", "+00:00"))
-    allowed = ("OFFICIAL", "PROJECTED") if stage == "PROJECTED" else (
-        "OFFICIAL", "PROJECTED", "CONFIRMED")
-    placeholders = ",".join("?" for _ in allowed)
-    rows = source.execute(
-        f"SELECT * FROM evidence WHERE slate_date=? AND stage IN ({placeholders}) "
-        "ORDER BY observed_at, rowid", (day, *allowed)
+    starts = [g.get("startTimeUTC") for g in scheduled_games if g.get("startTimeUTC")]
+    if len(starts) != len(scheduled_games):
+        raise ValueError(f"Official schedule has a game without startTimeUTC: {day}")
+    first_start = min(datetime.fromisoformat(x.replace("Z", "+00:00")) for x in starts)
+    cutoff_dt = first_start - timedelta(minutes=5)
+    cutoff = cutoff_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
+
+    # Keep the projected/confirmed evidence branches distinct. Prefer a
+    # confirmed evidence set only when confirmed receipts actually exist.
+    all_rows = source.execute(
+        "SELECT * FROM evidence WHERE slate_date=? ORDER BY observed_at, rowid", (day,)
     ).fetchall()
-    rows = [r for r in rows if datetime.fromisoformat(
+    eligible = [r for r in all_rows if r["stage"] in ("OFFICIAL", "PROJECTED", "CONFIRMED")]
+    rows = [r for r in eligible if datetime.fromisoformat(
         r["observed_at"].replace("Z", "+00:00")) <= cutoff_dt]
     if not rows:
         return None
+    stage = "CONFIRMED" if any(r["stage"] == "CONFIRMED" for r in rows) else "PROJECTED"
 
     schedules = [r for r in rows if r["kind"] == "GAME_SCHEDULE" and r["stage"] == "OFFICIAL"]
-    if not schedules:
-        return None
-    schedule = schedules[-1]
-    schedule_data = json.loads(schedule["payload"])
-    games = normalize_games({
-        "data": schedule_data, "url": schedule["source_url"],
-        "observedAt": schedule["observed_at"]
-    }, day)
+    if schedules:
+        schedule = schedules[-1]
+        schedule_data = json.loads(schedule["payload"])
+        games = normalize_games({
+            "data": schedule_data, "url": schedule["source_url"],
+            "observedAt": schedule["observed_at"]
+        }, day)
+        # The immutable official calendar is the authority for scheduled
+        # matchups; reject a mismatch rather than silently replaying another slate.
+        expected = {(str(g.get("id")), g.get("away"), g.get("home")) for g in scheduled_games}
+        actual = {(str(g.get("id")), g.get("away"), g.get("home")) for g in games}
+        if expected != actual:
+            raise ValueError(f"Archived GAME_SCHEDULE receipts do not match official calendar for {day}")
+    else:
+        # The frozen official calendar can reconstruct game identity and start
+        # times, but never substitutes for player/goalie/lineup evidence.
+        games = [{
+            "id": str(g["id"]), "date": day, "away": g["away"], "home": g["home"],
+            "startUTC": g["startTimeUTC"], "gameState": "FUT",
+            "officialSourceUrl": schedule_row.get("source"),
+            "officialObservedAt": schedule_row.get("downloadedAt"),
+            "goalies": {}, "rosters": {}, "context": {}, "coverage": {}
+        } for g in scheduled_games]
+
     rosters = {}
     for row in rows:
         if row["kind"] != "TEAM_CURRENT_ROSTER" or row["stage"] != "OFFICIAL":
@@ -114,8 +122,7 @@ def build_day(source, day, out):
                              "observedAt": row["observed_at"],
                              "evidenceId": row["evidence_id"], "data": data}
     for game in games:
-        game["rosters"] = {team: rosters.get(team)
-                           for team in (game["away"], game["home"])}
+        game["rosters"] = {team: rosters.get(team) for team in (game["away"], game["home"])}
     snapshot = {"games": games}
 
     out.mkdir(parents=True, exist_ok=True)
@@ -130,7 +137,6 @@ def build_day(source, day, out):
                 "source_url": row["source_url"], "observed_at": row["observed_at"],
                 "payload": json.loads(row["payload"])
             })
-        # Attach only the receipts that survived the point-in-time filter.
         attach(con, snapshot, day, stage)
     finally:
         con.close()
@@ -174,8 +180,6 @@ def build_day(source, day, out):
             "PROVIDER_EVENT_WINDOW_NOT_EXPOSED")
         inputs.append(item)
     inputs.sort(key=lambda x: (x["kind"], x["source"] or ""))
-    # Collector download time is explicitly not represented as provider
-    # publication/availability time. The DB hash commits to every receipt.
     return {
         "stage": stage, "cutoff": cutoff,
         "snapshot": snapshot_path.name, "snapshotSha256": sha256(snapshot_bytes),
@@ -240,7 +244,7 @@ def main():
         slates = {}
         for offset in range((end - start).days + 1):
             day = (start.fromordinal(start.toordinal() + offset)).isoformat()
-            bundle = build_day(source, day, args.output)
+            bundle = build_day(source, day, args.output, official_schedule_by_date[day])
             if bundle:
                 slates[day] = bundle
     finally:
