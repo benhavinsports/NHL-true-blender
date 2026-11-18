@@ -72,10 +72,22 @@ def test_writer_requires_full_run_card_exact_all_game_survivors_and_prepuck(tmp_
             "card":{"cardId":"fixture"},
             "gateCertification":{"selectedCoreOnlyFullyCertified":True}}
     sha="a"*40
-    assert persist_fully_certified_cohort(tmp_path,DATE,"PROJECTED",result,sha,"test-fixture")
+    # Replay the original pre-puck certification moment in this synthetic
+    # persistence test. Rewriting a real Nov 17 pre-puck cohort AFTER those
+    # games have started must fail; the production function enforces that.
+    from unittest.mock import patch
+    from datetime import datetime
+    historic=datetime.fromisoformat(snapshot["certifiedAtUTC"].replace("Z","+00:00"))
+    with patch("datetime.datetime") as clock:
+        clock.now.return_value=historic
+        assert persist_fully_certified_cohort(
+            tmp_path,DATE,"PROJECTED",result,sha,"test-fixture")
     saved=json.loads((tmp_path/"survivor_cohorts"/(DATE+".json")).read_text())
     assert len(saved["gameSurvivorPool"])==11
     assert saved["originalFullRunSourceCertified"] is True
+    # A current post-puck execution cannot fabricate a new historical cohort.
+    assert not persist_fully_certified_cohort(
+        tmp_path,DATE,"PROJECTED",result,sha,"late-fixture")
     assert saved["sourceWorkflowRunId"]=="test-fixture"
     bad=copy.deepcopy(result)
     bad["gameSurvivorPool"][0]["status"]="NO_SURVIVOR"
