@@ -5,6 +5,7 @@ and pre-cutoff source receipts are bundled. Missing dates are never fabricated.
 """
 from __future__ import annotations
 import argparse
+import asyncio
 import gzip
 import hashlib
 import json
@@ -15,6 +16,7 @@ from pathlib import Path
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.sources import normalize_games
 from nhl_true_blender_engine.storage import open_db, record_evidence
+from nhl_true_blender_engine.sources import NHLClient
 
 RAW_DB = Path("state/true_blender.sqlite")
 
@@ -25,19 +27,23 @@ def sha256(data: bytes) -> str:
 
 def build_day(source, day, out):
     card = source.execute(
-        "SELECT stage, first_issued_at FROM cards WHERE slate_date=?", (day,)
+        "SELECT stage, first_issued_at FROM cards WHERE slate_date=? ORDER BY first_issued_at LIMIT 1", (day,)
     ).fetchone()
-    if not card:
-        return None
     jobs = source.execute(
-        "SELECT mode, status, finished_at FROM jobs WHERE slate_date=? "
+        "SELECT mode, status, started_at, finished_at FROM jobs WHERE slate_date=? "
         "AND status='COMPLETE' ORDER BY finished_at DESC", (day,)
     ).fetchall()
     usable = [row for row in jobs if row["mode"] in ("PROJECTED", "CONFIRMED")]
     if not usable:
         return None
     stage = usable[0]["mode"]
-    cutoff = card["first_issued_at"]
+    # A historical selection is not a prerequisite. If no original card was
+    # issued, anchor replay to the actual recorded engine-job start, not to a
+    # wall-clock timestamp or a postgame result.
+    cutoff = (card["first_issued_at"] if card and card["first_issued_at"]
+              else usable[0]["started_at"])
+    if not cutoff:
+        return None
     from datetime import datetime
     cutoff_dt = datetime.fromisoformat(cutoff.replace("Z", "+00:00"))
     allowed = ("OFFICIAL", "PROJECTED") if stage == "PROJECTED" else (
@@ -122,6 +128,38 @@ def build_day(source, day, out):
         "teamsWithOfficialRoster": sorted(rosters),
         "allEvidenceAtOrBeforeCutoff": True
     }
+
+
+async def official_schedule(start, end):
+    """Enumerate every calendar date from the official NHL daily score/schedule feed.
+
+    Schedule retrieval is for slate/off-day classification only. It is never
+    inserted into the selector evidence database as player or matchup proof.
+    """
+    client = NHLClient()
+    result = {}
+    try:
+        for offset in range((end - start).days + 1):
+            day = start.fromordinal(start.toordinal() + offset).isoformat()
+            payload = await client.score(day)
+            games = payload["data"].get("games")
+            if not isinstance(games, list):
+                raise RuntimeError(f"Official NHL schedule omitted games array for {day}")
+            result[day] = {
+                "source": payload["url"],
+                "downloadedAt": payload["observedAt"],
+                "games": [{
+                    "gameId": str(g["id"]),
+                    "away": g["awayTeam"]["abbrev"],
+                    "home": g["homeTeam"]["abbrev"],
+                    "startTimeUTC": g["startTimeUTC"],
+                    "gameState": g.get("gameState"),
+                } for g in games],
+                "verifiedOffDay": len(games) == 0,
+            }
+    finally:
+        await client.close()
+    return result
 
 
 def main():
