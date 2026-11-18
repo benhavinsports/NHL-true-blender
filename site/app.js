@@ -221,6 +221,7 @@ function toggleCardFlip(key){
  if(!key)return;
  state.selectedLeg=key;
  state.flippedLeg=state.flippedLeg===key?null:key;
+ document.body?.classList?.toggle("core-report-open",Boolean(state.flippedLeg));
  state.gateFilter="all";
  for(const card of document.querySelectorAll("#core-cards .core-card")){
    const active=card.dataset.leg===state.flippedLeg;
@@ -343,65 +344,28 @@ function coreCard(leg,i){
  front.appendChild(bottom);
  inner.appendChild(front);
  const back=el("div","card-face card-back");
- const backHead=el("div","flip-back-heading");
- backHead.appendChild(el("strong","",leg.player));
- backHead.appendChild(el("span","",path.display+" · G0–G18"));
- back.appendChild(backHead);
- const note=el("div","flip-back-intro",
-   "Original gate decisions • actual recorded reasons and evidence");
- back.appendChild(note);
+ // Both the locked Core and per-game survivors use the same source-grounded
+ // professional analytics report. G18 card identity stays immutable.
  const data=detailsData(leg);
- if(!data||!Array.isArray(data.gateDetails)){
-   back.appendChild(el("p","flip-gate-unavailable",
-     state.gateLoadError||"Loading source gate evidence. No gate is presumed passed."));
- }else{
-   const byGate=new Map(data.gateDetails.map(x=>[x.gate,x]));
-   for(const gate of MASTER){
-     const rec=byGate.get(gate)||{gate,status:"NO_PREPUCK_RECEIPT",prePuckRecord:false,evidence:{},sourceIds:[]};
-     const row=el("div","flip-gate-row "+(rec.status==="PASS"?"verified":"unresolved"));
-     row.dataset.gate=gate;
-     const rowTop=el("div","flip-gate-title");
-     rowTop.appendChild(el("strong","",gate+" · "+(EXPLAIN[gate]||"Original source check")));
-     rowTop.appendChild(el("span","",rec.status==="PASS"?"✓":"!"));
-     row.appendChild(rowTop);
-     row.appendChild(el("p","",BlenderGateFacts.explanation(rec)));
-     const originalFunctions=(rec.evidence?.originalFunctionEvidence||[]);
-     if(originalFunctions.length){
-       const functions=el("div","flip-functions");
-       for(const fn of originalFunctions){
-         const ev=fn.evidence||{};
-         const facts=Object.entries(ev).filter(([k,v])=>
-            !["checkedBeforeG18","independentOverlayEvaluation","masterGateVerdictCopied","nonblocking"].includes(k)
-            &&(typeof v==="number"||typeof v==="string"||typeof v==="boolean")
-            &&String(v).length<32).slice(0,3);
-         const functionRow=el("div","flip-function-line");
-         functionRow.appendChild(el("strong","",fn.step+" · "+(EXPLAIN[fn.step]||"Original function")));
-         if(facts.length)functionRow.appendChild(el("p","",
-           facts.map(([k,v])=>k.replace(/([a-z])([A-Z])/g,"$1 $2")+": "+v).join(" · ")));
-         functions.appendChild(functionRow);
-       }
-       row.appendChild(functions);
-     }
-     const sources=unique((rec.sourceIds||[]).filter(u=>typeof u==="string"&&u.startsWith("https://")));
-     if(sources.length){
-       const sourceList=el("div","flip-gate-sources");
-       for(const [j,url] of sources.entries()){
-         const a=link(url,"Source "+(j+1));
-         if(a){
-           a.addEventListener("click",evt=>evt.stopPropagation());
-           sourceList.appendChild(a);
-         }
-       }
-       row.appendChild(sourceList);
-     }
-     back.appendChild(row);
-   }
- }
- back.appendChild(el("div","flip-back-end","TAP THE CARD TO TURN OVER · SCROLL FOR ALL ORIGINAL GATES"));
+ const detailRows=data?.gateDetails;
+ const g18=data?.gateDetails?.find(x=>x.gate==="G18")?.evidence||{};
+ back.appendChild(NHLScouting.report({
+   player:leg.player,team,matchup:leg.matchup,
+   stage:data?.stageOfGateRecords||selectedEntry()?.stage,
+   path:path.display,goalieId:leg.opposingGoalieId,
+   origin:String(leg.directRoute||"").split("/").pop().trim(),
+   receipts:detailRows,
+   g16Decision:g18.G16FinalistDecision,
+   gateNames:EXPLAIN,facts:BlenderGateFacts,
+   sources:leg.sourceIds,
+   close:()=>toggleCardFlip(key)
+ }));
  inner.appendChild(back);
  button.appendChild(inner);
  button.addEventListener("click",event=>{
-   if(event?.target?.closest?.("a"))return;
+   // Source links, dropdown gates and the explicit back close control
+   // operate without flipping the card underneath an active click.
+   if(event?.target?.closest?.("a, button, details, summary, .scout-report"))return;
    toggleCardFlip(key);
  });
  button.addEventListener("keydown",event=>{
@@ -807,6 +771,7 @@ function chooseDate(date){
  const first=selectedEntry()?.current_legs?.[0];
  state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
  state.gateFilter="all";state.flippedLeg=null;
+ document.body?.classList?.remove("core-report-open");
  renderAll();
  loadEvidence(date);
  const url=new URL(window.location.href);
@@ -853,6 +818,12 @@ async function boot(){
  await loadEvidence(state.selectedDate);
  latestPublishedSignature=publishedSignature(state.latest,state.archive,state.season);
 }
+document.addEventListener?.("keydown",event=>{
+ if(event.key!=="Escape"||!state.flippedLeg)return;
+ toggleCardFlip(state.flippedLeg);
+ const first=document.querySelector?.("#core-cards .core-card[aria-pressed='true']");
+ first?.focus?.();
+});
 boot().catch(e=>{
  setText("hero-phase","DASHBOARD SOURCE ERROR");
  $("core-cards").replaceChildren(el("div","notice warning",
