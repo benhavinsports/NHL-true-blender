@@ -100,7 +100,6 @@ jobs:
         env:
           REQUESTED_DATE: ${{ inputs.date }}
           REQUESTED_MODE: ${{ inputs.mode }}
-          TRIGGER_CRON: ${{ github.event.schedule }}
           TRIGGER_EVENT: ${{ github.event_name }}
           MONEYPUCK_CSV_DIR: data/moneypuck
         run: |
