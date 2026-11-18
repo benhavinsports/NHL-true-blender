@@ -41,6 +41,7 @@ def test_original_functions_are_observed_inside_gates_before_g18(tmp_path):
         assert step7["sourceIds"]
         step8=next(f for f in functions if f["step"]=="Step8")
         assert step8["disposition"]=="NOT_EXECUTED"
+        assert step8["evidence"]["nonblocking"] is True
         assert step8["evidence"]["actualShiftByShiftObserved"] is False
         assert step8["evidence"]["cannotInferShiftMatchupsFromShotOrigins"] is True
         step13=next(f for f in functions if f["step"]=="Step13")
