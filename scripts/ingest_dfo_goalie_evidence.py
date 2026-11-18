@@ -61,10 +61,9 @@ def main():
             games = schedule_row.get("games") or []
             if not games:
                 continue
-            starts = [official_game_start(g) for g in games]
-            if any(x is None for x in starts):
-                rejected.append({"date": day, "reason": "OFFICIAL_GAME_START_MISSING"})
-                continue
+            # Validate start times per matchup below. One malformed official
+            # schedule row must not discard otherwise valid goalie reports
+            # from every other game on this slate.
             # Freeze each matchup independently: a later game's verified
             # starter report is eligible until that game's own puck drop.
             # A slate-wide earliest-start cutoff incorrectly discarded
