@@ -228,7 +228,8 @@ test("scouting visual identity has no poker suit, cartoon rink or editable dashb
  assert.ok(!html.includes("hand-ornament"));
  assert.ok(!js.includes('"rink-center"'));
  assert.ok(!js.includes('"face-corner"'));
- assert.ok(js.includes('"card-profile-number"'));
+ assert.ok(js.includes('"collector-photo"'));
+ assert.ok(!js.includes('"card-profile-number"'));
  assert.ok(!pool.includes('"pool-card-suit"'));
  assert.ok(pool.includes("pool-card-open"));
  assert.ok(css.includes("SCOUTING INTELLIGENCE"));
@@ -236,4 +237,45 @@ test("scouting visual identity has no poker suit, cartoon rink or editable dashb
  assert.ok(html.includes('id="pool-list"'));
  assert.ok(html.includes('id="core-cards"'));
  assert.ok(!html.includes('id="system"'));
+});
+
+
+test("Core card fronts are real photo-led collector designs with saved NHL IDs",()=>{
+ const {sandbox,elements}=appContext();
+ vm.runInContext("renderCards()",sandbox);
+ const cards=elements["core-cards"].childNodes;
+ assert.equal(cards.length,3);
+ for(let i=0;i<cards.length;i++){
+   const leg=JSON.parse(card.legsJson)[i];
+   const front=descendants(cards[i]).find(n=>n.classList.contains("card-front"));
+   const back=descendants(cards[i]).find(n=>n.classList.contains("card-back"));
+   const photo=descendants(front).find(n=>n.classList.contains("collector-photo"));
+   assert.ok(photo,"Missing actual NHL photo element for "+leg.player);
+   assert.ok(photo.src.includes("/mugs/actionshots/1296x729/"+leg.playerId+".jpg"));
+   assert.ok(photo.alt.includes(leg.player));
+   assert.ok(descendants(front).some(n=>n.classList.contains("collector-foil-rings")));
+   assert.ok(descendants(front).some(n=>n.classList.contains("collector-path-row")));
+   const text=descendants(front).map(n=>n.textContent||"").join(" ");
+   assert.ok(text.includes(leg.player.split(/\s+/).at(-1).toUpperCase()));
+   assert.ok(text.includes(leg.path));
+   assert.ok(text.includes(leg.directRoute.split("/").at(-1).trim()));
+   assert.ok(!text.includes("SELECTION 01"));
+   assert.ok(!text.includes("TRUE BLENDER / NHL 01"));
+   assert.ok(descendants(back).filter(n=>n.classList.contains("flip-gate-row")).length===20);
+ }
+ const first=descendants(cards[0]).find(n=>n.classList.contains("collector-photo"));
+ assert.equal(first.listeners.error instanceof Function,true);
+ first.listeners.error();
+ assert.ok(first.src.includes("/mugs/nhl/20262027/"),
+     "If official NHL action still is unavailable, official headshot should be attempted");
+});
+
+test("Mobile collector cards use a two-up grid with centered third, never a clipped carousel",()=>{
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const block=css.slice(css.lastIndexOf("CORE FRONT · PREMIUM HOCKEY COLLECTOR SERIES"));
+ assert.ok(block.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
+ assert.ok(block.includes(".core-grid>.core-card:nth-child(3)"));
+ assert.ok(block.includes("overflow:visible"));
+ assert.ok(block.includes("collector-photo"));
+ assert.ok(block.includes("collector-foil-rings"));
 });
