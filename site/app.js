@@ -201,10 +201,9 @@ function renderHeader(){
    const storedProof=s.current&&state.latest?.savedOriginalGateEvidenceVerified===true;
    const currentIncomplete=s.current&&state.latest?.currentRunFullyCertified!==true;
    notice.appendChild(pill(storedProof&&currentIncomplete?
-     "SAVED ORIGINAL CORE · CURRENT RECHECK OPEN":s.phase,
+     "SAVED CORE · SOURCE RECHECK OPEN":s.phase,
      storedProof&&currentIncomplete?"warning":statusClass(s.phase)));
-   if(storedProof&&currentIncomplete)
-     notice.appendChild(el("span","phase-quiet","Saved Core · source recheck open"));
+
  }else{
    if(s.today && state.latest?.oldCoreRetractedByRuleCorrection===true)
      notice.appendChild(pill("RETRACTED · NEW CORE AWAITED","danger"));
@@ -498,7 +497,7 @@ function renderGrade(){
    return;
  }
  if(!grade||grade.cardId!==saved.cardId){
-   holder.appendChild(el("div","notice","Original Core locked. The independent grade begins after every game is officially final; no result is invented."));
+   holder.appendChild(el("div","notice","Official grade not yet published for this locked Core."));
    return;
  }
  const result=grade.result;
@@ -819,19 +818,23 @@ function initWorkspaceNavigation(){
    const id=String(window.location?.hash||"").replace("#","");
    if(ids.includes(id))activate(id);
  });
- if(typeof IntersectionObserver!=="undefined"){
-   const observer=new IntersectionObserver(entries=>{
-     const active=entries.filter(item=>item.isIntersecting);
-     if(!active.length||document.body?.classList?.contains("pool-card-open")||
-          document.body?.classList?.contains("core-report-open"))return;
-     active.sort((a,b)=>b.intersectionRatio-a.intersectionRatio);
-     activate(active[0].target.id);
-   },{rootMargin:"-24% 0px -57% 0px",threshold:[0,.15,.4]});
+ // Long card collections can leave the previous tab highlighted with a
+ // narrow IntersectionObserver band. Read the actual scroll position.
+ const updateFromScroll=()=>{
+   if(document.body?.classList?.contains("pool-card-open")||
+      document.body?.classList?.contains("core-report-open"))return;
+   const cutoff=Math.min(220,window.innerHeight*.32);
+   let current="core";
    for(const id of ids){
-     const target=$(id);
-     if(target)observer.observe(target);
+     const rect=$(id)?.getBoundingClientRect?.();
+     if(rect&&rect.top<=cutoff)current=id;
    }
- }
+   activate(current);
+ };
+ window.addEventListener?.("scroll",updateFromScroll,{passive:true});
+ window.addEventListener?.("resize",updateFromScroll);
+ window.addEventListener?.("hashchange",updateFromScroll);
+ updateFromScroll();
 }
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
