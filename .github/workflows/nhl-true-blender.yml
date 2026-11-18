@@ -31,24 +31,13 @@ on:
         required: false
         options: [projected, confirmed, watch, grade]
   schedule:
-    # Refresh projected evidence and the same one-card selection several
-    # times before puck drop; early goalie statuses are still EXPECTED.
-    - cron: '15 8,11,13,15 * * *'
-      timezone: 'America/New_York'
-    # Real confirmed-source passes run EARLY ENOUGH to finish for 7 PM puck.
-    # They still retain "expected" goalie/line status when not confirmed.
-    - cron: '55 17,18 * * *'
-      timezone: 'America/New_York'
-    - cron: '15,35 18 * * *'
-      timezone: 'America/New_York'
-    # Capture late confirmed lineups before 7:30 PM ET puck drop.
-    # The engine enforces a per-game no-post-puck selection freeze.
-    - cron: '5,15,20 19 * * *'
-      timezone: 'America/New_York'
-    - cron: '38 7-23 * * *'
-      timezone: 'America/New_York'
-    - cron: '30 0-6,21-23 * * *'
-      timezone: 'America/New_York'
+    # One hourly UTC-minute trigger; the runner chooses the phase from its
+    # actual America/New_York clock, never from a stale/misinterpreted cron.
+    # :38 leaves time for source collection and publication before puck drop.
+    # 08:00-15:59 ET = PROJECTED; 16:00-18:59 ET = CONFIRMED;
+    # 19:00-20:59 ET = WATCH; 21:00-07:59 ET = POSTGAME GRADE.
+    # UTC hour scheduling keeps the local minute stable across DST changes.
+    - cron: '38 * * * *'
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
@@ -122,34 +111,22 @@ jobs:
           from zoneinfo import ZoneInfo
 
           now = datetime.datetime.now(ZoneInfo('America/New_York'))
-          cron = os.environ.get('TRIGGER_CRON') or ''
           mode = os.environ.get('REQUESTED_MODE') or ''
           if not mode:
-              # Midnight–7:59 AM ET ALWAYS grades yesterday's frozen card.
-              # Some scheduled jobs arrive late; their original cron string
-              # must not accidentally trigger a new pregame selection at night.
+              # Choose from the ACTUAL Eastern clock, not github.event.schedule.
+              # Scheduled events can be delayed or carry a cron expression
+              # whose timezone interpretation differs from the runner clock.
+              # A late confirmed pass must never be mistaken for pregame work.
               if now.hour < 8:
                   mode = 'grade'
-              elif cron.startswith('15 8,11,13,15 '):
+              elif now.hour < 16:
                   mode = 'projected'
-              elif (cron.startswith('55 17,18 ') or cron.startswith('15,35 18 ')
-                    or cron.startswith('5,15,20 19 ')):
+              elif now.hour < 19:
                   mode = 'confirmed'
-              elif cron.startswith('38 '):
+              elif now.hour < 21:
                   mode = 'watch'
-              elif cron.startswith('30 '):
-                  mode = 'grade'
               else:
-                  # Night-time code-triggered runs grade the original Core as
-                  # soon as its actual 2/3 matchups are OFF/FINAL; :38 cron
-                  # still explicitly watches every not-started game.
-                  # Code-push pregame verification uses the appropriate
-                  # phase. CONFIRMED still requires actual confirmed-source
-                  # evidence for each goalie/line; it never upgrades a
-                  # PROJECTED observation based on the clock alone.
-                  mode = ('projected' if now.hour < 17 else
-                          'confirmed' if now.hour < 19 else
-                          'grade' if now.hour >= 21 else 'watch')
+                  mode = 'grade'
           date = os.environ.get('REQUESTED_DATE') or (
               (now - datetime.timedelta(days=1)).date().isoformat()
               if mode == 'grade' and now.hour < 8 else now.date().isoformat()
