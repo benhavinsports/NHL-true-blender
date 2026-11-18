@@ -33,7 +33,14 @@ def verified_bytes(root, path, digest):
 
 def assert_database_as_of(con, cutoff):
     """Reject a bundle whose persisted receipts contain post-cutoff knowledge."""
-    rows = con.execute("SELECT evidence_id, observed_at FROM evidence").fetchall()
+    # Replay storage must be evidence-only. Existing selections, grades,
+    # gate receipts, or activated patches are prohibited inputs.
+    for table in ("gates", "gate_history", "jobs", "cards", "card_versions",
+                  "grades", "patches", "watch_events"):
+        count = con.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+        if count:
+            raise ValueError(f"Replay database is contaminated: {table} contains {count} pre-existing row(s)")
+    rows = con.execute("SELECT evidence_id, observed_at, stage FROM evidence").fetchall()
     future = []
     for row in rows:
         try:
@@ -42,6 +49,8 @@ def assert_database_as_of(con, cutoff):
             raise ValueError('Evidence database contains an invalid or timezone-free observation timestamp')
         if observed > cutoff:
             future.append(row['evidence_id'])
+        if row['stage'] not in ("OFFICIAL", "PROJECTED", "CONFIRMED"):
+            raise ValueError(f"Replay database contains disallowed non-pregame evidence stage: {row['stage']}")
     if future:
         raise ValueError(f'Evidence database is contaminated by {len(future)} post-cutoff receipt(s): {future[:10]}')
 
@@ -100,12 +109,16 @@ async def grade_ledger(source, target):
             receipt = {'date': row['date'], 'selectionStatus': row['status'],
                        'selectionRowSha256': hashlib.sha256(line.encode('utf-8')).hexdigest()}
             try:
-                if row['status'] != 'REPLAYED':
-                    grade = {'status': 'NOT_REPLAYED'}
+                if row['status'] == 'VERIFIED_OFF_DAY':
+                    grade = {'status': 'VERIFIED_OFF_DAY'}
+                elif row['status'] != 'REPLAYED':
+                    grade = {'status': row['status']}
+                    failures += 1
                 else:
                     card = row['engineResult'].get('card')
                     if not card:
                         grade = {'status': 'NO_CORE'}
+                        failures += 1
                     elif row['gateCertification'].get('selectedCoreOnlyFullyCertified') is not True:
                         grade = {'status': 'CORE_NOT_CERTIFIED'}
                         failures += 1
