@@ -353,9 +353,12 @@ def _recipient_review_signals(item):
         targets.append("G15")
     if not targets:
         return None
+    gate_order=("G0","G1","G2","G3","G4","G5","G6","G7","G8","G9",
+                "G10","G10.5","G11","G12","G13","G14","G15","G16","G17")
+    ordered_targets=[g for g in gate_order if g in set(targets)]
     return {
         "status":"PREGAME_GATE_REPLAY_REQUIRED",
-        "reviewTargets":list(dict.fromkeys(targets)),
+        "reviewTargets":ordered_targets,
         "postgameSignals":sorted(flags),
         "lockedPlayer":item.get("lockedPlayer"),
         "lockedPlayerId":item.get("lockedPlayerId"),
