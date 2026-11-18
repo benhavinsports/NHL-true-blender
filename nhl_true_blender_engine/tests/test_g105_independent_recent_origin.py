@@ -34,8 +34,9 @@ def test_recent_direct_nhl_pbp_scoring_can_distinguish_actual_season_route_tie()
 def test_missing_or_same_recent_proof_never_manufactures_direct_recipient():
     a,b=tied()
     a["recentOrigin"]=recent(2,4)
+    b.pop("recentOrigin",None)
     wins,rows=challenger_proof(a,[b],{"High Slot":{}},["High Slot"])
-    assert wins is False and rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
+    assert wins is False and rows[0]["status"]=="UNRESOLVED_RECENT_DIRECT_ROUTE_EVIDENCE"
     b["recentOrigin"]=recent(2,4)
     wins,rows=challenger_proof(a,[b],{"High Slot":{}},["High Slot"])
     assert wins is False and rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
