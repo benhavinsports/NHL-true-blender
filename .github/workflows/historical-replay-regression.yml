@@ -64,6 +64,23 @@ jobs:
         env:
           PYTHONPATH: .
         run: python scripts/ingest_dfo_goalie_evidence.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json
+      - name: Verify DFO historical goalie evidence reached the canonical ledger
+        if: steps.dfo_ingestion.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("state/replay/dfo-goalie-ingestion.json").read_text())
+          imported=report.get("importedReceiptCount",0)
+          if imported < 1:
+              raise SystemExit("DFO archive was discovered but zero goalie-starter receipts reached the canonical evidence ledger")
+          print(json.dumps({
+              "importedReceiptCount":imported,
+              "newReceiptCount":report.get("newReceiptCount",0),
+              "rejectedCount":report.get("rejectedCount",0),
+              "selectorIntegration":report.get("selectorIntegration")
+          },sort_keys=True))
+          PY
       - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         id: build_bundles
         env:
