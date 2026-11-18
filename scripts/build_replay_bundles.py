@@ -80,8 +80,16 @@ def build_day(source, day, out, schedule_row):
         starts.append(datetime.fromisoformat(start_value.replace("Z", "+00:00")))
         normalized_schedule_games.append(game)
     scheduled_games = normalized_schedule_games
-    first_start = min(starts)
-    cutoff_dt = first_start - timedelta(minutes=5)
+    # Replay at the last pregame cutoff, so late-game evidence can be used.
+    # Games already started are excluded by execute() at the historical clock.
+    # Each game's receipts are still bounded by its OWN pregame cutoff.
+    game_cutoffs = {
+        str(g["id"]): datetime.fromisoformat(
+            g["startTimeUTC"].replace("Z", "+00:00")
+        ) - timedelta(minutes=5)
+        for g in scheduled_games
+    }
+    cutoff_dt = max(game_cutoffs.values())
     cutoff = cutoff_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
 
     # Keep the projected/confirmed evidence branches distinct. Prefer a
@@ -90,8 +98,11 @@ def build_day(source, day, out, schedule_row):
         "SELECT * FROM evidence WHERE slate_date=? ORDER BY observed_at, rowid", (day,)
     ).fetchall()
     eligible = [r for r in all_rows if r["stage"] in ("OFFICIAL", "PROJECTED", "CONFIRMED")]
-    rows = [r for r in eligible if datetime.fromisoformat(
-        r["observed_at"].replace("Z", "+00:00")) <= cutoff_dt]
+    rows = [
+        r for r in eligible
+        if datetime.fromisoformat(r["observed_at"].replace("Z", "+00:00"))
+        <= game_cutoffs.get(str(r["game_id"]), min(game_cutoffs.values()))
+    ]
     if not rows:
         return None
     stage = "CONFIRMED" if any(r["stage"] == "CONFIRMED" for r in rows) else "PROJECTED"
