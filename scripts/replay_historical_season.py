@@ -138,9 +138,18 @@ def main():
     if (stage not in (None, 'PROJECTED', 'CONFIRMED') or end < start):
         parser.error('Expected a valid date range and optional PROJECTED/CONFIRMED default stage')
     failures = 0
+    scheduled = manifest.get('scheduledSlates')
+    if isinstance(scheduled, dict):
+        days = sorted(scheduled)
+        if any(not (start.isoformat() <= day <= end.isoformat()) for day in days):
+            parser.error('Official scheduled slate dates must fall inside the manifest range')
+    else:
+        # Backward-compatible manifests without a schedule calendar retain
+        # the old every-calendar-day behavior.
+        days = [(start + timedelta(days=offset)).isoformat()
+                for offset in range((end - start).days + 1)]
     with args.output.open('x', encoding='utf-8') as out:
-        for offset in range((end - start).days + 1):
-            day = (start + timedelta(days=offset)).isoformat()
+        for day in days:
             bundle = manifest['slates'].get(day)
             if bundle is None:
                 row = {'date': day, 'status': 'SOURCE_BLOCKED', 'reason': 'No archived pregame bundle'}
