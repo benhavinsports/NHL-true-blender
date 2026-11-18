@@ -145,7 +145,6 @@ async def execute_cycle(mode, date, root='state'):
                     grade=official.get('grade')
                     status=official.get('status','WAITING_FOR_FINAL')
                 if grade:
-                    audits=audit_misses(con,date)
                     # Independently confirm EVERY official scorer in each
                     # locked matchup against NHL PBP AND NHL boxscore, then
                     # compare their frozen PRE-PUCK G0/G10.5/G15/G17 proofs.
@@ -171,6 +170,9 @@ async def execute_cycle(mode, date, root='state'):
                         await nhl.close()
                     if recipient_audit.get('status')=='OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON':
                         _write(root/'site_runs'/f'{date}-recipient-audit.json',recipient_audit)
+                    # Audit the exact locked pregame receipts together with the
+                    # independently verified official recipient comparison.
+                    audits=audit_misses(con,date,recipient_audit=recipient_audit)
                     # A real official grade triggers automatic adjudication,
                     # not a hand-entered patch or a new Core. A missed goal
                     # alone NEVER activates a policy.
