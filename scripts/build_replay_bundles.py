@@ -212,7 +212,7 @@ def main():
     calendar_days = official_calendar.get("calendarDays")
     if not isinstance(calendar_days, list):
         raise SystemExit("Official NHL schedule calendar lacks calendarDays")
-    official_schedule = {
+    official_schedule_by_date = {
         row["date"]: {
             "source": row.get("officialSourceUrl"),
             "downloadedAt": row.get("downloadedAt"),
@@ -223,17 +223,17 @@ def main():
         for row in calendar_days
         if start.isoformat() <= row["date"] <= end.isoformat()
     }
-    if set(official_schedule) != {
+    if set(official_schedule_by_date) != {
         (start.fromordinal(start.toordinal() + n)).isoformat()
         for n in range((end-start).days + 1)
     }:
         raise SystemExit("Official NHL schedule calendar does not cover every requested calendar date")
     scheduled_slates = {
         day: {"gameCount": len(row["games"]), "games": row["games"]}
-        for day, row in official_schedule.items() if row["games"]
+        for day, row in official_schedule_by_date.items() if row["games"]
     }
     verified_off_days = sorted(
-        day for day, row in official_schedule.items() if row["verifiedOffDay"])
+        day for day, row in official_schedule_by_date.items() if row["verifiedOffDay"])
     source = sqlite3.connect(f"file:{RAW_DB.resolve()}?mode=ro", uri=True)
     source.row_factory = sqlite3.Row
     try:
@@ -247,7 +247,7 @@ def main():
         source.close()
     missing_scheduled = sorted(set(scheduled_slates) - set(slates))
     manifest = {"start": start.isoformat(), "end": end.isoformat(),
-                "officialSchedule": official_schedule,
+                "officialSchedule": official_schedule_by_date,
                 "scheduledDates": sorted(scheduled_slates),
                 "verifiedOffDays": verified_off_days,
                 "scheduledSlates": scheduled_slates,
