@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "auditId": "NHL-2026-11-17-MISS-AUDIT-V1",
+  "slateDate": "2026-11-17",
+  "cardId": "NHL-2026-11-17-CANONICAL",
+  "originalFingerprint": "55311253a1b8994d8fd6054fdd34f609562ab6e95e8e9285b89b26585f5f62f2",
+  "originalRevision": 3,
+  "status": "PRELIMINARY_OFFICIAL_NHL_RECAP_AND_FROZEN_GATE_CROSSCHECK",
+  "sourceScope": "Official NHL game summaries/team recaps cross-checked against the immutable pregame gate export",
+  "completePbpBoxscoreReconciliation": false,
+  "postgameObservationOnly": true,
+  "doesNotProvePregameGateIncorrectByItself": true,
+  "doesNotActivatePatch": true,
+  "originalCardPreserved": true,
+  "selectedLegs": [
+    {
+      "gameId": "2026020335",
+      "matchup": "EDM@FLA",
+      "lockedPlayer": "Sam Reinhart",
+      "lockedPlayerId": "8477933",
+      "lockedGoals": 0,
+      "officialFinal": "EDM 5 - FLA 2",
+      "attackingTeam": "FLA",
+      "lockedRoute": "Low Slot",
+      "lockedRouteHistoricalGoals": 6,
+      "lockedRouteHistoricalShotsOnGoal": 30,
+      "sameSideGoals": 2,
+      "oppositeSideGoals": 5,
+      "sameSideScorers": [
+        {
+          "player": "Matthew Tkachuk",
+          "playerId": "8479314",
+          "goals": 2,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "Low Slot",
+          "challengerHistoricalGoals": 2,
+          "challengerHistoricalShotsOnGoal": 15,
+          "lockedHistoricalGoals": 6,
+          "lockedHistoricalShotsOnGoal": 30
+        }
+      ],
+      "auditFlags": [
+        "LOCKED_PLAYER_ZERO_GOALS",
+        "SAME_SIDE_SCORER_WAS_G105_DEFEATED_IN_SAME_LANE",
+        "OPPOSITE_G0_SIDE_SCORED_MORE"
+      ],
+      "officialSources": [
+        "https://www.nhl.com/scores/htmlreports/20262027/ES020335.HTM"
+      ],
+      "preGameEvidence": "state/site_gates/2026-11-17.json"
+    },
+    {
+      "gameId": "2026020339",
+      "matchup": "ANA@STL",
+      "lockedPlayer": "Beckett Sennecke",
+      "lockedPlayerId": "8484762",
+      "lockedGoals": 0,
+      "officialFinal": "ANA 6 - STL 8",
+      "attackingTeam": "ANA",
+      "lockedRoute": "Low Slot",
+      "lockedRouteHistoricalGoals": 7,
+      "lockedRouteHistoricalShotsOnGoal": 16,
+      "sameSideGoals": 6,
+      "oppositeSideGoals": 8,
+      "sameSideScorers": [
+        {
+          "player": "Cutter Gauthier",
+          "playerId": "8483445",
+          "goals": 3,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "Low Slot",
+          "challengerHistoricalGoals": 5,
+          "challengerHistoricalShotsOnGoal": 11,
+          "lockedHistoricalGoals": 7,
+          "lockedHistoricalShotsOnGoal": 16
+        },
+        {
+          "player": "Alex Killorn",
+          "playerId": "8473986",
+          "goals": 1,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "Low Slot",
+          "challengerHistoricalGoals": 0,
+          "challengerHistoricalShotsOnGoal": 12,
+          "lockedHistoricalGoals": 7,
+          "lockedHistoricalShotsOnGoal": 16
+        },
+        {
+          "player": "Mikael Granlund",
+          "playerId": "8475798",
+          "goals": 1,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "Low Slot",
+          "challengerHistoricalGoals": 5,
+          "challengerHistoricalShotsOnGoal": 13,
+          "lockedHistoricalGoals": 7,
+          "lockedHistoricalShotsOnGoal": 16
+        },
+        {
+          "player": "Ian Moore",
+          "playerId": "8482178",
+          "goals": 1,
+          "preGameG105": "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
+          "preGameG17": "SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
+          "sameLane": false,
+          "challengerLane": null,
+          "challengerHistoricalGoals": 0,
+          "challengerHistoricalShotsOnGoal": 0,
+          "lockedHistoricalGoals": 7,
+          "lockedHistoricalShotsOnGoal": 16
+        }
+      ],
+      "auditFlags": [
+        "LOCKED_PLAYER_ZERO_GOALS",
+        "THREE_SAME_LANE_SCORERS_WERE_G105_DEFEATED",
+        "ONE_SCORER_HAD_ZERO_PRE_GAME_SEASON_SHOTS_BUT_SCORED",
+        "OPPOSITE_G0_SIDE_SCORED_MORE"
+      ],
+      "officialSources": [
+        "https://www.nhl.com/ducks/news/anaheim-ducks-st-louis-blues-game-recap-november-17-2026-x5130",
+        "https://www.nhl.com/scores/htmlreports/20262027/GS020339.HTM"
+      ],
+      "preGameEvidence": "state/site_gates/2026-11-17.json"
+    },
+    {
+      "gameId": "2026020343",
+      "matchup": "CGY@SJS",
+      "lockedPlayer": "Will Smith",
+      "lockedPlayerId": "8484227",
+      "lockedGoals": 0,
+      "officialFinal": "CGY 5 - SJS 2",
+      "attackingTeam": "SJS",
+      "lockedRoute": "R Circle",
+      "lockedRouteHistoricalGoals": 3,
+      "lockedRouteHistoricalShotsOnGoal": 13,
+      "sameSideGoals": 2,
+      "oppositeSideGoals": 5,
+      "sameSideScorers": [
+        {
+          "player": "Mason Marchment",
+          "playerId": "8478975",
+          "goals": 1,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "R Circle",
+          "challengerHistoricalGoals": 0,
+          "challengerHistoricalShotsOnGoal": 8,
+          "lockedHistoricalGoals": 3,
+          "lockedHistoricalShotsOnGoal": 13
+        },
+        {
+          "player": "Adam Gaudette",
+          "playerId": "8478874",
+          "goals": 1,
+          "preGameG105": "DEFEATED",
+          "preGameG17": "DEFEATED",
+          "sameLane": true,
+          "challengerLane": "R Circle",
+          "challengerHistoricalGoals": 0,
+          "challengerHistoricalShotsOnGoal": 2,
+          "lockedHistoricalGoals": 3,
+          "lockedHistoricalShotsOnGoal": 13
+        }
+      ],
+      "auditFlags": [
+        "LOCKED_PLAYER_ZERO_GOALS",
+        "TWO_SAME_LANE_SCORERS_WERE_G105_DEFEATED",
+        "OPPOSITE_G0_SIDE_SCORED_MORE"
+      ],
+      "officialSources": [
+        "https://www.nhl.com/sharks/",
+        "https://www.nhl.com/sharks/video/cgy-sjs-marchment-scores-ppg-against-dustin-wolf-6408534037112",
+        "https://www.nhl.com/sharks/video/cgy-sjs-gaudette-scores-goal-against-dustin-wolf-6408528760112"
+      ],
+      "preGameEvidence": "state/site_gates/2026-11-17.json"
+    }
+  ],
+  "crossSlatePattern": {
+    "lockedLegs": 3,
+    "lockedLegsWithZeroGoals": 3,
+    "legsWithAtLeastOneSameLaneScorerMarkedG105Defeated": 3,
+    "legsWhereOppositeG0SideScoredMore": 3,
+    "interpretation": "Repeatable postgame recipient-separation miss pattern requiring full PBP/boxscore and shot-origin review. It is not, by itself, proof that the pregame G10.5 verdicts were logically invalid."
+  },
+  "requiredNextVerification": [
+    "Reconcile every credited goal scorer by official NHL play-by-play and boxscore for each locked game",
+    "Map each same-side scorer's actual goal origin to the pregame G0/G9 target lane",
+    "Verify the original G10.5 challenger status and G17 review against the immutable pre-puck export",
+    "Only activate a future-only patch if a repeatable source-backed pregame contradiction is proven"
+  ],
+  "patchDecision": "NO_PATCH_ACTIVATED_PENDING_CAUSAL_VERIFICATION",
+  "postgameRecipientAuditStatus": "SOURCE_VERIFICATION_PENDING; exact failure reason will be preserved by the repaired runner",
+  "officialGrade": "LOSS_0_OF_3"
+}
