@@ -1,9 +1,12 @@
 name: Historical replay regression
 on:
-  push:
-    branches: [audit/historical-season-replay]
+  # Historical replay is expensive and runs only at deliberate, batched checkpoints.
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: historical-replay-regression-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   historical-issuance:
     runs-on: ubuntu-latest
