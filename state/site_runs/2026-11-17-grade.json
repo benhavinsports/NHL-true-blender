@@ -1,6 +1,317 @@
 {
+  "cardId": "NHL-2026-11-17-CANONICAL",
+  "grade": {
+    "cardId": "NHL-2026-11-17-CANONICAL",
+    "gradedAt": "2026-11-18T03:40:57-05:00",
+    "hits": 0,
+    "legs": 3,
+    "missAudits": [
+      {
+        "auditStage": "PROJECTED",
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
+        "gameId": "2026020335",
+        "originalLockReceiptCount": 36,
+        "patchesToAudit": [],
+        "player": "Sam Reinhart"
+      },
+      {
+        "auditStage": "PROJECTED",
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
+        "gameId": "2026020339",
+        "originalLockReceiptCount": 36,
+        "patchesToAudit": [],
+        "player": "Beckett Sennecke"
+      },
+      {
+        "auditStage": "PROJECTED",
+        "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+        "earliestGate": null,
+        "gameId": "2026020343",
+        "originalLockReceiptCount": 36,
+        "patchesToAudit": [],
+        "player": "Will Smith"
+      }
+    ],
+    "officialSources": [
+      "https://api-web.nhle.com/v1/score/2026-11-17",
+      "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+    ],
+    "patchAdjudication": {
+      "activated": [],
+      "cardId": "NHL-2026-11-17-CANONICAL",
+      "decisions": [
+        {
+          "cardId": "NHL-2026-11-17-CANONICAL",
+          "codeAutomaticallyChanged": false,
+          "gameId": "2026020335",
+          "gateAuditProvenance": {
+            "cardFingerprintMatched": true,
+            "file": "2026-11-17.json",
+            "individualOrderedChecks": 20,
+            "noMixedGateRuns": true,
+            "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+            "stage": "PROJECTED"
+          },
+          "officialGoals": 0,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-17",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+          ],
+          "outcome": "MISS",
+          "playerId": "8477933",
+          "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+          "slateDate": "2026-11-17",
+          "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+        },
+        {
+          "cardId": "NHL-2026-11-17-CANONICAL",
+          "codeAutomaticallyChanged": false,
+          "gameId": "2026020339",
+          "gateAuditProvenance": {
+            "cardFingerprintMatched": true,
+            "file": "2026-11-17.json",
+            "individualOrderedChecks": 20,
+            "noMixedGateRuns": true,
+            "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+            "stage": "PROJECTED"
+          },
+          "officialGoals": 0,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-17",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+          ],
+          "outcome": "MISS",
+          "playerId": "8484762",
+          "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+          "slateDate": "2026-11-17",
+          "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+        },
+        {
+          "cardId": "NHL-2026-11-17-CANONICAL",
+          "codeAutomaticallyChanged": false,
+          "gameId": "2026020343",
+          "gateAuditProvenance": {
+            "cardFingerprintMatched": true,
+            "file": "2026-11-17.json",
+            "individualOrderedChecks": 20,
+            "noMixedGateRuns": true,
+            "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+            "stage": "PROJECTED"
+          },
+          "officialGoals": 0,
+          "officialSources": [
+            "https://api-web.nhle.com/v1/score/2026-11-17",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+          ],
+          "outcome": "MISS",
+          "playerId": "8484227",
+          "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+          "slateDate": "2026-11-17",
+          "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+        }
+      ],
+      "missCount": 3,
+      "noUnprovenRuleChange": true,
+      "originalCardUntouched": true,
+      "slateDate": "2026-11-17",
+      "status": "POSTGAME_PATCH_ADJUDICATED"
+    },
+    "patchStatus": "NO_CAUSALLY_PROVEN_PATCH_TRIGGER",
+    "patchesApplied": [],
+    "patchesFutureSlatesOnly": true,
+    "playerResults": [
+      {
+        "gameId": "2026020335",
+        "goals": 0,
+        "player": "Sam Reinhart",
+        "playerId": "8477933",
+        "result": "MISS"
+      },
+      {
+        "gameId": "2026020339",
+        "goals": 0,
+        "player": "Beckett Sennecke",
+        "playerId": "8484762",
+        "result": "MISS"
+      },
+      {
+        "gameId": "2026020343",
+        "goals": 0,
+        "player": "Will Smith",
+        "playerId": "8484227",
+        "result": "MISS"
+      }
+    ],
+    "postgameRecipientAudit": {
+      "doesNotOverrideOfficialGrade": true,
+      "errorType": "SourceUnavailable",
+      "notACertifiedRecipientComparison": true,
+      "status": "SOURCE_VERIFICATION_PENDING"
+    },
+    "result": "LOSS"
+  },
+  "missAudits": [
+    {
+      "auditStage": "PROJECTED",
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
+      "gameId": "2026020335",
+      "originalLockReceiptCount": 36,
+      "patchesToAudit": [],
+      "player": "Sam Reinhart"
+    },
+    {
+      "auditStage": "PROJECTED",
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
+      "gameId": "2026020339",
+      "originalLockReceiptCount": 36,
+      "patchesToAudit": [],
+      "player": "Beckett Sennecke"
+    },
+    {
+      "auditStage": "PROJECTED",
+      "conclusion": "MISS_WITHOUT_PROVEN_PREGAME_GATE_DEFECT",
+      "earliestGate": null,
+      "gameId": "2026020343",
+      "originalLockReceiptCount": 36,
+      "patchesToAudit": [],
+      "player": "Will Smith"
+    }
+  ],
   "mode": "grade",
   "originalCardPreserved": true,
+  "patchAdjudication": {
+    "activated": [],
+    "cardId": "NHL-2026-11-17-CANONICAL",
+    "decisions": [
+      {
+        "cardId": "NHL-2026-11-17-CANONICAL",
+        "codeAutomaticallyChanged": false,
+        "gameId": "2026020335",
+        "gateAuditProvenance": {
+          "cardFingerprintMatched": true,
+          "file": "2026-11-17.json",
+          "individualOrderedChecks": 20,
+          "noMixedGateRuns": true,
+          "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+          "stage": "PROJECTED"
+        },
+        "officialGoals": 0,
+        "officialSources": [
+          "https://api-web.nhle.com/v1/score/2026-11-17",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+        ],
+        "outcome": "MISS",
+        "playerId": "8477933",
+        "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+        "slateDate": "2026-11-17",
+        "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+      },
+      {
+        "cardId": "NHL-2026-11-17-CANONICAL",
+        "codeAutomaticallyChanged": false,
+        "gameId": "2026020339",
+        "gateAuditProvenance": {
+          "cardFingerprintMatched": true,
+          "file": "2026-11-17.json",
+          "individualOrderedChecks": 20,
+          "noMixedGateRuns": true,
+          "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+          "stage": "PROJECTED"
+        },
+        "officialGoals": 0,
+        "officialSources": [
+          "https://api-web.nhle.com/v1/score/2026-11-17",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+        ],
+        "outcome": "MISS",
+        "playerId": "8484762",
+        "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+        "slateDate": "2026-11-17",
+        "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+      },
+      {
+        "cardId": "NHL-2026-11-17-CANONICAL",
+        "codeAutomaticallyChanged": false,
+        "gameId": "2026020343",
+        "gateAuditProvenance": {
+          "cardFingerprintMatched": true,
+          "file": "2026-11-17.json",
+          "individualOrderedChecks": 20,
+          "noMixedGateRuns": true,
+          "receiptType": "ORIGINAL_COMMITTED_SOURCE_GATE_EXPORT",
+          "stage": "PROJECTED"
+        },
+        "officialGoals": 0,
+        "officialSources": [
+          "https://api-web.nhle.com/v1/score/2026-11-17",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020335/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020339/boxscore",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020343/boxscore"
+        ],
+        "outcome": "MISS",
+        "playerId": "8484227",
+        "reason": "A scoreless game alone is not contradictory pregame gate evidence.",
+        "slateDate": "2026-11-17",
+        "status": "NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
+      }
+    ],
+    "missCount": 3,
+    "noUnprovenRuleChange": true,
+    "originalCardUntouched": true,
+    "slateDate": "2026-11-17",
+    "status": "POSTGAME_PATCH_ADJUDICATED"
+  },
+  "postgameRecipientAudit": {
+    "doesNotOverrideOfficialGrade": true,
+    "errorType": "SourceUnavailable",
+    "notACertifiedRecipientComparison": true,
+    "status": "SOURCE_VERIFICATION_PENDING"
+  },
+  "seasonHistory": {
+    "historyPath": "state/history/2026-27.json",
+    "losses": 3,
+    "officiallyGradedSlates": 3,
+    "season": "2026-27",
+    "verifiedAutomaticGuardPatches": [],
+    "wins": 0
+  },
   "slateDate": "2026-11-17",
-  "status": "CORE_MATCHUPS_NOT_ALL_OFFICIALLY_FINAL"
+  "status": "GRADED_OFFICIAL_GOAL_EVENTS"
 }
