@@ -10,6 +10,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -29,6 +31,13 @@ jobs:
         env:
           PYTHONPATH: .
         run: python scripts/build_replay_bundles.py --start 2026-09-29 --end 2026-11-17 --output state/replay
+      - name: Prepare pre-G0 baseline engine package without changing this branch
+        run: |
+          mkdir -p /tmp/blender-baseline/nhl_true_blender_engine /tmp/blender-baseline/scripts
+          cp -a nhl_true_blender_engine/. /tmp/blender-baseline/nhl_true_blender_engine/
+          git show dd3bf67:nhl_true_blender_engine/engine.py > /tmp/blender-baseline/nhl_true_blender_engine/engine.py
+          cp scripts/replay_historical_season.py /tmp/blender-baseline/scripts/
+          cp scripts/replay_postgame_grade.py /tmp/blender-baseline/scripts/
       - name: Create opening-week manifest from the same frozen official calendar
         run: |
           python - <<'PY'
@@ -58,6 +67,24 @@ jobs:
           PYTHONPATH: .
         run: |
           python scripts/replay_historical_season.py state/replay/manifest.json state/replay/selections.jsonl --grades state/replay/grades.jsonl
+      - name: Replay baseline engine on the identical full-period bundles
+        id: baseline_period
+        continue-on-error: true
+        env:
+          PYTHONPATH: /tmp/blender-baseline:.
+        run: |
+          python /tmp/blender-baseline/scripts/replay_historical_season.py state/replay/manifest.json state/replay/baseline/selections.jsonl --grades state/replay/baseline/grades.jsonl
+      - name: Audit all official scorers, G10.5 challengers, G0 sides and shot routes
+        id: postgame_research
+        continue-on-error: true
+        env:
+          PYTHONPATH: .
+        run: |
+          python scripts/replay_postgame_research.py state/replay/manifest.json state/replay/selections.jsonl state/replay/postgame-research.jsonl
+      - name: Compare baseline and patched frozen selections
+        if: always()
+        run: |
+          python scripts/compare_historical_replays.py state/replay/baseline/selections.jsonl state/replay/baseline/grades.jsonl state/replay/selections.jsonl state/replay/grades.jsonl state/replay/baseline-vs-patched.json
       - name: Summarize actual replay and grade ledgers
         if: always()
         run: |
@@ -65,7 +92,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("state/replay")
-          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl"):
+          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json"):
               path=root/name
               print(f"## {name}")
               if not path.exists():
