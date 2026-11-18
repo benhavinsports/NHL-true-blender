@@ -30,8 +30,8 @@ def verified_bytes(root, path, digest):
 
 
 def assert_database_as_of(con, cutoff):
-    \"\"\"Reject a bundle whose persisted receipts contain post-cutoff knowledge.\"\"\"
-    rows = con.execute(\"SELECT evidence_id, observed_at FROM evidence\").fetchall()
+    """Reject a bundle whose persisted receipts contain post-cutoff knowledge."""
+    rows = con.execute("SELECT evidence_id, observed_at FROM evidence").fetchall()
     future = []
     for row in rows:
         try:
