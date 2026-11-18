@@ -39,8 +39,12 @@ def fetch_calendar(start: date, end: date):
                     start_utc = game.get("startTimeUTC")
                     if game_id is None or not away or not home or not start_utc:
                         raise ValueError(f"Official NHL schedule game missing ID/teams/start: {day_text}")
-                    games.append({"gameId": str(game_id), "away": away, "home": home,
-                                  "startUTC": start_utc,
+                    # Canonical replay consumers use id + startTimeUTC. Keep the
+                    # NHL API aliases as well for older collectors, but never emit
+                    # a schedule row that lacks the fields required for cutoff math.
+                    games.append({"id": str(game_id), "gameId": str(game_id),
+                                  "away": away, "home": home,
+                                  "startTimeUTC": start_utc, "startUTC": start_utc,
                                   "gameState": game.get("gameState") or "UNKNOWN"})
                 weeks.append({"date": day_text, "games": games,
                               "officialSourceUrl": response.url.__str__(),
