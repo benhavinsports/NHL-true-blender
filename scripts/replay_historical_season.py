@@ -29,6 +29,21 @@ def verified_bytes(root, path, digest):
     return data
 
 
+def assert_database_as_of(con, cutoff):
+    \"\"\"Reject a bundle whose persisted receipts contain post-cutoff knowledge.\"\"\"
+    rows = con.execute(\"SELECT evidence_id, observed_at FROM evidence\").fetchall()
+    future = []
+    for row in rows:
+        try:
+            observed = timestamp(row['observed_at'])
+        except (TypeError, ValueError, AttributeError):
+            raise ValueError('Evidence database contains an invalid or timezone-free observation timestamp')
+        if observed > cutoff:
+            future.append(row['evidence_id'])
+    if future:
+        raise ValueError(f'Evidence database is contaminated by {len(future)} post-cutoff receipt(s): {future[:10]}')
+
+
 def replay_day(root, day, stage, bundle):
     cutoff = timestamp(bundle['cutoff'])
     inputs = bundle['inputs']
@@ -50,7 +65,8 @@ def replay_day(root, day, stage, bundle):
         db.write_bytes(evidence)
         con = open_db(str(db))
         try:
-            result = execute(con, snapshot, day, stage)
+            assert_database_as_of(con, cutoff)
+            result = execute(con, snapshot, day, stage, now=cutoff)
             return {'date': day, 'status': 'REPLAYED', 'cutoff': bundle['cutoff'],
                     'stage': stage, 'inputInventory': inputs,
                     'snapshotSha256': bundle['snapshotSha256'],
@@ -59,7 +75,9 @@ def replay_day(root, day, stage, bundle):
                     'engineResult': {k: v for k, v in result.items() if k != 'scan'},
                     'gateCertification': certify_gates(con, day, stage, result.get('games')),
                     'firstNonpassingGateAudit': first_gate_audit(con, day, stage),
-                    'gateDiagnostics': explain_live_blockers(con, day, stage)}
+                    'gateDiagnostics': explain_live_blockers(con, day, stage),
+                    'historicalClockAppliedToEngineAndPersistence': True,
+                    'databasePointInTimeVerified': True}
         finally:
             con.close()
 
