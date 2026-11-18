@@ -32,7 +32,7 @@ def main():
     with urllib.request.urlopen(req,timeout=30) as r:
         raw=r.read();status=r.status;final=r.geturl()
     html=raw.decode("utf-8","replace");probe=Probe();probe.feed(html)
-    patterns=r"(?:/wp-json/|admin-ajax\\.php|api/|historical[^\\\"' ]*|line-match[^\\\"' ]*|ajax[^\\\"' ]*)"
+    patterns=r"(?:/wp-json/|admin-ajax\.php|/api/|historical[^\"' ]*|line-match[^\"' ]*|ajax[^\"' ]*)"
     hits=sorted(set(re.findall(patterns,html,re.I)))
     script_hits=[]
     for script in probe.inline:
