@@ -41,12 +41,15 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("manifest");p.add_argument("selections");p.add_argument("grades")
     p.add_argument("postgame");p.add_argument("comparison");p.add_argument("output")
+    p.add_argument("--dfo",default=None)
     a=p.parse_args()
     manifest=json.loads(Path(a.manifest).read_text())
     sels={x["date"]:x for x in read_jsonl(a.selections)}
     grades={x["date"]:x.get("grade") or {} for x in read_jsonl(a.grades)}
     post={x["date"]:x for x in read_jsonl(a.postgame)}
     cmp=json.loads(Path(a.comparison).read_text()) if Path(a.comparison).exists() else {}
+    dfo=json.loads(Path(a.dfo).read_text()) if a.dfo and Path(a.dfo).exists() else {}
+    dfo_pages={x.get("date"):x for x in dfo.get("pages",[])}
     scheduled=sorted(manifest.get("scheduledDates",[]));off=set(manifest.get("verifiedOffDays",[]))
     per=[];agg={g:Counter() for g in GATES}
     for day in sorted(set(scheduled)|off):
@@ -74,7 +77,10 @@ def main():
             "grade":grade_summary(g),"G16":e.get("g16FinalistCompetition"),
             "g0PostgameTeamGoalComparisons":pg.get("g0TeamGoalComparisons"),
             "G10_5PostgameComparisons":pg.get("G10_5PregameVsOfficialScorers"),
-            "postgameResearchStatus":pg.get("status"),"samePoolBaseline":pg.get("samePoolBaseline")
+            "postgameResearchStatus":pg.get("status"),"samePoolBaseline":pg.get("samePoolBaseline"),
+            "datedGoalieArchivePageAvailable":dfo_pages.get(day,{}).get("availableAsDatedHistoricalPage"),
+            "datedGoalieArchiveNames":dfo_pages.get(day,{}).get("goalieImageNames"),
+            "datedGoalieArchiveTimestamps":dfo_pages.get(day,{}).get("pageTimestamps")
         })
     graded=[x for x in per if (x.get("grade") or {}).get("status")=="GRADED_FINAL_BOXSCORE_AND_PBP"]
     complete=[x for x in per if x["replayStatus"]=="REPLAYED" and x["gateCertified"] is True
@@ -166,6 +172,13 @@ def main():
             "scoredMeritFailureCandidatesLaneOpportunities":[{"player":v["player"],"goals":v["goals"],"onNetShotsInLane":v["shotsInLane"],"goalsInLane":v["goalsInLane"]} for v in candidate_lane.values()],
             "fullComparisonRowsAreInPostgameResearchJsonl":True,
             "postgameIsDiagnosticNotPregameProof":True},
+        "datedGoalieArchive":{
+            "source":dfo.get("source"),
+            "scheduledDatesChecked":dfo.get("scheduledDatesChecked"),
+            "accessibleDatedPages":dfo.get("accessibleDatedPages"),
+            "unavailableDates":dfo.get("unavailableDates"),
+            "notUsedBySelector":dfo.get("notUsedBySelector"),
+            "goalieNamesNeedIndependentNHLPlayerIdResolution":dfo.get("goalieNamesNeedIndependentNHLPlayerIdResolution")},
         "baselineVersusPatch":{"baselineEngineRef":cmp.get("baselineEngineRef"),
             "sameInputRows":cmp.get("sameInputRows"),"changedG0Dates":cmp.get("changedG0Dates"),
             "changedCoreDates":cmp.get("changedCoreDates"),"rows":cmp.get("rows")},
