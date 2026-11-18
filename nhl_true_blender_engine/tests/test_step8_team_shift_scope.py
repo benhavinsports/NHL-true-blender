@@ -62,6 +62,7 @@ def test_without_official_shift_and_pbp_interval_proof_step8_cannot_pass():
     g,p=make(include_shift=False)
     row=review(g,p)
     assert row["disposition"]=="NOT_EXECUTED"
+    assert row["details"]["evidence"]["nonblocking"] is True
     assert row["details"]["evidence"]["actualShiftByShiftObserved"] is False
     assert row["details"]["evidence"]["officialShiftChartSourceCount"]==0
 
