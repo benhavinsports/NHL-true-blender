@@ -153,33 +153,54 @@ def main():
         parser.error('Expected a valid date range and optional PROJECTED/CONFIRMED default stage')
     failures = 0
     status_counts = Counter()
-    scheduled = manifest.get('scheduledSlates')
-    if isinstance(scheduled, dict):
-        days = sorted(scheduled)
+    schedule = manifest.get('officialSchedule')
+    if isinstance(schedule, dict):
+        days = sorted(schedule)
         if any(not (start.isoformat() <= day <= end.isoformat()) for day in days):
-            parser.error('Official scheduled slate dates must fall inside the manifest range')
+            parser.error('Official schedule dates must fall inside the manifest range')
     else:
-        # Backward-compatible manifests without a schedule calendar retain
-        # the old every-calendar-day behavior.
-        days = [(start + timedelta(days=offset)).isoformat()
-                for offset in range((end - start).days + 1)]
+        scheduled = manifest.get('scheduledSlates')
+        if isinstance(scheduled, dict):
+            days = sorted(scheduled)
+        else:
+            days = [(start + timedelta(days=offset)).isoformat()
+                    for offset in range((end - start).days + 1)]
+    verified_off_days = set(manifest.get('verifiedOffDays', []))
     with args.output.open('x', encoding='utf-8') as out:
         for day in days:
             bundle = manifest['slates'].get(day)
-            if bundle is None:
-                row = {'date': day, 'status': 'SOURCE_BLOCKED', 'reason': 'No archived pregame bundle'}
-                status_counts['SOURCE_BLOCKED'] += 1
+            if bundle is None and day in verified_off_days:
+                row = {'date': day, 'status': 'VERIFIED_OFF_DAY',
+                       'officialSchedule': (schedule or {}).get(day)}
+            elif bundle is None:
+                schedule_row = (schedule or {}).get(day)
+                scheduled = bool((schedule_row or {}).get('games'))
+                status = 'SCHEDULED_SOURCE_BLOCKED' if scheduled else 'SCHEDULE_UNVERIFIED'
+                row = {'date': day, 'status': status,
+                       'officialSchedule': schedule_row,
+                       'reason': ('Scheduled slate has no archived point-in-time pregame bundle'
+                                  if scheduled else 'No official schedule/off-day receipt')}
+                status_counts[status] += 1
+                failures += 1
             else:
                 try:
                     row = replay_day(args.manifest.parent, day, stage, bundle)
                 except (OSError, ValueError, TypeError, KeyError) as exc:
                     row = {'date': day, 'status': 'REPLAY_ERROR',
                            'errorType': type(exc).__name__, 'reason': str(exc)}
+                    status_counts['REPLAY_ERROR'] += 1
                     failures += 1
+            status_counts[row['status']] += 1
             out.write(json.dumps(row, default=str) + '\n')
             out.flush()
     if args.grades:
         failures += asyncio.run(grade_ledger(args.output, args.grades))
+    print(json.dumps({'dateRange': [start.isoformat(), end.isoformat()],
+                      'dateCount': len(days), 'statusCounts': dict(status_counts),
+                      'selectionLedger': str(args.output),
+                      'gradeLedger': str(args.grades) if args.grades else None,
+                      'unresolvedDatesRemainNonzeroExit': bool(failures)},
+                     sort_keys=True))
     return int(bool(failures))
 
 
