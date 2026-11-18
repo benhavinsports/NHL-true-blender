@@ -85,6 +85,17 @@ def _before(a,b):
     except (AttributeError,ValueError):
         return None
 
+def _official_game_start(game):
+    """Accept the official calendar's startUTC and the legacy startTimeUTC alias."""
+    value=game.get("startTimeUTC") or game.get("startUTC")
+    if not isinstance(value,str):
+        return None
+    try:
+        parsed=datetime.fromisoformat(value.replace("Z","+00:00"))
+        return parsed if parsed.tzinfo is not None else None
+    except ValueError:
+        return None
+
 def _normalize_name(value):
     return "".join(ch for ch in unicodedata.normalize("NFKD",value or "")
                    if not unicodedata.combining(ch)).casefold().strip()
@@ -122,8 +133,8 @@ def fetch(day,outdir,manifest_schedule):
             raw=response.read();status=response.status;final_url=response.geturl()
         parser=PageText();parser.feed(raw.decode("utf-8","replace"))
         schedule_games=((manifest_schedule.get(day) or {}).get("games") or [])
-        start_times=[g.get("startTimeUTC") for g in schedule_games if g.get("startTimeUTC")]
-        slate_cutoff=(datetime.fromisoformat(min(start_times).replace("Z","+00:00"))-
+        start_times=[_official_game_start(g) for g in schedule_games]\n        start_times=[x for x in start_times if x is not None]
+        slate_cutoff=(min(start_times)-
                       timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00","Z") if start_times else None
         cards=_parse_goalie_cards(parser)
         for goalie in cards:
