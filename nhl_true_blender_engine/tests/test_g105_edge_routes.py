@@ -30,8 +30,8 @@ def test_missing_sample_goal_log_does_not_erase_independent_same_lane_own_route(
     assert rows[0]["sameLane"] is True
     assert rows[0]["status"]=="DEFEATED"
     assert rows[0]["challenger"]["shotsOnGoal"]==12
-    assert rows[0]["rivalEVRole"] is None
-    assert rows[0]["roleReviewIncomplete"] is True
+    assert rows[0]["rivalEVRole"]["EV"]=="EV2"
+    assert rows[0]["roleReviewIncomplete"] is False
 
 def test_no_unjustified_transfer_if_challenger_has_more_owned_goals():
     favorite=p(1,"Low Slot",22,3)
