@@ -65,7 +65,8 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts,date){
  if(survivor){
    turn.appendChild(NHLScouting.photo({
      player:survivor.player,playerId:survivor.playerId,
-     team:survivor.attackTeam||g.attackTeam,matchup:g.matchup,date
+     team:survivor.attackTeam||g.attackTeam,matchup:g.matchup,date,
+      preferPortrait:true
    }));
  }
  const head=create("div","pool-card-head collector-pool-masthead");
