@@ -140,7 +140,9 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
                                   "team":team_code}
         if not observed:
             raise SourceUnavailable("Official boxscore missing participating skaters "+game_id)
-        if not set(counts).issubset(set(observed)):
+        chosen=str(leg["playerId"])
+        missing_pbp_scorers=set(counts)-set(observed)
+        if missing_pbp_scorers-{chosen}:
             raise SourceUnavailable("Official PBP scorer missing from NHL boxscore "+game_id)
         for pid,n in counts.items():
             if observed[pid]["goals"]!=n:
@@ -149,7 +151,6 @@ def compare_official_goal_recipients(card, date, official_games, all_pbp, all_bo
         for pid,p in observed.items():
             if p["goals"]!=counts.get(pid,0):
                 raise SourceUnavailable("Official PBP/boxscore disagreement on "+game_id+" "+pid)
-        chosen=str(leg["playerId"])
         # A frozen scorer may be scratched and therefore absent from the
         # dressed-player boxscore. That is a valid official zero only when
         # NHL play-by-play also contains no credited goal for that player.
