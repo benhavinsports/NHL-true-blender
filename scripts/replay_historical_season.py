@@ -1,6 +1,7 @@
 """Replay archived pregame bundles, optionally grading a separate ledger."""
 import argparse
 import asyncio
+from collections import Counter
 import hashlib
 import json
 import gzip
@@ -138,6 +139,7 @@ def main():
     if (stage not in (None, 'PROJECTED', 'CONFIRMED') or end < start):
         parser.error('Expected a valid date range and optional PROJECTED/CONFIRMED default stage')
     failures = 0
+    status_counts = Counter()
     scheduled = manifest.get('scheduledSlates')
     if isinstance(scheduled, dict):
         days = sorted(scheduled)
@@ -153,7 +155,7 @@ def main():
             bundle = manifest['slates'].get(day)
             if bundle is None:
                 row = {'date': day, 'status': 'SOURCE_BLOCKED', 'reason': 'No archived pregame bundle'}
-                failures += 1
+                status_counts['SOURCE_BLOCKED'] += 1
             else:
                 try:
                     row = replay_day(args.manifest.parent, day, stage, bundle)
