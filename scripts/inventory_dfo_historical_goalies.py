@@ -17,7 +17,7 @@ TEAM_ABBREV = {
     "Nashville Predators":"NSH","New Jersey Devils":"NJD","New York Islanders":"NYI",
     "New York Rangers":"NYR","Ottawa Senators":"OTT","Philadelphia Flyers":"PHI",
     "Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS","Seattle Kraken":"SEA",
-    "St. Louis Blues":"STL","Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR",
+    "St. Louis Blues":"STL","St Louis Blues":"STL","Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR",
     "Utah Mammoth":"UTA","Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK",
     "Washington Capitals":"WSH","Winnipeg Jets":"WPG",
 }
@@ -46,22 +46,24 @@ class PageText(HTMLParser):
 def _parse_goalie_cards(parser):
     text=parser.text
     generic={"logo","starting goalies","line combination","bet365","puckpedia","daily faceoff"}
+    image_by_name={_normalize_name(x["alt"].replace("Image:","").strip()):x.get("src")
+                   for x in parser.image_src}
     cards=[]
     seen=set()
-    for img in parser.image_src:
-        name=img["alt"].replace("Image:","").strip()
-        if not name or name.lower() in generic or name.lower().startswith("bet365") or name in seen:
+    for i in range(1,len(text)-1):
+        status=text[i]
+        updated=text[i+1]
+        if status not in STATUSES or not ISO_RE.match(updated):
             continue
-        positions=[i for i,x in enumerate(text) if x.lower()==name.lower()]
-        for pos in positions:
-            status=text[pos+1] if pos+1<len(text) else None
-            updated=text[pos+2] if pos+2<len(text) else None
-            if status in STATUSES:
-                cards.append({"name":name,"status":status,
-                              "reportUpdatedAt":updated if isinstance(updated,str) and ISO_RE.match(updated) else None,
-                              "imageUrl":img.get("src")})
-                seen.add(name)
-                break
+        name=text[i-1].strip()
+        if not name or name.lower() in generic or _normalize_name(name) in seen:
+            continue
+        # DFO's historical card order is away goalie then home goalie for
+        # each matchup; each card has a status immediately followed by its
+        # report-update timestamp.
+        cards.append({"name":name,"status":status,"reportUpdatedAt":updated,
+                      "imageUrl":image_by_name.get(_normalize_name(name))})
+        seen.add(_normalize_name(name))
     return cards
 
 def _parse_matchups(text,schedule_games):
@@ -175,6 +177,9 @@ def main():
         for future in as_completed(futures):
             resolutions[futures[future]]=future.result()
     for page in rows:
+        for goalie in page.get("goalieCards",[]):
+            goalie["nhlIdentityResolution"]=resolutions.get(goalie["name"])
+            goalie["nhlPlayerId"]=(goalie["nhlIdentityResolution"] or {}).get("playerId")
         for game in page.get("games",[]):
             for side in ("awayGoalie","homeGoalie"):
                 goalie=game.get(side)
