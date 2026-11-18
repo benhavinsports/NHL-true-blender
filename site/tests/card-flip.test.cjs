@@ -540,3 +540,21 @@ test("navigation follows current section while reading tall survivor and results
  assert.ok(js.includes('document.body?.classList?.contains("core-report-open")'));
  assert.ok(js.includes('window.addEventListener?.("resize",updateFromScroll)'));
 });
+
+
+test("mobile slate does not inherit the earlier arcade blue status border",()=>{
+ const css=fs.readFileSync(path.join(root,"site/styles.css"),"utf8");
+ const fix=css.slice(css.lastIndexOf("Override the original arcade"));
+ assert.ok(fix.includes("#slate-notice.phase-bar"));
+ assert.ok(fix.includes("background:#12212f"));
+ assert.ok(fix.includes("border:0"));
+ assert.ok(fix.includes("border-radius:0"));
+});
+
+test("active nav switches when next section enters the upper half of phone",()=>{
+ const js=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ assert.ok(js.includes("window.innerHeight*.53"));
+ assert.ok(js.includes("Math.min(540,window.innerHeight*.53)"));
+ assert.ok(js.includes('window.addEventListener?.("scroll",updateFromScroll'));
+ assert.ok(!js.includes("window.innerHeight*.32"));
+});

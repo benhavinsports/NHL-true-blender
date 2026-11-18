@@ -3417,3 +3417,31 @@ body.core-report-open .app-sidebar{pointer-events:none}
   .overview-heading h1{font-size:27px}
   .overview-control{max-width:none}
 }
+
+
+/* Override the original arcade :not(.game-table ...) selector, whose
+   specificity was repainting our new overview status bright blue. */
+body .app-content .slate-overview #slate-notice.phase-bar{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  background:#12212f;
+  border:0;
+  border-radius:0;
+  border-bottom:1px solid #2b4254;
+  box-shadow:none;
+  color:#a7bac8;
+}
+body .app-content .slate-overview #slate-notice.phase-bar .pill{
+  background:#292820!important;
+  border:1px solid #5e5641!important;
+  color:#d2c49f!important;
+  font-size:9px;
+  border-radius:4px;
+}
+@media(max-width:650px){
+  body .app-content .slate-overview #slate-notice.phase-bar{
+    padding:9px 12px;
+    min-height:0;
+  }
+}
