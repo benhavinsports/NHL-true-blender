@@ -2340,7 +2340,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     games=snapshot.get('games',[])
     if not games:
         msg={'reason':'No official NHL game data provided','stage':stage}
-        log_job(con,f'{date}-{stage}',date,stage,'SOURCE_ERROR',msg)
+        log_job(con,f'{date}-{stage}',date,stage,'SOURCE_ERROR',msg,now=now)
         return {'card':None,'errors':[msg['reason']],'gateRows':0,'scan':[]}
     scan,g0_direction_notes=g0_full_slate(games,stage)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
@@ -2677,7 +2677,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         records.append(gate_record(match,key[1],'G18',disposition,proof,urls))
     # Exactly one authoritative row for every original gate per skater.
     # Only the true final Core recipients are allowed a G18 PASS.
-    save_gates(con,date,stage,records)
+    save_gates(con,date,stage,records,now=now)
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
     # A game that has already started cannot be newly picked. Such a game is
     # excluded from the candidate pool above, but does not veto later games.
@@ -2776,5 +2776,5 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'retroactiveCardMutation':False,
             'errors':errors,'scan':scan}
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
-            {k:v for k,v in result.items() if k not in ('card','scan')})
+            {k:v for k,v in result.items() if k not in ('card','scan')},now=now)
     return result
