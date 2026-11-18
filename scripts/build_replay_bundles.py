@@ -129,6 +129,7 @@ def main():
     parser.add_argument("--start", required=True)
     parser.add_argument("--end", required=True)
     parser.add_argument("--output", type=Path, default=Path("state/replay"))
+    parser.add_argument("--schedule", type=Path, default=Path("state/replay/official_schedule.json"))
     args = parser.parse_args()
     start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
     if end < start:
@@ -136,6 +137,15 @@ def main():
     if not RAW_DB.is_file():
         raise SystemExit("Canonical database missing; restore state/true_blender.sqlite.gz first")
     args.output.mkdir(parents=True, exist_ok=True)
+    if not args.schedule.is_file():
+        raise SystemExit("Official NHL schedule calendar is missing; fetch it before building replay bundles")
+    official_calendar = json.loads(args.schedule.read_text(encoding="utf-8"))
+    scheduled_slates = {
+        row["date"]: {"gameCount": len(row.get("games") or []),
+                      "games": row.get("games") or []}
+        for row in official_calendar.get("scheduledSlates", [])
+        if start.isoformat() <= row["date"] <= end.isoformat()
+    }
     source = sqlite3.connect(f"file:{RAW_DB.resolve()}?mode=ro", uri=True)
     source.row_factory = sqlite3.Row
     try:
@@ -147,21 +157,26 @@ def main():
                 slates[day] = bundle
     finally:
         source.close()
+    missing_scheduled = sorted(set(scheduled_slates) - set(slates))
     manifest = {"start": start.isoformat(), "end": end.isoformat(),
+                "scheduledSlates": scheduled_slates,
                 "slates": slates,
                 "archiveCoverage": {
+                    "officialScheduleSource": official_calendar.get("source"),
+                    "scheduledSlateCount": len(scheduled_slates),
+                    "scheduledGameCount": sum(x["gameCount"] for x in scheduled_slates.values()),
                     "bundledDates": sorted(slates),
+                    "missingScheduledDates": missing_scheduled,
                     "missingDatesAreNotAssumedOffDays": True,
                     "source": "state/true_blender.sqlite.gz"
                 }}
     path = args.output / "manifest.json"
     path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print(json.dumps({"manifest": str(path), "bundledDates": sorted(slates),
-                      "missingDates": [
-                          (start.fromordinal(start.toordinal()+n)).isoformat()
-                          for n in range((end-start).days+1)
-                          if (start.fromordinal(start.toordinal()+n)).isoformat() not in slates
-                      ]}, indent=2))
+    print(json.dumps({"manifest": str(path),
+                      "scheduledSlateCount": len(scheduled_slates),
+                      "scheduledGameCount": sum(x["gameCount"] for x in scheduled_slates.values()),
+                      "bundledDates": sorted(slates),
+                      "missingScheduledDates": missing_scheduled}, indent=2))
 
 
 if __name__ == "__main__":
