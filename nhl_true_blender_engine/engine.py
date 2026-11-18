@@ -1131,7 +1131,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'noGuessTransfer':True,
           'challengersStoppedBeforeG10_5':{k:v for k,v in sorted(stopped.items())
                                            if k!=str(player['id'])} or None,
-          'eliminatedChallengersExcludedFromDisplacement':sorted(eliminated_before-{str(player['id']}) or None,
+          'eliminatedChallengersExcludedFromDisplacement':sorted(eliminated_before-{str(player['id'])}) or None,
           'unresolvedChallengersCannotEliminate':unresolved_dominators or None,
           'routeOwnedByStrongerRival':route_owned_by or None},
          eliminate=bool(route_owned_by),
