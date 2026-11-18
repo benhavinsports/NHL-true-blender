@@ -116,3 +116,13 @@ def test_missing_earlier_card_does_not_shift_verified_later_matchup():
     assert len(by_team["LAK"]) == len(by_team["SJS"]) == 1
     assert by_team["LAK"][0]["name"] == "Later Away"
     assert by_team["SJS"][0]["name"] == "Later Home"
+
+
+def test_dfo_headshot_utah_team_label_is_explicitly_normalized():
+    from scripts.inventory_dfo_historical_goalies import _image_team_abbrev
+    assert _image_team_abbrev(
+        "https://api.dailyfaceoff.com/uploads/player/headshot/26614/Vejmelka-Karel_Utah-2025_.png"
+    ) == "UTA"
+    assert _image_team_abbrev("https://example.com/Goalie-NYR-2026.png") == "NYR"
+    assert _image_team_abbrev(None) is None
+    assert _image_team_abbrev("https://example.com/unknown.png") is None
