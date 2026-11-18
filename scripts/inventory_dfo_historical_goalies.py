@@ -143,20 +143,26 @@ def fetch(day,outdir,manifest_schedule):
             goalie["imageTeamAbbrev"]=image_team.group(1) if image_team else None
             goalie["reportUpdatedBeforeSlateCutoff"]=_before(goalie.get("reportUpdatedAt"),slate_cutoff) if slate_cutoff else None
         matchups=_parse_matchups(parser.text,schedule_games)
-        # A missing card shifts every later positional pair. Refuse to
-        # associate identities with games unless the complete card sequence
-        # is unambiguous. Missing evidence must not become a false starter.
-        positional_pairs_verified=(len(cards)==2*len(matchups)
-                                   and len(matchups)==len(schedule_games)
-                                   and all(x.get("officialScheduleMatch") is True
-                                           for x in matchups))
+        # Identify each card by its independently observed image team.
+        # A missing card must not shift subsequent goalie-to-game pairings.
+        # Never infer identities from position or assign duplicate-team cards.
+        cards_by_team = {}
+        for card in cards:
+            team = card.get("imageTeamAbbrev")
+            if team:
+                cards_by_team.setdefault(team, []).append(card)
         games=[]
-        for idx,match in enumerate(matchups):
-            pair=cards[idx*2:idx*2+2] if positional_pairs_verified else []
-            game={**match,"awayGoalie":pair[0] if len(pair)>0 else None,
-                  "homeGoalie":pair[1] if len(pair)>1 else None,
-                  "goaliePairComplete":len(pair)==2,
-                  "positionalPairingVerified":positional_pairs_verified}
+        for match in matchups:
+            away_cards = cards_by_team.get(match.get("away"), [])
+            home_cards = cards_by_team.get(match.get("home"), [])
+            verified = (match.get("officialScheduleMatch") is True
+                        and len(away_cards) == 1 and len(home_cards) == 1
+                        and match.get("away") != match.get("home"))
+            pair = (away_cards[0], home_cards[0]) if verified else (None, None)
+            game={**match,"awayGoalie":pair[0], "homeGoalie":pair[1],
+                  "goaliePairComplete":verified,
+                  "positionalPairingVerified":verified,
+                  "pairingBasis":"UNIQUE_SOURCE_IMAGE_TEAM_IDENTITY"}
             for side,team in (("awayGoalie",match.get("away")),("homeGoalie",match.get("home"))):
                 goalie=game[side]
                 if goalie:
