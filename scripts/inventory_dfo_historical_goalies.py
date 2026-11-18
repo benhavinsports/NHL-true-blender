@@ -139,8 +139,12 @@ def fetch(day,outdir,manifest_schedule):
                       timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00","Z") if start_times else None
         cards=_parse_goalie_cards(parser)
         for goalie in cards:
-            image_team=re.search(r"[_-]([A-Z]{3})-",goalie.get("imageUrl") or "")
-            goalie["imageTeamAbbrev"]=image_team.group(1) if image_team else None
+            image_url = goalie.get("imageUrl") or ""
+            image_team = re.search(r"[_-]([A-Z]{3})-", image_url)
+            # DFO still uses the literal Utah name in Vejmelka headshots.
+            # This is a source-image team label, not a roster inference.
+            goalie["imageTeamAbbrev"] = (image_team.group(1) if image_team else
+                "UTA" if re.search(r"[_-]Utah-\\d", image_url, re.I) else None)
             goalie["reportUpdatedBeforeSlateCutoff"]=_before(goalie.get("reportUpdatedAt"),slate_cutoff) if slate_cutoff else None
         matchups=_parse_matchups(parser.text,schedule_games)
         # Identify each card by its independently observed image team.
