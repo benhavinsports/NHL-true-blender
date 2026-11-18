@@ -488,6 +488,7 @@ test("saved slate remains source-backed without duplicate public statistics",()=
  for(const id of ["hero-date","hero-phase","hero-sync","slate-notice"])
    elements[id]=new FakeNode("div");
  vm.runInContext(
+  'state.selectedDate=state.archive[0].date;'+
   'state.archive[0].stage="PROJECTED";'+
   'state.latest.currentRunFullyCertified=false;renderHeader();',
   sandbox);
