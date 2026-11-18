@@ -14,6 +14,10 @@ from nhl_true_blender_engine.tests.test_end_to_end_contract import fixture
 
 def test_replay_day_issues_and_certifies_real_engine_card_with_wall_clock_after_puck(tmp_path, monkeypatch):
     snapshot = fixture()
+    # Pin the fixture to a completed historical date while retaining the
+    # real engine's future-state pregame contract.
+    snapshot["games"][0]["date"] = "2026-11-17"
+    snapshot["games"][0]["startUTC"] = "2026-11-17T00:00:00Z"
     game_start = datetime.fromisoformat(snapshot["games"][0]["startUTC"].replace("Z", "+00:00"))
     cutoff = game_start - timedelta(minutes=5)
     wall_after_puck = game_start + timedelta(hours=1)
@@ -62,7 +66,7 @@ def test_replay_day_issues_and_certifies_real_engine_card_with_wall_clock_after_
     assert result["databasePointInTimeVerified"] is False
     assert result["pointInTimeAudit"]["status"] == "PARTIAL_PROVIDER_ASOF_NOT_EXPOSED"
     assert datetime.fromisoformat(card["first_issued_at"]) <= cutoff.astimezone(storage.ET)
-    assert datetime.now(timezone.utc) > game_start
+    assert PinnedWallClock.now(timezone.utc) > game_start
     assert result["engineResult"]["retroactiveCardMutation"] is False
 
 
