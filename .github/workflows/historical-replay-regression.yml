@@ -17,6 +17,7 @@ on:
         type: string
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: historical-replay-regression-${{ github.ref }}
   cancel-in-progress: false
@@ -61,9 +62,16 @@ jobs:
         id: dfo_archive
         continue-on-error: true
         run: python scripts/inventory_dfo_historical_goalies.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json
+      - name: Recover previously captured dated goalie research when DFO blocks all 50 dates
+        id: dfo_fallback
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
+        run: |
+          python scripts/reuse_prior_dfo_archive.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json --repo "$GITHUB_REPOSITORY"
       - name: Ingest validated historical goalie evidence into canonical Blender ledger
         id: dfo_ingestion
-        if: steps.dfo_archive.outcome == 'success'
+        if: steps.dfo_archive.outcome == 'success' || steps.dfo_fallback.outcome == 'success'
         env:
           PYTHONPATH: .
         run: python scripts/ingest_dfo_goalie_evidence.py state/replay/collector-manifest.json state/replay/dfo-goalie-archive.json
