@@ -36,8 +36,9 @@ def certified_dressed_ids(game, response):
     if (game.get("gameState") not in ("FUT", "PRE")
             or payload.get("gameState") not in ("FUT", "PRE")):
         return None, "GAME_ALREADY_STARTED_OR_UNVERIFIED_STATE"
-    required_url = f"https://api-web.nhle.com/v1/gamecenter/{gid}/play-by-play"
-    if response.get("url") != required_url:
+    allowed_urls = {f"https://api-web.nhle.com/v1/gamecenter/{gid}/{endpoint}"
+                    for endpoint in ("play-by-play", "landing", "boxscore")}
+    if response.get("url") not in allowed_urls:
         return None, "NOT_OFFICIAL_GAMECENTER_SOURCE"
     spots = payload.get("rosterSpots")
     if not isinstance(spots, list) or not spots:
@@ -88,14 +89,33 @@ async def collect_official_dressed(client, con, snapshot, date, stage):
         if not start or now >= start or game.get("gameState") not in ("FUT", "PRE"):
             diagnostics.append({"gameId": game.get("id"), "status": "ALREADY_STARTED_OR_MISSING_START"})
             continue
-        try:
-            response = await client.play_by_play(str(game["id"]))
-        except Exception as exc:
-            diagnostics.append({"gameId": game.get("id"), "status": "SOURCE_UNAVAILABLE",
-                                "reason": f"{type(exc).__name__}: {exc}"[:240]})
-            continue
-        teams, status = certified_dressed_ids(game, response)
-        diagnostics.append({"gameId": game["id"], "status": status,
+        # Gamecenter may publish the pre-puck registered roster in its
+        # landing/boxscore payload before the play-by-play rosterSpots appear.
+        # Check all three exact official same-game sources without claiming
+        # a dressed player from a team depth chart or a projected lineup.
+        response = None
+        teams = None
+        attempts = []
+        for endpoint in ("play-by-play", "landing", "boxscore"):
+            try:
+                if endpoint == "play-by-play":
+                    candidate = await client.play_by_play(str(game["id"]))
+                elif endpoint == "landing":
+                    candidate = await client.get(f"gamecenter/{game['id']}/landing")
+                else:
+                    candidate = await client.boxscore(str(game["id"]))
+                verified, status = certified_dressed_ids(game, candidate)
+                attempts.append({"endpoint": endpoint, "status": status})
+                if verified:
+                    response, teams = candidate, verified
+                    break
+            except Exception as exc:
+                attempts.append({"endpoint": endpoint, "status": "SOURCE_UNAVAILABLE",
+                                 "reason": f"{type(exc).__name__}: {exc}"[:180]})
+        diagnostics.append({"gameId": game["id"],
+                            "status": ("OFFICIAL_PREPUCK_DRESSED_ROSTER_VERIFIED"
+                                       if teams else "ALL_OFFICIAL_PREPUCK_ROSTER_SOURCES_INCOMPLETE"),
+                            "sourceAttempts": attempts,
                             "dressedPlayerCount": sum(map(len, teams.values())) if teams else 0})
         if not teams:
             continue
