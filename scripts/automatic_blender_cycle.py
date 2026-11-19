@@ -68,13 +68,19 @@ async def official_games(day):
     return games
 
 
-def pending_recent_grades(root, day, *, lookback_days=7):
-    """Retry missed official grades and postgame audits after overnight outages.
+def pending_recent_grades(root, day):
+    """Retry every ungraded frozen Core from the current NHL season.
+
+    A seven-day window silently abandoned older cards after an outage.
+    Keep the old G18 card immutable; grade at most two per automatic cycle.
+    
 
     The original frozen Core is never replaced. Only slates which actually
     have a saved card are retried; an off day or NO_CORE is not graded as a win.
     """
     db = Path(root) / "true_blender.sqlite"
+    slate_day = Date.fromisoformat(day)
+    season_start = Date(slate_day.year if slate_day.month >= 9 else slate_day.year - 1, 9, 1)
     if not db.exists():
         return []
     con = sqlite3.connect(str(db))
@@ -82,7 +88,7 @@ def pending_recent_grades(root, day, *, lookback_days=7):
         rows = con.execute(
             "SELECT slate_date FROM cards WHERE slate_date >= ? AND slate_date <= ? "
             "AND (grade IS NULL OR grade = '') ORDER BY slate_date",
-            ((Date.fromisoformat(day) - timedelta(days=lookback_days)).isoformat(), day),
+            (season_start.isoformat(), day),
         ).fetchall()
         # Bound per-run replay cost; hourly runs will drain older ungraded cards.
         return [row[0] for row in rows[:2]]

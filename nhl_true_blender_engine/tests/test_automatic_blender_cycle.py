@@ -40,6 +40,18 @@ class AutomaticBlenderCycleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             choose_mode([{"id": 1}], datetime(2026, 11, 18, 15, tzinfo=ET))
 
+    def test_season_old_frozen_card_is_not_abandoned(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            con = sqlite3.connect(str(Path(dirname) / "true_blender.sqlite"))
+            con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
+            con.executemany("INSERT INTO cards VALUES (?,?)", [
+                ("2026-08-31", None), ("2026-09-29", None),
+                ("2026-10-07", ""), ("2026-11-18", None)])
+            con.commit()
+            con.close()
+            self.assertEqual(pending_recent_grades(dirname, "2026-11-18"),
+                             ["2026-09-29", "2026-10-07"])
+
     def test_recent_ungraded_frozen_cards_are_retried_bounded(self):
         with tempfile.TemporaryDirectory() as dirname:
             con = sqlite3.connect(str(Path(dirname) / "true_blender.sqlite"))
