@@ -273,3 +273,39 @@ def test_repeated_display_name_is_retained_in_expected_goalie_evidence(tmp_path)
         assert all(x["status"]!="CONFIRMED" for x in payloads)
     finally:
         con.close()
+
+
+def test_later_more_complete_fixture_card_replaces_early_partial_card():
+    first=HTML.replace(
+        "<span>BOS · #30</span><a>DiPietro</a><span>82%</span><b>Likely</b>",
+        "<span>BOS starter pending</span>")
+    extra=("<article><h2>LAK @ BOS</h2>"
+           "<span>LAK · #31</span><a>Forsberg</a><span>69%</span><b>Leaning</b>"
+           "<span>BOS · #30</span><a>DiPietro</a><span>82%</span><b>Likely</b>"
+           "</article>")
+    full=first.replace("</body>", extra+"</body>")
+    trace=[]
+    rows,status=parse_dated_projections(full,DATE,schedule(),trace)
+    assert status=="DATED_MATCHUPS_PARSED"
+    assert len(rows)==4
+    assert trace[0]["reason"]=="MATCHED"
+    assert trace[0]["matchedTeamCount"]==2
+    assert {(v["team"],v["goalieId"]) for v in rows}=={
+        ("LAK","100"),("BOS","200"),("EDM","300"),("FLA","400")}
+
+
+def test_conflicting_exact_goalie_ids_across_cards_remain_unresolved():
+    extra=("<article><h2>LAK @ BOS</h2>"
+           "<span>LAK · #35</span><a>Kuemper</a><span>91%</span><b>Likely</b>"
+           "<span>BOS · #30</span><a>DiPietro</a><span>82%</span><b>Likely</b>"
+           "</article>")
+    duplicated=HTML.replace("</body>",extra+"</body>")
+    trace=[]
+    rows,status=parse_dated_projections(duplicated,DATE,schedule(),trace)
+    assert status=="DATED_MATCHUPS_PARSED"
+    assert not any(r["team"]=="LAK" for r in rows)
+    assert {(r["team"],r["goalieId"]) for r in rows}=={
+        ("BOS","200"),("EDM","300"),("FLA","400")}
+    assert trace[0]["reason"]=="PARTIAL_OFFICIAL_GOALIE_ID_MATCH"
+    assert trace[0]["teamResearch"]["LAK"]["reason"]=="CONFLICTING_SOURCE_STARTER_IDENTITIES"
+    assert trace[0]["teamResearch"]["LAK"]["noArbitraryStarterSelection"] is True
