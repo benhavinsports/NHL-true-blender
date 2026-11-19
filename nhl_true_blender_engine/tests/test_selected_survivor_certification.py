@@ -107,3 +107,25 @@ def test_post_puck_run_does_not_unpublish_frozen_verified_core(tmp_path):
     assert saved["currentRunFullyCertified"] is True
     assert saved["publicationDecision"]=="PRESERVED_FROZEN_CORE_NO_NEW_SELECTION"
     con.close()
+
+
+def test_source_verified_core_remains_published_without_falsely_certifying_unresolved_slate(tmp_path):
+    """Unresolved other-game G0 never deletes the original 3, nor turns the run green."""
+    con=open_db(str(tmp_path/"partial.sqlite"))
+    slate=with_shift_proofs()
+    result=execute(con,slate,DATE,"CONFIRMED")
+    assert result["card"] is not None and not result["errors"]
+    result["gateCertification"]=certify_gates(con,DATE,"CONFIRMED",3)
+    # A genuine collector-level error outside the already-proven original
+    # recipients is still an unfinished *full slate* research obligation.
+    result["errors"].append(
+        "other-game G0 source consensus exists but multiple projected goalies remain")
+    root=tmp_path/"state"
+    status=export_run(con,DATE,"CONFIRMED",result,root)
+    assert status["selectedCoreFullyCertified"] is True
+    assert status["currentRunFullyCertified"] is False
+    assert status["publishedToSite"] is True
+    assert status["cardSavedByEngine"] is True
+    assert status["publicationDecision"]=="CORE_PUBLISHED_WITH_UNRESOLVED_SLATE_EVIDENCE"
+    assert (root/"site_cards"/(DATE+".json")).is_file()
+    con.close()

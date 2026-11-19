@@ -443,8 +443,18 @@ def export_run(con, slate_date, stage, result, root='state'):
         })
         _write(status_path,status)
         return status
-    status['currentRunFullyCertified']=True
-    status['publicationDecision']='SOURCE_CERTIFIED_AND_PUBLISHED'
+    # An independently passing Core can be published while unresolved G0
+    # research remains elsewhere on the scheduled slate.  Those are TWO
+    # different certifications: do not mark the *entire* run fully certified
+    # merely because three selected skaters passed their original gates.
+    status['selectedCoreFullyCertified']=True
+    undecided_g0=(len(result.get('g0TwoGoalieDirectionDecisions') or {})
+                   !=result.get('games'))
+    unresolved_slate=bool(result.get('errors')) or undecided_g0
+    status['currentRunFullyCertified']=not unresolved_slate
+    status['publicationDecision']=(
+        'CORE_PUBLISHED_WITH_UNRESOLVED_SLATE_EVIDENCE' if unresolved_slate
+        else 'SOURCE_CERTIFIED_AND_PUBLISHED')
     # Preserve the actual signed-by-ledger revision rationale in the saved
     # machine-readable card. The prior exporter silently left auditJson empty
     # even after a G18 replacement, making source/trigger history impossible
