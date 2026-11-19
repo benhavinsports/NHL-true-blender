@@ -164,7 +164,11 @@ jobs:
               # tested earlier in this run. Verify THAT exact source before
               # repeating the entire engine; no untested rule version may
               # certify or persist a new Core.
+              # Replay on the newest dependencies, not stale libraries or a
+              # pytest-only subset from the old checkout.
+              python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
               python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
+              python -m unittest discover -p 'test*.py' -v
               python -m pytest -q nhl_true_blender_engine/tests
               if [ -z "${BLENDER_EXECUTED_DATE:-}" ] || [ -z "${BLENDER_EXECUTED_MODE:-}" ]; then
                 echo "Original phase/date missing; preserving saved Core"
