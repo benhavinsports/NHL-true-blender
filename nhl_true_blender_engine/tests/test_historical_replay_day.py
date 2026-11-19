@@ -141,3 +141,61 @@ def test_replay_input_database_rejects_same_day_historical_event_even_if_downloa
             assert_database_as_of(db, cutoff, "2026-11-17")
     finally:
         db.close()
+
+
+def test_incomplete_season_replay_still_exports_gate_audit_without_grading_no_core(
+        tmp_path, monkeypatch):
+    """A failed G0/G2 historical replay must not erase its useful audit."""
+    import sys
+    from scripts.summarize_historical_replay import main, blocked_gate_reasons
+    assert blocked_gate_reasons([
+        "2026020003 G0 opposing goalie source missing",
+        "2026020002 G2 official roster missing",
+        "PRE_CORE_REVIEW: 0 qualified, G18 cannot choose",
+    ]) == {"G0": 1, "G2": 1, "CORE_ASSEMBLY_UNRESOLVED": 1}
+    manifest = {
+        "start": "2026-09-29", "end": "2026-09-30",
+        "scheduledDates": ["2026-09-29", "2026-09-30"],
+        "verifiedOffDays": [],
+        "officialSchedule": {
+            "2026-09-29": {"games": [{"away": "AAA", "home": "BBB"}]},
+            "2026-09-30": {"games": [{"away": "CCC", "home": "DDD"}]},
+        },
+        "slates": {"2026-09-29": {
+            "providerAvailabilityTimeIndependentlyVerified": False}},
+    }
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    selection = [
+        {"date": "2026-09-29", "status": "REPLAYED",
+         "gateDiagnostics": {"candidateGateMatrix": []},
+         "engineResult": {"games": 1, "errors": [
+             "2026020003 G0 both goalie profiles unavailable",
+             "2026020002 G2 complete roster missing",
+             "PRE_CORE_REVIEW: no Core issued"]}},
+        {"date": "2026-09-30", "status": "SOURCE_BLOCKED",
+         "reason": "No historical pregame bundle"},
+    ]
+    with (tmp_path / "selections.jsonl").open("w") as handle:
+        for row in selection:
+            handle.write(json.dumps(row) + "\n")
+    with (tmp_path / "grades.jsonl").open("w") as handle:
+        for day in ("2026-09-29", "2026-09-30"):
+            handle.write(json.dumps({"date": day, "grade": {
+                "status": "NO_CORE" if day.endswith("29") else "SOURCE_BLOCKED"}}) + "\n")
+    output = tmp_path / "audit.json"
+    argv = ["audit", str(tmp_path / "manifest.json"),
+            str(tmp_path / "selections.jsonl"),
+            str(tmp_path / "grades.jsonl"),
+            str(tmp_path / "absent-postgame.jsonl"),
+            str(tmp_path / "absent-comparison.json"), str(output)]
+    monkeypatch.setattr(sys, "argv", argv)
+    main()
+    report = json.loads(output.read_text())
+    assert report["completion"]["fullyCompletedSlates"] == 0
+    assert report["grading"]["gradedCards"] == 0
+    assert report["blockerBreakdown"]["engineErrorCounts"] == {
+        "G0": 1, "G2": 1, "CORE_ASSEMBLY_UNRESOLVED": 1,
+        "OTHER_SOURCE_BLOCKER": 1}
+    assert report["blockerBreakdown"]["scheduledSlatesWithUnverifiedProviderAvailability"] == 2
+    assert report["blockerBreakdown"]["noCoreIsNotAnOfficiallyGradedLoss"] is True
+    assert output.with_suffix(".md").exists()
