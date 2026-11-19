@@ -3,10 +3,12 @@ import sqlite3
 import tempfile
 import unittest
 from datetime import datetime
+from unittest.mock import patch
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from scripts.automatic_blender_cycle import choose_mode, pending_recent_grades
+from scripts.automatic_blender_cycle import (
+    choose_mode, pending_recent_grades, bootstrap_projected_before_confirmed)
 
 ET = ZoneInfo("America/New_York")
 GAMES = [
@@ -48,6 +50,38 @@ class AutomaticBlenderCycleTests(unittest.TestCase):
     def test_missing_start_does_not_silently_infer_schedule(self):
         with self.assertRaises(ValueError):
             choose_mode([{"id": 1}], datetime(2026, 11, 18, 15, tzinfo=ET))
+
+    def test_confirmed_run_bootstraps_projected_only_before_all_puck_drops(self):
+        games=[{"id":1,"startTimeUTC":"2026-11-19T23:00:00Z"},
+               {"id":2,"startTimeUTC":"2026-11-20T01:00:00Z"},
+               {"id":3,"startTimeUTC":"2026-11-20T03:00:00Z"}]
+        with tempfile.TemporaryDirectory() as root, patch(
+                "scripts.automatic_blender_cycle.subprocess.run") as run:
+            executed=bootstrap_projected_before_confirmed(
+                "2026-11-19",games,datetime(2026,11,19,17,0,tzinfo=ET),
+                root=root)
+            self.assertTrue(executed)
+            run.assert_called_once_with(
+                ["python","run_true_blender.py","--date","2026-11-19",
+                 "--mode","projected"],check=True)
+            run.reset_mock()
+            self.assertFalse(bootstrap_projected_before_confirmed(
+                "2026-11-19",games,datetime(2026,11,19,19,0,tzinfo=ET),
+                root=root))
+            run.assert_not_called()
+
+    def test_existing_authoritative_card_is_never_bootstrapped_again(self):
+        games=[{"id":1,"startTimeUTC":"2026-11-19T23:00:00Z"}]
+        with tempfile.TemporaryDirectory() as root:
+            con=sqlite3.connect(str(Path(root)/"true_blender.sqlite"))
+            con.execute("CREATE TABLE cards (slate_date TEXT PRIMARY KEY)")
+            con.execute("INSERT INTO cards VALUES (?)",("2026-11-19",))
+            con.commit();con.close()
+            with patch("scripts.automatic_blender_cycle.subprocess.run") as run:
+                self.assertFalse(bootstrap_projected_before_confirmed(
+                    "2026-11-19",games,datetime(2026,11,19,12,tzinfo=ET),
+                    root=root))
+                run.assert_not_called()
 
     def test_season_old_frozen_card_is_not_abandoned(self):
         with tempfile.TemporaryDirectory() as dirname:
