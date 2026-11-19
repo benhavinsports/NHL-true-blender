@@ -95,6 +95,48 @@ def pending_recent_grades(root, day):
         con.close()
 
 
+def bootstrap_projected_before_confirmed(day, games, now, *, root="state"):
+    """Run original PROJECTED source gates before the first confirmed refresh.
+
+    A CONFIRMED phase may legitimately lack official pre-puck dressed
+    rosterSpots or coach-confirmed EV lines. That does NOT allow projecting
+    confirmed statuses, and must not cause the engine to miss its earlier
+    source-labelled projected card entirely. Run the original engine on
+    separate PROJECTED receipts *once*, only while every scheduled game is
+    still pre-puck and no authoritative slate card exists. The following
+    CONFIRMED run still requires its own actual confirmation evidence.
+    """
+    if not games:
+        return False
+    now_utc=now.astimezone(timezone.utc)
+    for game in games:
+        raw=game.get("startTimeUTC") or game.get("startUTC")
+        if not raw:
+            return False
+        start=datetime.fromisoformat(str(raw).replace("Z","+00:00"))
+        if start.tzinfo is None or start.astimezone(timezone.utc)<=now_utc:
+            return False
+    db=Path(root)/"true_blender.sqlite"
+    if db.is_file():
+        con=sqlite3.connect(str(db))
+        try:
+            existing=con.execute(
+                "SELECT 1 FROM cards WHERE slate_date=? LIMIT 1",(day,)).fetchone()
+        except sqlite3.OperationalError as exc:
+            # A corrupt/unmigrated ledger must be repaired, not treated as
+            # evidence that the slate's saved Core is absent.
+            raise RuntimeError("Cannot inspect authoritative saved Core ledger") from exc
+        finally:
+            con.close()
+        if existing:
+            return False
+    print(f"PRE-GAME ORIGINAL PROJECTED PASS BEFORE CONFIRMED: {day}",flush=True)
+    subprocess.run(
+        ["python","run_true_blender.py","--date",day,"--mode","projected"],
+        check=True)
+    return True
+
+
 def execute_commands(day, mode, *, root="state"):
     """Execute official research and auditable postgame operations, never picks."""
     if mode in ("projected", "confirmed"):
@@ -126,7 +168,8 @@ def main():
         day = now.date().isoformat()
     # Manual runs have an explicit phase. Otherwise the official NHL schedule
     # is authoritative for projected/confirmed/grade lifecycle transitions.
-    mode = manual_mode or choose_mode(asyncio.run(official_games(day)), now, date=day)
+    games = asyncio.run(official_games(day)) if not manual_mode else None
+    mode = manual_mode or choose_mode(games, now, date=day)
     github_env = os.getenv("GITHUB_ENV")
     if github_env:
         with open(github_env, "a", encoding="utf-8") as env:
@@ -134,6 +177,8 @@ def main():
     if mode in ("projected", "confirmed") and os.getenv("MONEYPUCK_CSV_DIR"):
         os.environ["MONEYPUCK_EXPORT_ASOF"] = day
     print(f"BLENDER AUTOMATIC {day} {mode} {now.isoformat()} ET", flush=True)
+    if mode == "confirmed" and not manual_mode:
+        bootstrap_projected_before_confirmed(day,games,now)
     execute_commands(day, mode)
 
 
