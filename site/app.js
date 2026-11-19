@@ -508,8 +508,11 @@ async function boot(){
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
- state.selectedDate=request&&days.includes(request)?request:
-    days.includes(today)?today:days[0]||null;
+ // Show the latest verified original Core, not a blank unissued current slate.
+  // The existing header explicitly identifies archived cards.
+  const newestVerified=state.archive.map(x=>x.date).sort().reverse()[0];
+  state.selectedDate=request&&days.includes(request)?request:
+    newestVerified||days[0]||null;
  if(!state.selectedDate){
    renderAll();
    $("core-cards").replaceChildren(el("div","empty-state",
