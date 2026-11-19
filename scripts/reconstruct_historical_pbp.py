@@ -21,6 +21,7 @@ from nhl_true_blender_engine.historical_shots import (
 from nhl_true_blender_engine.goalie_history_fallback import (
     summarize_goalie_origin_pbp, derive_independent_pbp_goalie_profile)
 from nhl_true_blender_engine.enrichment import ingest
+from nhl_true_blender_engine.official_defense_coverage import make_coverage
 from nhl_true_blender_engine.storage import open_db
 
 UTC = timezone.utc
@@ -191,6 +192,55 @@ async def reconstruct(manifest, database, output, limit=18):
             pool = {gid: r for gid, r in pool.items() if gid in cached_pbp}
             all_events = [e for gid in pool for e in cached_pbp[gid]]
             counts = summarize_goalie_origin_pbp(all_events)
+            peer_asof = max((utc(r["startTimeUTC"]) + FINISH_BUFFER
+                             for r in pool.values()), default=None)
+            snapshot = {"games": [
+                {"id": str(g.get("id") or g.get("gameId")),
+                 "away": g["away"], "home": g["home"]} for g in games]}
+            game_meta = {
+                gid: {"homeTeamId": str((r.get("homeTeam") or {}).get("id") or ""),
+                      "awayTeamId": str((r.get("awayTeam") or {}).get("id") or ""),
+                      "homeAbbrev": (r.get("homeTeam") or {}).get("abbrev"),
+                      "awayAbbrev": (r.get("awayTeam") or {}).get("abbrev")}
+                for gid, r in pool.items()}
+            coverage_count = 0
+            if peer_asof and all_events:
+                report = make_coverage(
+                    con, snapshot, date, "PROJECTED", all_events, game_meta,
+                    historical_replay_observed_at=peer_asof.isoformat())
+                coverage_count = report["coverageAttackSides"]
+            context_count = 0
+            for game in snapshot["games"]:
+                previous = {}
+                for team in (game["away"], game["home"]):
+                    past = sorted((r for r in club_schedules.get(team, [])
+                                   if r["id"] in pool),
+                                  key=lambda r: r["startTimeUTC"])
+                    if past:
+                        previous[team] = past[-1]
+                if len(previous) != 2:
+                    continue
+                away, home = (previous[game[key]] for key in ("away", "home"))
+                away_date = str(away.get("gameDate") or away["startTimeUTC"][:10])[:10]
+                home_date = str(home.get("gameDate") or home["startTimeUTC"][:10])[:10]
+                today = datetime.fromisoformat(date).date()
+                away_rest = (today - datetime.fromisoformat(away_date).date()).days - 1
+                home_rest = (today - datetime.fromisoformat(home_date).date()).days - 1
+                if not (0 <= away_rest <= 10 and 0 <= home_rest <= 10):
+                    continue
+                asof = max(utc(r["startTimeUTC"]) + FINISH_BUFFER for r in (away, home))
+                if asof >= cutoff:
+                    continue
+                _receipt(con, date, "PROJECTED", game["id"], None,
+                         "MATCH_CONTEXT", {
+                             "venueHome": game["home"], "awayRestDays": away_rest,
+                             "homeRestDays": home_rest,
+                             "awayLastGameDate": away_date,
+                             "homeLastGameDate": home_date,
+                             "travelDistanceNotInSource": True,
+                             "sourceType": "OFFICIAL_PRE_SLATE_GAME_SCHEDULE_AND_REST"},
+                         ["https://api-web.nhle.com/v1/schedule/" + date], asof)
+                context_count += 1
             starters = _target_starters(con, date, games, cutoff)
             profiles = 0
             peer_qualified = 0
@@ -286,6 +336,8 @@ async def reconstruct(manifest, database, output, limit=18):
                 "independentGoalieProfilesImported": profiles,
                 "goalieProfilesWithPeerComparedAreas": peer_qualified,
                 "playerRecentOriginReceipts": player_receipts,
+                "historicalTeamCoverageDirections": coverage_count,
+                "officialMatchContextReceipts": context_count,
                 "allInputsFromPriorFinishedOfficialGames": True,
                 "archivePublicationTimestampIndependentlyVerified": False
             })
@@ -296,6 +348,8 @@ async def reconstruct(manifest, database, output, limit=18):
             "totalGoalieProfiles": sum(x["independentGoalieProfilesImported"] for x in summary),
             "totalPeerQualifiedGoalieProfiles": sum(x["goalieProfilesWithPeerComparedAreas"] for x in summary),
             "totalPlayerRecentOriginReceipts": sum(x["playerRecentOriginReceipts"] for x in summary),
+            "totalTeamCoverageDirections": sum(x["historicalTeamCoverageDirections"] for x in summary),
+            "totalMatchContextReceipts": sum(x["officialMatchContextReceipts"] for x in summary),
             "days": summary, "sourceFailures": fetch_errors[:200],
             "actualSourceRetrievalIsLaterThanHistoricalCutoff": True,
             "estimatedReplayAsOfIsNotARealCollectorObservedTimestamp": True,

@@ -80,6 +80,7 @@ def assert_database_as_of(con, cutoff, slate_date):
         "SELECT evidence_id, observed_at, stage, kind, payload FROM evidence"
     ).fetchall()
     future = []
+    reconstructed = []
     dated_kinds = {}
     undated_kinds = {}
     for row in rows:
@@ -95,6 +96,8 @@ def assert_database_as_of(con, cutoff, slate_date):
             payload = json.loads(row["payload"])
         except (TypeError, ValueError):
             raise ValueError(f"Evidence payload is invalid JSON: {row['evidence_id']}")
+        if payload.get("historicalReconstruction") is True:
+            reconstructed.append(row["evidence_id"])
         dates = _event_dates(row["kind"], payload)
         if dates:
             dated_kinds[row["kind"]] = dated_kinds.get(row["kind"], 0) + 1
@@ -111,12 +114,14 @@ def assert_database_as_of(con, cutoff, slate_date):
     return {
         "isolatedEvidenceDatabase": True,
         "preExistingCardsGradesGatesAndPatches": False,
-        "collectorObservedAtAtOrBeforeCutoff": True,
+        "collectorObservedAtAtOrBeforeCutoff": not bool(reconstructed),
+        "reconstructedHistoricalReceiptCount": len(reconstructed),
+        "retrospectiveEvidenceNotOriginalHistoricalCapture": bool(reconstructed),
         "knownHistoricalEventDatesStrictlyBeforeSlate": True,
         "datedEventReceiptCountsByKind": dated_kinds,
         "receiptsWithoutExplicitUnderlyingEventDatesByKind": undated_kinds,
         "providerInternalAsOfTimeIndependentlyVerified": False,
-        "status": "PARTIAL_PROVIDER_ASOF_NOT_EXPOSED",
+        "status": "PARTIAL_HISTORICAL_RECONSTRUCTION_NOT_ASOF_CAPTURED" if reconstructed else "PARTIAL_PROVIDER_ASOF_NOT_EXPOSED",
         "limitation": "Collector observation time is known; provider publication/as-of time is not exposed for every source payload.",
     }
 
@@ -164,7 +169,7 @@ def replay_day(root, day, default_stage, bundle):
                     'firstNonpassingGateAudit': first_gate_audit(con, day, stage),
                     'gateDiagnostics': explain_live_blockers(con, day, stage),
                     'historicalClockAppliedToEngineAndPersistence': True,
-                    'databaseObservedAtCutoffVerified': True,
+                    'databaseObservedAtCutoffVerified': not bool(point_in_time_audit['reconstructedHistoricalReceiptCount']),
                     'databasePointInTimeVerified': False,
                     'pointInTimeAudit': point_in_time_audit}
         finally:

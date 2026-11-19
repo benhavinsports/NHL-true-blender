@@ -107,7 +107,7 @@ def summarize_concessions(events,game_meta):
             row["sourceUrls"].add(e["sourceUrl"])
     return by_team
 
-def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
+def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None, *, historical_replay_observed_at=None):
     # Identify the current slate franchise by its ID on a verified historical
     # scheduled game, not guessed abbreviation strings.
     abbr_to_id={}
@@ -123,7 +123,7 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
     minimum_peer_attempts=MIN_DEFENSE_SOURCE_SHOTS
     minimum_peer_games=6
     minimum_zone_attempts=MIN_ZONE_SHOTS
-    now=datetime.now(timezone.utc).isoformat(timespec="seconds")
+    now=(historical_replay_observed_at or datetime.now(timezone.utc).isoformat(timespec="seconds"))
     count=0;fail=[]
     for game in snapshot.get("games",[]):
         for attacker,defender in ((game["away"],game["home"]),(game["home"],game["away"])):
@@ -221,6 +221,9 @@ def make_coverage(con,snapshot,date,stage,events,game_meta,shift_receipts=None):
                 "inferredLaneNotExactNhlEdgePolygon":True,
                 "lowShotVolumeIsNotEvidenceOfDefensiveStrength":True,
                 "redZonesRequireIndependentPositiveDefensiveEvidence":True,
+                "historicalReconstruction":historical_replay_observed_at is not None,
+                "historicalSourceObservedAtCutoffVerified":False if historical_replay_observed_at else None,
+                "replayAvailabilityClockBasis":"OFFICIAL_GAME_START_PLUS_SIX_HOURS" if historical_replay_observed_at else None,
                 "unobservedAreasNotAssignedGreen":True}
             if urls:
                 version=hashlib.sha256(json.dumps(payload,sort_keys=True,
