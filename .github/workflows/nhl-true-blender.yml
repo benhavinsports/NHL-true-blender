@@ -221,8 +221,15 @@ jobs:
           if persist=='failure':
               problems.append('Authoritative card/evidence persistence failed')
           if os.environ.get('GRADE_RETRY_FAILURES'):
-              problems.append('Season grading retries failed (live state retained): '+
-                              os.environ['GRADE_RETRY_FAILURES'])
+              grade_problem=('Season grading retries failed (live state retained): '+
+                             os.environ['GRADE_RETRY_FAILURES'])
+              # A prior-day grade failure cannot invalidate today's original
+              # G0-G18 selection. Grade-mode runs still report their own
+              # historical catch-up errors as failures.
+              if mode=='grade':
+                  problems.append(grade_problem)
+              else:
+                  print('::warning::'+grade_problem)
           if mode in ('projected','confirmed'):
               path=Path('state/site_runs')/f'{date}.json'
               try:
@@ -235,8 +242,15 @@ jobs:
                   # regression that repeatedly presented a green check.
                   if status.get('slateDate')!=date:
                       problems.append('Saved certification has wrong slate date')
+                  if not (status.get('selectedCoreFullyCertified') is True or
+                          (status.get('currentRunFullyCertified') is True and
+                           status.get('survivorOnlyCertification') is True)):
+                      problems.append('Original selected Core not certified: '+
+                                      str(status.get('errors') or status.get('publicationDecision')))
                   if not status.get('currentRunFullyCertified'):
-                      problems.append('Core not fully certified: '+str(status.get('errors') or status.get('publicationDecision')))
+                      print('::warning::Core is published, but full-slate G0-G17 evidence remains unresolved: '+
+                            str(status.get('nonselectedGameResearchNotes') or
+                                status.get('errors') or status.get('publicationDecision')))
                   if not status.get('publishedToSite') or not status.get('cardId'):
                       problems.append('No verified authoritative Core published')
                   cardpath=Path('state/site_cards')/f'{date}.json'
@@ -287,7 +301,8 @@ jobs:
               for problem in problems:
                   print('::error::'+problem)
               raise SystemExit('BLENDER EXECUTION FAILED CERTIFICATION; evidence was preserved')
-          print('BLENDER VERIFIED: tests, phase and canonical evidence match.')
+          print('BLENDER VERIFIED: original selected Core, phase and canonical evidence match.')
+          print('Full slate completeness is reported separately; a valid Core is not a 12/12 survivor guarantee.')
           PY
       - name: Publish engine execution diagnostics
         if: always()

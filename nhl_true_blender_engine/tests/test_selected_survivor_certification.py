@@ -128,4 +128,11 @@ def test_source_verified_core_remains_published_without_falsely_certifying_unres
     assert status["cardSavedByEngine"] is True
     assert status["publicationDecision"]=="CORE_PUBLISHED_WITH_UNRESOLVED_SLATE_EVIDENCE"
     assert (root/"site_cards"/(DATE+".json")).is_file()
+    # Independently verify all selected original G0-G18 receipts even though
+    # another game's G0 remains unresolved: never a fake full-slate success.
+    from nhl_true_blender_engine.dashboard_export import export_dashboard
+    from scripts.verify_published_core import verify_published_core
+    export_dashboard(con,DATE,"CONFIRMED",slate,root)
+    validated=verify_published_core(root,DATE)
+    assert validated["status"]=="ORIGINAL_G0_G18_CORE_VERIFIED"
     con.close()

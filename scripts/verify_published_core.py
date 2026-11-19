@@ -46,10 +46,16 @@ def verify_published_core(root: Path, date: str):
              gates.get("slateDate") == date, "slate date disagreement")
     _require(run.get("stage") in ("PROJECTED", "CONFIRMED"), "invalid run phase")
     _require(gates.get("stage") == run["stage"], "gate receipts from different phase")
-    _require(run.get("currentRunFullyCertified") is True and
+    # Core proof and full-slate research coverage are separate results.
+    # G0 missing in a non-Core game must remain unresolved on the dashboard,
+    # but it cannot veto an independently verified, immutable Core selection.
+    # Every selected leg is independently checked gate-by-gate below.
+    _require((run.get("selectedCoreFullyCertified") is True or
+              (run.get("currentRunFullyCertified") is True and
+               run.get("survivorOnlyCertification") is True)) and
              run.get("publishedToSite") is True and
-             run.get("cardSavedByEngine") is True and
-             not run.get("errors"), "run not fully certified and saved")
+             run.get("cardSavedByEngine") is True,
+             "selected Core not independently certified and saved")
     _require(card.get("verified") is True and
              card.get("status") == "G18_SOURCE_VERIFIED",
              "unverified or incomplete canonical card")
