@@ -16,6 +16,15 @@ GAMES = [
 
 
 class AutomaticBlenderCycleTests(unittest.TestCase):
+    def test_overnight_today_is_projected_not_yesterdays_grade(self):
+        # The daily Card must begin researching the NEW Eastern slate after
+        # midnight. Previously the 08:00 ET hard cutoff suppressed all
+        # G0-G18 scouting on today's games for eight hours.
+        today = [{"id": 10, "startTimeUTC": "2026-11-20T00:00:00Z"}]
+        self.assertEqual(choose_mode(today,
+                         datetime(2026, 11, 19, 1, 36, tzinfo=ET),
+                         date="2026-11-19"), "projected")
+
     def test_early_projected(self):
         self.assertEqual(choose_mode(GAMES, datetime(2026, 11, 18, 9, 0, tzinfo=ET)),
                          "projected")
