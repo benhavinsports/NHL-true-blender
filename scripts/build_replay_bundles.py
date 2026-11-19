@@ -63,6 +63,23 @@ def _date_inventory(payload, kind):
     return sorted(dates), sorted(as_of)
 
 
+def _historical_goalie_profile_candidates(source, day, cutoff):
+    """Return only profiles actually observed by this slate's pregame cutoff.
+
+    A goalie profile captured after an independent starter report is still
+    eligible when it was independently observed before the SAME slate cutoff.
+    The starter receipt identifies the goalie; it must not impose an earlier
+    timestamp on a distinct source. Never read post-cutoff or later-slate data.
+    """
+    return source.execute(
+        """SELECT * FROM evidence
+           WHERE kind='GOALIE_PROFILE' AND slate_date<=?
+             AND observed_at<=?
+           ORDER BY observed_at DESC, rowid DESC""",
+        (day, cutoff),
+    ).fetchall()
+
+
 def build_day(source, day, out, schedule_row):
     """Build a slate from dated evidence without requiring an old engine job or saved card.
 
@@ -259,13 +276,7 @@ def build_day(source, day, out, schedule_row):
         game_id = str(starter["game_id"])
         if not goalie_id or not team or (game_id, goalie_id) in existing_profiles:
             continue
-        historical = source.execute(
-            """SELECT * FROM evidence
-               WHERE kind='GOALIE_PROFILE' AND slate_date<=?
-                 AND observed_at<=? AND observed_at<=?
-               ORDER BY observed_at DESC, rowid DESC""",
-            (day, cutoff, starter["observed_at"]),
-        ).fetchall()
+        historical = _historical_goalie_profile_candidates(source, day, cutoff)
         for old in historical:
             profile = json.loads(old["payload"])
             if str(profile.get("goalieId") or "") != goalie_id or profile.get("team") != team:
