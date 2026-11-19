@@ -93,3 +93,12 @@ def test_cycle_without_card_cannot_generate_fake_patch_or_history(tmp_path):
     assert result["status"]=="NO_ORIGINAL_CORE_TO_GRADE"
     assert not (root/"history").exists()
     assert not (root/"site_cards").exists()
+
+
+def test_scheduled_grading_classifies_september_opening_in_new_nhl_season():
+    from scripts.run_cycle import season_start_year
+    assert season_start_year("2026-09-29")==2026
+    assert season_start_year("2026-10-01")==2026
+    assert season_start_year("2027-01-02")==2026
+    assert season_start_year("2027-08-31")==2026
+    assert season_start_year("2027-09-01")==2027
