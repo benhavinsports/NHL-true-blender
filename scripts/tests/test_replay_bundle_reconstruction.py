@@ -85,3 +85,53 @@ def test_goalie_confirmation_does_not_implicitly_confirm_skaters(tmp_path):
         }
     finally:
         db.close()
+
+
+def test_carries_independent_goalie_profile_without_rewriting_identity(tmp_path):
+    """A prior pre-cutoff profile must be serializable and attach to the new verified starter ID."""
+    con = open_db(str(tmp_path / "evidence.sqlite"))
+    try:
+        record_evidence(con, {
+            "evidence_id": "archived-goalie-profile",
+            "slate_date": "2026-10-01",
+            "stage": "OFFICIAL",
+            "game_id": "2026020001",
+            "kind": "GOALIE_PROFILE",
+            "source_url": "https://example.test/independent-goalie-analysis",
+            "observed_at": "2026-10-01T18:00:00Z",
+            "payload": {
+                "team": "NYR", "goalieId": "12345",
+                "sample": {"shots": 50}, "counterevidence": {"shots": 50},
+                "weakZones": {"left": {"status": "EVIDENCED_RELATIVE_WEAKNESS"}},
+                "strengthZones": {}, "sourceReviewed": True,
+            },
+        })
+        record_evidence(con, {
+            "evidence_id": "dated-starter-on-next-slate",
+            "slate_date": "2026-10-02",
+            "stage": "PROJECTED",
+            "game_id": "2026020002",
+            "kind": "GOALIE_STARTER",
+            "source_url": "https://example.test/dated-starter",
+            "observed_at": "2026-10-02T18:00:00Z",
+            "payload": {"team": "NYR", "goalieId": "12345", "status": "EXPECTED"},
+        })
+        bundle = build_day(con, "2026-10-02", tmp_path / "out", {
+            "source": "https://api-web.nhle.com/v1/score/2026-10-02",
+            "downloadedAt": "2026-10-02T17:00:00Z",
+            "games": [{
+                "gameId": "2026020002", "away": "BOS", "home": "NYR",
+                "startTimeUTC": "2026-10-02T23:00:00Z",
+            }],
+        })
+        assert bundle["historicalGoalieProfileCarryForwardCount"] == 1
+        snapshot = json.loads((tmp_path / "out" / bundle["snapshot"]).read_text())
+        goalie = snapshot["games"][0]["goalies"]["NYR"][0]
+        assert goalie["data"]["goalieId"] == "12345"
+        assert goalie["data"]["status"] == "EXPECTED"
+        assert goalie["data"]["goalieProfileSourceUrl"] == "https://example.test/independent-goalie-analysis"
+        assert goalie["data"]["goalieProfileObservedAt"] == "2026-10-01T18:00:00Z"
+        assert goalie["data"]["goalieProfileEvidenceId"].startswith("replay-carry-")
+        assert bundle["inputs"]
+    finally:
+        con.close()
