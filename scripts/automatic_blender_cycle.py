@@ -48,6 +48,10 @@ def choose_mode(games, now, *, date=None):
         if start.tzinfo is None:
             raise ValueError("Puck-drop timestamp must be timezone aware")
         starts.append(start.astimezone(timezone.utc))
+    # An official NHL off-day has no starts; do not call min([]) and crash
+    # the scheduled cycle before its existing pending-card processing.
+    if not starts:
+        return "grade"
     now_utc = now.astimezone(timezone.utc)
     future = [start for start in starts if now_utc < start]
     if not future:
