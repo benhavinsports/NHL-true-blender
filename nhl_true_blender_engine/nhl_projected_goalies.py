@@ -133,7 +133,7 @@ def parse_official_unavailable(html,game,date):
 
 
 def parse_projected_deployment(html, game, date):
-    """Read only full named forward trios or defense pairs in an NHL.com preview.
+    """Read explicit, identity-matched units in an NHL.com preview.
 
     Line combinations remain source-PROJECTED, never confirmed or dressed.
     A team's official current roster resolves identity but does not establish
@@ -169,7 +169,7 @@ def parse_projected_deployment(html, game, date):
             # NHL.com normally uses "Name -- Name -- Name". Preserve all
             # explicit dash separators; never split a hyphenated surname.
             names = [name.strip() for name in re.split(r"\s+(?:--|—|–)\s+", row.strip())]
-            if len(names) not in (2, 3):
+            if len(names) not in (1, 2, 3):
                 continue
             skaters = [unique.get(normalized(name)) for name in names]
             if any(player is None for player in skaters):
@@ -182,11 +182,22 @@ def parse_projected_deployment(html, game, date):
                     continue
                 forward_line += 1
                 ev = f"F{forward_line}"
-            else:
+            elif (len(skaters) == 2 and forward_line == 3 and defense_pair == 0
+                  and all(player["position"] != "D" for player in skaters)):
+                # Source-published 11F/7D: the fourth forward unit has two
+                # named skaters. Their roster positions rule out a D pair.
+                forward_line += 1
+                ev = "F4"
+            elif len(skaters) == 2:
                 if defense_pair >= 3 or not all(player["position"] == "D" for player in skaters):
                     continue
                 defense_pair += 1
                 ev = f"D{defense_pair}"
+            else:
+                if defense_pair != 3 or skaters[0]["position"] != "D":
+                    continue
+                defense_pair += 1
+                ev = "D4"
             used.update(ids)
             for player in skaters:
                 output.append({"team": team, "playerId": str(player["id"]),

@@ -59,3 +59,22 @@ def test_no_unrelated_name_match_or_double_assignment():
     rows=parse_projected_deployment(html,_game(),"2026-11-19")
     assert len(rows)==3
     assert len({r["playerId"] for r in rows})==3
+
+
+def test_explicit_eleven_forward_seven_defender_units_keep_every_skater():
+    forwards = [_player(i, f"Forward Player{i}", "C") for i in range(1, 12)]
+    defenders = [_player(i, f"Defender Player{i}", "D") for i in range(12, 19)]
+    game = {"away": "COL", "home": "UTA", "rosters": {
+        "COL": {"data": {"players": forwards + defenders}}}}
+    units = [forwards[:3], forwards[3:6], forwards[6:9], forwards[9:],
+             defenders[:2], defenders[2:4], defenders[4:6], defenders[6:]]
+    html = '<h1>November 19, 2026</h1><h2>Avalanche projected lineup</h2>' + ''.join(
+        '<p>' + ' -- '.join(p['name'] for p in unit) + '</p>' for unit in units)
+    rows = parse_projected_deployment(html, game, "2026-11-19")
+    assert len(rows) == len({r['playerId'] for r in rows}) == 18
+    assert {r['playerId'] for r in rows if r['EV'] == 'F4'} == {'10', '11'}
+    assert {r['playerId'] for r in rows if r['EV'] == 'D4'} == {'18'}
+    assert all(r['status'] == 'PROJECTED' and r['doesNotEstablishDressedOrPP'] for r in rows)
+    # An unrelated single forward after the defense pairs is not D4.
+    changed = html.replace('Defender Player18', 'Forward Player1')
+    assert not any(r['EV'] == 'D4' for r in parse_projected_deployment(changed, game, '2026-11-19'))
