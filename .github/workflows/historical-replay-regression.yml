@@ -182,11 +182,19 @@ jobs:
         run: |
           python scripts/replay_postgame_research.py state/replay/manifest.json state/replay/selections.jsonl state/replay/postgame-research.jsonl
       - name: Compare baseline and patched frozen selections
-        if: steps.build_bundles.outcome == 'success' && steps.opening_week.outcome == 'success' && steps.full_period.outcome == 'success' && steps.baseline_period.outcome == 'success'
+        # A replay may execute all original gates but return nonzero because
+        # no Core could be certified. The comparison is still essential.
+        if: always() && steps.build_bundles.outcome == 'success'
         run: |
-          python scripts/compare_historical_replays.py state/replay/baseline/selections.jsonl state/replay/baseline/grades.jsonl state/replay/selections.jsonl state/replay/grades.jsonl state/replay/baseline-vs-patched.json
+          if [ -f state/replay/baseline/selections.jsonl ] && [ -f state/replay/selections.jsonl ]; then
+            python scripts/compare_historical_replays.py state/replay/baseline/selections.jsonl state/replay/baseline/grades.jsonl state/replay/selections.jsonl state/replay/grades.jsonl state/replay/baseline-vs-patched.json
+          else
+            echo "::warning::Baseline and patched replay ledgers are unavailable; comparison cannot be certified"
+          fi
       - name: Build per-slate and aggregate G0-G18 audit report
-        if: steps.build_bundles.outcome == 'success' && steps.full_period.outcome == 'success' && steps.postgame_research.outcome == 'success'
+        # An incomplete replay needs MORE diagnostic evidence, not a skipped
+        # season audit. A zero-Core or source-blocked date is NOT a graded win.
+        if: always() && steps.build_bundles.outcome == 'success'
         run: |
           python scripts/summarize_historical_replay.py state/replay/manifest.json state/replay/selections.jsonl state/replay/grades.jsonl state/replay/postgame-research.jsonl state/replay/baseline-vs-patched.json state/replay/audit-report.json --dfo state/replay/dfo-goalie-archive.json
       - name: Summarize actual replay and grade ledgers
