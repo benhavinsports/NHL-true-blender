@@ -45,3 +45,43 @@ def test_build_day_does_not_require_saved_engine_job_or_card(tmp_path):
         assert con.execute("SELECT COUNT(*) FROM cards").fetchone()[0] == 0
     finally:
         con.close()
+
+
+def test_goalie_confirmation_does_not_implicitly_confirm_skaters(tmp_path):
+    """Point-in-time verified goalie status is independent of skater confirmation."""
+    db = open_db(str(tmp_path / "archive.sqlite"))
+    day, game_id, observed = "2026-10-01", "2026020001", "2026-10-01T18:00:00Z"
+    try:
+        for team, goalie in (("BOS", "8481111"), ("NYR", "8482222")):
+            record_evidence(db, {
+                "evidence_id": f"dated-confirmed-{team}",
+                "slate_date": day, "stage": "CONFIRMED",
+                "game_id": game_id, "player_id": goalie,
+                "kind": "GOALIE_STARTER",
+                "source_url": f"https://example.test/{team}/goalie",
+                "observed_at": observed,
+                "payload": {"team": team, "goalieId": goalie,
+                            "status": "CONFIRMED", "identityMatched": True},
+            })
+        # There is no confirmed dressed lineup or confirmed EV deployment.
+        # This cannot become a CONFIRMED skater replay merely because BOTH
+        # goalies were independently reported confirmed before puck drop.
+        schedule = {
+            "source": "https://api-web.nhle.com/v1/score/2026-10-01",
+            "games": [{
+                "id": game_id, "away": "BOS", "home": "NYR",
+                "startTimeUTC": "2026-10-01T23:00:00Z",
+            }],
+        }
+        bundle = build_day(db, day, tmp_path / "out", schedule)
+        assert bundle["stage"] == "PROJECTED"
+        saved = json.loads((tmp_path / "out" / bundle["snapshot"]).read_text())
+        goalie_branches = saved["games"][0]["goalies"]
+        assert {team: [(b["data"]["goalieId"], b["data"]["status"])
+                       for b in goalie_branches[team]]
+                for team in ("BOS", "NYR")} == {
+            "BOS": [("8481111", "CONFIRMED")],
+            "NYR": [("8482222", "CONFIRMED")],
+        }
+    finally:
+        db.close()
