@@ -33,6 +33,12 @@ def test_reconcile_replays_for_production_modules_but_not_tests_only():
         assert dependency in command
     assert ":(exclude)nhl_true_blender_engine/tests/**" in command
     assert ":(exclude)scripts/tests/**" in command
+    # A newer production revision must be tested with that revision's
+    # dependencies and BOTH original test suites before a saved card moves.
+    replay = content[content.index('git reset --hard origin/main'):]
+    assert "python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest" in replay
+    assert "python -m unittest discover -p 'test*.py' -v" in replay
+    assert "python -m pytest -q nhl_true_blender_engine/tests" in replay
     assert "git rebase origin/main" in content
     assert "git fetch origin main" in content
     assert "git push origin HEAD:main" in content
