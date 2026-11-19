@@ -5,7 +5,7 @@
   "coreEligibleSkaterMatrices": 23,
   "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-19T00:53:35+00:00",
+    "asOf": "2026-11-19T00:57:31+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 1,
     "gamesWithOnlyOneMatchedGoalie": 0,
@@ -57,54 +57,10 @@
     "status": "DATED_MATCHUPS_PARSED"
   },
   "datedIndependentGoalieSourceCoverage": {
-    "diagnostics": [
-      {
-        "gameId": "2026020344",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "CONFIRMED",
-        "team": "BOS"
-      },
-      {
-        "gameId": "2026020344",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "CONFIRMED",
-        "team": "DET"
-      },
-      {
-        "gameId": "2026020345",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "CONFIRMED",
-        "team": "MTL"
-      },
-      {
-        "gameId": "2026020345",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "CONFIRMED",
-        "team": "NJD"
-      },
-      {
-        "gameId": "2026020346",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "CONFIRMED",
-        "team": "COL"
-      },
-      {
-        "gameId": "2026020346",
-        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "EXPECTED",
-        "team": "UTA"
-      }
-    ],
-    "matchedStarterIds": 6,
-    "matchesByGame": {
-      "2026020344": 2,
-      "2026020345": 2,
-      "2026020346": 2
-    },
-    "noManualGoalieSelection": true,
-    "originalSourceStatusPreserved": true,
+    "error": "HTTPStatusError",
+    "noStarterWasInferredFromFetchFailure": true,
     "source": "https://www.dailyfaceoff.com/starting-goalies/2026-11-18",
-    "status": "MATCHED_DATED_STARTERS"
+    "status": "SOURCE_UNAVAILABLE"
   },
   "edgeSourceCoverage": {
     "allCurrentRosterIdentitiesChecked": 151,
@@ -1784,5 +1740,5 @@
   ],
   "stage": "CONFIRMED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-19T00:54:17+00:00"
+  "updatedUTC": "2026-11-19T00:57:59+00:00"
 }
