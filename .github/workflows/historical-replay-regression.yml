@@ -106,6 +106,13 @@ jobs:
           if report["totalGoalieProfiles"] == 0:
               raise SystemExit("Historical official PBP yielded no independent goalie profiles")
           PY
+      - name: Ingest official published pregame NHL line assignments with verified timestamps
+        id: nhl_preview_deployments
+        continue-on-error: true
+        env:
+          PYTHONPATH: .
+        run: |
+          python scripts/ingest_nhl_historical_previews.py state/replay/collector-manifest.json --database state/true_blender.sqlite --output state/replay/nhl-preview-ingestion.json
       - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         id: build_bundles
         env:
@@ -181,7 +188,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("state/replay")
-          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md","dfo-goalie-archive.json","historical-pbp-reconstruction.json","5v5-historical-lines-probe.json"):
+          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md","dfo-goalie-archive.json","nhl-preview-ingestion.json","historical-pbp-reconstruction.json","5v5-historical-lines-probe.json"):
               path=root/name
               print(f"## {name}")
               if not path.exists():
