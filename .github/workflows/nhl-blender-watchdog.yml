@@ -1,0 +1,32 @@
+name: NHL Blender automatic engine watchdog
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_run:
+    workflows: ['Blender end-to-end verification']
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/nhl-blender-watchdog.yml'
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: nhl-blender-watchdog
+  cancel-in-progress: true
+jobs:
+  guard:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'push' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Launch original engine only when idle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/nhl_blender_watchdog.py
