@@ -17,6 +17,7 @@ from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.sources import normalize_games
 from nhl_true_blender_engine.storage import open_db, record_evidence
 from nhl_true_blender_engine.sources import NHLClient
+from scripts.historical_projected_roster import recover_full_projected_team_pool
 
 RAW_DB = Path("state/true_blender.sqlite")
 
@@ -208,8 +209,38 @@ def build_day(source, day, out, schedule_row):
             missing_teams.remove(team)
             if not missing_teams:
                 break
+    # The original archive only has dated TEAM_CURRENT_ROSTER snapshots for
+    # a minority of the 50 scheduled slates.  Do NOT silently use a modern
+    # current roster or postgame player list.  When the archive has no
+    # independently collected pre-cutoff full team roster, recover only
+    # those historical projected game skater pools for which NHL.com itself
+    # published all 12 forwards AND 6 defenders before the original cutoff,
+    # and each player independently matched the official NHL season roster.
+    #
+    # These 18 player memberships qualify for *projected* G2 scouting;
+    # they do not certify full organizational roster, confirmed dressed
+    # status, or confirmed EV/PP. Incomplete articles produce NO roster.
+    projected_pool_rows = []
+    projected_pool_teams = set()
+    for game in games:
+        for team in (game["away"], game["home"]):
+            if team in rosters:
+                continue  # never replace real archived official roster evidence
+            derived = recover_full_projected_team_pool(
+                rows, date=day, game_id=game["id"], team=team,
+                cutoff=cutoff_dt)
+            if derived is None:
+                continue
+            data = json.loads(derived["payload"])
+            rosters[team] = {
+                "sourceUrl": derived["source_url"],
+                "observedAt": derived["observed_at"],
+                "evidenceId": derived["evidence_id"], "data": data}
+            projected_pool_rows.append(derived)
+            projected_pool_teams.add(team)
     for game in games:
         game["rosters"] = {team: rosters.get(team) for team in (game["away"], game["home"])}
+
     # A goalie-specific scouting profile may have been observed before an
     # earlier slate and remains valid historical evidence for that SAME goalie.
     # The old builder only selected slate_date=day, discarding that evidence
@@ -258,7 +289,7 @@ def build_day(source, day, out, schedule_row):
     evidence_path = out / f"{day}-evidence.sqlite"
     con = open_db(str(evidence_path))
     try:
-        for row in [*rows, *carry_rows, *carried_profiles]:
+        for row in [*rows, *carry_rows, *projected_pool_rows, *carried_profiles]:
             record_evidence(con, {
                 "evidence_id": row["evidence_id"], "slate_date": row["slate_date"],
                 "stage": row["stage"], "game_id": row["game_id"],
@@ -280,7 +311,7 @@ def build_day(source, day, out, schedule_row):
     evidence_path.unlink()
 
     grouped = {}
-    for row in [*rows, *carry_rows, *carried_profiles]:
+    for row in [*rows, *carry_rows, *projected_pool_rows, *carried_profiles]:
         key = (row["kind"], row["source_url"])
         item = grouped.setdefault(key, {
             "kind": row["kind"], "source": row["source_url"],
@@ -314,7 +345,10 @@ def build_day(source, day, out, schedule_row):
         "snapshot": snapshot_path.name, "snapshotSha256": sha256(snapshot_bytes),
         "evidenceDb": compressed_path.name, "evidenceDbSha256": sha256(compressed_path.read_bytes()),
         "inputs": inputs, "gameCount": len(games),
-        "teamsWithOfficialRoster": sorted(rosters),
+        "teamsWithOfficialRoster": sorted(set(rosters) - projected_pool_teams),
+        "teamsWithSourceVerifiedFullProjectedSkaterPool": sorted(projected_pool_teams),
+        "projectedSkaterPoolDoesNotClaimCompleteCurrentRoster": True,
+        "projectedSkaterPoolIsNeverConfirmedDressed": True,
         "historicalRosterCarryForwardCount": len(carry_rows),
         "historicalGoalieProfileCarryForwardCount": len(carried_profiles),
         "teamsMissingHistoricalRoster": sorted(missing_teams),
