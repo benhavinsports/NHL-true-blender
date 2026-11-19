@@ -84,6 +84,28 @@ jobs:
               "selectorIntegration":report.get("selectorIntegration")
           },sort_keys=True))
           PY
+      - name: Reconstruct official pre-slate goalie profiles and player shooting evidence
+        id: historical_pbp
+        env:
+          PYTHONPATH: .
+        run: |
+          python scripts/reconstruct_historical_pbp.py state/replay/collector-manifest.json --database state/true_blender.sqlite --output state/replay/historical-pbp-reconstruction.json
+      - name: Require historical research to supply independently source-backed goalie profiles
+        if: steps.historical_pbp.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("state/replay/historical-pbp-reconstruction.json").read_text())
+          print(json.dumps({
+              "researchedSlates":report["scheduledSlatesResearched"],
+              "importedProfiles":report["totalGoalieProfiles"],
+              "peerQualifiedProfiles":report["totalPeerQualifiedGoalieProfiles"],
+              "historicalPlayerOriginReceipts":report["totalPlayerRecentOriginReceipts"]
+          },sort_keys=True))
+          if report["totalGoalieProfiles"] == 0:
+              raise SystemExit("Historical official PBP yielded no independent goalie profiles")
+          PY
       - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         id: build_bundles
         env:
@@ -159,7 +181,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("state/replay")
-          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md","dfo-goalie-archive.json","5v5-historical-lines-probe.json"):
+          for name in ("opening-week-selections.jsonl","opening-week-grades.jsonl","selections.jsonl","grades.jsonl","baseline/selections.jsonl","baseline/grades.jsonl","postgame-research.jsonl","baseline-vs-patched.json","audit-report.json","audit-report.md","dfo-goalie-archive.json","historical-pbp-reconstruction.json","5v5-historical-lines-probe.json"):
               path=root/name
               print(f"## {name}")
               if not path.exists():
