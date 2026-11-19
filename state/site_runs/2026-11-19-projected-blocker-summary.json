@@ -1,39 +1,40 @@
 {
   "slateDate": "2026-11-19",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 201,
+  "g0AcceptedSkaterMatrices": 203,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G10.5": 193,
+    "G10.5": 195,
     "G16": 197,
-    "G17": 194,
-    "Step10.5": 193,
-    "Step12": 193,
-    "Step14": 194,
-    "G4": 28,
-    "G5": 28,
-    "Step3": 28,
-    "Step7": 28,
-    "Step10": 28,
-    "G6": 41,
-    "G10": 58,
-    "G12": 58,
-    "G15": 58,
-    "Step6": 41,
-    "G7": 25,
-    "G9": 19,
-    "G11": 25,
-    "Step4": 25,
-    "Step9": 25,
-    "G14": 7,
-    "Step5": 7,
+    "G17": 196,
+    "Step10.5": 195,
+    "Step12": 195,
+    "Step14": 196,
+    "G4": 31,
+    "G5": 31,
+    "Step3": 31,
+    "Step7": 31,
+    "Step10": 31,
+    "G6": 45,
+    "G10": 62,
+    "G12": 62,
+    "G15": 62,
+    "Step6": 43,
+    "G7": 29,
+    "G9": 16,
+    "G11": 29,
+    "Step4": 29,
+    "Step9": 29,
+    "G2": 3,
+    "G14": 6,
+    "Step5": 6,
     "Step11": 2
   },
-  "g18NonselectedNotMissingSource": 198,
-  "g18ActualMissingSourceCount": 202,
+  "g18NonselectedNotMissingSource": 203,
+  "g18ActualMissingSourceCount": 200,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
@@ -48,7 +49,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 107
+      "playerCount": 106
     },
     {
       "masterGates": [
@@ -65,7 +66,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 20
+      "playerCount": 19
     },
     {
       "masterGates": [
@@ -81,7 +82,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 14
+      "playerCount": 11
     },
     {
       "masterGates": [
@@ -104,7 +105,26 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 9
+      "playerCount": 10
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 6
     },
     {
       "masterGates": [
@@ -127,9 +147,19 @@
     },
     {
       "masterGates": [
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
+        "G10",
         "G10.5",
+        "G12",
+        "G15",
         "G16",
         "G17",
         "G18"
@@ -142,50 +172,18 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 5
-    },
-    {
-      "masterGates": [
-        "G16",
-        "G18"
-      ],
-      "overlaySteps": [],
       "playerCount": 4
     },
     {
       "masterGates": [
         "G4",
         "G5",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
         "G6",
         "G7",
-        "G9",
         "G10",
         "G10.5",
         "G11",
         "G12",
-        "G14",
         "G15",
         "G16",
         "G17",
@@ -194,7 +192,6 @@
       "overlaySteps": [
         "Step3",
         "Step4",
-        "Step5",
         "Step6",
         "Step7",
         "Step9",
@@ -203,6 +200,23 @@
         "Step12",
         "Step14"
       ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
       "playerCount": 3
     },
     {
@@ -245,9 +259,12 @@
       "playerCount": 3
     },
     {
-      "masterGates": [],
+      "masterGates": [
+        "G16",
+        "G18"
+      ],
       "overlaySteps": [],
-      "playerCount": 3
+      "playerCount": 2
     },
     {
       "masterGates": [
@@ -266,6 +283,37 @@
         "Step3",
         "Step6",
         "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
         "Step10",
         "Step10.5",
         "Step12",
@@ -304,7 +352,10 @@
         "G4",
         "G5",
         "G9",
+        "G10",
         "G10.5",
+        "G12",
+        "G15",
         "G16",
         "G17",
         "G18"
@@ -318,42 +369,6 @@
         "Step14"
       ],
       "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
     },
     {
       "masterGates": [
@@ -447,19 +462,19 @@
         "G4",
         "G5",
         "G6",
+        "G7",
         "G9",
-        "G10",
         "G10.5",
-        "G12",
-        "G15",
+        "G11",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
+        "Step4",
         "Step7",
+        "Step9",
         "Step10",
         "Step10.5",
         "Step12",
@@ -553,30 +568,6 @@
       "masterGates": [
         "G4",
         "G5",
-        "G7",
-        "G9",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
         "G9",
         "G10",
         "G10.5",
@@ -603,10 +594,7 @@
         "G4",
         "G5",
         "G9",
-        "G10",
         "G10.5",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
@@ -615,6 +603,21 @@
         "Step3",
         "Step7",
         "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
         "Step10.5",
         "Step12",
         "Step14"
@@ -647,6 +650,21 @@
         "Step4",
         "Step6",
         "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
         "Step10.5",
         "Step12",
         "Step14"
@@ -741,8 +759,8 @@
               ],
               "physicalOriginMatch": true,
               "sourceKind": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
-              "starterSourceUrl": "https://daily.hockey/starting-goalies/2026-11-19",
-              "starterStatus": "EXPECTED"
+              "starterSourceUrl": "https://www.dailyfaceoff.com/starting-goalies/2026-11-19",
+              "starterStatus": "CONFIRMED"
             }
           ],
           "sourceScope": "GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
@@ -1752,6 +1770,11 @@
     "Step9": {
       "gameId": "2026020347",
       "playerId": "8482726",
+      "reason": null
+    },
+    "G2": {
+      "gameId": "2026020352",
+      "playerId": "8475235",
       "reason": null
     },
     "G14": {
