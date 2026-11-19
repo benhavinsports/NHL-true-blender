@@ -158,8 +158,9 @@ def main():
                                         official.get('games'))
                 row = {
                     'date': day,
-                    'status': ('SCHEDULED_SOURCE_BLOCKED' if documented_game
-                               else 'SCHEDULE_UNVERIFIED' if day in off_days
+                    'status': ('SCHEDULE_UNVERIFIED'
+                               if day in off_days else
+                               'SCHEDULED_SOURCE_BLOCKED' if documented_game
                                else 'SOURCE_BLOCKED'),
                     'reason': ('Scheduled NHL games have no archived pregame bundle'
                                if documented_game else
