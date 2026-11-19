@@ -1,59 +1,57 @@
 {
   "slateDate": "2026-11-19",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 220,
+  "g0AcceptedSkaterMatrices": 201,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G6": 220,
-    "G10.5": 209,
-    "G16": 209,
-    "G17": 220,
-    "Step6": 220,
-    "Step10.5": 209,
-    "Step12": 209,
-    "Step14": 220,
-    "G4": 29,
-    "G5": 29,
-    "Step3": 29,
-    "Step7": 29,
-    "Step10": 29,
-    "G10": 64,
-    "G12": 64,
-    "G15": 64,
+    "G10.5": 193,
+    "G16": 197,
+    "G17": 194,
+    "Step10.5": 193,
+    "Step12": 193,
+    "Step14": 194,
+    "G4": 28,
+    "G5": 28,
+    "Step3": 28,
+    "Step7": 28,
+    "Step10": 28,
+    "G6": 41,
+    "G10": 58,
+    "G12": 58,
+    "G15": 58,
+    "Step6": 41,
     "G7": 25,
-    "G9": 18,
+    "G9": 19,
     "G11": 25,
     "Step4": 25,
     "Step9": 25,
-    "G14": 4,
-    "Step5": 4
+    "G14": 7,
+    "Step5": 7,
+    "Step11": 2
   },
-  "g18NonselectedNotMissingSource": 243,
-  "g18ActualMissingSourceCount": 22,
+  "g18NonselectedNotMissingSource": 198,
+  "g18ActualMissingSourceCount": 202,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
       "masterGates": [
-        "G6",
         "G10.5",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 129
+      "playerCount": 107
     },
     {
       "masterGates": [
-        "G6",
         "G10",
         "G10.5",
         "G12",
@@ -63,12 +61,27 @@
         "G18"
       ],
       "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 20
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
         "Step6",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 29
+      "playerCount": 14
     },
     {
       "masterGates": [
@@ -91,45 +104,10 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 16
+      "playerCount": 9
     },
     {
       "masterGates": [
-        "G6",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step14"
-      ],
-      "playerCount": 10
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 7
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
         "G6",
         "G10",
         "G10.5",
@@ -140,10 +118,7 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step3",
         "Step6",
-        "Step7",
-        "Step10",
         "Step10.5",
         "Step12",
         "Step14"
@@ -152,30 +127,37 @@
     },
     {
       "masterGates": [
-        "G6",
-        "G9",
+        "G4",
+        "G5",
         "G10.5",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
+        "Step3",
+        "Step7",
+        "Step10",
         "Step10.5",
         "Step12",
         "Step14"
       ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G16",
+        "G18"
+      ],
+      "overlaySteps": [],
       "playerCount": 4
     },
     {
       "masterGates": [
         "G4",
         "G5",
-        "G6",
-        "G7",
         "G10",
         "G10.5",
-        "G11",
         "G12",
         "G15",
         "G16",
@@ -184,10 +166,7 @@
       ],
       "overlaySteps": [
         "Step3",
-        "Step4",
-        "Step6",
         "Step7",
-        "Step9",
         "Step10",
         "Step10.5",
         "Step12",
@@ -228,10 +207,53 @@
     },
     {
       "masterGates": [
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [],
+      "overlaySteps": [],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
         "G6",
-        "G9",
         "G10",
         "G10.5",
         "G12",
@@ -249,14 +271,16 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 3
+      "playerCount": 2
     },
     {
       "masterGates": [
-        "G6",
-        "G9",
+        "G4",
+        "G5",
+        "G7",
         "G10",
         "G10.5",
+        "G11",
         "G12",
         "G15",
         "G16",
@@ -264,12 +288,133 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
+        "Step3",
+        "Step4",
+        "Step7",
+        "Step9",
+        "Step10",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 3
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
     },
     {
       "masterGates": [
@@ -295,7 +440,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
@@ -303,7 +448,10 @@
         "G5",
         "G6",
         "G9",
+        "G10",
         "G10.5",
+        "G12",
+        "G15",
         "G16",
         "G17",
         "G18"
@@ -317,30 +465,12 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step14"
-      ],
       "playerCount": 1
     },
     {
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G7",
         "G10.5",
         "G11",
@@ -351,7 +481,6 @@
       "overlaySteps": [
         "Step3",
         "Step4",
-        "Step6",
         "Step7",
         "Step9",
         "Step10",
@@ -365,7 +494,89 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
         "G9",
         "G10",
         "G10.5",
@@ -379,9 +590,63 @@
       "overlaySteps": [
         "Step3",
         "Step5",
-        "Step6",
         "Step7",
         "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
@@ -390,13 +655,6 @@
     }
   ],
   "oneObservedEvidenceExamplePerGate": {
-    "G6": {
-      "gameId": "2026020347",
-      "playerId": "8470621",
-      "reason": {
-        "deployment": null
-      }
-    },
     "G10.5": {
       "gameId": "2026020347",
       "playerId": "8470621",
@@ -491,11 +749,17 @@
           "strongerAreaContradiction": false
         },
         "lineupDisagreementReview": {
-          "availability": "UNVERIFIED",
-          "hasProjectedOrConfirmedRole": false,
+          "availability": "PROJECTED_ACTIVE",
+          "hasProjectedOrConfirmedRole": true,
           "isTrulyConfirmed": false,
-          "lineupSourceUrl": null,
-          "projectedOrConfirmedEV": null
+          "lineupSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+          "projectedOrConfirmedEV": {
+            "EV": "F4",
+            "line": 4,
+            "powerPlayUnit": 2,
+            "sourceType": "SECONDARY_PROJECTED_LINEUP",
+            "status": "PROJECTED"
+          }
         },
         "strongestRivalReview": {
           "G9OpponentDefenseWeakZonesUsed": [
@@ -539,8 +803,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -577,8 +846,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "line": 2,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -614,8 +889,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "line": 2,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -651,8 +932,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -718,8 +1005,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -756,8 +1049,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -793,8 +1092,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -831,8 +1135,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F4",
+                "line": 4,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -869,8 +1178,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "line": 3,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -944,8 +1258,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F1",
+                "line": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -981,8 +1300,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "line": 2,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -1018,8 +1343,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D3",
+                "defensePair": 3,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -1094,8 +1424,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D1",
+                "defensePair": 1,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -1133,8 +1469,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D2",
+                "defensePair": 2,
+                "powerPlayUnit": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": true,
               "sourceUrls": [
@@ -1170,8 +1512,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D3",
+                "defensePair": 3,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": false,
               "sourceUrls": [
@@ -1207,8 +1554,13 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D2",
+                "defensePair": 2,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": false,
               "sourceUrls": [
@@ -1244,8 +1596,14 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D1",
+                "defensePair": 1,
+                "powerPlayUnit": 1,
+                "sourceType": "SECONDARY_PROJECTED_LINEUP",
+                "status": "PROJECTED"
+              },
+              "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
               "sameLane": false,
               "sourceUrls": [
@@ -1257,11 +1615,6 @@
           ]
         }
       }
-    },
-    "Step6": {
-      "gameId": "2026020347",
-      "playerId": "8470621",
-      "reason": null
     },
     "Step10.5": {
       "gameId": "2026020347",
@@ -1310,6 +1663,13 @@
       "playerId": "8474563",
       "reason": null
     },
+    "G6": {
+      "gameId": "2026020347",
+      "playerId": "8476879",
+      "reason": {
+        "deployment": null
+      }
+    },
     "G10": {
       "gameId": "2026020347",
       "playerId": "8476879",
@@ -1325,6 +1685,11 @@
       "reason": null
     },
     "G15": {
+      "gameId": "2026020347",
+      "playerId": "8476879",
+      "reason": null
+    },
+    "Step6": {
       "gameId": "2026020347",
       "playerId": "8476879",
       "reason": null
@@ -1397,6 +1762,11 @@
     "Step5": {
       "gameId": "2026020353",
       "playerId": "8485469",
+      "reason": null
+    },
+    "Step11": {
+      "gameId": "2026020357",
+      "playerId": "8483442",
       "reason": null
     }
   }
