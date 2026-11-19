@@ -89,6 +89,37 @@ def test_complete_eleven_seven_pool_preserves_all_independently_identified_skate
                                            team="BOS", cutoff=CUTOFF) is None
 
 
+def test_repeated_identical_receipts_are_not_extra_roster_spots():
+    rows = source_rows()
+    repeated = [{**r, "evidence_id": r["evidence_id"] + "-repeat"} for r in rows]
+    assert recover_full_projected_team_pool(rows + repeated, date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is not None
+    conflicting = dict(repeated[0])
+    payload = json.loads(conflicting["payload"])
+    payload["EV"] = "L2"
+    conflicting["payload"] = json.dumps(payload)
+    assert recover_full_projected_team_pool(rows + [conflicting], date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is None
+
+
+def test_new_parser_never_fills_missing_spots_from_legacy_or_conflicting_article_bytes():
+    legacy = source_rows()
+    current = []
+    for row in legacy:
+        payload = json.loads(row["payload"])
+        payload.update(sourceParserVersion=2, sourceArticleSha256="source-one")
+        current.append({**row, "evidence_id": row["evidence_id"] + "-new", "payload": json.dumps(payload)})
+    assert recover_full_projected_team_pool(legacy + current, date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is not None
+    assert recover_full_projected_team_pool(legacy + current[:-1], date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is None
+    payload = json.loads(current[-1]["payload"])
+    payload["sourceArticleSha256"] = "different-source-bytes"
+    current[-1]["payload"] = json.dumps(payload)
+    assert recover_full_projected_team_pool(current, date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is None
+
+
 def test_reconstructed_pool_reaches_bundle_only_when_archived_roster_missing(tmp_path):
     db = open_db(str(tmp_path / "source.sqlite"))
     try:

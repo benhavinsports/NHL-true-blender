@@ -2,8 +2,8 @@
 
 This is a pre-slate source-verified player-membership pool, NOT an official
 confirmed dressed roster, the season's complete transaction roster, or a new
-selection rule.  Every included name was independently matched to an NHL
-season-roster ID by the upstream NHL.com article collector, and the archived
+selection rule. Every included name was independently matched to an official
+NHL player ID by the upstream NHL.com article collector, and the archived
 article was published / last modified before the replay cutoff.
 
 To avoid silently omitting depth/defense rivals from a decision, only a complete
@@ -46,7 +46,8 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
         payload = json.loads(row["payload"]) if isinstance(row["payload"], str) else row["payload"]
         if (payload.get("sourceType") != SOURCE or
                 payload.get("team") != team or
-                payload.get("officialSeasonRosterIdentityMatched") is not True or
+                (payload.get("officialSeasonRosterIdentityMatched") is not True and
+                 payload.get("officialNhlPlayerIdentityMatched") is not True) or
                 payload.get("status") != "PROJECTED"):
             continue
         published = _utc(payload.get("sourceArticlePublishedAt"))
@@ -64,6 +65,33 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
 
     eligible = []
     for url, entries in per_source.items():
+        clocks = {(published, modified) for _, _, published, modified in entries}
+        if len(clocks) != 1:
+            continue
+        # New parser receipts re-read the same dated article, correcting
+        # legacy unit classification. Never combine those two parser outputs.
+        current = [e for e in entries if e[1].get("sourceParserVersion") == 2
+                   and e[1].get("sourceArticleSha256")]
+        if current:
+            entries = current
+            if len({p["sourceArticleSha256"] for _, p, _, _ in entries}) != 1:
+                continue  # conflicting article bytes under one revision clock
+        # Repeated collector runs create immutable receipts for identical
+        # assignments. Those are one player, not extra roster spots.
+        unique = {}
+        conflict = False
+        for entry in entries:
+            row, payload, _, _ = entry
+            pid = str(row["player_id"])
+            signature = (payload["EV"], payload["EVRole"], payload.get("officialPosition"),
+                         payload["playerName"])
+            if pid in unique and unique[pid][0] != signature:
+                conflict = True
+                break
+            unique[pid] = (signature, entry)
+        if conflict:
+            continue
+        entries = [entry for _, entry in unique.values()]
         # Exact 4x3 forward roles and 3x2 defensive pairs on one source page.
         roles = [(x[1]["EV"], x[1]["EVRole"]) for x in entries]
         counts = {role: roles.count(role) for role in set(roles)}
@@ -110,7 +138,9 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
             "fullProjectedSkaterLineupObserved": True,
             "completeOrganizationalCurrentRosterNotClaimed": True,
             "notConfirmedDressedOrEVUnits": True,
-            "independentOfficialSeasonRosterIdMatches": 18,
+            "independentOfficialSeasonRosterIdMatches": sum(
+                p.get("officialSeasonRosterIdentityMatched") is True for _, p, _, _ in entries),
+            "independentOfficialNhlPlayerIdMatches": 18,
             "sourceArticlePublishedAt": published.isoformat(),
             "sourceArticleModifiedAt": modified.isoformat() if modified else None,
             "sourceEvidenceIds": receipt_ids,

@@ -96,6 +96,7 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
     client=FakeClient()
     result=asyncio.run(hs.collect_history(
         client,con,snapshot,"2026-11-16","PROJECTED"))
+    original_capture = dict(captured)
     # The provider later corrects the same historical sample by adding
     # credited goals. A second run must append new immutable receipts rather
     # than crash on the fixed date/stage/player evidence key.
@@ -112,7 +113,8 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
     assert result["historicalGames"]==16
     assert result["shotEvents"]==16
     assert captured["coverage_game_count"]==256
-    assert captured["coverage_event_count"]==256
+    assert original_capture["coverage_event_count"]==256
+    assert revised["coveragePeerEvents"]==captured["coverage_event_count"]==512
     assert captured["box_game_count"]==16
     assert captured["shift_game_count"]==16
     assert result["G9PeerSampleIsLeagueWide"] is True

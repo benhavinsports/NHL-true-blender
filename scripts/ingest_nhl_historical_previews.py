@@ -278,6 +278,27 @@ def position_index(roster):
     return candidates
 
 
+def exact_skater_identity(payload, name):
+    """Resolve identity only; the dated article supplies historical membership."""
+    if isinstance(payload, dict):
+        payload = payload.get("suggestions") or payload.get("players") or []
+    if not isinstance(payload, list):
+        return None
+    exact = [p for p in payload if isinstance(p, dict)
+             and normalize(p.get("name") or p.get("fullName") or "") == normalize(name)]
+    # Do not choose one same-name person using today's club, active status,
+    # search result order, or an inferred historical roster.
+    if len(exact) != 1:
+        return None
+    p = exact[0]
+    pid = str(p.get("playerId") or p.get("id") or "")
+    position = p.get("positionCode") or p.get("position")
+    if not pid.isdigit() or position not in ("L", "R", "C", "LW", "RW", "D"):
+        return None
+    return {"playerId": pid, "position": position,
+            "officialName": p.get("name") or p.get("fullName")}
+
+
 async def ingest_previews(manifest, database, output):
     raw = json.loads(Path(manifest).read_text())
     calendar = raw["officialSchedule"]
@@ -317,6 +338,8 @@ async def ingest_previews(manifest, database, output):
     retrieved = await asyncio.gather(*(preview(day, game) for day, game in games))
     accepted, rejected, receipts = 0, 0, 0
     projected_goalies = 0
+    searched_identities = {}
+    recovered_identities = {}
     try:
         for day, game, url, html, error in retrieved:
             if error:
@@ -341,6 +364,30 @@ async def ingest_previews(manifest, database, output):
                 continue
             valid = False
             for team in (game["away"], game["home"]):
+                # Season roster endpoints can omit recalled/traded skaters
+                # that the pre-cutoff article explicitly named. Resolve only
+                # those names against NHL's independent identity catalog.
+                preliminary = read_lines(article.lines, team)
+                for name, _, _ in preliminary:
+                    key = normalize(name)
+                    if key in identities.get(team, {}):
+                        continue
+                    if key not in searched_identities:
+                        try:
+                            response = await client.get(
+                                "https://search.d3.nhle.com/api/v1/search/player",
+                                params={"culture": "en-us", "limit": 100, "q": name})
+                            response.raise_for_status()
+                            resolved = exact_skater_identity(response.json(), name)
+                            searched_identities[key] = ({**resolved, "sourceUrl": str(response.url)}
+                                                        if resolved else None)
+                        except (httpx.HTTPError, ValueError):
+                            searched_identities[key] = None
+                    resolved = searched_identities[key]
+                    if resolved:
+                        identities.setdefault(team, {})[key] = resolved["playerId"]
+                        positions.setdefault(team, {})[key] = resolved["position"]
+                        recovered_identities[(team, key)] = resolved
                 assignments = read_lines(article.lines, team, positions.get(team, {}))
                 if len(assignments) < 5:
                     continue
@@ -406,9 +453,13 @@ async def ingest_previews(manifest, database, output):
                         continue
                     payload = {
                         "EV": unit, "EVRole": role, "status": "PROJECTED",
+                        "sourceParserVersion": 2,
+                        "sourceArticleSha256": hashlib.sha256(html.encode()).hexdigest(),
                         "team": team, "playerName": name,
                         "officialPosition": positions.get(team, {}).get(normalize(name)),
-                        "officialSeasonRosterIdentityMatched": True,
+                        "officialSeasonRosterIdentityMatched": (team, normalize(name)) not in recovered_identities,
+                        "officialNhlPlayerIdentityMatched": True,
+                        "identitySourceUrl": (recovered_identities.get((team, normalize(name))) or {}).get("sourceUrl"),
                         "sourceType": "OFFICIAL_NHL_COM_PROJECTED_LINEUP_ARTICLE",
                         "projectedNotConfirmed": True, "PP": None,
                         "sourceArticlePublishedAt": published.isoformat(),
@@ -448,6 +499,8 @@ async def ingest_previews(manifest, database, output):
             "fullCurrentRostersNeverInferred": True,
             "confirmedDeploymentsNeverInferred": True,
             "officialSeasonRosterUsedForIDResolutionOnly": True,
+            "exactOfficialSearchIdentitiesRecovered": len(recovered_identities),
+            "officialSearchUsedForIdentityOnlyNotHistoricalMembership": True,
             "publicationAndModificationClockRequiredWhenProvided": True,
             "errors": errors[:200]}
         Path(output).parent.mkdir(parents=True, exist_ok=True)
