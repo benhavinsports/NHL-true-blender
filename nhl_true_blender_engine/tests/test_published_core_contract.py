@@ -119,3 +119,20 @@ def test_new_key_takes_precedence_over_legacy_fallback():
         "preCoreQualifiedSurvivors": current,
         "allG18QualifiedSurvivors": stale,
     }) is current
+
+
+def test_public_survivor_cards_show_actual_g6_g8_g12_evidence(tmp_path):
+    run, _, _ = fixture(tmp_path)
+    receipts = run["gameSurvivorGateReceipts"]
+    assert receipts
+    for rows in receipts.values():
+        gates = {item["gate"]: item for item in rows}
+        g6 = gates["G6"]["evidence"]
+        g8 = gates["G8"]["evidence"]
+        g12 = gates["G12"]["evidence"]
+        assert g6["deployment"]["EV"]
+        assert "projectedNotPromoted" in g6
+        assert g8["neutralWhenAbsent"] is True
+        assert g8["neverRankingShortcut"] is True
+        assert g12["officialGoalsReconciled"] is True
+        assert g12["ownership"]["creditedGoalsVerified"] is True
