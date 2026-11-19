@@ -22,6 +22,7 @@ from nhl_true_blender_engine.goalie_history_fallback import (
     summarize_goalie_origin_pbp, derive_independent_pbp_goalie_profile)
 from nhl_true_blender_engine.enrichment import ingest
 from nhl_true_blender_engine.official_defense_coverage import make_coverage
+from nhl_true_blender_engine.shift_coverage import collect_shift_coverage
 from nhl_true_blender_engine.storage import open_db
 
 UTC = timezone.utc
@@ -186,6 +187,7 @@ async def reconstruct(manifest, database, output, limit=18):
                 except Exception as e:
                     return gid, [], type(e).__name__ + ": " + str(e)[:160]
         cached_boxscores = {}
+        cached_shifts = {}
         async def get_boxscore(game_id):
             async with sem:
                 try:
@@ -229,9 +231,18 @@ async def reconstruct(manifest, database, output, limit=18):
                       "awayAbbrev": (r.get("awayTeam") or {}).get("abbrev")}
                 for gid, r in pool.items()}
             coverage_count = 0
+            shift_report = {}
             if peer_asof and all_events:
+                # The original Step8 needs actual on-ice intervals joined
+                # to prior PBP events. Coverage counts alone cannot supply
+                # that receipt. Only this already cutoff-filtered pool is
+                # joined, even when later slates reuse downloaded charts.
+                shift_report = await collect_shift_coverage(
+                    {gid: str(r.get('gameDate') or r['startTimeUTC'][:10])
+                     for gid,r in pool.items()}, all_events, game_meta,
+                    source_cache=cached_shifts)
                 report = make_coverage(
-                    con, snapshot, date, "PROJECTED", all_events, game_meta,
+                    con, snapshot, date, "PROJECTED", all_events, game_meta, shift_report,
                     historical_replay_observed_at=peer_asof.isoformat())
                 coverage_count = report["coverageAttackSides"]
             context_count = 0
@@ -489,6 +500,9 @@ async def reconstruct(manifest, database, output, limit=18):
                 "historicalBoxscorePlayerLogs": box_log_receipts,
                 "boxscorePbpReconciledRecipients": reconciled_recipient_receipts,
                 "historicalTeamCoverageDirections": coverage_count,
+                "historicalShiftChartGames": shift_report.get('chartedGames',0),
+                "historicalShiftMatchedShotEvents": shift_report.get('matchedDefensiveShotEvents',0),
+                "historicalShiftSourceFailures": shift_report.get('sourceFailures',[]),
                 "officialMatchContextReceipts": context_count,
                 "allInputsFromPriorFinishedOfficialGames": True,
                 "archivePublicationTimestampIndependentlyVerified": False
@@ -503,6 +517,8 @@ async def reconstruct(manifest, database, output, limit=18):
             "totalHistoricalBoxscorePlayerLogs": sum(x["historicalBoxscorePlayerLogs"] for x in summary),
             "totalBoxscorePbpReconciledRecipients": sum(x["boxscorePbpReconciledRecipients"] for x in summary),
             "totalTeamCoverageDirections": sum(x["historicalTeamCoverageDirections"] for x in summary),
+            "totalShiftMatchedShotEvents": sum(x['historicalShiftMatchedShotEvents'] for x in summary),
+            "uniqueOfficialShiftChartsCached": len(cached_shifts),
             "totalMatchContextReceipts": sum(x["officialMatchContextReceipts"] for x in summary),
             "days": summary, "sourceFailures": fetch_errors[:200],
             "actualSourceRetrievalIsLaterThanHistoricalCutoff": True,

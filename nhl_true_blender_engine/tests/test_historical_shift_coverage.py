@@ -24,6 +24,29 @@ def test_official_shift_feed_filters_invalid_interval_and_does_not_invent():
     assert period_seconds("99:99") is None
     assert period_seconds(None) is None
 
+
+@pytest.mark.asyncio
+async def test_replay_shift_cache_never_expands_the_current_cutoff_pool(monkeypatch):
+    genuine=httpx.AsyncClient
+    calls=[]
+    def fake_client(*args,**kwargs):
+        def handler(req):
+            gid=req.url.params['cayenneExp'].split('=')[1]
+            calls.append(gid)
+            return httpx.Response(200,json={'data':[
+                {**interval(pid),'gameId':int(gid)} for pid in (101,102,103)]})
+        return genuine(*args,transport=httpx.MockTransport(handler),**kwargs)
+    monkeypatch.setattr('nhl_true_blender_engine.shift_coverage.httpx.AsyncClient',fake_client)
+    cache={}
+    await collect_shift_coverage({'1234':'2026-10-01'},[],{},source_cache=cache)
+    await collect_shift_coverage({'1234':'2026-10-01','5678':'2026-10-08'},[],{},source_cache=cache)
+    assert calls==['1234','5678']
+    # Replaying an earlier date after a later date cannot use the later chart.
+    out=await collect_shift_coverage({'1234':'2026-10-01'},[],{},source_cache=cache)
+    assert out['attemptedGames']==out['chartedGames']==1
+    assert out['sampledOfficialIntervals']==3
+    assert calls==['1234','5678']
+
 @pytest.mark.asyncio
 async def test_join_shift_clock_to_actual_opponent_shot_event(monkeypatch):
     genuine=httpx.AsyncClient

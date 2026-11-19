@@ -44,19 +44,24 @@ def parse_shifts(payload,game_id):
                      "period":per,"startSeconds":start,"endSeconds":end})
     return rows,invalid
 
-async def collect_shift_coverage(game_dates,events,game_meta,concurrency=5):
+async def collect_shift_coverage(game_dates,events,game_meta,concurrency=5,*,source_cache=None):
     """Fetch only previously finalized games in the caller's dated sample."""
     sem=asyncio.Semaphore(concurrency)
     async with httpx.AsyncClient(timeout=16,follow_redirects=True,
                 headers={"User-Agent":"NHLTrueBlender/1.0","Accept":"application/json"}) as client:
         async def one(gid):
+            if source_cache is not None and str(gid) in source_cache:
+                return source_cache[str(gid)]
             async with sem:
                 url=BASE+str(gid)
                 try:
                     resp=await client.get(url)
                     resp.raise_for_status()
                     rows,invalid=parse_shifts(resp.json(),gid)
-                    return gid,url,rows,invalid,None
+                    result=(gid,url,rows,invalid,None)
+                    if source_cache is not None and rows:
+                        source_cache[str(gid)]=result
+                    return result
                 except (httpx.HTTPError,ValueError,KeyError) as exc:
                     return gid,url,[],0,f"{type(exc).__name__}: {exc}"
         fetched=await asyncio.gather(*(one(g) for g in game_dates))
