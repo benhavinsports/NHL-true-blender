@@ -292,8 +292,12 @@ def export_run(con, slate_date, stage, result, root='state'):
         old=_active_saved_card(prior)
         status.update({
             'currentRunFullyCertified':False,
-            'publishedToSite':False,
+            # An earlier independently issued, source-verified card remains
+            # visible when a later audit cannot repeat its entire source scan.
+            # This does NOT certify the new run or create a second Core.
+            'publishedToSite':bool(old and old.get('verified') is True),
             'retainedOriginalLockedCard':bool(old),
+            'historicalCardIsNotCurrentRunCertification':bool(old),
             'cardId':old.get('cardId') if old else None,
             'publicationDecision':'FULL_GATE_EXECUTION_INCOMPLETE',
             'executionCertificationGaps':{
@@ -338,7 +342,10 @@ def export_run(con, slate_date, stage, result, root='state'):
             if mismatch or unresolved:
                 status.update({
                     'cardId':locked.get('cardId'),
-                    'publishedToSite':False,
+                    # Preserve visibility of the already issued verified
+                    # frozen Core, but NEVER call these newly incomplete
+                    # G0-G18 inputs a certified replacement or refresh.
+                    'publishedToSite':locked.get('verified') is True,
                     'retainedOriginalLockedCard':True,
                     'currentRunFullyCertified':False,
                     'publicationDecision':'G18_UPSTREAM_SURVIVORS_UNRESOLVED',
