@@ -1,0 +1,331 @@
+"""Reconstruct pre-slate, event-bounded NHL PBP research for historical replay.
+
+This is *research reconstruction*, not a claim that these source snapshots were
+downloaded before their historical slate. Source event games must finish well
+before the replay cutoff. Retrieval time and estimated availability are distinct.
+Never infer starter identity, a player's upcoming line, or a scoring pick here.
+"""
+from __future__ import annotations
+import argparse
+import asyncio
+from collections import defaultdict
+from datetime import datetime, timedelta, timezone
+import hashlib
+import json
+from pathlib import Path
+
+from nhl_true_blender_engine.sources import NHLClient
+from nhl_true_blender_engine.secondary_sources import TEAM_SLUGS
+from nhl_true_blender_engine.historical_shots import (
+    extract_events, measured_recent_shooter_origins, ON_NET)
+from nhl_true_blender_engine.goalie_history_fallback import (
+    summarize_goalie_origin_pbp, derive_independent_pbp_goalie_profile)
+from nhl_true_blender_engine.enrichment import ingest
+from nhl_true_blender_engine.storage import open_db
+
+UTC = timezone.utc
+# An explicit conservative *estimated* event-availability boundary. The source
+# itself does not supply a historical HTTP publication timestamp.
+FINISH_BUFFER = timedelta(hours=6)
+
+
+def utc(value):
+    dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        raise ValueError("Official start/cutoff must be timezone-aware")
+    return dt.astimezone(UTC)
+
+
+def event_available_before(row, cutoff):
+    """Never permit same-slate or later-game PBP into an earlier prediction."""
+    start = row.get("startTimeUTC")
+    if not start or row.get("gameState") not in ("OFF", "FINAL", "GAME_OVER"):
+        return False
+    try:
+        return utc(start) + FINISH_BUFFER < cutoff
+    except (TypeError, ValueError):
+        return False
+
+
+def league_pregame_games(schedules, cutoff, limit=18):
+    """Stable, all-club historical peer cohort; no goalie/selection bias."""
+    union = {}
+    for rows in schedules.values():
+        eligible = [r for r in rows if event_available_before(r, cutoff)]
+        eligible.sort(key=lambda x: (x["startTimeUTC"], str(x["id"])))
+        for row in eligible[-limit:]:
+            union[str(row["id"])] = row
+    return union
+
+
+def _receipt(con, date, stage, game_id, player_id, kind, payload, urls, available_at):
+    if not urls:
+        return False
+    # This timestamp is an *estimated historical source-availability clock*,
+    # not a backdated claim that our crawler observed these bytes in the past.
+    # Keep the actual reconstruction time in the payload for every receipt.
+    payload = dict(payload)
+    payload["historicalReconstruction"] = True
+    payload["historicalSourceObservedAtCutoffVerified"] = False
+    payload["replayAvailabilityClockBasis"] = "OFFICIAL_GAME_START_PLUS_SIX_HOURS"
+    payload["reconstructedAtUTC"] = datetime.now(UTC).isoformat()
+    digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:18]
+    return ingest(con, {
+        "evidence_id": "reconstructed-pbp-" + hashlib.sha256(
+            f"{date}|{stage}|{game_id}|{player_id}|{kind}|{digest}".encode()
+        ).hexdigest()[:32],
+        "slate_date": date, "stage": stage, "game_id": str(game_id),
+        "player_id": str(player_id) if player_id is not None else None,
+        "kind": kind, "source_url": sorted(set(urls))[0],
+        "observed_at": available_at.isoformat().replace("+00:00", "Z"),
+        "payload": payload
+    })
+
+
+def _target_starters(con, date, games, cutoff):
+    ids = {str(g.get("id") or g.get("gameId")) for g in games}
+    result = []
+    for row in con.execute(
+        "SELECT * FROM evidence WHERE slate_date=? AND kind='GOALIE_STARTER' "
+        "AND stage IN ('PROJECTED','CONFIRMED') ORDER BY observed_at",
+        (date,)).fetchall():
+        if str(row["game_id"]) not in ids or utc(row["observed_at"]) > cutoff:
+            continue
+        d = json.loads(row["payload"])
+        if (not d.get("goalieId") or d.get("status") not in
+                ("PROJECTED", "EXPECTED", "CONFIRMED")):
+            continue
+        official = next((g for g in games
+                         if str(g.get("id") or g.get("gameId")) == str(row["game_id"])), None)
+        if not official or d.get("team") not in (official["away"], official["home"]):
+            continue
+        result.append((row, d))
+    return result
+
+
+def _player_route(origin):
+    """Use a player's own observed route; retain tied origins as unresolved."""
+    ranked = sorted(
+        ((zone, d) for zone, d in origin.items() if d["shotsOnGoal"] > 0),
+        key=lambda x: (-x[1]["ownedGoals"], -x[1]["shotsOnGoal"], x[0]))
+    if not ranked:
+        return None
+    key = (ranked[0][1]["ownedGoals"], ranked[0][1]["shotsOnGoal"])
+    if sum((x["ownedGoals"], x["shotsOnGoal"]) == key for _, x in ranked) != 1:
+        return None
+    zone, data = ranked[0]
+    return {
+        "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
+        "zone": zone, "attempts": data["shotsOnGoal"],
+        "ownedGoals": data["ownedGoals"],
+        "sourceType": "OFFICIAL_PRE_SLATE_PBP_SHOT_ORIGIN",
+        "isAnatomicalReleaseClaim": False,
+        "allRoutes": [
+            {"zone": z, "sog": d["shotsOnGoal"], "ownedGoals": d["ownedGoals"],
+             "sourceUrls": d["sourceUrls"]} for z, d in ranked]
+    }
+
+
+async def reconstruct(manifest, database, output, limit=18):
+    calendar = json.loads(Path(manifest).read_text())
+    days = sorted(d for d, row in calendar["officialSchedule"].items() if row.get("games"))
+    client = NHLClient()
+    con = open_db(str(database))
+    fetch_errors = []
+    try:
+        teams = sorted({team for d in days for g in calendar["officialSchedule"][d]["games"]
+                        for team in (g["away"], g["home"])})
+        starts = sorted({int(d[:4]) if int(d[5:7]) >= 9 else int(d[:4])-1
+                         for d in days})
+        seasons = sorted({f"{y}{y+1}" for y in starts} |
+                         {f"{y-1}{y}" for y in starts})
+        sem = asyncio.Semaphore(10)
+        async def schedule(team, season):
+            async with sem:
+                try:
+                    src = await client.get(f"club-schedule-season/{team}/{season}")
+                    return team, season, src["data"].get("games") or [], None
+                except Exception as e:
+                    return team, season, [], type(e).__name__ + ": " + str(e)[:160]
+        results = await asyncio.gather(
+            *(schedule(team, season) for team in teams for season in seasons))
+        club_schedules = defaultdict(dict)
+        for team, season, rows, error in results:
+            if error:
+                fetch_errors.append({"team": team, "season": season, "error": error})
+            for g in rows:
+                if not g.get("id") or not g.get("startTimeUTC"):
+                    continue
+                item = dict(g)
+                item["id"] = str(g["id"])
+                club_schedules[team][item["id"]] = item
+        club_schedules = {t: list(rows.values()) for t, rows in club_schedules.items()}
+        cached_pbp = {}
+        async def get_pbp(gid, game_date):
+            if gid in cached_pbp:
+                return cached_pbp[gid]
+            async with sem:
+                try:
+                    raw = await client.play_by_play(gid)
+                    value = extract_events(raw, gid, game_date)
+                    return gid, value, None
+                except Exception as e:
+                    return gid, [], type(e).__name__ + ": " + str(e)[:160]
+        summary = []
+        for date in days:
+            games = calendar["officialSchedule"][date]["games"]
+            cutoff = min(utc(g.get("startTimeUTC") or g.get("startUTC"))
+                         for g in games) - timedelta(minutes=5)
+            pool = league_pregame_games(club_schedules, cutoff, limit)
+            missing = [(gid, row) for gid, row in pool.items() if gid not in cached_pbp]
+            collected = await asyncio.gather(*(
+                get_pbp(gid, row.get("gameDate") or str(row["startTimeUTC"])[:10])
+                for gid, row in missing))
+            for gid, events, err in collected:
+                if err:
+                    fetch_errors.append({"date": date, "gameId": gid, "error": err})
+                else:
+                    cached_pbp[gid] = events
+            # Only games with official starts + conservative finish buffer are
+            # accepted. The newest accepted event determines reconstructed as-of.
+            pool = {gid: r for gid, r in pool.items() if gid in cached_pbp}
+            all_events = [e for gid in pool for e in cached_pbp[gid]]
+            counts = summarize_goalie_origin_pbp(all_events)
+            starters = _target_starters(con, date, games, cutoff)
+            profiles = 0
+            peer_qualified = 0
+            for starter, data in starters:
+                pid = str(data["goalieId"])
+                profile = derive_independent_pbp_goalie_profile(pid, counts, peer_counts=counts)
+                if not profile:
+                    continue
+                own_games = set(profile["sample"]["historicalGameIds"])
+                sampled = [pool[gid] for gid in own_games if gid in pool]
+                if not sampled:
+                    continue
+                available_at = max(utc(g["startTimeUTC"]) + FINISH_BUFFER for g in sampled)
+                if available_at >= cutoff:
+                    continue
+                profile.update({
+                    "goalieId": pid, "team": data["team"], "status": data["status"],
+                    "sourceReviewed": profile["fullySourceComparedAreas"] > 0,
+                    "historicalSampleAsOf": date,
+                    "historicalSampleGameIds": sorted(own_games),
+                    "starterSourceUrl": starter["source_url"],
+                    "independentGoalieIdentityVerifiedByPbp": True,
+                    "peerCohort": "ALL_NHL_CLUBS_PRE_SLATE_OFFICIAL_PBP",
+                    "notGoalMouthAnatomy": True
+                })
+                sources = profile["historicalPbpSources"]
+                _receipt(con, date, starter["stage"], starter["game_id"], pid,
+                         "GOALIE_PROFILE", profile, sources, available_at)
+                profiles += 1
+                peer_qualified += int(profile["fullySourceComparedAreas"] > 0)
+
+            # Retain independently owned historical skater shooting evidence.
+            # It is attached ONLY to a separately verified historical roster,
+            # and never manufactures one or claims a projected EV/PP assignment.
+            # The target team ID comes from NHL's own official game metadata.
+            player_receipts = 0
+            for scheduled in games:
+                gid = str(scheduled.get("id") or scheduled.get("gameId"))
+                for team in (scheduled["away"], scheduled["home"]):
+                    club_rows = [row for row in club_schedules.get(team, [])
+                                 if row["id"] in pool]
+                    club_rows.sort(key=lambda x: x["startTimeUTC"])
+                    relevant = {r["id"] for r in club_rows[-8:]}
+                    team_ids = {str((r.get("awayTeam") or {}).get("id"))
+                                for r in club_rows if (r.get("awayTeam") or {}).get("abbrev") == team}
+                    team_ids |= {str((r.get("homeTeam") or {}).get("id"))
+                                 for r in club_rows if (r.get("homeTeam") or {}).get("abbrev") == team}
+                    own_events = [e for game_id in relevant for e in cached_pbp[game_id]
+                                  if e.get("ownerTeamId") in team_ids]
+                    owners = sorted({e["shooterId"] for e in own_events})
+                    for pid in owners:
+                        by_pid = [e for e in own_events if e["shooterId"] == pid]
+                        source_games = {e["gameId"] for e in by_pid}
+                        valid_games = [pool[x] for x in source_games if x in pool]
+                        if not valid_games:
+                            continue
+                        available_at = max(utc(x["startTimeUTC"]) + FINISH_BUFFER
+                                           for x in valid_games)
+                        if available_at >= cutoff:
+                            continue
+                        origins = measured_recent_shooter_origins(by_pid, pid)
+                        if not origins:
+                            continue
+                        urls = sorted({u for z in origins.values() for u in z["sourceUrls"]})
+                        source_payload = {
+                            "sourceType": "OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+                            "scope": "RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+                            "zoneCounts": origins,
+                            "historicalOwnGoalCreditOnly": True,
+                            "notTonightGoalPrediction": True,
+                            "gameDates": sorted({e["date"] for e in by_pid}),
+                            "candidateTeamFromOfficialEventOwnerTeamId": team,
+                        }
+                        # These facts remain independent of roster/deployment.
+                        if _receipt(con, date, "PROJECTED", gid, pid,
+                                    "PLAYER_RECENT_ORIGIN", source_payload, urls,
+                                    available_at) is not False:
+                            player_receipts += 1
+                        route = _player_route(origins)
+                        if route:
+                            _receipt(con, date, "PROJECTED", gid, pid,
+                                     "PLAYER_RELEASE", route, urls, available_at)
+                        goals = [{"goalId": f"{e['gameId']}:{e['eventId']}",
+                                  "date": e["date"], "sourceUrl": e["sourceUrl"]}
+                                 for e in by_pid if e["type"] == "goal"]
+                        _receipt(con, date, "PROJECTED", gid, pid,
+                                 "PLAYER_GOAL_EVENTS",
+                                 {"goals": goals, "scope": "PRE_SLATE_PBP_ONLY",
+                                  "completeSeason": False},
+                                 urls, available_at)
+            summary.append({
+                "date": date, "games": len(games), "goalieStartersWithDatedEvidence": len(starters),
+                "independentGoalieProfilesImported": profiles,
+                "goalieProfilesWithPeerComparedAreas": peer_qualified,
+                "playerRecentOriginReceipts": player_receipts,
+                "allInputsFromPriorFinishedOfficialGames": True,
+                "archivePublicationTimestampIndependentlyVerified": False
+            })
+            con.commit()
+        report = {
+            "period": [days[0], days[-1]] if days else [],
+            "scheduledSlatesResearched": len(summary),
+            "totalGoalieProfiles": sum(x["independentGoalieProfilesImported"] for x in summary),
+            "totalPeerQualifiedGoalieProfiles": sum(x["goalieProfilesWithPeerComparedAreas"] for x in summary),
+            "totalPlayerRecentOriginReceipts": sum(x["playerRecentOriginReceipts"] for x in summary),
+            "days": summary, "sourceFailures": fetch_errors[:200],
+            "actualSourceRetrievalIsLaterThanHistoricalCutoff": True,
+            "estimatedReplayAsOfIsNotARealCollectorObservedTimestamp": True,
+            "noUpcomingStartersOrPlayerDeploymentInferred": True
+        }
+        output = Path(output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2))
+        print(json.dumps({k: v for k, v in report.items()
+                          if k not in ("days", "sourceFailures")}, sort_keys=True))
+        return report
+    finally:
+        con.close()
+        await client.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("manifest", type=Path)
+    parser.add_argument("--database", type=Path,
+                        default=Path("state/true_blender.sqlite"))
+    parser.add_argument("--output", type=Path,
+                        default=Path("state/replay/historical-pbp-reconstruction.json"))
+    parser.add_argument("--per-team-games", type=int, default=18)
+    args = parser.parse_args()
+    if args.per_team_games < 1:
+        parser.error("--per-team-games must be positive")
+    asyncio.run(reconstruct(args.manifest, args.database, args.output,
+                            args.per_team_games))
+
+
+if __name__ == "__main__":
+    main()
