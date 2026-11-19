@@ -37,7 +37,19 @@ def source_asof(html, slate_date):
     itself must have been published for the requested date.
     """
     soup = BeautifulSoup(html, "html.parser")
-    sample = soup.get_text(" ", strip=True)[:1600]
+    # The page has an extensive navigation menu before the actual article.
+    # Anchor the freshness check on the team's H1, never the first N body
+    # characters (which contain no roster update timestamp).
+    heading = next((h for h in soup.find_all("h1")
+                    if "Line Combinations" in h.get_text(" ", strip=True)), None)
+    if heading is None:
+        return None
+    all_text = soup.get_text(" ", strip=True)
+    title = heading.get_text(" ", strip=True)
+    at = all_text.find(title)
+    if at < 0:
+        return None
+    sample = all_text[at:at + 1250]
     match = re.search(r"\bUpdated\s+([A-Za-z]{3,9})\s+(\d{1,2}),\s*"
                       r"(\d{1,2}):(\d{2})\s*(AM|PM)\s*ET\b", sample, re.I)
     if not match:
