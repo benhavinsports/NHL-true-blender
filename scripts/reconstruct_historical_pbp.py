@@ -322,6 +322,7 @@ async def reconstruct(manifest, database, output, limit=18):
                             "scope": "RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
                             "zoneCounts": origins,
                             "historicalOwnGoalCreditOnly": True,
+                            "rinkBinsApproximateNotNhlEdgePolygons": True,
                             "notTonightGoalPrediction": True,
                             "gameDates": sorted({e["date"] for e in by_pid}),
                             "candidateTeamFromOfficialEventOwnerTeamId": team,
