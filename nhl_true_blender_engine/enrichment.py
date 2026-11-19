@@ -251,6 +251,28 @@ def attach(con, snapshot, date, stage):
                                 data.get('status')!='CONFIRMED'):
                                 prior.setdefault('projectedAlternatives',[]).append(wrapper)
                                 continue
+                            if (prior.get('status')=='CONFIRMED' and
+                                data.get('status')=='CONFIRMED' and
+                                prior.get('EV') and data.get('EV') and
+                                prior['EV']!=data['EV']):
+                                # Two independently dated confirmed roles
+                                # disagree: never silently choose whichever
+                                # source arrived last to pass G6.
+                                prior.setdefault('conflictingConfirmedAssignments',[]).append(wrapper)
+                                p['deploymentConflict']=True
+                                continue
+                            if (prior.get('status')=='PROJECTED' and
+                                data.get('status')=='CONFIRMED'):
+                                # A genuine confirmed role supersedes earlier
+                                # contradictory PROJECTIONS; a sticky Boolean
+                                # must not keep G6 failing after resolution.
+                                # Keep the older disagreement for audit.
+                                if p.get('deploymentConflict'):
+                                    wrapper['data']['supersededProjectedConflict']={
+                                        'previousEvidenceId':previous.get('evidenceId'),
+                                        'conflictingSourceCount':len(
+                                            prior.get('conflictingProjectedAssignments') or [])}
+                                p.pop('deploymentConflict',None)
                             # Same-EV independent NHL.com lineup evidence
                             # must not erase separately sourced BTL PP/PK unit
                             # assignments just because the official article
