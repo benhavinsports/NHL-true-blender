@@ -143,12 +143,18 @@ jobs:
             # re-downloaded live NHL evidence on every new test commit,
             # risking a 28-minute timeout during crowded repair sessions.
             if ! git diff --quiet "$state_base" origin/main -- \
-                 state/ run_true_blender.py nhl_true_blender_engine/ \
+                 state/ run_true_blender.py \
+                 engine.py gate_executor.py core_publication.py nhl_data.py \
+                 deployment_sources.py postgame_grade.py postgame_audit.py \
+                 requirements.txt .github/workflows/nhl-true-blender.yml \
+                 nhl_true_blender_engine/ scripts/ \
                  scripts/automatic_blender_cycle.py scripts/run_cycle.py \
                  scripts/ledger_persistence.py scripts/retract_invalid_core.py \
                  scripts/preserved_core_receipt.py scripts/refresh_selected_gate_exports.py \
                  scripts/publish_site_state.py scripts/verify_published_core.py \
-                 ':(exclude)nhl_true_blender_engine/tests/**'; then
+                 scripts/public_survivor_snapshot.py scripts/download_moneypuck.py \
+                 ':(exclude)nhl_true_blender_engine/tests/**' \
+                 ':(exclude)scripts/tests/**'; then
               echo "Authoritative state or execution logic changed since $state_base; replay exact phase"
               git reset --hard origin/main
               # Rebase onto the newest canonical database; do not replay
