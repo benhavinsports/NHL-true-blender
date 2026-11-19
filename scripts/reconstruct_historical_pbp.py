@@ -380,7 +380,11 @@ async def reconstruct(manifest, database, output, limit=18):
                     for group in ("forwards", "defense"):
                         for row in data.get(group) or []:
                             pid = row.get("playerId")
-                            shots = row.get("shots")
+                            # NHL gamecenter boxscores expose SOG as "sog".
+                            # The old "shots"-only branch discarded every
+                            # officially recorded historical appearance.
+                            shots = (row.get("sog") if type(row.get("sog")) is int
+                                     else row.get("shots"))
                             goals = row.get("goals")
                             if (pid is None or type(shots) is not int or shots < 0
                                     or type(goals) is not int or goals < 0):
