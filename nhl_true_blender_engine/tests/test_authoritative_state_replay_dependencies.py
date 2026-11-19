@@ -20,7 +20,19 @@ def test_reconcile_replays_for_production_modules_but_not_tests_only():
         "scripts/publish_site_state.py", "scripts/verify_published_core.py",
     ):
         assert dependency in command
+    # Root-level modules and newly added source adapters must never be
+    # silently rebased onto a run executed by stale code.
+    for dependency in (
+        "engine.py", "gate_executor.py", "core_publication.py",
+        "nhl_data.py", "deployment_sources.py", "postgame_grade.py",
+        "postgame_audit.py", "requirements.txt",
+        ".github/workflows/nhl-true-blender.yml",
+        "scripts/", "scripts/public_survivor_snapshot.py",
+        "scripts/download_moneypuck.py",
+    ):
+        assert dependency in command
     assert ":(exclude)nhl_true_blender_engine/tests/**" in command
+    assert ":(exclude)scripts/tests/**" in command
     assert "git rebase origin/main" in content
     assert "git fetch origin main" in content
     assert "git push origin HEAD:main" in content
