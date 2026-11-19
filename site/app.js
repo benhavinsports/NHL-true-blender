@@ -511,8 +511,10 @@ async function boot(){
  // Show the latest verified original Core, not a blank unissued current slate.
   // The existing header explicitly identifies archived cards.
   const newestVerified=state.archive.map(x=>x.date).sort().reverse()[0];
+  const currentIssued=state.latest?.date===today && state.latest?.verified===true &&
+    Array.isArray(state.latest?.card?.current_legs) && state.latest.card.current_legs.length>0;
   state.selectedDate=request&&days.includes(request)?request:
-    newestVerified||days[0]||null;
+    currentIssued?today:newestVerified||days[0]||null;
  if(!state.selectedDate){
    renderAll();
    $("core-cards").replaceChildren(el("div","empty-state",
@@ -557,10 +559,15 @@ async function pollPublishedResults(){
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
  state.latest=next;state.archive=archived;
- // Keep the user's open archive date and selected recipient when possible.
+ // Automatically show the newly issued current Core when it first arrives.
+ // Do not replace a deliberate archived selection after today was already issued.
  const days=unique([next.date,...archived.map(x=>x.date)]);
- if(!days.includes(state.selectedDate))
-   state.selectedDate=days[0]||null;
+ const newlyIssuedToday=next.date===etToday() && next.verified===true &&
+   Array.isArray(next.card?.current_legs) && next.card.current_legs.length>0 &&
+   !(state.latest?.verified===true && state.latest?.date===next.date &&
+     Array.isArray(state.latest?.card?.current_legs) && state.latest.card.current_legs.length>0);
+ if(newlyIssuedToday || !days.includes(state.selectedDate))
+   state.selectedDate=newlyIssuedToday?next.date:days[0]||null;
  renderAll();
  if(state.selectedDate)await loadEvidence(state.selectedDate);
 }
