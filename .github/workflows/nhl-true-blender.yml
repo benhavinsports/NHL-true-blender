@@ -137,9 +137,18 @@ jobs:
             # committed under a newer, untested scorer engine either.
             # Changes to the current authoritative gate logic/data
             # integration or the canonical state both require a full replay.
+            # Compare all actual production selection/collection/persistence
+            # dependencies. Tests-only commits are not changes to the
+            # executing rules: the old broad directory match unnecessarily
+            # re-downloaded live NHL evidence on every new test commit,
+            # risking a 28-minute timeout during crowded repair sessions.
             if ! git diff --quiet "$state_base" origin/main -- \
                  state/ run_true_blender.py nhl_true_blender_engine/ \
-                 scripts/publish_site_state.py scripts/verify_published_core.py; then
+                 scripts/automatic_blender_cycle.py scripts/run_cycle.py \
+                 scripts/ledger_persistence.py scripts/retract_invalid_core.py \
+                 scripts/preserved_core_receipt.py scripts/refresh_selected_gate_exports.py \
+                 scripts/publish_site_state.py scripts/verify_published_core.py \
+                 ':(exclude)nhl_true_blender_engine/tests/**'; then
               echo "Authoritative state or execution logic changed since $state_base; replay exact phase"
               git reset --hard origin/main
               # Rebase onto the newest canonical database; do not replay
