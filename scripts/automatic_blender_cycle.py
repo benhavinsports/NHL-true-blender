@@ -36,8 +36,9 @@ def choose_mode(games, now, *, date=None):
         raise ValueError("Scheduled automatic runs cannot target a future day")
     if slate_day < now.astimezone(ET).date():
         return "grade"
-    if now.astimezone(ET).hour < 8:
-        return "grade"
+    # Never suppress the new Eastern calendar day's pregame research merely
+    # because it is before 08:00. Frozen prior-day cards are graded through
+    # pending_recent_grades after this slate's own research.
     starts = []
     for game in games:
         raw = game.get("startTimeUTC") or game.get("startUTC")
@@ -119,9 +120,9 @@ def main():
         raise SystemExit("Unsupported Blender phase: " + manual_mode)
     if manual_date:
         day = Date.fromisoformat(manual_date).isoformat()
-    elif now.hour < 8:
-        day = (now.date() - timedelta(days=1)).isoformat()
     else:
+        # Midnight ET starts the NEW slate's projected research. Prior-day
+        # grading runs independently against already-frozen Cards.
         day = now.date().isoformat()
     # Manual runs have an explicit phase. Otherwise the official NHL schedule
     # is authoritative for projected/confirmed/grade lifecycle transitions.
