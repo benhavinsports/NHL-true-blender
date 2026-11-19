@@ -33,6 +33,27 @@ class OfficialPregameDressedTest(unittest.TestCase):
         self.assertEqual(len(ids["COL"]), 18)
         self.assertEqual(len(ids["UTA"]), 18)
 
+    def test_official_landing_can_verify_complete_roster_before_puck(self):
+        raw=source()
+        raw["url"]="https://api-web.nhle.com/v1/gamecenter/2026020346/landing"
+        ids,status=certified_dressed_ids(game(),raw)
+        self.assertEqual(status,"OFFICIAL_PREPUCK_DRESSED_ROSTER_VERIFIED")
+        self.assertEqual(len(ids["COL"]),18)
+
+    def test_official_boxscore_roster_spots_are_source_checked(self):
+        raw=source()
+        raw["url"]="https://api-web.nhle.com/v1/gamecenter/2026020346/boxscore"
+        self.assertEqual(certified_dressed_ids(game(),raw)[1],
+                         "OFFICIAL_PREPUCK_DRESSED_ROSTER_VERIFIED")
+        raw["data"]["rosterSpots"] = []
+        self.assertIsNone(certified_dressed_ids(game(),raw)[0])
+
+    def test_arbitrary_external_roster_url_cannot_claim_game_dressed(self):
+        raw=source()
+        raw["url"]="https://example.com/gamecenter/2026020346/landing"
+        self.assertEqual(certified_dressed_ids(game(),raw)[1],
+                         "NOT_OFFICIAL_GAMECENTER_SOURCE")
+
     def test_current_roster_without_prepuck_spots_does_not_confirm(self):
         raw = source()
         raw["data"]["rosterSpots"] = []
