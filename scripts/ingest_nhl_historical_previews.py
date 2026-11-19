@@ -259,8 +259,7 @@ async def ingest_previews(manifest, database, output):
                         "observed_at": published.isoformat().replace("+00:00", "Z"),
                         "payload": payload}
                     signature = hashlib.sha256(json.dumps(
-                        {k:v for k,v in payload.items() if k != "reconstructedAtUTC"},
-                        sort_keys=True).encode()).hexdigest()[:14]
+                        payload, sort_keys=True).encode()).hexdigest()[:14]
                     item["evidence_id"] = (
                         f"nhl-preview-{day}-{item['game_id']}-{player_id}-{signature}")
                     if ingest(con, item):
