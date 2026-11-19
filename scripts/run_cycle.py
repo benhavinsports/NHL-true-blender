@@ -18,6 +18,13 @@ from scripts.publish_site_state import PublicationConflict, _write
 
 ET = ZoneInfo('America/New_York')
 
+def season_start_year(slate_date):
+    """September–August NHL season; 2026-27 begins September 29."""
+    year=int(slate_date[:4])
+    month=int(slate_date[5:7])
+    return year if month>=9 else year-1
+
+
 def _publish_official_grade(root,date,grade,audits,patch_adjudication=None,recipient_audit=None):
     """Attach official final outcome to the SAME saved G18 card.
 
@@ -180,9 +187,7 @@ async def execute_cycle(mode, date, root='state'):
                     # not a hand-entered patch or a new Core. A missed goal
                     # alone NEVER activates a policy.
                     adjudication=adjudicate_misses(con,date,root=root,recipient_audit=recipient_audit)
-                    # The 2026-27 NHL regular season opened September 29.
-                    # September grades belong to the NEW season, not 2025-26.
-                    season_year=int(date[:4]) if int(date[5:7])>=9 else int(date[:4])-1
+                    season_year=season_start_year(date)
                     history=season_history(con,season_year,date,root=root)
                     _write(root/'history'/f'{history["season"]}.json',history)
                     report=_publish_official_grade(root,date,grade,audits,adjudication,recipient_audit)
