@@ -8,7 +8,7 @@
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
     "G10.5": 259,
-    "G16": 265,
+    "G16": 266,
     "G17": 260,
     "Step10.5": 259,
     "Step12": 259,
@@ -18,7 +18,7 @@
     "Step3": 44,
     "Step7": 44,
     "Step10": 44,
-    "G6": 96,
+    "G6": 83,
     "G10": 81,
     "G12": 81,
     "G15": 81,
@@ -49,7 +49,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 108
+      "playerCount": 118
     },
     {
       "masterGates": [
@@ -64,7 +64,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 40
+      "playerCount": 30
     },
     {
       "masterGates": [
@@ -81,7 +81,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 19
+      "playerCount": 20
     },
     {
       "masterGates": [
@@ -113,7 +113,7 @@
         "G18"
       ],
       "overlaySteps": [],
-      "playerCount": 6
+      "playerCount": 7
     },
     {
       "masterGates": [
@@ -214,67 +214,6 @@
     },
     {
       "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
         "G7",
         "G10",
         "G10.5",
@@ -288,6 +227,49 @@
       "overlaySteps": [
         "Step4",
         "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
         "Step10.5",
         "Step12",
         "Step14"
@@ -655,7 +637,6 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
@@ -665,10 +646,8 @@
     {
       "masterGates": [
         "G6",
-        "G7",
         "G10",
         "G10.5",
-        "G11",
         "G12",
         "G15",
         "G16",
@@ -676,8 +655,7 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step4",
-        "Step9",
+        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
@@ -1008,9 +986,23 @@
     {
       "masterGates": [
         "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
         "G18"
       ],
-      "overlaySteps": [],
+      "overlaySteps": [
+        "Step4",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
       "playerCount": 1
     }
   ],
@@ -1115,6 +1107,23 @@
           "lineupSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
           "projectedOrConfirmedEV": {
             "EV": "F4",
+            "PP": 2,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F4",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8470621",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "LAK"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-a8514d36da152a85-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+              }
+            ],
             "line": 4,
             "powerPlayUnit": 2,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1165,9 +1174,12 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F3",
-                "line": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8476469",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1208,6 +1220,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F2",
+                "PP": 1,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8482124",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-304b5cc66dfa2e77-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 2,
                 "powerPlayUnit": 1,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1251,6 +1280,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F2",
+                "PP": 1,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8477942",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-3cffae1dd81ab18b-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 2,
                 "powerPlayUnit": 1,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1294,6 +1340,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F3",
+                "PP": 2,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F3",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8475287",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-ec256f1aa571fb44-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 3,
                 "powerPlayUnit": 2,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1367,6 +1430,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F1",
+                "PP": 1,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F1",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8477960",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-c3071ad701872712-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 1,
                 "powerPlayUnit": 1,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1411,6 +1491,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F1",
+                "PP": 1,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F1",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8482155",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-fde4bb64233166b5-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 1,
                 "powerPlayUnit": 1,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1453,32 +1550,25 @@
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
-                "EV": "F4",
+                "EV": "F3",
+                "PP": null,
                 "conflictingProjectedAssignments": [
                   {
                     "data": {
-                      "EV": "F3",
-                      "line": 3,
-                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                      "status": "PROJECTED"
+                      "EV": "F4",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8476872",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
                     },
-                    "evidenceId": "btl-2026-11-19-CONFIRMED-2026020347-8476872-2026-11-19T23:42:47+00:00",
-                    "observedAt": "2026-11-19T23:42:47+00:00",
-                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
-                  },
-                  {
-                    "data": {
-                      "EV": "F3",
-                      "line": 3,
-                      "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                      "status": "PROJECTED"
-                    },
-                    "evidenceId": "btl-2026-11-19-CONFIRMED-2026020347-8476872-2026-11-19T23:44:23+00:00",
-                    "observedAt": "2026-11-19T23:44:23+00:00",
-                    "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-e61daf70a9c8c420-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
                   }
                 ],
-                "line": 4,
+                "line": 3,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
                 "status": "PROJECTED"
               },
@@ -1521,9 +1611,12 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F4",
-                "line": 4,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8481732",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1644,9 +1737,12 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F1",
-                "line": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8481532",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1686,6 +1782,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "F2",
+                "PP": 2,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "F2",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8475692",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-4be93b7cad2ec72a-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "line": 2,
                 "powerPlayUnit": 2,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1729,9 +1842,12 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "D3",
-                "defensePair": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8479998",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1810,6 +1926,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "D1",
+                "PP": 2,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "D1",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8482730",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-3192a9bb6c0c3537-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "defensePair": 1,
                 "powerPlayUnit": 2,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1855,6 +1988,23 @@
               "rivalAlternateGoalieWeakLane": false,
               "rivalEVRole": {
                 "EV": "D2",
+                "PP": 2,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "D2",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8474563",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-d2a50ff543ef949f-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "defensePair": 2,
                 "powerPlayUnit": 2,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -1898,9 +2048,12 @@
               "rivalAlternateGoalieWeakLane": true,
               "rivalEVRole": {
                 "EV": "D3",
-                "defensePair": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8475208",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1940,9 +2093,12 @@
               "rivalAlternateGoalieWeakLane": true,
               "rivalEVRole": {
                 "EV": "D2",
-                "defensePair": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8476441",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
               "roleReviewIncomplete": false,
               "rule": "direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights",
@@ -1982,6 +2138,23 @@
               "rivalAlternateGoalieWeakLane": true,
               "rivalEVRole": {
                 "EV": "D1",
+                "PP": 1,
+                "corroboratingProjectedEVSources": [
+                  {
+                    "data": {
+                      "EV": "D1",
+                      "doesNotEstablishDressedOrPP": true,
+                      "playerId": "8476979",
+                      "projectedNotConfirmed": true,
+                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                      "status": "PROJECTED",
+                      "team": "LAK"
+                    },
+                    "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-43fae615f2e59514-2026-11-19T23:53:12+00:00",
+                    "observedAt": "2026-11-19T23:53:12+00:00",
+                    "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+                  }
+                ],
                 "defensePair": 1,
                 "powerPlayUnit": 1,
                 "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -2052,32 +2225,25 @@
       "playerId": "8476872",
       "reason": {
         "deployment": {
-          "EV": "F4",
+          "EV": "F3",
+          "PP": null,
           "conflictingProjectedAssignments": [
             {
               "data": {
-                "EV": "F3",
-                "line": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
+                "EV": "F4",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8476872",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
               },
-              "evidenceId": "btl-2026-11-19-CONFIRMED-2026020347-8476872-2026-11-19T23:42:47+00:00",
-              "observedAt": "2026-11-19T23:42:47+00:00",
-              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
-            },
-            {
-              "data": {
-                "EV": "F3",
-                "line": 3,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "evidenceId": "btl-2026-11-19-CONFIRMED-2026020347-8476872-2026-11-19T23:44:23+00:00",
-              "observedAt": "2026-11-19T23:44:23+00:00",
-              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md"
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-e61daf70a9c8c420-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
             }
           ],
-          "line": 4,
+          "line": 3,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
           "status": "PROJECTED"
         }

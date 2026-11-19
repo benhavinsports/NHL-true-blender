@@ -7,7 +7,7 @@
   "coreEligibleSkaterMatrices": 271,
   "currentRunFullyCertified": true,
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-19T23:43:00+00:00",
+    "asOf": "2026-11-19T23:51:01+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 11,
     "gamesWithOnlyOneMatchedGoalie": 1,
@@ -439,14 +439,14 @@
     "allGateRowsPresent": 271,
     "firstNonpassingGateCounts": {
       "FULL_G0_G18_PASS": 3,
-      "G10": 19,
-      "G10.5": 108,
-      "G16": 6,
+      "G10": 20,
+      "G10.5": 118,
+      "G16": 7,
       "G18": 1,
       "G2": 34,
       "G4": 33,
-      "G6": 58,
-      "G7": 3,
+      "G6": 45,
+      "G7": 4,
       "G9": 6
     },
     "g0ResearchNeverCountedAsSurvivingSkater": true,
@@ -617,9 +617,9 @@
         },
         {
           "firstNonpassingGate": "G7",
-          "gameId": "2026020356",
-          "playerId": "8481550",
-          "reasonDisposition": "NOT_EXECUTED"
+          "gameId": "2026020353",
+          "playerId": "8483432",
+          "reasonDisposition": "ELIMINATED"
         }
       ],
       "G9": [
@@ -2090,9 +2090,10 @@
       "8482745",
       "8478440",
       "8481601",
+      "8484166",
       "8478864"
     ],
-    "finalistCount": 10,
+    "finalistCount": 11,
     "finalists": [
       {
         "deploymentStatus": "PROJECTED",
@@ -2213,6 +2214,28 @@
         "player": "Jake Guentzel",
         "playerId": "8477404",
         "routeZone": "Low Slot"
+      },
+      {
+        "deploymentStatus": "PROJECTED",
+        "dominatedBy": [
+          "8481596",
+          "8482745",
+          "8478440",
+          "8476873",
+          "8481601",
+          "8477404",
+          "8478864",
+          "8477476",
+          "8480027"
+        ],
+        "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+        "gameId": "2026020353",
+        "goalieStatus": "EXPECTED",
+        "ownShotsOnGoalInMatchedLane": 8,
+        "ownedGoalsInMatchedLane": 2,
+        "player": "Adam Fantilli",
+        "playerId": "8484166",
+        "routeZone": "L Circle"
       },
       {
         "deploymentStatus": "PROJECTED",
@@ -3396,6 +3419,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8477960",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "LAK"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-c3071ad701872712-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -4103,6 +4143,7 @@
         "evidence": {
           "deployment": {
             "EV": "F2",
+            "PP": 1,
             "line": 2,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -4747,6 +4788,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8477404",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "TBL"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020349-016252640813ad1f-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-tampa-bay-lightning-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -5384,6 +5442,23 @@
         "evidence": {
           "deployment": {
             "EV": "F2",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F2",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8482745",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "STL"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020350-07817f3b391eb7d1-2026-11-19T23:53:14+00:00",
+                "observedAt": "2026-11-19T23:53:14+00:00",
+                "sourceUrl": "https://www.nhl.com/news/st-louis-blues-pittsburgh-penguins-game-preview-november-19-2026"
+              }
+            ],
             "line": 2,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -6014,6 +6089,23 @@
         "evidence": {
           "deployment": {
             "EV": "F2",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F2",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8478440",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "WSH"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020351-c43b06726b51d382-2026-11-19T23:53:11+00:00",
+                "observedAt": "2026-11-19T23:53:11+00:00",
+                "sourceUrl": "https://www.nhl.com/news/buffalo-sabres-washington-capitals-game-preview-november-19-2026"
+              }
+            ],
             "line": 2,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -6660,6 +6752,23 @@
         "evidence": {
           "deployment": {
             "EV": "F4",
+            "PP": 2,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F4",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8476873",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "CAR"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020352-15e8922f24a7a70e-2026-11-19T23:53:13+00:00",
+                "observedAt": "2026-11-19T23:53:13+00:00",
+                "sourceUrl": "https://www.nhl.com/news/montreal-canadiens-carolina-hurricanes-game-preview-november-19-2026"
+              }
+            ],
             "line": 4,
             "powerPlayUnit": 2,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -7090,6 +7199,744 @@
         "status": "PASS"
       }
     ],
+    "2026020353:8484166": [
+      {
+        "evidence": {
+          "attacker": "CBJ",
+          "branchStatus": "EXPECTED",
+          "directionSelectedBeforeSkaters": true,
+          "selectedAttacker": "CBJ",
+          "selectedDefender": "CHI",
+          "targetGoalie": "8481519",
+          "weakZones": {
+            "L Circle": {
+              "goalsAgainst": 8,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1296,
+              "savePctg": 0.8431372549019608,
+              "saves": 43,
+              "shotsAgainst": 51,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "L Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.2778,
+              "savePctg": 0.95,
+              "saves": 19,
+              "shotsAgainst": 20,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Circle": {
+              "goalsAgainst": 9,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1111,
+              "savePctg": 0.7857142857142857,
+              "saves": 33,
+              "shotsAgainst": 42,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.3333,
+              "savePctg": 0.9722222222222222,
+              "saves": 35,
+              "shotsAgainst": 36,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            }
+          }
+        },
+        "gate": "G0",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step0"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://daily.hockey/starting-goalies/2026-11-19",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "venueRestTravel": {
+            "awayLastGameDate": "2026-11-17",
+            "awayPreviousGameId": "2026020336",
+            "awayRestDays": 1,
+            "dataScope": "OFFICIAL_SCHEDULE_NOT_TRAVEL_TRACKING",
+            "gameId": "2026020353",
+            "homeLastGameDate": "2026-11-17",
+            "homePreviousGameId": "2026020338",
+            "homeRestDays": 1,
+            "restIsCalendarDaysBetweenMinusOne": true,
+            "slateDate": "2026-11-19",
+            "sources": [
+              "https://api-web.nhle.com/v1/club-schedule-season/CBJ/20262027",
+              "https://api-web.nhle.com/v1/club-schedule-season/CHI/20262027",
+              "https://api-web.nhle.com/v1/score/2026-11-19"
+            ],
+            "travelDistanceNotInSource": true,
+            "travelMiles": null,
+            "venueAway": "CBJ",
+            "venueHome": "CHI"
+          }
+        },
+        "gate": "G1",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step2"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/score/2026-11-19"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "availability": "DRESSED",
+          "fullPoolSize": 22,
+          "position": "C"
+        },
+        "gate": "G2",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step1"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/roster/CBJ/current"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "goalieSample": {
+            "allZoneObservations": 501,
+            "qualifiedWeakZoneShots": 149
+          },
+          "goalieWeakZones": {
+            "L Circle": {
+              "goalsAgainst": 8,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1296,
+              "savePctg": 0.8431372549019608,
+              "saves": 43,
+              "shotsAgainst": 51,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "L Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.2778,
+              "savePctg": 0.95,
+              "saves": 19,
+              "shotsAgainst": 20,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Circle": {
+              "goalsAgainst": 9,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1111,
+              "savePctg": 0.7857142857142857,
+              "saves": 33,
+              "shotsAgainst": 42,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.3333,
+              "savePctg": 0.9722222222222222,
+              "saves": 35,
+              "shotsAgainst": 36,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            }
+          }
+        },
+        "gate": "G3",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://daily.hockey/starting-goalies/2026-11-19",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
+          "ownRelease": {
+            "attempts": 8,
+            "ownedGoals": 2,
+            "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
+            "zone": "L Circle"
+          }
+        },
+        "gate": "G4",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step5"
+          },
+          {
+            "status": "PASS",
+            "step": "Step7"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "goalieStrengthZones": {
+            "Center Point": {
+              "goalsAgainst": 0,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 1.0,
+              "savePctg": 1.0,
+              "saves": 36,
+              "shotsAgainst": 36,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "Crease": {
+              "goalsAgainst": 4,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.7778,
+              "savePctg": 0.8181818181818182,
+              "saves": 18,
+              "shotsAgainst": 22,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "Outside R": {
+              "goalsAgainst": 0,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 1.0,
+              "savePctg": 1.0,
+              "saves": 20,
+              "shotsAgainst": 20,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            }
+          },
+          "shooterZone": "L Circle",
+          "weakZones": {
+            "L Circle": {
+              "goalsAgainst": 8,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1296,
+              "savePctg": 0.8431372549019608,
+              "saves": 43,
+              "shotsAgainst": 51,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "L Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.2778,
+              "savePctg": 0.95,
+              "saves": 19,
+              "shotsAgainst": 20,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Circle": {
+              "goalsAgainst": 9,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.1111,
+              "savePctg": 0.7857142857142857,
+              "saves": 33,
+              "shotsAgainst": 42,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            },
+            "R Point": {
+              "goalsAgainst": 1,
+              "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+              "leagueSavePctgPercentile": 0.3333,
+              "savePctg": 0.9722222222222222,
+              "saves": 35,
+              "shotsAgainst": 36,
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+            }
+          }
+        },
+        "gate": "G5",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step3"
+          },
+          {
+            "status": "PASS",
+            "step": "Step10"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+          "https://daily.hockey/starting-goalies/2026-11-19"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "deployment": {
+            "EV": "F2",
+            "PP": 2,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F2",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8484166",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "CBJ"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020353-f2b72999b10114b3-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/columbus-blue-jackets-chicago-blackhawks-game-preview-november-19-2026"
+              }
+            ],
+            "line": 2,
+            "powerPlayUnit": 2,
+            "sourceType": "SECONDARY_PROJECTED_LINEUP",
+            "status": "PROJECTED"
+          },
+          "deploymentConflict": false,
+          "projectedNotPromoted": true
+        },
+        "gate": "G6",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step6"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "distinctGoalDates": 1,
+          "positiveDatedShotAppearances": 7
+        },
+        "gate": "G7",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step4"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "market": null,
+          "neutralWhenAbsent": true,
+          "neverRankingShortcut": true
+        },
+        "gate": "G8",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "greenTarget": [
+            "Low Slot",
+            "High Slot",
+            "Point",
+            "L Circle",
+            "R Point",
+            "Center Point"
+          ],
+          "redAvoid": [],
+          "shooterZone": "L Circle",
+          "zoneConcessionEvidence": {
+            "allAttemptsAgainst": 947,
+            "allOnNetShotsAgainst": 497,
+            "attemptShare": 0.10559662090813093,
+            "attemptTypes": [
+              "goal",
+              "shot-on-goal",
+              "missed-shot",
+              "blocked-shot"
+            ],
+            "attemptsAgainst": 100,
+            "attemptsPerGame": 6.25,
+            "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+            "gameCount": 16,
+            "goalsAgainst": 8,
+            "independentOnNetConcessionReview": true,
+            "onNetShotsAgainst": 54,
+            "onNetShotsPerGame": 3.375,
+            "peerMedianAttemptsPerGame": 5.9411764705882355,
+            "peerMedianOnNetShotsPerGame": 3.0625,
+            "peerTeamsCompared": 31,
+            "positiveConcessionBases": [
+              "ATTEMPTS_AGAINST_PEER",
+              "ON_NET_SHOTS_AGAINST_PEER"
+            ]
+          }
+        },
+        "gate": "G9",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step8"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020098/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020114/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020130/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020166/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020180/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020190/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020203/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020217/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020234/play-by-play"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "historicalDirectGoalRecipientVerificationMethod": "RECENT_DATED_PBP_BOXSCORE",
+          "historicalDirectGoalRecipientVerified": true
+        },
+        "gate": "G10",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
+          "https://api-web.nhle.com/v1/player/8484166/game-log/20262027/2"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "allAlternativesScanned": true,
+          "comparisonRows": [
+            {
+              "challengerId": "8475745",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8482660",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8482720",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8479066",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8478904",
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "challengerId": "8480806",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8477497",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8477501",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8479671",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8482705",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8481716",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8485469",
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "challengerId": "8481161",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8479371",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8475790",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8483485",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8478500",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8476923",
+              "status": "DEFEATED"
+            },
+            {
+              "challengerId": "8478460",
+              "status": "DEFEATED"
+            }
+          ]
+        },
+        "gate": "G10.5",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step10.5"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475790/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476923/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477497/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477501/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478460/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478500/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478904/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479066/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479371/now"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "shotContinuation": {
+            "appearanceCount": 9,
+            "datedAppearanceAlignmentVerified": true,
+            "positiveDatedShotAppearances": 7,
+            "positiveShotAppearances": 7,
+            "repeatedOwnShotPressure": true,
+            "undatedShotCountsNotAppearanceProof": false,
+            "valid": true
+          }
+        },
+        "gate": "G11",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step9"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "officialGoalsReconciled": true,
+          "ownership": {
+            "alternateSample": {
+              "data": {
+                "evidenceType": "HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION",
+                "ownedGoals": 5.0,
+                "primaryAssists": 2.0,
+                "recipient": null,
+                "recipientUndetermined": true
+              },
+              "evidenceId": "mp-PLAYER_FINISH_CREDIT-2026-11-19-CONFIRMED-2026020353-8484166-3c9f7814f7083c9aac41",
+              "observedAt": "2026-11-19T22:30:44.187337+00:00",
+              "sourceUrl": "https://moneypuck.com/data.htm"
+            },
+            "creditedGoalsVerified": true,
+            "independentHistoricallyScored": true,
+            "notClaimOfTonightGoalCredit": true,
+            "ownedGoalsInActualAppearances": 1,
+            "recipient": true,
+            "scope": "SAMPLED_RECENT_TEAM_GAMES_ONLY",
+            "seasonGoalSupplement": {
+              "data": {
+                "creditedGoalsVerified": true,
+                "goalMouthPlacementNotVerified": true,
+                "independentHistoricallyScored": true,
+                "notClaimOfTonightGoalCredit": true,
+                "notEightGameSample": true,
+                "ownedSeasonGoalsFromNhlEdgeShotOrigins": 5,
+                "recipient": true,
+                "scope": "CURRENT_SEASON_GOALS_FROM_MEASURED_AREAS",
+                "verifiedSourceType": "NHL_EDGE_SKATER_GOAL_LOCATION_DETAIL"
+              },
+              "evidenceId": "edge-own-goals-2026-11-19-CONFIRMED-2026020353-8484166-06554299b3b3eb",
+              "observedAt": "2026-11-19T22:30:45+00:00",
+              "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now"
+            }
+          }
+        },
+        "gate": "G12",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "date": "2026-11-19",
+          "jersey": 19,
+          "name": "Adam Fantilli"
+        },
+        "gate": "G13",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step13"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "whoAnomalyPhysicallySupported": false
+        },
+        "gate": "G14",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step11"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+          "https://daily.hockey/starting-goalies/2026-11-19"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "directFinisherEvidenceMethod": "POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE",
+          "fullSeasonGoalCreditsReconciledAgainstEdgeOrigins": true,
+          "matchedOriginHasHistoricalGoal": true,
+          "matchedOriginOwnOnNetShots": 8,
+          "officialDatedSeasonGoals": 5,
+          "officialOwnedGoalsInMatchedOrigin": 2,
+          "totalOwnedGoalsFromEveryNhlEdgeOrigin": 5
+        },
+        "gate": "G15",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
+          "https://api-web.nhle.com/v1/player/8484166/game-log/20262027/2"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "crossGameFinalistCompetitionRunsAfterEveryGame": true,
+          "everyOtherActiveTeammate": 19,
+          "includesDepthAndDefense": true
+        },
+        "gate": "G16",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step12"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475790/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476923/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477497/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477501/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478460/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478500/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478904/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479066/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8479371/now"
+        ],
+        "status": "ELIMINATED"
+      },
+      {
+        "evidence": {
+          "goalieBranch": "8481519",
+          "sourceDerivedReviewResolved": true
+        },
+        "gate": "G17",
+        "originalFunctions": [
+          {
+            "status": "PASS",
+            "step": "Step14"
+          }
+        ],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now"
+        ],
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "G16FinalistDecision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+          "G18CoreSlotGrantedOnlyAfterG16": false,
+          "pathClassificationEvidence": {
+            "path": "PRIMARY",
+            "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+            "scoringLane": "L Circle"
+          }
+        },
+        "gate": "G18",
+        "originalFunctions": [],
+        "prePuckRecord": true,
+        "sourceIds": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
+          "https://daily.hockey/starting-goalies/2026-11-19",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "status": "NOT_EXECUTED"
+      }
+    ],
     "2026020354:8481601": [
       {
         "evidence": {
@@ -7284,6 +8131,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 2,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8481601",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "NYI"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020354-43c902a17e5560c6-2026-11-19T23:53:13+00:00",
+                "observedAt": "2026-11-19T23:53:13+00:00",
+                "sourceUrl": "https://www.nhl.com/news/new-york-islanders-winnipeg-jets-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 2,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -7960,6 +8824,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8478864",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "MIN"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020355-1ecb6e1e91f14605-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/minnesota-wild-calgary-flames-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -8658,6 +9539,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8477476",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "COL"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020356-e728e585901902ea-2026-11-19T23:53:11+00:00",
+                "observedAt": "2026-11-19T23:53:11+00:00",
+                "sourceUrl": "https://www.nhl.com/news/anaheim-ducks-colorado-avalanche-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -9305,6 +10203,23 @@
         "evidence": {
           "deployment": {
             "EV": "F1",
+            "PP": 1,
+            "corroboratingProjectedEVSources": [
+              {
+                "data": {
+                  "EV": "F1",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8480027",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "DAL"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020358-dc1141c74c1580e6-2026-11-19T23:53:12+00:00",
+                "observedAt": "2026-11-19T23:53:12+00:00",
+                "sourceUrl": "https://www.nhl.com/news/dallas-stars-vegas-golden-knights-game-preview-november-19-2026"
+              }
+            ],
             "line": 1,
             "powerPlayUnit": 1,
             "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -9764,6 +10679,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020108/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8477960",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "LAK"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-c3071ad701872712-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -9998,6 +10930,7 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020086/play-by-play",
         "deployment": {
           "EV": "F2",
+          "PP": 1,
           "line": 2,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -10157,6 +11090,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020068/play-by-play",
         "deployment": {
           "EV": "F2",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8482745",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "STL"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020350-07817f3b391eb7d1-2026-11-19T23:53:14+00:00",
+              "observedAt": "2026-11-19T23:53:14+00:00",
+              "sourceUrl": "https://www.nhl.com/news/st-louis-blues-pittsburgh-penguins-game-preview-november-19-2026"
+            }
+          ],
           "line": 2,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -10421,6 +11371,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020087/play-by-play",
         "deployment": {
           "EV": "F2",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8478440",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "WSH"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020351-c43b06726b51d382-2026-11-19T23:53:11+00:00",
+              "observedAt": "2026-11-19T23:53:11+00:00",
+              "sourceUrl": "https://www.nhl.com/news/buffalo-sabres-washington-capitals-game-preview-november-19-2026"
+            }
+          ],
           "line": 2,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -10617,6 +11584,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020092/play-by-play",
         "deployment": {
           "EV": "F4",
+          "PP": 2,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F4",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8476873",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CAR"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020352-15e8922f24a7a70e-2026-11-19T23:53:13+00:00",
+              "observedAt": "2026-11-19T23:53:13+00:00",
+              "sourceUrl": "https://www.nhl.com/news/montreal-canadiens-carolina-hurricanes-game-preview-november-19-2026"
+            }
+          ],
           "line": 4,
           "powerPlayUnit": 2,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -10844,11 +11828,11 @@
       "attackTeam": "NYI",
       "candidatesEvaluated": 22,
       "firstNonPassGateCounts": {
-        "G10.5:ELIMINATED": 6,
-        "G10:NOT_EXECUTED": 1,
+        "G10.5:ELIMINATED": 11,
+        "G10:NOT_EXECUTED": 2,
         "G2:NOT_EXECUTED": 1,
         "G4:NOT_EXECUTED": 4,
-        "G6:NOT_EXECUTED": 9
+        "G6:NOT_EXECUTED": 3
       },
       "furthestCandidatesDiagnosticOnly": [],
       "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
@@ -10871,6 +11855,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020114/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 2,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8481601",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "NYI"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020354-43c902a17e5560c6-2026-11-19T23:53:13+00:00",
+              "observedAt": "2026-11-19T23:53:13+00:00",
+              "sourceUrl": "https://www.nhl.com/news/new-york-islanders-winnipeg-jets-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 2,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -11107,6 +12108,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020104/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8477404",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "TBL"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020349-016252640813ad1f-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-tampa-bay-lightning-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -11295,51 +12313,158 @@
       "attackTeam": "CBJ",
       "candidatesEvaluated": 22,
       "firstNonPassGateCounts": {
-        "G10.5:ELIMINATED": 8,
-        "G10.5:NOT_EXECUTED": 1,
+        "G10.5:ELIMINATED": 12,
         "G10:NOT_EXECUTED": 3,
         "G2:ELIMINATED": 1,
         "G4:NOT_EXECUTED": 1,
-        "G6:NOT_EXECUTED": 6,
+        "G6:NOT_EXECUTED": 1,
+        "G7:ELIMINATED": 1,
         "G7:NOT_EXECUTED": 1,
         "G9:NOT_EXECUTED": 1
       },
-      "furthestCandidatesDiagnosticOnly": [
-        {
-          "player": "Charlie Coyle",
-          "playerId": "8475745",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Mathieu Olivier",
-          "playerId": "8479671",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Cole Sillinger",
-          "playerId": "8482705",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Dmitri Voronkov",
-          "playerId": "8481716",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Jake Christiansen",
-          "playerId": "8481161",
-          "stoppedAt": "G10.5:ELIMINATED"
-        }
+      "furthestCandidatesDiagnosticOnly": [],
+      "g16Decision": "EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE",
+      "g16DominatedBy": [
+        "8481596",
+        "8482745",
+        "8478440",
+        "8476873",
+        "8481601",
+        "8477404",
+        "8478864",
+        "8477476",
+        "8480027"
       ],
-      "furthestFirstNonPassGate": "G10.5",
       "gameId": "2026020353",
       "gameStartUTC": "2026-11-20T01:00:00Z",
       "inCore": false,
       "matchup": "CBJ@CHI",
       "opponentTeam": "CHI",
       "poolIsDiagnosticAndNeverSelects": true,
-      "reason": "no candidate passed every pre-Core gate G0-G17",
-      "status": "NO_SURVIVOR",
+      "status": "SURVIVOR",
+      "survivor": {
+        "attackTeam": "CBJ",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+        "deployment": {
+          "EV": "F2",
+          "PP": 2,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484166",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CBJ"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020353-f2b72999b10114b3-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/columbus-blue-jackets-chicago-blackhawks-game-preview-november-19-2026"
+            }
+          ],
+          "line": 2,
+          "powerPlayUnit": 2,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        },
+        "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+        "gameId": "2026020353",
+        "gameStartUTC": "2026-11-20T01:00:00Z",
+        "goalieId": "8481519",
+        "goalieObservedZoneStats": {
+          "goalsAgainst": 8,
+          "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+          "leagueSavePctgPercentile": 0.1296,
+          "savePctg": 0.8431372549019608,
+          "saves": 43,
+          "shotsAgainst": 51,
+          "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+        },
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+        "goalieStatus": "EXPECTED",
+        "independentOpponentDefense": {
+          "allAttemptsAgainst": 947,
+          "allOnNetShotsAgainst": 497,
+          "attemptShare": 0.10559662090813093,
+          "attemptTypes": [
+            "goal",
+            "shot-on-goal",
+            "missed-shot",
+            "blocked-shot"
+          ],
+          "attemptsAgainst": 100,
+          "attemptsPerGame": 6.25,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+          "gameCount": 16,
+          "goalsAgainst": 8,
+          "independentOnNetConcessionReview": true,
+          "onNetShotsAgainst": 54,
+          "onNetShotsPerGame": 3.375,
+          "peerMedianAttemptsPerGame": 5.9411764705882355,
+          "peerMedianOnNetShotsPerGame": 3.0625,
+          "peerTeamsCompared": 31,
+          "positiveConcessionBases": [
+            "ATTEMPTS_AGAINST_PEER",
+            "ON_NET_SHOTS_AGAINST_PEER"
+          ]
+        },
+        "matchup": "CBJ@CHI",
+        "nonRankingDiagnosticOnly": true,
+        "opponentTeam": "CHI",
+        "ownRouteZone": "L Circle",
+        "ownShotsOnGoal": 8,
+        "ownedGoals": 2,
+        "pathClassificationEvidence": {
+          "G10_5DisplacedPrimaryEvidence": [],
+          "G14IndependentWhoAnomalyVerified": false,
+          "G15IndependentFinisherReconciledBeyondMatchedOrigin": false,
+          "competingWHOandTRANSFERPathsUnseparated": false,
+          "explicitDisplacementSourceValidated": false,
+          "fallbackToPrimary": false,
+          "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+          "historicMatchedLaneOwnedGoals": 2,
+          "historicMatchedLaneOwnedGoalsExactlyPreserved": true,
+          "independentTransferDerivedFromG0AndG10_5": false,
+          "laneChangedAfterGoalieFirstG0": false,
+          "neverClaimUnobservedSameLaneGoals": true,
+          "offUsualLaneTransferIntoGoalieWeakLane": false,
+          "originalScoringLane": "L Circle",
+          "path": "PRIMARY",
+          "pathQuotaApplied": false,
+          "positiveDirectGateEvidence": {
+            "G0ThruG17SourcePass": true,
+            "allRelevantChallengersReviewed": true,
+            "goalieWeakAreaDirectlyMatched": true,
+            "historicallyCreditedIndependentGoalRecipient": true,
+            "independentDefenseAreaDirectlyMatched": true,
+            "independentOwnScoringSource": true,
+            "observedOwnOnNetShotsInSelectedLane": true,
+            "opponentContradictionsReviewed": true,
+            "verifiedEVAccess": true
+          },
+          "primaryOriginIsSourceDistinct": true,
+          "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+          "scoringLane": "L Circle",
+          "selectionIndependentOfLabel": true,
+          "sourceUrls": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+            "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
+            "https://daily.hockey/starting-goalies/2026-11-19",
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "unknownIsNotAPath": true,
+          "whoPhysicalMechanism": null
+        },
+        "pathClassificationStatus": "G18_PATH_SOURCE_CERTIFIED",
+        "player": "Adam Fantilli",
+        "playerId": "8484166",
+        "routeLabel": "PRIMARY",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now"
+      },
       "targetGoalieIds": [
         "8481519"
       ]
@@ -11377,6 +12502,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020038/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8478864",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "MIN"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020355-1ecb6e1e91f14605-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/minnesota-wild-calgary-flames-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -11507,6 +12649,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020120/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8477476",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "COL"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020356-e728e585901902ea-2026-11-19T23:53:11+00:00",
+              "observedAt": "2026-11-19T23:53:11+00:00",
+              "sourceUrl": "https://www.nhl.com/news/anaheim-ducks-colorado-avalanche-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -11721,15 +12880,25 @@
       "attackTeam": "SEA",
       "candidatesEvaluated": 25,
       "firstNonPassGateCounts": {
-        "G10.5:ELIMINATED": 7,
+        "G10.5:ELIMINATED": 9,
         "G10.5:NOT_EXECUTED": 1,
         "G2:ELIMINATED": 5,
         "G2:NOT_EXECUTED": 2,
         "G4:NOT_EXECUTED": 2,
-        "G6:NOT_EXECUTED": 7,
+        "G6:NOT_EXECUTED": 5,
         "G9:NOT_EXECUTED": 1
       },
       "furthestCandidatesDiagnosticOnly": [
+        {
+          "player": "Matty Beniers",
+          "playerId": "8482665",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
+        {
+          "player": "Berkly Catton",
+          "playerId": "8484800",
+          "stoppedAt": "G10.5:ELIMINATED"
+        },
         {
           "player": "Jordan Eberle",
           "playerId": "8474586",
@@ -11743,16 +12912,6 @@
         {
           "player": "Bobby McMann",
           "playerId": "8482259",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Mackie Samoskevich",
-          "playerId": "8482713",
-          "stoppedAt": "G10.5:ELIMINATED"
-        },
-        {
-          "player": "Vince Dunn",
-          "playerId": "8478407",
           "stoppedAt": "G10.5:ELIMINATED"
         }
       ],
@@ -11795,6 +12954,23 @@
         "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020051/play-by-play",
         "deployment": {
           "EV": "F1",
+          "PP": 1,
+          "corroboratingProjectedEVSources": [
+            {
+              "data": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8480027",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "DAL"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020358-dc1141c74c1580e6-2026-11-19T23:53:12+00:00",
+              "observedAt": "2026-11-19T23:53:12+00:00",
+              "sourceUrl": "https://www.nhl.com/news/dallas-stars-vegas-golden-knights-game-preview-november-19-2026"
+            }
+          ],
           "line": 1,
           "powerPlayUnit": 1,
           "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -12006,9 +13182,9 @@
     "doesNotSelectChangeOrRegradeCard": true,
     "executionOrderMismatches": [],
     "firstFailureClassificationCounts": {
-      "CROSS_GAME_NOT_SELECTED": 6,
-      "EVIDENCE_INCOMPLETE": 125,
-      "SOURCE_ELIMINATED": 137
+      "CROSS_GAME_NOT_SELECTED": 7,
+      "EVIDENCE_INCOMPLETE": 112,
+      "SOURCE_ELIMINATED": 149
     },
     "firstFailureExamples": [
       {
@@ -12353,8 +13529,8 @@
         "PASS": 190
       },
       "G10.5": {
-        "ELIMINATED": 246,
-        "NOT_EXECUTED": 13,
+        "ELIMINATED": 247,
+        "NOT_EXECUTED": 12,
         "PASS": 12
       },
       "G11": {
@@ -12378,9 +13554,9 @@
         "PASS": 190
       },
       "G16": {
-        "ELIMINATED": 252,
-        "NOT_EXECUTED": 13,
-        "PASS": 6
+        "ELIMINATED": 254,
+        "NOT_EXECUTED": 12,
+        "PASS": 5
       },
       "G17": {
         "NOT_EXECUTED": 260,
@@ -12408,8 +13584,8 @@
         "PASS": 227
       },
       "G6": {
-        "NOT_EXECUTED": 96,
-        "PASS": 175
+        "NOT_EXECUTED": 83,
+        "PASS": 188
       },
       "G7": {
         "ELIMINATED": 16,
@@ -12557,11 +13733,6 @@
         },
         {
           "gameId": "2026020353",
-          "playerId": "8483485",
-          "sourceCount": 21
-        },
-        {
-          "gameId": "2026020353",
           "playerId": "8485469",
           "sourceCount": 1
         },
@@ -12574,6 +13745,11 @@
           "gameId": "2026020357",
           "playerId": "8479324",
           "sourceCount": 1
+        },
+        {
+          "gameId": "2026020357",
+          "playerId": "8481554",
+          "sourceCount": 24
         }
       ],
       "G11": [
@@ -12767,11 +13943,6 @@
         },
         {
           "gameId": "2026020353",
-          "playerId": "8483485",
-          "sourceCount": 21
-        },
-        {
-          "gameId": "2026020353",
           "playerId": "8485469",
           "sourceCount": 1
         },
@@ -12784,6 +13955,11 @@
           "gameId": "2026020357",
           "playerId": "8479324",
           "sourceCount": 1
+        },
+        {
+          "gameId": "2026020357",
+          "playerId": "8481554",
+          "sourceCount": 24
         }
       ],
       "G17": [
@@ -13249,11 +14425,11 @@
       "allNonselectedRetainGateAudit": true,
       "lockedCoreRecipients": 3,
       "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-      "notQualifiedIncompleteEvidence": 10,
+      "notQualifiedIncompleteEvidence": 8,
       "oneSourceSelectedCardPreserved": true,
       "otherNotSelected": 0,
-      "qualifiedButNotChosen": 6,
-      "sourceEliminated": 252,
+      "qualifiedButNotChosen": 7,
+      "sourceEliminated": 253,
       "surveyedEligibleSkaters": 271
     },
     "slateDate": "2026-11-19",
@@ -13272,14 +14448,14 @@
       "G13": 271,
       "G14": 260,
       "G15": 190,
-      "G16": 6,
+      "G16": 5,
       "G17": 11,
       "G18": 3,
       "G2": 237,
       "G3": 271,
       "G4": 227,
       "G5": 227,
-      "G6": 175,
+      "G6": 188,
       "G7": 232,
       "G8": 271,
       "G9": 239
@@ -13324,17 +14500,17 @@
   },
   "missingByGate": {
     "G10": 81,
-    "G10.5": 13,
+    "G10.5": 12,
     "G11": 23,
     "G12": 81,
     "G14": 11,
     "G15": 81,
-    "G16": 13,
+    "G16": 12,
     "G17": 260,
     "G2": 4,
     "G4": 44,
     "G5": 11,
-    "G6": 96,
+    "G6": 83,
     "G7": 23,
     "G9": 32
   },
@@ -13377,6 +14553,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020108/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8477960",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "LAK"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020347-c3071ad701872712-2026-11-19T23:53:12+00:00",
+            "observedAt": "2026-11-19T23:53:12+00:00",
+            "sourceUrl": "https://www.nhl.com/news/los-angeles-kings-toronto-maple-leafs-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -13578,6 +14771,7 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020086/play-by-play",
       "deployment": {
         "EV": "F2",
+        "PP": 1,
         "line": 2,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -13709,6 +14903,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020068/play-by-play",
       "deployment": {
         "EV": "F2",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F2",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8482745",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "STL"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020350-07817f3b391eb7d1-2026-11-19T23:53:14+00:00",
+            "observedAt": "2026-11-19T23:53:14+00:00",
+            "sourceUrl": "https://www.nhl.com/news/st-louis-blues-pittsburgh-penguins-game-preview-november-19-2026"
+          }
+        ],
         "line": 2,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -13944,6 +15155,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020087/play-by-play",
       "deployment": {
         "EV": "F2",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F2",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8478440",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "WSH"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020351-c43b06726b51d382-2026-11-19T23:53:11+00:00",
+            "observedAt": "2026-11-19T23:53:11+00:00",
+            "sourceUrl": "https://www.nhl.com/news/buffalo-sabres-washington-capitals-game-preview-november-19-2026"
+          }
+        ],
         "line": 2,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -14114,6 +15342,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020092/play-by-play",
       "deployment": {
         "EV": "F4",
+        "PP": 2,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F4",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8476873",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "CAR"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020352-15e8922f24a7a70e-2026-11-19T23:53:13+00:00",
+            "observedAt": "2026-11-19T23:53:13+00:00",
+            "sourceUrl": "https://www.nhl.com/news/montreal-canadiens-carolina-hurricanes-game-preview-november-19-2026"
+          }
+        ],
         "line": 4,
         "powerPlayUnit": 2,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -14338,6 +15583,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020114/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 2,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8481601",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "NYI"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020354-43c902a17e5560c6-2026-11-19T23:53:13+00:00",
+            "observedAt": "2026-11-19T23:53:13+00:00",
+            "sourceUrl": "https://www.nhl.com/news/new-york-islanders-winnipeg-jets-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 2,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -14549,6 +15811,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020104/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8477404",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "TBL"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020349-016252640813ad1f-2026-11-19T23:53:12+00:00",
+            "observedAt": "2026-11-19T23:53:12+00:00",
+            "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-tampa-bay-lightning-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -14730,10 +16009,150 @@
       "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477404/now"
     },
     {
+      "attackTeam": "CBJ",
+      "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+      "deployment": {
+        "EV": "F2",
+        "PP": 2,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F2",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8484166",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "CBJ"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020353-f2b72999b10114b3-2026-11-19T23:53:12+00:00",
+            "observedAt": "2026-11-19T23:53:12+00:00",
+            "sourceUrl": "https://www.nhl.com/news/columbus-blue-jackets-chicago-blackhawks-game-preview-november-19-2026"
+          }
+        ],
+        "line": 2,
+        "powerPlayUnit": 2,
+        "sourceType": "SECONDARY_PROJECTED_LINEUP",
+        "status": "PROJECTED"
+      },
+      "deploymentSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+      "gameId": "2026020353",
+      "gameStartUTC": "2026-11-20T01:00:00Z",
+      "goalieId": "8481519",
+      "goalieObservedZoneStats": {
+        "goalsAgainst": 8,
+        "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+        "leagueSavePctgPercentile": 0.1296,
+        "savePctg": 0.8431372549019608,
+        "saves": 43,
+        "shotsAgainst": 51,
+        "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
+      },
+      "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+      "goalieStatus": "EXPECTED",
+      "independentOpponentDefense": {
+        "allAttemptsAgainst": 947,
+        "allOnNetShotsAgainst": 497,
+        "attemptShare": 0.10559662090813093,
+        "attemptTypes": [
+          "goal",
+          "shot-on-goal",
+          "missed-shot",
+          "blocked-shot"
+        ],
+        "attemptsAgainst": 100,
+        "attemptsPerGame": 6.25,
+        "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+        "gameCount": 16,
+        "goalsAgainst": 8,
+        "independentOnNetConcessionReview": true,
+        "onNetShotsAgainst": 54,
+        "onNetShotsPerGame": 3.375,
+        "peerMedianAttemptsPerGame": 5.9411764705882355,
+        "peerMedianOnNetShotsPerGame": 3.0625,
+        "peerTeamsCompared": 31,
+        "positiveConcessionBases": [
+          "ATTEMPTS_AGAINST_PEER",
+          "ON_NET_SHOTS_AGAINST_PEER"
+        ]
+      },
+      "matchup": "CBJ@CHI",
+      "nonRankingDiagnosticOnly": true,
+      "opponentTeam": "CHI",
+      "ownRouteZone": "L Circle",
+      "ownShotsOnGoal": 8,
+      "ownedGoals": 2,
+      "pathClassificationEvidence": {
+        "G10_5DisplacedPrimaryEvidence": [],
+        "G14IndependentWhoAnomalyVerified": false,
+        "G15IndependentFinisherReconciledBeyondMatchedOrigin": false,
+        "competingWHOandTRANSFERPathsUnseparated": false,
+        "explicitDisplacementSourceValidated": false,
+        "fallbackToPrimary": false,
+        "futureAssistOrGoalOutcomeNeverProvedFromHistory": true,
+        "historicMatchedLaneOwnedGoals": 2,
+        "historicMatchedLaneOwnedGoalsExactlyPreserved": true,
+        "independentTransferDerivedFromG0AndG10_5": false,
+        "laneChangedAfterGoalieFirstG0": false,
+        "neverClaimUnobservedSameLaneGoals": true,
+        "offUsualLaneTransferIntoGoalieWeakLane": false,
+        "originalScoringLane": "L Circle",
+        "path": "PRIMARY",
+        "pathQuotaApplied": false,
+        "positiveDirectGateEvidence": {
+          "G0ThruG17SourcePass": true,
+          "allRelevantChallengersReviewed": true,
+          "goalieWeakAreaDirectlyMatched": true,
+          "historicallyCreditedIndependentGoalRecipient": true,
+          "independentDefenseAreaDirectlyMatched": true,
+          "independentOwnScoringSource": true,
+          "observedOwnOnNetShotsInSelectedLane": true,
+          "opponentContradictionsReviewed": true,
+          "verifiedEVAccess": true
+        },
+        "primaryOriginIsSourceDistinct": true,
+        "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger",
+        "scoringLane": "L Circle",
+        "selectionIndependentOfLabel": true,
+        "sourceUrls": [
+          "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now",
+          "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now",
+          "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
+          "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
+          "https://daily.hockey/starting-goalies/2026-11-19",
+          "https://www.betweenthelineshockey.com/tonight.md"
+        ],
+        "unknownIsNotAPath": true,
+        "whoPhysicalMechanism": null
+      },
+      "pathClassificationStatus": "G18_PATH_SOURCE_CERTIFIED",
+      "player": "Adam Fantilli",
+      "playerId": "8484166",
+      "routeLabel": "PRIMARY",
+      "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484166/now"
+    },
+    {
       "attackTeam": "MIN",
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020038/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8478864",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "MIN"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020355-1ecb6e1e91f14605-2026-11-19T23:53:12+00:00",
+            "observedAt": "2026-11-19T23:53:12+00:00",
+            "sourceUrl": "https://www.nhl.com/news/minnesota-wild-calgary-flames-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -14839,6 +16258,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020120/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8477476",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "COL"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020356-e728e585901902ea-2026-11-19T23:53:11+00:00",
+            "observedAt": "2026-11-19T23:53:11+00:00",
+            "sourceUrl": "https://www.nhl.com/news/anaheim-ducks-colorado-avalanche-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -15050,6 +16486,23 @@
       "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020051/play-by-play",
       "deployment": {
         "EV": "F1",
+        "PP": 1,
+        "corroboratingProjectedEVSources": [
+          {
+            "data": {
+              "EV": "F1",
+              "doesNotEstablishDressedOrPP": true,
+              "playerId": "8480027",
+              "projectedNotConfirmed": true,
+              "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+              "status": "PROJECTED",
+              "team": "DAL"
+            },
+            "evidenceId": "nhl-official-projected-line-2026-11-19-CONFIRMED-2026020358-dc1141c74c1580e6-2026-11-19T23:53:12+00:00",
+            "observedAt": "2026-11-19T23:53:12+00:00",
+            "sourceUrl": "https://www.nhl.com/news/dallas-stars-vegas-golden-knights-game-preview-november-19-2026"
+          }
+        ],
         "line": 1,
         "powerPlayUnit": 1,
         "sourceType": "SECONDARY_PROJECTED_LINEUP",
@@ -15252,310 +16705,18 @@
     "allNonselectedRetainGateAudit": true,
     "lockedCoreRecipients": 3,
     "nonselectedGateFailuresDoNotInvalidateCertifiedSurvivors": true,
-    "notQualifiedIncompleteEvidence": 10,
+    "notQualifiedIncompleteEvidence": 8,
     "oneSourceSelectedCardPreserved": true,
     "otherNotSelected": 0,
-    "qualifiedButNotChosen": 6,
-    "sourceEliminated": 252,
+    "qualifiedButNotChosen": 7,
+    "sourceEliminated": 253,
     "surveyedEligibleSkaters": 271
   },
   "slateDate": "2026-11-19",
   "sourceGateBlockerReceipts": [
     {
-      "candidateId": "8475745",
-      "candidateName": "Charlie Coyle",
-      "candidateStoppedAt": "G10.5:ELIMINATED",
-      "gameId": "2026020353",
-      "matchup": "CBJ@CHI",
-      "nonSelectionDiagnosticOnly": true,
-      "recordedOriginalGateEvidence": {
-        "G0": {
-          "evidence": {
-            "branchStatus": "EXPECTED",
-            "directionSelectedBeforeSkaters": true,
-            "targetGoalie": "8481519",
-            "weakZones": {
-              "L Circle": {
-                "goalsAgainst": 8,
-                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.1296,
-                "savePctg": 0.8431372549019608,
-                "saves": 43,
-                "shotsAgainst": 51,
-                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-              },
-              "L Point": {
-                "goalsAgainst": 1,
-                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.2778,
-                "savePctg": 0.95,
-                "saves": 19,
-                "shotsAgainst": 20,
-                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-              },
-              "R Circle": {
-                "goalsAgainst": 9,
-                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.1111,
-                "savePctg": 0.7857142857142857,
-                "saves": 33,
-                "shotsAgainst": 42,
-                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-              },
-              "R Point": {
-                "goalsAgainst": 1,
-                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.3333,
-                "savePctg": 0.9722222222222222,
-                "saves": 35,
-                "shotsAgainst": 36,
-                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-              }
-            }
-          },
-          "sourceUrls": [
-            "https://daily.hockey/starting-goalies/2026-11-19",
-            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481519/now"
-          ],
-          "status": "PASS"
-        },
-        "G10": {
-          "evidence": {
-            "historicalDirectGoalRecipientVerificationMethod": "RECENT_DATED_PBP_BOXSCORE",
-            "historicalDirectGoalRecipientVerified": true
-          },
-          "sourceUrls": [
-            "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
-            "https://api-web.nhle.com/v1/player/8475745/game-log/20262027/2"
-          ],
-          "status": "PASS"
-        },
-        "G15": {
-          "evidence": {
-            "goalSourceReconciledToDatedAppearances": true,
-            "independentHistoricalGoalFinishingEvidence": true,
-            "independentSeasonLogSource": "https://api-web.nhle.com/v1/player/8475745/game-log/20262027/2",
-            "officialDatedSeasonGoals": 3,
-            "officialOwnedGoalsInMatchedOrigin": 0,
-            "seasonAndReleaseGoalCreditsConsistent": true,
-            "separateOfficialShotOriginSource": true
-          },
-          "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-            "https://api-web.nhle.com/v1/gamecenter/2026020206/boxscore",
-            "https://api-web.nhle.com/v1/player/8475745/game-log/20262027/2"
-          ],
-          "status": "PASS"
-        },
-        "G4": {
-          "evidence": {
-            "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
-            "ownRelease": {
-              "allRoutes": [
-                {
-                  "ownedGoals": 2,
-                  "sog": 4,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Crease"
-                },
-                {
-                  "ownedGoals": 1,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Behind the Net"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 12,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Low Slot"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 6,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "R Circle"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 4,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Outside R"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "L Circle"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "L Net Side"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Outside L"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "R Point"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Center Point"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "High Slot"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "L Point"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "Offensive Neutral Zone"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-                  "zone": "R Net Side"
-                }
-              ],
-              "anatomicalPlacementCertified": false,
-              "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
-              "attempts": 2,
-              "canDeterminePrimary": true,
-              "candidateRouteReconstructedFrom": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now",
-              "consideredOwnGoalieWeakRoutes": [
-                "L Circle",
-                "L Point",
-                "R Circle",
-                "R Point"
-              ],
-              "datedPbpLaneTieResolution": {
-                "datedRouteEvidence": [
-                  {
-                    "notAnNhlEdgeAreaPolygon": true,
-                    "ownedGoals": 0,
-                    "scope": "SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
-                    "shotsOnGoal": 2,
-                    "sourceUrls": [
-                      "https://api-web.nhle.com/v1/gamecenter/2026020289/play-by-play",
-                      "https://api-web.nhle.com/v1/gamecenter/2026020319/play-by-play"
-                    ],
-                    "zone": "L Circle"
-                  },
-                  {
-                    "notAnNhlEdgeAreaPolygon": true,
-                    "ownedGoals": 0,
-                    "scope": "SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
-                    "shotsOnGoal": 1,
-                    "sourceUrls": [
-                      "https://api-web.nhle.com/v1/gamecenter/2026020258/play-by-play"
-                    ],
-                    "zone": "R Point"
-                  }
-                ],
-                "matchedTiedNhlEdgeOrigins": [
-                  "L Circle",
-                  "R Point"
-                ],
-                "method": "INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN",
-                "noArbitraryLaneSelection": true,
-                "notAnatomicalPlacement": true
-              },
-              "detail": "Shots on goal, not total attempt counts; historical own goals only",
-              "g0MatchedOwnOriginRoute": true,
-              "g9CoverageSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
-              "g9DefensiveLaneIndependentlyMatched": true,
-              "isAnatomicalReleaseClaim": false,
-              "isTotalShotAttempts": false,
-              "noPreG0SkaterPreference": true,
-              "originalPrimaryOrigin": "Crease",
-              "ownedGoals": 0,
-              "primaryWasTiedBeforeG0": false,
-              "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
-              "zone": "L Circle"
-            }
-          },
-          "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475745/now"
-          ],
-          "status": "PASS"
-        },
-        "G9": {
-          "evidence": {
-            "coverageComparison": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
-            "coverageSourceType": "OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY",
-            "greenTarget": [
-              "Low Slot",
-              "High Slot",
-              "Point",
-              "L Circle",
-              "R Point",
-              "Center Point"
-            ],
-            "redAvoid": [],
-            "shooterZone": "L Circle",
-            "zoneConcessionEvidence": {
-              "allAttemptsAgainst": 947,
-              "allOnNetShotsAgainst": 497,
-              "attemptShare": 0.10559662090813093,
-              "attemptTypes": [
-                "goal",
-                "shot-on-goal",
-                "missed-shot",
-                "blocked-shot"
-              ],
-              "attemptsAgainst": 100,
-              "attemptsPerGame": 6.25,
-              "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
-              "gameCount": 16,
-              "goalsAgainst": 8,
-              "independentOnNetConcessionReview": true,
-              "onNetShotsAgainst": 54,
-              "onNetShotsPerGame": 3.375,
-              "peerMedianAttemptsPerGame": 5.9411764705882355,
-              "peerMedianOnNetShotsPerGame": 3.0625,
-              "peerTeamsCompared": 31,
-              "positiveConcessionBases": [
-                "ATTEMPTS_AGAINST_PEER",
-                "ON_NET_SHOTS_AGAINST_PEER"
-              ]
-            }
-          },
-          "sourceUrls": [
-            "https://api-web.nhle.com/v1/gamecenter/2026020078/play-by-play",
-            "https://api-web.nhle.com/v1/gamecenter/2026020098/play-by-play",
-            "https://api-web.nhle.com/v1/gamecenter/2026020114/play-by-play",
-            "https://api-web.nhle.com/v1/gamecenter/2026020130/play-by-play",
-            "https://api-web.nhle.com/v1/gamecenter/2026020166/play-by-play"
-          ],
-          "status": "PASS"
-        }
-      },
-      "status": "NO_SURVIVOR",
-      "stop": null
-    },
-    {
-      "candidateId": "8474586",
-      "candidateName": "Jordan Eberle",
+      "candidateId": "8482665",
+      "candidateName": "Matty Beniers",
       "candidateStoppedAt": "G10.5:ELIMINATED",
       "gameId": "2026020357",
       "matchup": "VAN@SEA",
@@ -15609,7 +16770,7 @@
           },
           "sourceUrls": [
             "https://api-web.nhle.com/v1/gamecenter/2026020164/boxscore",
-            "https://api-web.nhle.com/v1/player/8474586/game-log/20262027/2"
+            "https://api-web.nhle.com/v1/player/8482665/game-log/20262027/2"
           ],
           "status": "PASS"
         },
@@ -15617,16 +16778,16 @@
           "evidence": {
             "goalSourceReconciledToDatedAppearances": true,
             "independentHistoricalGoalFinishingEvidence": true,
-            "independentSeasonLogSource": "https://api-web.nhle.com/v1/player/8474586/game-log/20262027/2",
+            "independentSeasonLogSource": "https://api-web.nhle.com/v1/player/8482665/game-log/20262027/2",
             "officialDatedSeasonGoals": 5,
-            "officialOwnedGoalsInMatchedOrigin": 1,
+            "officialOwnedGoalsInMatchedOrigin": 3,
             "seasonAndReleaseGoalCreditsConsistent": true,
             "separateOfficialShotOriginSource": true
           },
           "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
             "https://api-web.nhle.com/v1/gamecenter/2026020164/boxscore",
-            "https://api-web.nhle.com/v1/player/8474586/game-log/20262027/2"
+            "https://api-web.nhle.com/v1/player/8482665/game-log/20262027/2"
           ],
           "status": "PASS"
         },
@@ -15636,71 +16797,65 @@
             "ownRelease": {
               "allRoutes": [
                 {
-                  "ownedGoals": 2,
-                  "sog": 4,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "Crease"
-                },
-                {
-                  "ownedGoals": 1,
-                  "sog": 17,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
+                  "ownedGoals": 3,
+                  "sog": 6,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
                   "zone": "Low Slot"
                 },
                 {
                   "ownedGoals": 1,
                   "sog": 3,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "R Circle"
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "L Circle"
                 },
                 {
                   "ownedGoals": 1,
                   "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "R Point"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 3,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "Offensive Neutral Zone"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 3,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "Outside R"
-                },
-                {
-                  "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
                   "zone": "High Slot"
                 },
                 {
                   "ownedGoals": 0,
-                  "sog": 2,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "L Circle"
+                  "sog": 4,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "R Circle"
                 },
                 {
                   "ownedGoals": 0,
                   "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "Beyond Red Line"
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "L Point"
                 },
                 {
                   "ownedGoals": 0,
                   "sog": 1,
-                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
-                  "zone": "L Net Side"
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "Outside L"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "Outside R"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "R Net Side"
+                },
+                {
+                  "ownedGoals": 0,
+                  "sog": 1,
+                  "sourceUrl": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
+                  "zone": "R Point"
                 }
               ],
               "anatomicalPlacementCertified": false,
               "archetype": "OBSERVED_OWN_SHOT_ORIGIN",
-              "attempts": 17,
+              "attempts": 6,
               "canDeterminePrimary": true,
-              "candidateRouteReconstructedFrom": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now",
+              "candidateRouteReconstructedFrom": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now",
               "consideredOwnGoalieWeakRoutes": [
                 "High Slot",
                 "Low Slot",
@@ -15714,15 +16869,15 @@
               "isAnatomicalReleaseClaim": false,
               "isTotalShotAttempts": false,
               "noPreG0SkaterPreference": true,
-              "originalPrimaryOrigin": "Crease",
-              "ownedGoals": 1,
+              "originalPrimaryOrigin": "Low Slot",
+              "ownedGoals": 3,
               "primaryWasTiedBeforeG0": false,
               "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
               "zone": "Low Slot"
             }
           },
           "sourceUrls": [
-            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8474586/now"
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482665/now"
           ],
           "status": "PASS"
         },
@@ -15782,5 +16937,5 @@
   ],
   "stage": "CONFIRMED",
   "survivorOnlyCertification": true,
-  "updatedUTC": "2026-11-19T23:45:02+00:00"
+  "updatedUTC": "2026-11-19T23:53:52+00:00"
 }
