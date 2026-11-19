@@ -187,6 +187,57 @@ def read_unavailable(lines, team):
     return output
 
 
+def goalie_id_index(roster):
+    """NHL season roster is only an ID catalog; the dated article proves presence."""
+    names = {}
+    for player in roster.get("goalies") or []:
+        first = (player.get("firstName") or {}).get("default") or ""
+        last = (player.get("lastName") or {}).get("default") or ""
+        name = (first + " " + last).strip()
+        if name and player.get("id") is not None:
+            names.setdefault(normalize(name), []).append(
+                {"id": str(player["id"]), "name": name})
+    return {key: values[0] for key, values in names.items()
+            if len(values) == 1}
+
+
+def first_listed_projected_goalie(lines, team, roster_goalies):
+    """Resolve an actual goalie name in the *same* dated projected-line section.
+
+    This does not claim a goalie actually played or was CONFIRMED. An unrelated
+    later article/status report cannot establish a pre-slate starter.
+    """
+    nickname = TEAMS[team][1].lower()
+    markers = [i for i, line in enumerate(lines)
+               if line.strip().lower().endswith("projected lineup")
+               and nickname in line.strip().lower()]
+    if len(markers) != 1:
+        return None
+    section = []
+    for line in lines[markers[0]+1:markers[0]+45]:
+        low = line.strip().lower()
+        if ("projected lineup" in low or
+                low.startswith(("scratched:", "injured:", "suspended:", "status report"))):
+            break
+        section.append(line.strip())
+    last_pair = max(
+        (i for i, line in enumerate(section)
+         if len([x for x in re.split(r"\s+--\s+", line) if x.strip()]) == 2),
+        default=-1)
+    if last_pair < 0:
+        return None
+    seen = []
+    for text in section[last_pair+1:]:
+        identity = roster_goalies.get(normalize(text))
+        if identity and identity["id"] not in [x["id"] for x in seen]:
+            seen.append(identity)
+    if not seen:
+        return None
+    return {"goalie": seen[0], "publishedGoalies": seen,
+            "firstListedFromOfficialProjectedLineup": True,
+            "sourceDoesNotConfirmStarter": True}
+
+
 def id_index(roster):
     names = {}
     for section in ("forwards", "defensemen"):
@@ -215,12 +266,13 @@ async def ingest_previews(manifest, database, output):
         async with sem:
             try:
                 source = await nhl.get(f"roster/{team}/{season}")
-                return team, id_index(source["data"]), None
+                return team, id_index(source["data"]), goalie_id_index(source["data"]), None
             except Exception as e:
-                return team, {}, type(e).__name__
+                return team, {}, {}, type(e).__name__
     roster_rows = await asyncio.gather(*(roster(t) for t in teams))
-    identities = {team: ids for team, ids, _ in roster_rows}
-    errors.extend({"team": team, "reason": err} for team, _, err in roster_rows if err)
+    identities = {team: ids for team, ids, _, _ in roster_rows}
+    goalie_identities = {team: ids for team, _, ids, _ in roster_rows}
+    errors.extend({"team": team, "reason": err} for team, _, _, err in roster_rows if err)
     games = [(day, game) for day, row in calendar.items() for game in row.get("games") or []]
     async def preview(day, game):
         url = preview_url(game, day)
@@ -235,6 +287,7 @@ async def ingest_previews(manifest, database, output):
                 return day, game, url, None, type(e).__name__ + ": " + str(e)[:130]
     retrieved = await asyncio.gather(*(preview(day, game) for day, game in games))
     accepted, rejected, receipts = 0, 0, 0
+    projected_goalies = 0
     try:
         for day, game, url, html, error in retrieved:
             if error:
@@ -262,6 +315,40 @@ async def ingest_previews(manifest, database, output):
                 assignments = read_lines(article.lines, team)
                 if len(assignments) < 5:
                     continue
+                goalie_projection = first_listed_projected_goalie(
+                    article.lines, team, goalie_identities.get(team, {}))
+                if goalie_projection:
+                    goalie = goalie_projection["goalie"]
+                    goalie_payload = {
+                        "team": team, "goalieId": goalie["id"],
+                        "goalieName": goalie["name"],
+                        "status": "EXPECTED",
+                        "projectedPreferred": True,
+                        "sourceType": "OFFICIAL_NHL_COM_DATED_PROJECTED_LINEUP",
+                        "sourceReportDate": day,
+                        "sourceArticlePublishedAt": published.isoformat(),
+                        "sourceArticleModifiedAt": modified.isoformat() if modified else None,
+                        "firstListedFromOfficialProjectedLineup": True,
+                        "allPublishedGoalieIds": [
+                            x["id"] for x in goalie_projection["publishedGoalies"]],
+                        "notConfirmedStarterOrPostgameIdentity": True,
+                        "historicalReconstruction": True,
+                        "historicalSourceObservedAtCutoffVerified": False,
+                        "reconstructedAtUTC": datetime.now(timezone.utc).isoformat(),
+                    }
+                    digest = hashlib.sha256(
+                        json.dumps(goalie_payload, sort_keys=True).encode()).hexdigest()[:16]
+                    if ingest(con, {
+                        "evidence_id":
+                            f"nhl-preview-projected-goalie-{day}-{game.get('id')}-{team}-{goalie['id']}-{digest}",
+                        "slate_date": day, "stage": "PROJECTED",
+                        "game_id": str(game.get("id") or game.get("gameId")),
+                        "player_id": goalie["id"], "kind": "GOALIE_STARTER",
+                        "source_url": url,
+                        "observed_at": published.isoformat().replace("+00:00", "Z"),
+                        "payload": goalie_payload,
+                    }):
+                        projected_goalies += 1
                 for name, status in read_unavailable(article.lines, team):
                     player_id = identities.get(team, {}).get(normalize(name))
                     if not player_id:
@@ -326,6 +413,8 @@ async def ingest_previews(manifest, database, output):
             "gamesProbed": len(games), "sourceValidGames": accepted,
             "gamesNotCertified": rejected,
             "playerDeploymentReceipts": receipts,
+            "sourceVerifiedProjectedGoalieReceipts": projected_goalies,
+            "goalieFirstListedInPreviewNeverCalledConfirmed": True,
             "fullCurrentRostersNeverInferred": True,
             "confirmedDeploymentsNeverInferred": True,
             "officialSeasonRosterUsedForIDResolutionOnly": True,
