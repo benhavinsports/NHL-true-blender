@@ -90,8 +90,10 @@ async def grade_ledger(source, target):
             receipt = {'date': row['date'], 'selectionStatus': row['status'],
                        'selectionRowSha256': hashlib.sha256(line.encode('utf-8')).hexdigest()}
             try:
-                if row['status'] != 'REPLAYED':
-                    grade = {'status': 'NOT_REPLAYED'}
+                if row['status'] == 'VERIFIED_OFF_DAY':
+                    grade = {'status': 'VERIFIED_OFF_DAY'}
+                elif row['status'] != 'REPLAYED':
+                    grade = {'status': row['status']}
                 else:
                     card = row['engineResult'].get('card')
                     if not card:
@@ -129,12 +131,40 @@ def main():
     if stage not in ('PROJECTED', 'CONFIRMED') or end < start:
         parser.error('Expected PROJECTED or CONFIRMED and a valid date range')
     failures = 0
+    # Do not classify an independently documented NHL off-day as an engine
+    # failure, and NEVER infer an off-day merely from a missing source bundle.
+    # This is the same point-in-time official calendar contract used by the
+    # season replay builder; no historical player status or goalie is inferred.
+    schedule = manifest.get('officialSchedule') or {}
+    off_days = set(manifest.get('verifiedOffDays') or [])
     with args.output.open('x', encoding='utf-8') as out:
         for offset in range((end - start).days + 1):
             day = (start + timedelta(days=offset)).isoformat()
             bundle = manifest['slates'].get(day)
-            if bundle is None:
-                row = {'date': day, 'status': 'SOURCE_BLOCKED', 'reason': 'No archived pregame bundle'}
+            official = schedule.get(day) if isinstance(schedule, dict) else None
+            verified_off_day = (day in off_days and isinstance(official, dict)
+                                and official.get('verifiedOffDay') is True
+                                and official.get('games') == []
+                                and bool(official.get('source')))
+            if verified_off_day and bundle is not None:
+                row = {'date': day, 'status': 'REPLAY_ERROR',
+                       'reason': 'Off-day schedule contradicts an archived game bundle'}
+                failures += 1
+            elif verified_off_day:
+                row = {'date': day, 'status': 'VERIFIED_OFF_DAY',
+                       'officialScheduleSource': official['source']}
+            elif bundle is None:
+                documented_game = bool(isinstance(official, dict) and
+                                        official.get('games'))
+                row = {
+                    'date': day,
+                    'status': ('SCHEDULED_SOURCE_BLOCKED' if documented_game
+                               else 'SCHEDULE_UNVERIFIED' if day in off_days
+                               else 'SOURCE_BLOCKED'),
+                    'reason': ('Scheduled NHL games have no archived pregame bundle'
+                               if documented_game else
+                               'No independently verified pregame/off-day evidence')
+                }
                 failures += 1
             else:
                 try:
