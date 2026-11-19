@@ -3,22 +3,12 @@ name: NHL True Blender - independent scheduled engine
 # Nov 17 live validation: rerun current original G7/G11/Step4/Step9 eliminations
 # and G0 nonselected research classification with G18 as final assembly only.
 on:
-  # Fully automatic: any merged change to the engine, its scripts, or its
-  # dependencies re-runs the live Blender for the current phase (chosen from
-  # America/New_York time below) and republishes Pages. No manual dispatch.
-  # Engine state commits use GITHUB_TOKEN, which never re-triggers this
-  # workflow, so there is no loop. cancel-in-progress stays false: queued
-  # runs wait; GitHub keeps only the newest pending run, which carries the
-  # latest code. Test-only edits are covered by the separate CI check.
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/nhl-true-blender.yml'
-      - 'run_true_blender.py'
-      - 'nhl_true_blender_engine/**'
-      - '!nhl_true_blender_engine/tests/**'
-      - 'scripts/**'
-      - 'requirements.txt'
+  # Production G0-G18 engine runs on a stable half-hour schedule.
+  # Do NOT start a competing live engine on every code push: rapid source
+  # changes previously kept the authoritative ledger in never-ending
+  # fetch/replay/rebase loops, and queued newer pushes cancelled each other.
+  # Code/test pushes still use blender-verification.yml. The scheduled run
+  # uses the latest verified main revision and publishes the saved results.
   workflow_dispatch:
     inputs:
       date:
