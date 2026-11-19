@@ -15,7 +15,7 @@ def blocked_gate_reasons(errors):
         if "PRE_CORE_REVIEW:" in line:
             counts["CORE_ASSEMBLY_UNRESOLVED"]+=1
             continue
-        found=re.search(r"\\b(G10\\.5|G(?:1[0-8]|[0-9]))\\b",line)
+        found=re.search(r"\b(G10\.5|G(?:1[0-8]|[0-9]))\b",line)
         counts[found.group(1) if found else "OTHER_SOURCE_BLOCKER"]+=1
     return dict(counts)
 
