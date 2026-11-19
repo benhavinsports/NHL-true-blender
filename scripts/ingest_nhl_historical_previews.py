@@ -161,6 +161,32 @@ def read_lines(lines, team):
     return out
 
 
+def read_unavailable(lines, team):
+    """Read official article's own scratched/injured/suspended labels only."""
+    nickname = TEAMS[team][1].lower()
+    matches = [i for i, line in enumerate(lines)
+               if line.strip().lower().endswith("projected lineup")
+               and nickname in line.strip().lower()]
+    if len(matches) != 1:
+        return []
+    output = []
+    for line in lines[matches[0]+1:matches[0]+45]:
+        text = line.strip()
+        low = text.lower()
+        if "projected lineup" in low or low.startswith("status report"):
+            break
+        for prefix, state in (("scratched:", "SCRATCHED"),
+                              ("injured:", "INJURED"),
+                              ("suspended:", "OUT")):
+            if low.startswith(prefix):
+                raw = text[len(prefix):]
+                for part in raw.split(","):
+                    name = re.sub(r"\s*\([^)]*\)", "", part).strip()
+                    if name:
+                        output.append((name, state))
+    return output
+
+
 def id_index(roster):
     names = {}
     for section in ("forwards", "defensemen"):
@@ -236,6 +262,28 @@ async def ingest_previews(manifest, database, output):
                 assignments = read_lines(article.lines, team)
                 if len(assignments) < 5:
                     continue
+                for name, status in read_unavailable(article.lines, team):
+                    player_id = identities.get(team, {}).get(normalize(name))
+                    if not player_id:
+                        continue
+                    status_payload = {
+                        "status": status,
+                        "sourceType": "OFFICIAL_NHL_COM_PROJECTED_LINEUP_ARTICLE",
+                        "sourceArticlePublishedAt": published.isoformat(),
+                        "historicalReconstruction": True,
+                        "historicalSourceObservedAtCutoffVerified": False,
+                        "confirmedDressedNotInferred": True,
+                        "reconstructedAtUTC": datetime.now(timezone.utc).isoformat()}
+                    status_id = hashlib.sha256(json.dumps(
+                        status_payload, sort_keys=True).encode()).hexdigest()[:14]
+                    ingest(con, {
+                        "evidence_id": f"nhl-preview-status-{day}-{game.get('id')}-{player_id}-{status_id}",
+                        "slate_date": day, "stage": "PROJECTED",
+                        "game_id": str(game.get("id") or game.get("gameId")),
+                        "player_id": player_id, "kind": "PLAYER_STATUS",
+                        "source_url": url,
+                        "observed_at": published.isoformat().replace("+00:00", "Z"),
+                        "payload": status_payload})
                 for name, unit, role in assignments:
                     player_id = identities.get(team, {}).get(normalize(name))
                     if not player_id:
