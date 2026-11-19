@@ -70,3 +70,34 @@ def test_duplicate_player_names_are_not_arbitrarily_identified():
     index = id_index(roster)
     assert normalize("A. Same") not in index
     assert index[normalize("Cole Caufield")] == "3"
+
+
+def test_official_nhl_mixed_dash_2026_format_keeps_all_four_lines():
+    """NHL's published lineups mix '--' and a Unicode en dash in one line.
+
+    Treating the Unicode delimiter as part of a player's surname discards the
+    entire fourth forward line and makes a legitimate 18-skater G2 projected
+    pool appear incomplete. Distinct named defenders remain a separate cohort.
+    """
+    synthetic=[
+       "Bruins projected lineup",
+       "Alpha One -- Beta Two -- Gamma Three",
+       "Delta Four -- Epsilon Five -- Zeta Six",
+       "Eta Seven -- Theta Eight -- Iota Nine",
+       "Kappa Ten – Lambda Eleven -- Mu Twelve",
+       "Nu Thirteen -- Xi Fourteen",
+       "Omicron Fifteen — Pi Sixteen",
+       "Rho Seventeen -- Sigma Eighteen",
+       "Goalie Name",
+       "Second Goalie",
+       "Scratched: Unavailable Person",
+       "Red Wings projected lineup",
+       "Other One -- Other Two -- Other Three",
+    ]
+    projected=read_lines(synthetic,"BOS")
+    assert len(projected)==18
+    assert ("Kappa Ten","L4","LW") in projected
+    assert ("Lambda Eleven","L4","C") in projected
+    assert ("Mu Twelve","L4","RW") in projected
+    assert ("Omicron Fifteen","D2","D") in projected
+    assert not any(player.startswith("Other") for player,_,_ in projected)

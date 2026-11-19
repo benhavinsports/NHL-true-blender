@@ -149,7 +149,7 @@ def read_lines(lines, team):
         lo = line.lower()
         if "projected lineup" in lo or lo.startswith(("status report", "scratched:", "injured:", "suspended:")):
             break
-        pieces = [x.strip() for x in re.split(r"\s+--\s+", line) if x.strip()]
+        pieces = [x.strip() for x in re.split(r"\s+(?:--|[–—])\s+", line) if x.strip()]
         if len(pieces) == 3 and forward < 4 and defense == 0:
             forward += 1
             for n, role in zip(pieces, ("LW", "C", "RW")):
@@ -222,7 +222,7 @@ def first_listed_projected_goalie(lines, team, roster_goalies):
         section.append(line.strip())
     last_pair = max(
         (i for i, line in enumerate(section)
-         if len([x for x in re.split(r"\s+--\s+", line) if x.strip()]) == 2),
+         if len([x for x in re.split(r"\s+(?:--|[–—])\s+", line) if x.strip()]) == 2),
         default=-1)
     if last_pair < 0:
         return None
