@@ -104,7 +104,16 @@ def attach(con, snapshot, date, stage):
         # pass with its ORIGINAL label. New confirmed evidence takes precedence.
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC, rowid ASC",(date,)).fetchall()
     else:
-        rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN (?, 'OFFICIAL') ORDER BY observed_at ASC, rowid ASC",(date,stage)).fetchall()
+        # PROJECTED is the skater analysis phase, not a command to throw
+        # away source-confirmed GOALIE_STARTER and GOALIE_PROFILE receipts.
+        # A real pre-cutoff goalie confirmation can coexist with projected
+        # skater availability/deployment. Preserve the actual goalie status
+        # while keeping CONFIRMED player receipts out of PROJECTED gates.
+        rows=con.execute(
+            """SELECT * FROM evidence WHERE slate_date=?
+               AND (stage IN (?, 'OFFICIAL')
+                    OR (stage='CONFIRMED' AND kind IN ('GOALIE_STARTER','GOALIE_PROFILE')))
+               ORDER BY observed_at ASC, rowid ASC""",(date,stage)).fetchall()
     # A goalie profile cannot attach to a starter until the verified starter
     # branch exists. Ordered queries by timestamp alone can silently discard
     # valid earlier scouting whenever the lineup source arrives later.
