@@ -122,3 +122,51 @@ Starting goalies:
         assert ids=={"100"}
     finally:
         con.close()
+
+
+def _deployment_fixture():
+    return {"games":[{"id":"900","away":"AAA","home":"BBB",
+        "goalies":{"AAA":[],"BBB":[]},"coverage":{},
+        "rosters":{"AAA":{"data":{"players":[{"id":"99","name":"Fixture Forward","position":"C"}]}},
+                   "BBB":{"data":{"players":[]}}}}]}
+
+
+def _put_deployment(con, evidence_id, stage, observed, status, line):
+    from nhl_true_blender_engine.enrichment import ingest
+    ingest(con,{"evidence_id":evidence_id,"slate_date":"2026-11-19",
+        "stage":stage,"game_id":"900","player_id":"99",
+        "kind":"PLAYER_DEPLOYMENT","source_url":"https://example.com/"+evidence_id,
+        "observed_at":observed,"payload":{"EV":line,"status":status,
+        "sourceType":"INDEPENDENT_LINEUP_TEST_RECEIPT"}})
+
+
+def test_confirmed_role_resolves_earlier_conflicting_projected_assignments(tmp_path):
+    con=open_db(str(tmp_path/"confirmed-role.sqlite"))
+    try:
+        _put_deployment(con,"early","PROJECTED","2026-11-19T12:00:00Z","PROJECTED","F1")
+        _put_deployment(con,"disagree","PROJECTED","2026-11-19T12:01:00Z","PROJECTED","F2")
+        _put_deployment(con,"confirmed","CONFIRMED","2026-11-19T12:02:00Z","CONFIRMED","F3")
+        snap=_deployment_fixture()
+        attach(con,snap,"2026-11-19","CONFIRMED")
+        skater=snap["games"][0]["rosters"]["AAA"]["data"]["players"][0]
+        assert not skater.get("deploymentConflict")
+        assert skater["deployment"]["data"]["status"]=="CONFIRMED"
+        assert skater["deployment"]["data"]["EV"]=="F3"
+        assert skater["deployment"]["data"]["supersededProjectedConflict"]["conflictingSourceCount"]==1
+    finally:
+        con.close()
+
+
+def test_disagreeing_confirmed_role_receipts_cannot_silently_pass_g6(tmp_path):
+    con=open_db(str(tmp_path/"confirmed-conflict.sqlite"))
+    try:
+        _put_deployment(con,"first","CONFIRMED","2026-11-19T12:00:00Z","CONFIRMED","F1")
+        _put_deployment(con,"second","CONFIRMED","2026-11-19T12:01:00Z","CONFIRMED","F2")
+        snap=_deployment_fixture()
+        attach(con,snap,"2026-11-19","CONFIRMED")
+        skater=snap["games"][0]["rosters"]["AAA"]["data"]["players"][0]
+        assert skater["deploymentConflict"] is True
+        assert skater["deployment"]["data"]["EV"]=="F1"
+        assert len(skater["deployment"]["data"]["conflictingConfirmedAssignments"])==1
+    finally:
+        con.close()
