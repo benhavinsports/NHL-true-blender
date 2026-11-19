@@ -46,6 +46,20 @@ def expected_core_ids(run):
                 if x.get('g16Decision', '').startswith('RETAINED')]
     if [pid for _, pid in retained] != [str(x) for x in g16.get('retainedPlayerIds', [])]:
         return None
+    if g16.get('decisionMode')=='REVALIDATE_AUTHORITATIVE_CARD':
+        from .storage import fingerprint
+        proof=g16.get('canonicalCardPreservation') or {}
+        baseline=proof.get('baselineIdentities') or []
+        known_fingerprint=run.get('fingerprint') or (run.get('card') or {}).get('fingerprint')
+        if (not baseline or fingerprint(baseline)!=proof.get('fingerprint') or
+                known_fingerprint!=proof.get('fingerprint') or
+                set(_ids(baseline))!=set(retained) or
+                len(_ids(baseline))!=len(retained) or
+                proof.get('everyIncumbentRepassedCurrentG0ThroughG17') is not True or
+                proof.get('everyIncumbentRetainedByFullG16Comparison') is not True or
+                proof.get('newRecipientSelected') is not False or
+                proof.get('replacementAuthorized') is not False):
+            return None
     for row in finalists:
         if row.get('g16Decision') == 'EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE':
             if len(row.get('dominatedBy') or []) < int(g16.get('requiredCoreSize') or 99):

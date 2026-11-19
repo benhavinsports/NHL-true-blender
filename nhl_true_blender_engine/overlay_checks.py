@@ -122,6 +122,7 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     emit('Step6',valid_role,
          {'EV':deploy.get('EV'),'PP':deploy.get('PP'),'PK':deploy.get('PK'),
           'sourceStatus':deploy.get('status'),
+          'confirmationSeparatelyLabeled':True,
           'unverifiedSpecialTeamsNotPromoted':deploy.get('PP') is None or deploy.get('PK') is None},
          src(dep))
     # Mandatory archetype tagging occurs before G18's path decision.

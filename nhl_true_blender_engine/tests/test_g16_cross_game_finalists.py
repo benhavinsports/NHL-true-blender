@@ -60,6 +60,34 @@ def test_unseparated_finalists_produce_no_core_and_no_tiebreak():
     assert core == [] and 'PRE_CORE_REVIEW' in errors[0]
 
 
+def test_extra_qualified_game_does_not_reopen_a_revalidated_authoritative_card(tmp_path):
+    from nhl_true_blender_engine.tests.test_engine import snapshot, DATE
+    from nhl_true_blender_engine.storage import get_card
+    con=open_db(str(tmp_path/'authority.sqlite'))
+    try:
+        original=execute(con,snapshot(3),DATE,'PROJECTED')['card']
+        assert original is not None
+        result=execute(con,snapshot(4),DATE,'CONFIRMED')
+        assert result['card']['fingerprint']==original['fingerprint']
+        assert result['g16FinalistCompetition']['comparisonSeparated'] is False
+        assert result['g16FinalistCompetition']['decisionMode']=='REVALIDATE_AUTHORITATIVE_CARD'
+        assert len(result['g16FinalistCompetition']['notSelectedExistingCardPlayerIds'])==1
+        assert certify_gates(con,DATE,'CONFIRMED',4)['selectedCoreOnlyFullyCertified'] is True
+        run={**result,'fingerprint':result['card']['fingerprint']}
+        assert set(expected_core_ids(run))=={
+            (x['gameId'],x['playerId']) for x in original['current_legs']}
+        run['fingerprint']='not-the-authoritative-card'
+        assert expected_core_ids(run) is None
+        # Losing an actual source gate cannot be repaired by the card lock.
+        slate=snapshot(4)
+        slate['games'][0]['rosters']['T1A']['data']['players'][0].pop('deployment')
+        failed=execute(con,slate,DATE,'CONFIRMED')
+        assert failed['card'] is None
+        assert get_card(con,DATE)['fingerprint']==original['fingerprint']
+    finally:
+        con.close()
+
+
 def test_confirmed_goalie_status_is_a_g17_dimension_not_a_weight():
     # Same route evidence; only one finalist has an unconfirmed goalie.
     rows = [finalist(1, 'a', 4, 20, goalie='CONFIRMED', dep='CONFIRMED'),

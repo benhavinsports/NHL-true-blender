@@ -26,11 +26,20 @@ def test_a_projected_finalist_is_explicitly_mixed_not_falsely_confirmed(tmp_path
     s=snapshot()
     s["games"][0]["rosters"]["T1A"]["data"]["players"][0]["deployment"]["data"]["status"]="PROJECTED"
     result=execute(con,s,DATE,"CONFIRMED")
-    assert result["card"] is None  # no certified Core from projected deployment
+    assert result["card"]["stage"]=="MIXED"
     row=con.execute("SELECT details,disposition FROM gates WHERE stage='CONFIRMED' AND player_id='1010' AND gate='G6'").fetchone()
-    assert row["disposition"]=="NOT_EXECUTED"
-    assert 'G6_PROJECTED_DEPLOYMENT_NOT_CONFIRMED' in row["details"]
+    assert row["disposition"]=="PASS"
     assert '"status":"PROJECTED"' in row["details"]
+    con.close()
+
+def test_missing_deployment_still_blocks_mixed_card(tmp_path):
+    con=open_db(str(tmp_path/"missing.sqlite"))
+    s=snapshot()
+    s["games"][0]["rosters"]["T1A"]["data"]["players"][0].pop("deployment")
+    result=execute(con,s,DATE,"CONFIRMED")
+    assert result["card"] is None
+    row=con.execute("SELECT disposition FROM gates WHERE gate='G6' AND player_id='1010'").fetchone()
+    assert row["disposition"]=="NOT_EXECUTED"
     con.close()
 
 def test_earlier_profile_survives_new_confirmed_starter_of_same_identity(tmp_path):

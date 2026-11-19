@@ -184,6 +184,12 @@ def verify_published_core(root: Path, date: str):
                  leg.get("totalMaster") == len(MASTER),
                  who + " lacks the original G0-G18 gates or embedded functions")
         trace = leg.get("gateDetails") or []
+        if card.get('stage')=='CONFIRMED':
+            evidence_by_gate={x.get('gate'):x.get('evidence') or {} for x in trace}
+            _require(evidence_by_gate.get('G0',{}).get('branchStatus')=='CONFIRMED' and
+                     evidence_by_gate.get('G2',{}).get('confirmedDressed') is True and
+                     (evidence_by_gate.get('G6',{}).get('deployment') or {}).get('status')=='CONFIRMED',
+                     who + ' fully confirmed card contains unconfirmed source inputs')
         _require([x.get("gate") for x in trace] == list(ORDER),
                  who + " missing, duplicated, or reordered gate receipts")
         puck = datetime.fromisoformat(str(leg["startUTC"]).replace("Z","+00:00"))

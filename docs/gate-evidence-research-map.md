@@ -25,6 +25,20 @@ The **one** gate order is G0, G1–G10, G10.5, G11–G18. Historical Step0–Ste
 | G17 | Goal/role/opponent strength/rival contradiction review | `contradiction_review`, `rival_scope`; G17/Step14 | Conflicting evidence remains unresolved unless source-reconciled; only previously eliminated rivals are excluded |
 | G18 | Final verified Core assembly from G16-retained survivors; only final recipients PASS | `engine.execute`, `core_identity`, `scripts.publish_site_state`, `scripts.verify_published_core` | No manual Core, re-ranking, or G18 PASS for non-Core game survivors |
 
+The research phase and the source confirmation status are separate. G6 accepts
+a dated, exact-ID projected or confirmed EV assignment with its actual label.
+A confirmed-input refresh may therefore produce a `MIXED` card. It cannot label
+that card `CONFIRMED` until the selected starters, dressed status and EV roles
+are all independently confirmed. Missing roles and actual lineup conflicts
+remain failures; no projected status is upgraded by reuse.
+
+For an already issued authoritative card, all incumbent recipients must pass
+the current G0-G17 source checks and remain in the full G16 comparison. An
+additional qualifying game alone does not authorize reopening that card.
+G16 records the original card identity, version and every alternative before
+G18 revalidates those same recipients. A failed incumbent is never rescued by
+this lock, and a first issuance still requires unique G16 separation.
+
 ### Failure categories and historical evidence
 
 Collection failures, stale or incorrect dates, impossible official-ID joins, unresolved contradictions, valid route eliminations, and G16 nonselection are **different** states. `gate_input_diagnostics`, `first_gate_audit` and published `gameSurvivorPool` retain different receipts. New output uses `preCoreQualifiedSurvivors`; archived `state/` files are immutable and may require the explicit read-only legacy-key fallback.

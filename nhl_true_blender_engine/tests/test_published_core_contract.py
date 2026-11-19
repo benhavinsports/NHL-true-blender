@@ -46,6 +46,28 @@ def test_saved_engine_core_passes_one_original_gate_sequence(tmp_path):
     assert all(x["checks"]==len(EXECUTION_ORDER) for x in result["selected"])
 
 
+def test_mixed_card_verifies_original_gates_without_claiming_confirmed_roles(tmp_path):
+    con=open_db(str(tmp_path/'mixed.sqlite'))
+    try:
+        slate=snapshot(2)
+        slate['games'][0]['rosters']['T1A']['data']['players'][0]['deployment']['data']['status']='PROJECTED'
+        result=execute(con,slate,DATE,'CONFIRMED')
+        assert result['card']['stage']=='MIXED'
+        result['gateCertification']=certify_gates(con,DATE,'CONFIRMED',2)
+        status=export_run(con,DATE,'CONFIRMED',result,tmp_path)
+        assert status['selectedCoreFullyCertified'] is True
+        export_dashboard(con,DATE,'CONFIRMED',slate,tmp_path)
+        assert verify_published_core(tmp_path,DATE)['status']=='ORIGINAL_G0_G18_CORE_VERIFIED'
+        card=json.loads((tmp_path/'site_cards'/f'{DATE}.json').read_text())
+        assert card['stage']=='MIXED'
+        card['stage']='CONFIRMED'
+        (tmp_path/'site_cards'/f'{DATE}.json').write_text(json.dumps(card))
+        with pytest.raises(AssertionError,match='fully confirmed card contains unconfirmed'):
+            verify_published_core(tmp_path,DATE)
+    finally:
+        con.close()
+
+
 @pytest.mark.parametrize("mutate",[
     lambda run,card,g: g["legs"][0]["gateDetails"].pop(11),
     lambda run,card,g: g["legs"][0]["gateDetails"][11].update(

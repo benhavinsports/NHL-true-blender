@@ -20,8 +20,10 @@ def test_g14_needs_real_review_not_constant_true():
 
 def test_confirmed_phase_cannot_promote_projected_deployment():
     dep={'deployment':{'EV':'F1','status':'PROJECTED'}}
-    assert 'G6_PROJECTED_DEPLOYMENT_NOT_CONFIRMED' in audit_gate(
+    assert 'G6_PROJECTED_DEPLOYMENT_MISLABELED' in audit_gate(
         'G6',dep,['https://lineup.example'],'CONFIRMED')
+    dep['projectedNotPromoted']=True
+    assert audit_gate('G6',dep,['https://lineup.example'],'CONFIRMED')==[]
     assert audit_gate('G6',dep,['https://lineup.example'],'PROJECTED')==[]
 
 def test_g15_separate_own_goal_source_and_g17_real_rink_review_not_fake_anatomy():
@@ -44,7 +46,10 @@ def test_g15_separate_own_goal_source_and_g17_real_rink_review_not_fake_anatomy(
     sources=['https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/99/now']
     assert audit_gate('G17',g17,sources,'PROJECTED')==[]
     gaps=audit_gate('G17',g17,sources,'CONFIRMED')
-    assert gaps==['G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED']
+    assert gaps==['G17_LINEUP_SOURCE_STATUS_NOT_SEPARATELY_LABELED']
+    g17['counterevidence']['lineupDisagreementReview']['projectedOrConfirmedEV']={
+        'EV':'F1','status':'PROJECTED'}
+    assert audit_gate('G17',g17,sources,'CONFIRMED')==[]
     g17['counterevidence']['lineupDisagreementReview']['isTrulyConfirmed']=True
     assert audit_gate('G17',g17,sources,'CONFIRMED')==[]
 

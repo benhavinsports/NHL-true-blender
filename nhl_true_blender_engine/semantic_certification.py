@@ -40,7 +40,10 @@ def audit_gate(gate, evidence, source_ids, stage):
         need(e.get('availability') in ('DRESSED','CONFIRMED','PROJECTED_ACTIVE','UNVERIFIED'),
              'G2_STATUS_INELIGIBLE')
         if stage=='CONFIRMED':
-            need(e.get('confirmedDressed') is True,'G2_DRESSED_STATUS_NOT_CONFIRMED')
+            need(e.get('confirmedDressed') is True or
+                 (e.get('availability')=='PROJECTED_ACTIVE' and
+                  e.get('projectedAvailabilitySourceReviewed') is True),
+                 'G2_CURRENT_AVAILABILITY_NOT_SOURCE_VERIFIED')
     elif gate=='G3':
         need(e.get('opposingGoalieBranchReviewed') is True,'G3_GOALIE_BRANCH_NOT_REVIEWED')
         need(bool(e.get('goalieSample')) and bool(e.get('goalieWeakZones')) and
@@ -57,7 +60,11 @@ def audit_gate(gate, evidence, source_ids, stage):
         need(bool(d.get('EV')) and d.get('status') in ('PROJECTED','CONFIRMED'),
              'G6_DEPLOYMENT_NOT_PROVED')
         if stage=='CONFIRMED':
-            need(d.get('status')=='CONFIRMED','G6_PROJECTED_DEPLOYMENT_NOT_CONFIRMED')
+            # CONFIRMED is the research pass, not a rewrite of source status.
+            # G6 evaluates the dated role; G18 retains MIXED until every
+            # selected goalie, dressed status and role is truly confirmed.
+            need(d.get('status')!='PROJECTED' or e.get('projectedNotPromoted') is True,
+                 'G6_PROJECTED_DEPLOYMENT_MISLABELED')
     elif gate=='G7':
         need(bool(e.get('eventLogReconciled')),'G7_GAME_LOG_NOT_RECONCILED')
         need(e.get('datedScoringOrShotRecurrence') is True and
@@ -205,8 +212,12 @@ def audit_gate(gate, evidence, source_ids, stage):
                  goalie_review.get('strongerAreaContradiction') is False,
                  'G17_OBSERVED_GOALIE_STRENGTH_CONTRADICTION_NOT_CLEARED')
             if stage=='CONFIRMED':
-                need((c.get('lineupDisagreementReview') or {}).get('isTrulyConfirmed') is True,
-                     'G17_LINEUP_DISAGREEMENT_NOT_CONFIRMED')
+                lineup=c.get('lineupDisagreementReview') or {}
+                need(lineup.get('isTrulyConfirmed') is True or (
+                     lineup.get('isTrulyConfirmed') is False and
+                     lineup.get('hasProjectedOrConfirmedRole') is True and
+                     (lineup.get('projectedOrConfirmedEV') or {}).get('status')=='PROJECTED'),
+                     'G17_LINEUP_SOURCE_STATUS_NOT_SEPARATELY_LABELED')
     elif gate=='G18':
         # This is only a carry-through receipt for final Core assembly.
         # The original earlier gates already certify each source; G18 never
@@ -245,8 +256,8 @@ def audit_gate(gate, evidence, source_ids, stage):
             need(bool(e.get('EV')) and e.get('sourceStatus') in ('PROJECTED','CONFIRMED'),
                  'STEP6_DEPLOYMENT_NOT_PROVED')
             if stage=='CONFIRMED':
-                need(e.get('sourceStatus')=='CONFIRMED',
-                     'STEP6_PROJECTED_NOT_CONFIRMED')
+                need(e.get('confirmationSeparatelyLabeled') is True,
+                     'STEP6_CONFIRMATION_STATUS_NOT_LABELED')
         elif gate=='Step7': need(bool(e.get('directOwnShotOrigin')),
                                  'STEP7_SHOOTER_ARCHETYPE_NOT_TAGGED')
         elif gate=='Step8': need(e.get('actualShiftByShiftObserved') is True and

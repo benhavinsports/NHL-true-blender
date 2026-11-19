@@ -1012,6 +1012,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'position':position,
           'currentRosterNotEquivalentToDressed':True,
           'confirmedDressed':eligibility in ('DRESSED','CONFIRMED'),
+          'projectedAvailabilitySourceReviewed':bool(
+              eligibility=='PROJECTED_ACTIVE' and
+              receipt(player.get('availabilitySource')) and
+              evidence_data(player['availabilitySource']).get('status')=='PROJECTED_ACTIVE'),
           'lineupStillRequiresIndependentG6':True},
          eliminate=eligibility in ('OUT','SCRATCHED','INJURED'),
          source_ids=[roster['sourceUrl']] if receipt(roster) else [])
@@ -1567,6 +1571,57 @@ def cross_game_winners(winners, slate_size):
                    f'but Core {required} requires exactly {required}; G18 cannot '
                    'rank, preselect, or eliminate any of them']
     return list(winners),[]
+
+
+def revalidate_authoritative_finalists(con, date, finalists, receipt, required):
+    """Apply the existing single-card lock after every live gate was rechecked.
+
+    An additional qualified game does not, by itself, fail an incumbent's
+    route or authorize replacing a saved card. First issuance still requires
+    unique G16 separation. A missing/failed incumbent is never rescued here.
+    """
+    if not receipt or receipt.get('separated'):
+        return finalists, receipt
+    prior=get_card(con,date)
+    if not prior:
+        return finalists, receipt
+    legs=prior.get('current_legs') or []
+    keys={(str(x['gameId']),str(x['playerId'])) for x in legs}
+    if len(legs)!=required or len(keys)!=required or len({x[0] for x in keys})!=required:
+        return finalists, receipt
+    by_key={(str(x['game']['id']),str(x['candidate']['player']['id'])):x for x in finalists}
+    if not keys.issubset(by_key):
+        return finalists, receipt  # a current source gate defeated an old leg
+    version=con.execute(
+        'SELECT fingerprint,created_at FROM card_versions WHERE slate_date=? AND revision=?',
+        (date,prior['revision'])).fetchone()
+    if not version or version['fingerprint']!=prior['fingerprint'] or fingerprint(legs)!=prior['fingerprint']:
+        return finalists, receipt
+    proof={
+        'cardId':prior['card_id'],'fingerprint':prior['fingerprint'],
+        'baselineRevision':prior['revision'],'baselineCreatedAt':version['created_at'],
+        'baselineIdentities':[{'gameId':str(x['gameId']),'playerId':str(x['playerId'])} for x in legs],
+        'everyIncumbentRepassedCurrentG0ThroughG17':True,
+        'everyIncumbentRetainedByFullG16Comparison':True,
+        'newRecipientSelected':False,'replacementAuthorized':False,
+        'reason':'Additional qualifying games do not defeat a saved recipient or authorize a second Core',
+    }
+    revised={**receipt,'decisionMode':'REVALIDATE_AUTHORITATIVE_CARD',
+             'comparisonSeparated':False,
+             'comparisonRetainedPlayerIds':receipt['retainedPlayerIds'],
+             'canonicalCardPreservation':proof,'separated':True}
+    rows=[]
+    for row in receipt['finalists']:
+        key=(str(row['gameId']),str(row['playerId']))
+        if row['g16Decision'].startswith('RETAINED'):
+            row={**row,'g16Decision':('RETAINED_REVALIDATED_AUTHORITATIVE_RECIPIENT' if key in keys
+                                    else 'NOT_SELECTED_NO_GATE_CHANGING_REPLACEMENT')}
+        rows.append(row)
+    revised['finalists']=rows
+    revised['retainedPlayerIds']=[r['playerId'] for r in rows if r['g16Decision'].startswith('RETAINED')]
+    revised['notSelectedExistingCardPlayerIds']=[r['playerId'] for r in rows
+        if r['g16Decision']=='NOT_SELECTED_NO_GATE_CHANGING_REPLACEMENT']
+    return [x for x in finalists if (str(x['game']['id']),str(x['candidate']['player']['id'])) in keys], revised
 
 
 def _authorized_retraction_reselection(con, existing, legs, selected, date, stage):
@@ -2686,6 +2741,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     if len(qualified)>required_core and len(
             {str(x['game']['id']) for x in qualified})==len(qualified):
         finalists,g16_receipt=g16_cross_game_finalists(qualified,required_core)
+        finalists,g16_receipt=revalidate_authoritative_finalists(
+            con,date,finalists,g16_receipt,required_core)
     chosen,selection_errors=cross_game_winners(finalists,len(games))
     if g16_receipt and not g16_receipt['separated']:
         selection_errors.insert(0,
@@ -2777,6 +2834,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             evidence_stage=stage
             if stage=='CONFIRMED' and any(
                 x['targetGoalie']['data'].get('status')!='CONFIRMED' or
+                x['candidate']['player'].get('availability') not in ('DRESSED','CONFIRMED') or
                 (x['candidate']['player'].get('deployment') or {}).get('data',{}).get('status')!='CONFIRMED'
                 for x in chosen):
                 evidence_stage='MIXED'
