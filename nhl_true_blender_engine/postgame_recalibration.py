@@ -566,10 +566,15 @@ def official_route_calibration(root, frozen_cards):
 
 
 def season_history(con,season_start_year,through_date,root=None):
-    """Graded cards from October of start year; up to three real slates/month."""
+    """Graded regular-season cards from September; up to three real slates/month.
+
+    The official 2026-27 NHL regular season began on September 29, 2026.
+    October-only indexing silently dropped those genuine opening-night
+    G18 grades and any causally validated postgame patches.
+    """
     setup(con)
-    start=f"{season_start_year}-10-01"
-    end=f"{season_start_year+1}-09-30"
+    start=f"{season_start_year}-09-01"
+    end=f"{season_start_year+1}-08-31"
     if through_date<start:raise ValueError("Season history ends before its tracking window")
     rows=con.execute("""SELECT g.slate_date,g.card_id,g.result,g.legs,
                 g.official_sources,c.current_legs,c.fingerprint,c.revision
