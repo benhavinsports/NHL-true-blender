@@ -52,7 +52,10 @@ def test_frozen_three_cannot_verify_new_four_survivor_run(tmp_path):
     (folder / (DATE + ".json")).write_text(json.dumps(card))
     result = export_run(None, DATE, "PROJECTED", _result(), root=tmp_path)
     assert result["currentRunFullyCertified"] is False
-    assert result["publishedToSite"] is False
+    # New four-survivor source evidence is uncertified, while the independently
+    # issued historical three-recipient Core stays on the public site.
+    assert result["publishedToSite"] is True
+    assert result["historicalCardIsNotCurrentRunCertification"] is True
     assert result["retainedOriginalLockedCard"] is True
     assert result["publicationDecision"] == "G18_UPSTREAM_SURVIVORS_UNRESOLVED"
     assert result["qualifiedSurvivorCount"] == 4
