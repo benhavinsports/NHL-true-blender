@@ -4,6 +4,7 @@ No endpoint accepts a 'selected player' or scores submitted by clients. Imported
 are raw source evidence and the engine alone handles candidate elimination.
 """
 import json
+from datetime import datetime
 from .storage import record_evidence
 from .goalie_zones import validate_goal_zone_evidence
 from .goalie_baselines import compare_goalie_to_baseline
@@ -97,6 +98,19 @@ def _attach_goalie_profile(prior, wrapper):
     return True
 
 
+def _same_ev_assignment(left, right):
+    """Provider L1 and F1 both denote forward line 1; D1 stays distinct.
+
+    Compare assignment identities without editing immutable source labels.
+    Unknown labels receive no inferred equivalence.
+    """
+    def identity(value):
+        if isinstance(value,str) and len(value)==2 and value[0] in ('L','F') and value[1] in '1234':
+            return 'F'+value[1]
+        return value
+    return identity(left)==identity(right)
+
+
 def attach(con, snapshot, date, stage):
     """Project/confirmed remain independent. Projected does not become confirmed by reuse."""
     if stage in ('WATCH','CONFIRMED'):
@@ -104,16 +118,43 @@ def attach(con, snapshot, date, stage):
         # pass with its ORIGINAL label. New confirmed evidence takes precedence.
         rows=con.execute("SELECT * FROM evidence WHERE slate_date=? AND stage IN ('OFFICIAL','PROJECTED','CONFIRMED') ORDER BY observed_at ASC, rowid ASC",(date,)).fetchall()
     else:
-        # PROJECTED is the skater analysis phase, not a command to throw
-        # away source-confirmed GOALIE_STARTER and GOALIE_PROFILE receipts.
-        # A real pre-cutoff goalie confirmation can coexist with projected
-        # skater availability/deployment. Preserve the actual goalie status
-        # while keeping CONFIRMED player receipts out of PROJECTED gates.
+        # PROJECTED is the skater analysis phase, not a command to drop a
+        # source-confirmed GOALIE_STARTER or GOALIE_PROFILE. A dated goalie
+        # confirmation may coexist with projected skater deployment; preserve
+        # its real goalie status without promoting any confirmed player data.
         rows=con.execute(
             """SELECT * FROM evidence WHERE slate_date=?
                AND (stage IN (?, 'OFFICIAL')
                     OR (stage='CONFIRMED' AND kind IN ('GOALIE_STARTER','GOALIE_PROFILE')))
                ORDER BY observed_at ASC, rowid ASC""",(date,stage)).fetchall()
+    # Re-read each provider's current revision, not every role it reported
+    # earlier today. Two CURRENT providers can disagree; one provider updating
+    # its own projection is not an independent contradiction forever.
+    groups={}
+    for row in rows:
+        if row['kind']!='PLAYER_DEPLOYMENT':
+            continue
+        data=json.loads(row['payload'])
+        key=(row['game_id'],str(row['player_id']),row['source_url'],data.get('status'))
+        groups.setdefault(key,[]).append(row)
+    current_ids=set()
+    for group in groups.values():
+        try:
+            clocks=[datetime.fromisoformat(r['observed_at'].replace('Z','+00:00')) for r in group]
+            if any(x.tzinfo is None for x in clocks):
+                raise ValueError('Unverified source revision clock')
+            latest=max(clocks)
+            current_ids.update(r['evidence_id'] for r,t in zip(group,clocks) if t==latest)
+        except (ValueError,TypeError):
+            current_ids.update(r['evidence_id'] for r in group)
+    refreshed={(r['game_id'],str(r['player_id'])) for r in rows if r['kind']=='PLAYER_DEPLOYMENT'}
+    for game in snapshot['games']:
+        for roster in game.get('rosters',{}).values():
+            for player in (roster or {}).get('data',{}).get('players',[]):
+                if (game['id'],str(player.get('id'))) in refreshed:
+                    player.pop('deployment',None)
+                    player.pop('deploymentConflict',None)
+    rows=[r for r in rows if r['kind']!='PLAYER_DEPLOYMENT' or r['evidence_id'] in current_ids]
     # A goalie profile cannot attach to a starter until the verified starter
     # branch exists. Ordered queries by timestamp alone can silently discard
     # valid earlier scouting whenever the lineup source arrives later.
@@ -252,15 +293,69 @@ def attach(con, snapshot, date, stage):
                                 data.get('status')!='CONFIRMED'):
                                 prior.setdefault('projectedAlternatives',[]).append(wrapper)
                                 continue
+                            if (prior.get('status')=='CONFIRMED' and
+                                data.get('status')=='CONFIRMED' and
+                                prior.get('EV') and data.get('EV') and
+                                prior['EV']!=data['EV']):
+                                # Two independently dated confirmed roles
+                                # disagree: never silently choose whichever
+                                # source arrived last to pass G6.
+                                prior.setdefault('conflictingConfirmedAssignments',[]).append(wrapper)
+                                p['deploymentConflict']=True
+                                continue
+                            if (prior.get('status')=='PROJECTED' and
+                                data.get('status')=='CONFIRMED'):
+                                # A genuine confirmed role supersedes earlier
+                                # contradictory PROJECTIONS; a sticky Boolean
+                                # must not keep G6 failing after resolution.
+                                # Keep the older disagreement for audit.
+                                if p.get('deploymentConflict'):
+                                    wrapper['data']['supersededProjectedConflict']={
+                                        'previousEvidenceId':previous.get('evidenceId'),
+                                        'conflictingSourceCount':len(
+                                            prior.get('conflictingProjectedAssignments') or [])}
+                                p.pop('deploymentConflict',None)
+                            # Same-EV independent NHL.com lineup evidence
+                            # must not erase separately sourced BTL PP/PK unit
+                            # assignments just because the official article
+                            # does not publish special teams. Retain the more
+                            # complete original receipt as the authority and
+                            # preserve the new source as independent EV support.
+                            # This is NOT a unit inference or a status upgrade.
+                            if (prior.get('status')=='PROJECTED' and
+                                data.get('status')=='PROJECTED' and
+                                prior.get('EV') and prior.get('EV')==data.get('EV')
+                                and (('PP' in prior and prior.get('PP') is not None
+                                      and data.get('PP') is None)
+                                     or ('PK' in prior and prior.get('PK') is not None
+                                         and data.get('PK') is None))):
+                                prior.setdefault('corroboratingProjectedEVSources',[]).append(wrapper)
+                                continue
                             # Keep contradictory projected assignments visible
                             # rather than silently replacing the earlier one.
                             if (prior.get('status')=='PROJECTED' and
                                 data.get('status')=='PROJECTED' and
                                 prior.get('EV') and data.get('EV') and
-                                prior.get('EV')!=data.get('EV')):
+                                not _same_ev_assignment(prior.get('EV'),data.get('EV'))):
                                 prior.setdefault('conflictingProjectedAssignments',[]).append(wrapper)
                                 p['deploymentConflict']=True
                                 continue
+                        if kind=='PLAYER_GOAL_EVENTS' and p.get(fld):
+                            # A raw sampled PBP receipt has no independent
+                            # boxscore reconciliation. Preserve it for audit
+                            # without overwriting a paired, source-verified
+                            # boxscore/PBP game-log receipt. These two samples
+                            # may cover DIFFERENT fetched games.
+                            prior=p[fld]
+                            prior_scope=prior.get('data',{}).get('scope')
+                            new_scope=data.get('scope')
+                            if (prior_scope=='SAMPLED_RECENT_TEAM_GAMES_ONLY' and
+                                    new_scope=='SAMPLED_PRE_SLATE_GAMES_ONLY'):
+                                prior['data'].setdefault('rawPbpSupplement',wrapper)
+                                continue
+                            if (prior_scope=='SAMPLED_PRE_SLATE_GAMES_ONLY' and
+                                    new_scope=='SAMPLED_RECENT_TEAM_GAMES_ONLY'):
+                                wrapper['data'].setdefault('rawPbpSupplement',prior)
                         if kind=='PLAYER_FINISH_CREDIT' and p.get(fld):
                             previous=p[fld]
                             prior=previous.get('data',{})

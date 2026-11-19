@@ -122,3 +122,100 @@ Starting goalies:
         assert ids=={"100"}
     finally:
         con.close()
+
+
+def _deployment_fixture():
+    return {"games":[{"id":"900","away":"AAA","home":"BBB",
+        "goalies":{"AAA":[],"BBB":[]},"coverage":{},
+        "rosters":{"AAA":{"data":{"players":[{"id":"99","name":"Fixture Forward","position":"C"}]}},
+                   "BBB":{"data":{"players":[]}}}}]}
+
+
+def _put_deployment(con, evidence_id, stage, observed, status, line):
+    from nhl_true_blender_engine.enrichment import ingest
+    ingest(con,{"evidence_id":evidence_id,"slate_date":"2026-11-19",
+        "stage":stage,"game_id":"900","player_id":"99",
+        "kind":"PLAYER_DEPLOYMENT","source_url":"https://example.com/"+evidence_id,
+        "observed_at":observed,"payload":{"EV":line,"status":status,
+        "sourceType":"INDEPENDENT_LINEUP_TEST_RECEIPT"}})
+
+
+def test_confirmed_role_resolves_earlier_conflicting_projected_assignments(tmp_path):
+    con=open_db(str(tmp_path/"confirmed-role.sqlite"))
+    try:
+        _put_deployment(con,"early","PROJECTED","2026-11-19T12:00:00Z","PROJECTED","F1")
+        _put_deployment(con,"disagree","PROJECTED","2026-11-19T12:01:00Z","PROJECTED","F2")
+        _put_deployment(con,"confirmed","CONFIRMED","2026-11-19T12:02:00Z","CONFIRMED","F3")
+        snap=_deployment_fixture()
+        attach(con,snap,"2026-11-19","CONFIRMED")
+        skater=snap["games"][0]["rosters"]["AAA"]["data"]["players"][0]
+        assert not skater.get("deploymentConflict")
+        assert skater["deployment"]["data"]["status"]=="CONFIRMED"
+        assert skater["deployment"]["data"]["EV"]=="F3"
+        assert skater["deployment"]["data"]["supersededProjectedConflict"]["conflictingSourceCount"]==1
+    finally:
+        con.close()
+
+
+def test_disagreeing_confirmed_role_receipts_cannot_silently_pass_g6(tmp_path):
+    con=open_db(str(tmp_path/"confirmed-conflict.sqlite"))
+    try:
+        _put_deployment(con,"first","CONFIRMED","2026-11-19T12:00:00Z","CONFIRMED","F1")
+        _put_deployment(con,"second","CONFIRMED","2026-11-19T12:01:00Z","CONFIRMED","F2")
+        snap=_deployment_fixture()
+        attach(con,snap,"2026-11-19","CONFIRMED")
+        skater=snap["games"][0]["rosters"]["AAA"]["data"]["players"][0]
+        assert skater["deploymentConflict"] is True
+        assert skater["deployment"]["data"]["EV"]=="F1"
+        assert len(skater["deployment"]["data"]["conflictingConfirmedAssignments"])==1
+    finally:
+        con.close()
+
+
+def test_same_provider_revision_supersedes_old_role_but_independent_disagreement_remains(tmp_path):
+    from nhl_true_blender_engine.enrichment import ingest
+    con=open_db(str(tmp_path/'revisions.sqlite'))
+    try:
+        def put(id,at,line,url='https://example.com/current-lineup'):
+            ingest(con,{'evidence_id':id,'slate_date':'2026-11-19','stage':'PROJECTED',
+                'game_id':'900','player_id':'99','kind':'PLAYER_DEPLOYMENT','source_url':url,
+                'observed_at':at,'payload':{'EV':line,'status':'PROJECTED'}})
+        put('early','2026-11-19T12:00:00Z','F1')
+        snap=_deployment_fixture()
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        put('updated','2026-11-19T13:00:00Z','F2')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        player=snap['games'][0]['rosters']['AAA']['data']['players'][0]
+        assert player['deployment']['data']['EV']=='F2'
+        assert player.get('deploymentConflict') is not True
+        put('other','2026-11-19T13:01:00Z','F1','https://another.example/lineup')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        assert player['deploymentConflict'] is True
+        put('other-updated','2026-11-19T13:02:00Z','F2','https://another.example/lineup')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        assert player.get('deploymentConflict') is not True
+        assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==4
+    finally:
+        con.close()
+
+
+def test_independent_provider_forward_line_alias_is_not_a_conflict(tmp_path):
+    from nhl_true_blender_engine.enrichment import ingest
+    con=open_db(str(tmp_path/'alias-roles.sqlite'))
+    game={'id':'g1','away':'CAR','home':'MTL','rosters':{'CAR':{'data':{'players':[{'id':'p1'}]}}}}
+    def add(eid,role,url,clock):
+        ingest(con,{'evidence_id':eid,'slate_date':'2026-11-17','stage':'PROJECTED',
+            'game_id':'g1','player_id':'p1','kind':'PLAYER_DEPLOYMENT',
+            'source_url':url,'observed_at':clock,
+            'payload':{'EV':role,'status':'PROJECTED'}})
+    add('official','L1','https://www.nhl.com/preview','2026-11-17T12:00:00Z')
+    add('secondary','F1','https://example.com/lineup','2026-11-17T13:00:00Z')
+    attach(con,{'games':[game]},'2026-11-17','PROJECTED')
+    player=game['rosters']['CAR']['data']['players'][0]
+    assert not player.get('deploymentConflict')
+    assert player['deployment']['data']['EV']=='F1'
+    add('secondary-update','F2','https://example.com/lineup','2026-11-17T14:00:00Z')
+    attach(con,{'games':[game]},'2026-11-17','PROJECTED')
+    assert player['deploymentConflict'] is True
+    assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==3
+    con.close()
