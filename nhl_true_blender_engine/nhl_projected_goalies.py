@@ -132,6 +132,71 @@ def parse_official_unavailable(html,game,date):
             if len({x["status"] for x in v})==1]
 
 
+def parse_projected_deployment(html, game, date):
+    """Read only full named forward trios or defense pairs in an NHL.com preview.
+
+    Line combinations remain source-PROJECTED, never confirmed or dressed.
+    A team's official current roster resolves identity but does not establish
+    that a player is participating tonight. Ambiguous names stay unresolved.
+    """
+    if not isinstance(html, str) or "projected lineup" not in html.lower():
+        return []
+    body = article_text(html)
+    day = datetime.strptime(date, "%Y-%m-%d")
+    if f"{day.strftime('%B')} {day.day}, {day.year}".casefold() not in body.casefold():
+        return []
+    output = []
+    for team in (game["away"], game["home"]):
+        nickname = NICKNAMES.get(team, TEAM_SLUGS.get(team, "").split("-")[-1])
+        heading = re.search(r"\b" + re.escape(nickname) + r"\s+projected lineup\b", body, re.I)
+        if not heading:
+            continue
+        tail = body[heading.end():]
+        end = re.search(r"\b(?:scratched|injured|status report)\s*:|"
+                        r"\b[a-z ]{2,36}\s+projected lineup\b", tail, re.I)
+        section = tail[:end.start()] if end else tail[:2400]
+        roster = ((game.get("rosters") or {}).get(team) or {}).get("data") or {}
+        indexed = {}
+        for player in roster.get("players") or []:
+            key = normalized(player.get("name"))
+            if key and player.get("id") and player.get("position") in ("C", "L", "R", "LW", "RW", "D"):
+                indexed.setdefault(key, []).append(player)
+        unique = {key: values[0] for key, values in indexed.items() if len(values) == 1}
+        forward_line = 0
+        defense_pair = 0
+        used = set()
+        for row in section.splitlines():
+            # NHL.com normally uses "Name -- Name -- Name". Preserve all
+            # explicit dash separators; never split a hyphenated surname.
+            names = [name.strip() for name in re.split(r"\s+(?:--|—|–)\s+", row.strip())]
+            if len(names) not in (2, 3):
+                continue
+            skaters = [unique.get(normalized(name)) for name in names]
+            if any(player is None for player in skaters):
+                continue
+            ids = {str(player["id"]) for player in skaters}
+            if len(ids) != len(skaters) or ids & used:
+                continue
+            if len(skaters) == 3:
+                if forward_line >= 4 or not all(player["position"] != "D" for player in skaters):
+                    continue
+                forward_line += 1
+                ev = f"F{forward_line}"
+            else:
+                if defense_pair >= 3 or not all(player["position"] == "D" for player in skaters):
+                    continue
+                defense_pair += 1
+                ev = f"D{defense_pair}"
+            used.update(ids)
+            for player in skaters:
+                output.append({"team": team, "playerId": str(player["id"]),
+                               "EV": ev, "status": "PROJECTED",
+                               "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                               "projectedNotConfirmed": True,
+                               "doesNotEstablishDressedOrPP": True})
+    return output
+
+
 async def collect_nhl_projected_goalies(con,snapshot,date,stage):
     """Review all known source variants; unmatched URLs never establish a starter."""
     games=snapshot.get("games",[])
@@ -151,7 +216,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                 except (httpx.HTTPError,ValueError) as exc:
                     return url,None,f"{type(exc).__name__}: {str(exc)[:120]}"
         pages=await asyncio.gather(*(fetch(url) for url in sorted(urls)))
-    attempts=[];found=0;seen={};conflicts=[];unavailable=[]
+    attempts=[];found=0;seen={};conflicts=[];unavailable=[];deployment_count=0
     for url,html,error in pages:
         attempts.append({"url":url,"status":"FETCH_FAILED" if error else "FETCHED",
                          "error":error})
@@ -175,6 +240,31 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                 unavailable.append({"gameId":str(game["id"]),
                                     "playerId":item["playerId"],
                                     "status":item["status"],"sourceUrl":url})
+            # The same dated NHL.com page already fetched for starter research
+            # also contains explicit EV line trios/defense pairs. The separate
+            # generic deployment collector previously imported ZERO from
+            # these official pages because its article parser did not match
+            # the source headings. Attach only while the matchup is FUTURE.
+            start=game.get("startUTC") or game.get("startTimeUTC")
+            start_dt=(datetime.fromisoformat(start.replace("Z","+00:00"))
+                      if isinstance(start,str) else None)
+            still_pregame=(start_dt is not None and
+                           start_dt.tzinfo is not None and
+                           start_dt > datetime.now(timezone.utc) and
+                           game.get("gameState") in ("FUT","PRE"))
+            if still_pregame and url in preview_urls(game,date):
+                for row in parse_projected_deployment(html,game,date):
+                    observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
+                    digest=hashlib.sha256(
+                        f"{url}|{row['playerId']}|{row['EV']}".encode()
+                        ).hexdigest()[:16]
+                    ingest(con,{
+                        "evidence_id":f"nhl-official-projected-line-{date}-{stage}-{game['id']}-{digest}",
+                        "slate_date":date,"stage":stage,"game_id":str(game["id"]),
+                        "player_id":row["playerId"],"kind":"PLAYER_DEPLOYMENT",
+                        "source_url":url,"observed_at":observed,
+                        "payload":row})
+                    deployment_count+=1
             for team,data in parse_projected_goalies(html,game,date).items():
                 key=(str(game["id"]),team)
                 if key in seen and seen[key]!=data["goalieId"]:
@@ -198,6 +288,8 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
     return {"status":"SOURCE_RESEARCH_COMPLETED",
             "sourceType":"NHL_OFFICIAL_PUBLISHED_PROJECTED_LINEUP",
             "sourceAttempts":attempts,"projectedGoalieReceipts":found,
+            "officialProjectedEVReceipts":deployment_count,
+            "officialLineupNeverPromotedToConfirmed":True,
             "explicitInjuryAndScratchReceipts":len(unavailable),
             "unavailablePlayerExamples":unavailable[:12],
             "contradictionsKept":conflicts,
