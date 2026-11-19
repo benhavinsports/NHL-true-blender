@@ -136,3 +136,47 @@ def test_public_survivor_cards_show_actual_g6_g8_g12_evidence(tmp_path):
         assert g8["neverRankingShortcut"] is True
         assert g12["officialGoalsReconciled"] is True
         assert g12["ownership"]["creditedGoalsVerified"] is True
+
+
+def test_unresolved_refresh_keeps_older_verified_frozen_core_visible_but_uncertified(tmp_path):
+    from scripts.publish_site_state import export_run
+    from nhl_true_blender_engine.storage import open_db
+    run, card, _ = fixture(tmp_path)
+    original = (tmp_path/"site_cards"/f"{DATE}.json").read_bytes()
+    con=open_db(str(tmp_path/"contract.sqlite"))
+    try:
+        later = export_run(con,DATE,"CONFIRMED",{
+            "card":None,"games":2,"gateCertification":run["gateCertification"],
+            "errors":["PRE_CORE_REVIEW: certified opponents now unresolved"],
+            "preCoreQualifiedSurvivors":[]},tmp_path)
+    finally:
+        con.close()
+    assert later["publicationDecision"]=="G18_UPSTREAM_SURVIVORS_UNRESOLVED"
+    assert later["retainedOriginalLockedCard"] is True
+    assert later["historicalCardIsNotCurrentRunCertification"] is True
+    assert later["currentRunFullyCertified"] is False
+    assert later["publishedToSite"] is True
+    assert later["cardId"]==card["cardId"]
+    assert (tmp_path/"site_cards"/f"{DATE}.json").read_bytes()==original
+    with pytest.raises(AssertionError,match="BLENDER CORE CONTRACT FAILED"):
+        verify_published_core(tmp_path, DATE)
+
+
+def test_incomplete_gate_recheck_keeps_original_verified_card_without_new_pass(tmp_path):
+    from scripts.publish_site_state import export_run
+    from nhl_true_blender_engine.storage import open_db
+    run, card, _ = fixture(tmp_path)
+    con=open_db(str(tmp_path/"contract.sqlite"))
+    try:
+        later=export_run(con,DATE,"CONFIRMED",{
+            "card":None,"games":2,
+            "gateCertification":{"scannedSkaters":0},
+            "errors":["SOURCE_INCOMPLETE"]},tmp_path)
+    finally:
+        con.close()
+    assert later["publicationDecision"]=="FULL_GATE_EXECUTION_INCOMPLETE"
+    assert later["retainedOriginalLockedCard"] is True
+    assert later["historicalCardIsNotCurrentRunCertification"] is True
+    assert later["publishedToSite"] is True
+    assert later["currentRunFullyCertified"] is False
+    assert json.loads((tmp_path/"site_cards"/f"{DATE}.json").read_text())==card
