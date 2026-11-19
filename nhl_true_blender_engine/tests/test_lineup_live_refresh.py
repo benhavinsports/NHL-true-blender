@@ -170,3 +170,30 @@ def test_disagreeing_confirmed_role_receipts_cannot_silently_pass_g6(tmp_path):
         assert len(skater["deployment"]["data"]["conflictingConfirmedAssignments"])==1
     finally:
         con.close()
+
+
+def test_same_provider_revision_supersedes_old_role_but_independent_disagreement_remains(tmp_path):
+    from nhl_true_blender_engine.enrichment import ingest
+    con=open_db(str(tmp_path/'revisions.sqlite'))
+    try:
+        def put(id,at,line,url='https://example.com/current-lineup'):
+            ingest(con,{'evidence_id':id,'slate_date':'2026-11-19','stage':'PROJECTED',
+                'game_id':'900','player_id':'99','kind':'PLAYER_DEPLOYMENT','source_url':url,
+                'observed_at':at,'payload':{'EV':line,'status':'PROJECTED'}})
+        put('early','2026-11-19T12:00:00Z','F1')
+        snap=_deployment_fixture()
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        put('updated','2026-11-19T13:00:00Z','F2')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        player=snap['games'][0]['rosters']['AAA']['data']['players'][0]
+        assert player['deployment']['data']['EV']=='F2'
+        assert player.get('deploymentConflict') is not True
+        put('other','2026-11-19T13:01:00Z','F1','https://another.example/lineup')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        assert player['deploymentConflict'] is True
+        put('other-updated','2026-11-19T13:02:00Z','F2','https://another.example/lineup')
+        attach(con,snap,'2026-11-19','CONFIRMED')
+        assert player.get('deploymentConflict') is not True
+        assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==4
+    finally:
+        con.close()

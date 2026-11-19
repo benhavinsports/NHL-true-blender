@@ -270,7 +270,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                         f"{url}|{row['playerId']}|{row['EV']}".encode()
                         ).hexdigest()[:16]
                     ingest(con,{
-                        "evidence_id":f"nhl-official-projected-line-{date}-{stage}-{game['id']}-{digest}",
+                        "evidence_id":f"nhl-official-projected-line-{date}-{stage}-{game['id']}-{digest}-{observed}",
                         "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                         "player_id":row["playerId"],"kind":"PLAYER_DEPLOYMENT",
                         "source_url":url,"observed_at":observed,

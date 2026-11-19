@@ -4,6 +4,7 @@ No endpoint accepts a 'selected player' or scores submitted by clients. Imported
 are raw source evidence and the engine alone handles candidate elimination.
 """
 import json
+from datetime import datetime
 from .storage import record_evidence
 from .goalie_zones import validate_goal_zone_evidence
 from .goalie_baselines import compare_goalie_to_baseline
@@ -113,6 +114,34 @@ def attach(con, snapshot, date, stage):
                AND (stage IN (?, 'OFFICIAL')
                     OR (stage='CONFIRMED' AND kind IN ('GOALIE_STARTER','GOALIE_PROFILE')))
                ORDER BY observed_at ASC, rowid ASC""",(date,stage)).fetchall()
+    # Re-read each provider's current revision, not every role it reported
+    # earlier today. Two CURRENT providers can disagree; one provider updating
+    # its own projection is not an independent contradiction forever.
+    groups={}
+    for row in rows:
+        if row['kind']!='PLAYER_DEPLOYMENT':
+            continue
+        data=json.loads(row['payload'])
+        key=(row['game_id'],str(row['player_id']),row['source_url'],data.get('status'))
+        groups.setdefault(key,[]).append(row)
+    current_ids=set()
+    for group in groups.values():
+        try:
+            clocks=[datetime.fromisoformat(r['observed_at'].replace('Z','+00:00')) for r in group]
+            if any(x.tzinfo is None for x in clocks):
+                raise ValueError('Unverified source revision clock')
+            latest=max(clocks)
+            current_ids.update(r['evidence_id'] for r,t in zip(group,clocks) if t==latest)
+        except (ValueError,TypeError):
+            current_ids.update(r['evidence_id'] for r in group)
+    refreshed={(r['game_id'],str(r['player_id'])) for r in rows if r['kind']=='PLAYER_DEPLOYMENT'}
+    for game in snapshot['games']:
+        for roster in game.get('rosters',{}).values():
+            for player in (roster or {}).get('data',{}).get('players',[]):
+                if (game['id'],str(player.get('id'))) in refreshed:
+                    player.pop('deployment',None)
+                    player.pop('deploymentConflict',None)
+    rows=[r for r in rows if r['kind']!='PLAYER_DEPLOYMENT' or r['evidence_id'] in current_ids]
     # A goalie profile cannot attach to a starter until the verified starter
     # branch exists. Ordered queries by timestamp alone can silently discard
     # valid earlier scouting whenever the lineup source arrives later.

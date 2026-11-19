@@ -138,7 +138,7 @@ def ingest_lineups(con, snapshot, date, stage, text, observed_at):
                     "game_id": game["id"], "player_id": p["id"],
                     "kind": "PLAYER_DEPLOYMENT", "source_url": URL,
                     "observed_at": observed_at,
-                    "payload": {**data, "status": "PROJECTED",
+                    "payload": {**data, "PP":data.get('powerPlayUnit'), "status": "PROJECTED",
                                 "sourceType": "SECONDARY_PROJECTED_LINEUP"}
                 })
                 ingest(con, {"evidence_id": f"btl-status-{date}-{stage}-{game['id']}-{p['id']}-{observed_at}",
