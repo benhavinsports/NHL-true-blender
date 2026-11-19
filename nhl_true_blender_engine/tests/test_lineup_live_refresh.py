@@ -197,3 +197,25 @@ def test_same_provider_revision_supersedes_old_role_but_independent_disagreement
         assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==4
     finally:
         con.close()
+
+
+def test_independent_provider_forward_line_alias_is_not_a_conflict(tmp_path):
+    from nhl_true_blender_engine.enrichment import ingest
+    con=open_db(str(tmp_path/'alias-roles.sqlite'))
+    game={'id':'g1','away':'CAR','home':'MTL','rosters':{'CAR':{'data':{'players':[{'id':'p1'}]}}}}
+    def add(eid,role,url,clock):
+        ingest(con,{'evidence_id':eid,'slate_date':'2026-11-17','stage':'PROJECTED',
+            'game_id':'g1','player_id':'p1','kind':'PLAYER_DEPLOYMENT',
+            'source_url':url,'observed_at':clock,
+            'payload':{'EV':role,'status':'PROJECTED'}})
+    add('official','L1','https://www.nhl.com/preview','2026-11-17T12:00:00Z')
+    add('secondary','F1','https://example.com/lineup','2026-11-17T13:00:00Z')
+    attach(con,{'games':[game]},'2026-11-17','PROJECTED')
+    player=game['rosters']['CAR']['data']['players'][0]
+    assert not player.get('deploymentConflict')
+    assert player['deployment']['data']['EV']=='F1'
+    add('secondary-update','F2','https://example.com/lineup','2026-11-17T14:00:00Z')
+    attach(con,{'games':[game]},'2026-11-17','PROJECTED')
+    assert player['deploymentConflict'] is True
+    assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==3
+    con.close()

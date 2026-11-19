@@ -98,6 +98,19 @@ def _attach_goalie_profile(prior, wrapper):
     return True
 
 
+def _same_ev_assignment(left, right):
+    """Provider L1 and F1 both denote forward line 1; D1 stays distinct.
+
+    Compare assignment identities without editing immutable source labels.
+    Unknown labels receive no inferred equivalence.
+    """
+    def identity(value):
+        if isinstance(value,str) and len(value)==2 and value[0] in ('L','F') and value[1] in '1234':
+            return 'F'+value[1]
+        return value
+    return identity(left)==identity(right)
+
+
 def attach(con, snapshot, date, stage):
     """Project/confirmed remain independent. Projected does not become confirmed by reuse."""
     if stage in ('WATCH','CONFIRMED'):
@@ -323,7 +336,7 @@ def attach(con, snapshot, date, stage):
                             if (prior.get('status')=='PROJECTED' and
                                 data.get('status')=='PROJECTED' and
                                 prior.get('EV') and data.get('EV') and
-                                prior.get('EV')!=data.get('EV')):
+                                not _same_ev_assignment(prior.get('EV'),data.get('EV'))):
                                 prior.setdefault('conflictingProjectedAssignments',[]).append(wrapper)
                                 p['deploymentConflict']=True
                                 continue
