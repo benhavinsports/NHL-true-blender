@@ -39,14 +39,15 @@ on:
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
-# The authoritative ledger remains serialized, but a source-code push must
-# supersede an old engine run that would otherwise replay stale G0-G18 code
-# during its persistence step. Scheduled/watch/grade jobs never preempt a run.
-# Only the newest push-run restarts on the newest source; the locked Core
-# remains guarded by the storage replacement and puck-drop rules.
+# Never cancel a live evidence/persistence run on every code push.
+# Multiple concurrent repairs previously terminated the engine between full
+# research and saving the slate, leaving Pages and the Core stale. Serialize
+# authority; pending pushes coalesce to GitHub's newest revision. The existing
+# persistence step fetches origin/main, verifies newer code, reruns the exact
+# phase and reconciles the canonical ledger before any safe push.
 concurrency:
   group: nhl-true-blender-authoritative
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  cancel-in-progress: false
 jobs:
   evidence:
     runs-on: ubuntu-latest
