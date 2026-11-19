@@ -153,7 +153,47 @@ def all_goalie_branches(game, stage):
                     branches=preferred
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
-        by_team[team]=[b for b in branches if str(b['data'].get('goalieId')) not in superseded]
+        branches=[b for b in branches
+                  if str(b['data'].get('goalieId')) not in superseded]
+        # Independent sources may report the SAME official goalie ID once as
+        # PROJECTED and once as EXPECTED. That is one goalie, not two
+        # possible starters. Do not turn duplicate identity receipts into an
+        # unresolved G0 or evaluate the same player/goalie pair twice.
+        # Different goalie IDs and incompatible complete scouting profiles
+        # stay as separate branches. Every source URL remains inspectable.
+        unique=[]
+        profile_keys=('weakZones','strengthZones','sample','counterevidence',
+                      'sourceClass','sourceType')
+        for branch in branches:
+            identity=str(branch['data'].get('goalieId') or '')
+            duplicate_index=None
+            for idx,prior in enumerate(unique):
+                if not identity or identity!=str(prior['data'].get('goalieId') or ''):
+                    continue
+                pa,pb=prior['data'],branch['data']
+                prior_complete=bool(pa.get('sample') and pa.get('counterevidence') is not None)
+                new_complete=bool(pb.get('sample') and pb.get('counterevidence') is not None)
+                if prior_complete and new_complete and any(
+                    pa.get(k)!=pb.get(k) for k in profile_keys):
+                    continue  # contradictory measured sources: do not erase
+                duplicate_index=idx
+                break
+            if duplicate_index is None:
+                unique.append(branch)
+                continue
+            prior=unique[duplicate_index]
+            def precedence(b):
+                d=b['data']
+                complete=bool(d.get('sample') and d.get('counterevidence') is not None)
+                certainty={'PROJECTED':0,'EXPECTED':1,'CONFIRMED':2}.get(d.get('status'),-1)
+                return (int(complete),certainty,str(b.get('observedAt') or ''))
+            chosen=max((prior,branch),key=precedence)
+            urls=sorted({str(url) for item in (prior,branch) for url in
+                ([item.get('sourceUrl')] + item['data'].get('sameGoalieIdentitySourceUrls',[]))
+                if url and str(url).startswith('https://')})
+            unique[duplicate_index]={**chosen,'data':{
+                **chosen['data'],'sameGoalieIdentitySourceUrls':urls}}
+        by_team[team]=unique
     return by_team
 
 
@@ -186,7 +226,8 @@ def g0_full_slate(games, stage):
                        'goalieProfileSourceUrl':x.get('goalieProfileSourceUrl'),
                        'goalieProfileEvidenceId':x.get('goalieProfileEvidenceId'),
                        'sameCohortPbp':sample_peer,
-                       'goalieTeam':defender}
+                       'goalieTeam':defender,
+                       'sameGoalieIdentitySourceUrls':x.get('sameGoalieIdentitySourceUrls',[])}
                 proofs.append(proof)
             complete=bool(proofs) and all(p['profileReviewed'] and bool(p['sample'])
                     and p['counterevidence'] is not None for p in proofs)
