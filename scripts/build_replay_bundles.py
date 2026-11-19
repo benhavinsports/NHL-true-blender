@@ -163,13 +163,55 @@ def build_day(source, day, out, schedule_row):
                 break
     for game in games:
         game["rosters"] = {team: rosters.get(team) for team in (game["away"], game["home"])}
+    # A goalie-specific scouting profile may have been observed before an
+    # earlier slate and remains valid historical evidence for that SAME goalie.
+    # The old builder only selected slate_date=day, discarding that evidence
+    # even when today's independent starter receipt identified the goalie.
+    # Carry the original observation into the isolated replay only; never
+    # alter the canonical evidence ledger or infer a goalie weakness.
+    existing_profiles = {
+        (str(r["game_id"]), str(json.loads(r["payload"]).get("goalieId")))
+        for r in rows if r["kind"] == "GOALIE_PROFILE"
+    }
+    carried_profiles = []
+    for starter in (r for r in rows if r["kind"] == "GOALIE_STARTER"):
+        starter_data = json.loads(starter["payload"])
+        goalie_id = str(starter_data.get("goalieId") or "")
+        team = starter_data.get("team")
+        game_id = str(starter["game_id"])
+        if not goalie_id or not team or (game_id, goalie_id) in existing_profiles:
+            continue
+        historical = source.execute(
+            """SELECT * FROM evidence
+               WHERE kind='GOALIE_PROFILE' AND slate_date<=?
+                 AND observed_at<=? AND observed_at<=?
+               ORDER BY observed_at DESC, rowid DESC""",
+            (day, cutoff, starter["observed_at"]),
+        ).fetchall()
+        for old in historical:
+            profile = json.loads(old["payload"])
+            if str(profile.get("goalieId") or "") != goalie_id or profile.get("team") != team:
+                continue
+            # Preserve the exact original scouting payload and source URL.
+            # A new derived receipt links it to today's verified starter;
+            # its observation timestamp remains the original pregame time.
+            carried_profiles.append({
+                "evidence_id": "replay-carry-" + sha256(
+                    f'{day}|{game_id}|{old["evidence_id"]}'.encode())[:32],
+                "slate_date": day, "stage": old["stage"],
+                "game_id": game_id, "player_id": old["player_id"],
+                "kind": old["kind"], "source_url": old["source_url"],
+                "observed_at": old["observed_at"], "payload": profile,
+            })
+            existing_profiles.add((game_id, goalie_id))
+            break
     snapshot = {"games": games}
 
     out.mkdir(parents=True, exist_ok=True)
     evidence_path = out / f"{day}-evidence.sqlite"
     con = open_db(str(evidence_path))
     try:
-        for row in [*rows, *carry_rows]:
+        for row in [*rows, *carry_rows, *carried_profiles]:
             record_evidence(con, {
                 "evidence_id": row["evidence_id"], "slate_date": row["slate_date"],
                 "stage": row["stage"], "game_id": row["game_id"],
@@ -191,7 +233,7 @@ def build_day(source, day, out, schedule_row):
     evidence_path.unlink()
 
     grouped = {}
-    for row in [*rows, *carry_rows]:
+    for row in [*rows, *carry_rows, *carried_profiles]:
         key = (row["kind"], row["source_url"])
         item = grouped.setdefault(key, {
             "kind": row["kind"], "source": row["source_url"],
@@ -227,6 +269,7 @@ def build_day(source, day, out, schedule_row):
         "inputs": inputs, "gameCount": len(games),
         "teamsWithOfficialRoster": sorted(rosters),
         "historicalRosterCarryForwardCount": len(carry_rows),
+        "historicalGoalieProfileCarryForwardCount": len(carried_profiles),
         "teamsMissingHistoricalRoster": sorted(missing_teams),
         "collectorObservedAtBeforeCutoff": True,
         "providerAvailabilityTimeIndependentlyVerified": False,
