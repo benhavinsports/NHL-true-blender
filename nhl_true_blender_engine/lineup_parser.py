@@ -67,9 +67,9 @@ def parse_markdown(text):
         elif line.startswith("Power play ") and team:
             m = re.match(r"Power play ([12]):\s*(.*)", line)
             if m:
-                teams[team]["pp"][m.group(1)] = [x.strip() for x in re.split(r"\s+[–—-]\s+", m.group(2))]
+                teams[team]["pp"][m.group(1)] = [x.strip() for x in re.split(r"\s+(?:--|[–—-])\s+", m.group(2))]
         elif team and section in ("Forward lines", "Defense pairs") and re.match(r"^[1-4]\. ", line):
-            names = [x.strip() for x in re.split(r"\s+[–—-]\s+", line.split(". ", 1)[1])]
+            names = [x.strip() for x in re.split(r"\s+(?:--|[–—-])\s+", line.split(". ", 1)[1])]
             teams[team]["lines" if section == "Forward lines" else "pairs"].append(names)
         elif team and section == "Injuries" and line.startswith("- "):
             teams[team]["injuries"].append(line[2:])

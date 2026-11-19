@@ -33,3 +33,20 @@ def test_parse_all_scheduled_game_goalie_reports_after_injuries():
     assert parsed["goalies"][1]["status"]=="CONFIRMED"
     assert len(parsed["teams"]["Philadelphia Flyers"]["injuries"])==1
     assert len(parsed["teams"]["Anaheim Ducks"]["injuries"])==1
+
+def test_mixed_dashes_do_not_drop_real_source_forward_pp_and_defense_assignments():
+    text="""## One Game
+### New York Rangers
+Forward lines:
+1. Name-One -- Name Two – Name Three
+2. Name Four — Name Five -- Name Six
+Defense pairs:
+1. Defender-One -- Defender Two
+Power play 1: Name-One -- Name Five – Defender Two
+"""
+    result=parse_markdown(text)["teams"]["New York Rangers"]
+    assert result["lines"]==[
+        ["Name-One","Name Two","Name Three"],
+        ["Name Four","Name Five","Name Six"]]
+    assert result["pairs"]==[["Defender-One","Defender Two"]]
+    assert result["pp"]["1"]==["Name-One","Name Five","Defender Two"]
