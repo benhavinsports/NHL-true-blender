@@ -290,6 +290,8 @@ async def ingest_previews(manifest, database, output):
                         continue
                     payload = {
                         "EV": unit, "EVRole": role, "status": "PROJECTED",
+                        "team": team, "playerName": name,
+                        "officialSeasonRosterIdentityMatched": True,
                         "sourceType": "OFFICIAL_NHL_COM_PROJECTED_LINEUP_ARTICLE",
                         "projectedNotConfirmed": True, "PP": None,
                         "sourceArticlePublishedAt": published.isoformat(),
