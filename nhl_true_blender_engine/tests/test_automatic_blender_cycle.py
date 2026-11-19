@@ -8,7 +8,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from scripts.automatic_blender_cycle import (
-    choose_mode, pending_recent_grades, bootstrap_projected_before_confirmed)
+    choose_mode, pending_recent_grades, bootstrap_projected_before_confirmed,
+    execute_commands, _record_grade_attempt)
 
 ET = ZoneInfo("America/New_York")
 GAMES = [
@@ -94,6 +95,52 @@ class AutomaticBlenderCycleTests(unittest.TestCase):
             con.close()
             self.assertEqual(pending_recent_grades(dirname, "2026-11-18"),
                              ["2026-09-29", "2026-10-07"])
+
+    def test_grade_failure_preserves_new_live_research_for_persistence(self):
+        from subprocess import CompletedProcess
+        import json
+        with tempfile.TemporaryDirectory() as root:
+            con=sqlite3.connect(str(Path(root)/"true_blender.sqlite"))
+            con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
+            con.execute("INSERT INTO cards VALUES ('2026-11-18',NULL)")
+            con.commit();con.close()
+            with patch("scripts.automatic_blender_cycle.subprocess.run",
+                       side_effect=[CompletedProcess([],0),
+                                    CompletedProcess([],1)]) as run:
+                # Does not raise after the successful G0-G18 pipeline.
+                execute_commands("2026-11-19","projected",root=root)
+                self.assertEqual(run.call_count,2)
+            journal=json.loads((Path(root)/"grade_retry_journal.json").read_text())
+            self.assertEqual(journal["attempts"]["2026-11-18"],1)
+            self.assertEqual(journal["lastResults"]["2026-11-18"]["returnCode"],1)
+
+    def test_grade_retry_round_robin_after_failed_old_receipts(self):
+        with tempfile.TemporaryDirectory() as root:
+            con=sqlite3.connect(str(Path(root)/"true_blender.sqlite"))
+            con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
+            con.executemany("INSERT INTO cards VALUES (?,NULL)",
+                            [("2026-10-10",),("2026-10-11",),("2026-10-12",)])
+            con.commit();con.close()
+            self.assertEqual(pending_recent_grades(root,"2026-11-19"),
+                             ["2026-10-10","2026-10-11"])
+            _record_grade_attempt(root,"2026-10-10",1)
+            _record_grade_attempt(root,"2026-10-11",1)
+            self.assertEqual(pending_recent_grades(root,"2026-11-19")[0],
+                             "2026-10-12")
+
+    def test_pregame_backlog_never_grades_current_slate(self):
+        from subprocess import CompletedProcess
+        with tempfile.TemporaryDirectory() as root:
+            con=sqlite3.connect(str(Path(root)/"true_blender.sqlite"))
+            con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
+            con.execute("INSERT INTO cards VALUES ('2026-11-19',NULL)")
+            con.commit();con.close()
+            with patch("scripts.automatic_blender_cycle.subprocess.run",
+                       return_value=CompletedProcess([],0)) as run:
+                execute_commands("2026-11-19","projected",root=root)
+                run.assert_called_once_with(
+                    ["python","run_true_blender.py","--date","2026-11-19",
+                     "--mode","projected"],check=True)
 
     def test_recent_ungraded_frozen_cards_are_retried_bounded(self):
         with tempfile.TemporaryDirectory() as dirname:
