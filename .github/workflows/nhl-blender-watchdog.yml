@@ -29,4 +29,5 @@ jobs:
       - name: Launch original engine only when idle
         env:
           GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: python scripts/nhl_blender_watchdog.py
