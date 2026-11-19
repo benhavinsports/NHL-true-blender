@@ -25,6 +25,11 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _payload_object(value):
+    """Use the original payload for archived rows and replay-derived receipts."""
+    return json.loads(value) if isinstance(value, (str, bytes, bytearray)) else value
+
+
 def _date_inventory(payload, kind):
     """Extract only dated historical observations; do not confuse schedule dates with events."""
     dates = set()
@@ -259,7 +264,7 @@ def build_day(source, day, out, schedule_row):
                 "stage": row["stage"], "game_id": row["game_id"],
                 "player_id": row["player_id"], "kind": row["kind"],
                 "source_url": row["source_url"], "observed_at": row["observed_at"],
-                "payload": json.loads(row["payload"])
+                "payload": _payload_object(row["payload"])
             })
         attach(con, snapshot, day, stage)
     finally:
@@ -287,7 +292,7 @@ def build_day(source, day, out, schedule_row):
         item["receiptCount"] += 1
         item["collectorObservedAtEarliest"] = min(item["collectorObservedAtEarliest"], row["observed_at"])
         item["collectorObservedAtLatest"] = max(item["collectorObservedAtLatest"], row["observed_at"])
-        event_dates, as_of = _date_inventory(json.loads(row["payload"]), row["kind"])
+        event_dates, as_of = _date_inventory(_payload_object(row["payload"]), row["kind"])
         item["underlyingEventDates"].update(event_dates)
         item["providerAsOfLabels"].update(as_of)
     inputs = []
