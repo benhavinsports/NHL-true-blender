@@ -104,12 +104,17 @@ class AutomaticBlenderCycleTests(unittest.TestCase):
             con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
             con.execute("INSERT INTO cards VALUES ('2026-11-18',NULL)")
             con.commit();con.close()
-            with patch("scripts.automatic_blender_cycle.subprocess.run",
-                       side_effect=[CompletedProcess([],0),
-                                    CompletedProcess([],1)]) as run:
-                # Does not raise after the successful G0-G18 pipeline.
-                execute_commands("2026-11-19","projected",root=root)
-                self.assertEqual(run.call_count,2)
+            # Isolate GITHUB_ENV from the real Actions job running pytest.
+            with patch.dict("os.environ",
+                            {"GITHUB_ENV": str(Path(root) / "github_env")}):
+                with patch("scripts.automatic_blender_cycle.subprocess.run",
+                           side_effect=[CompletedProcess([],0),
+                                        CompletedProcess([],1)]) as run:
+                    # Does not raise after the successful G0-G18 pipeline.
+                    execute_commands("2026-11-19","projected",root=root)
+                    self.assertEqual(run.call_count,2)
+            self.assertIn("BLENDER_GRADE_RETRY_FAILURES=2026-11-18:1",
+                          (Path(root)/"github_env").read_text())
             journal=json.loads((Path(root)/"grade_retry_journal.json").read_text())
             self.assertEqual(journal["attempts"]["2026-11-18"],1)
             self.assertEqual(journal["lastResults"]["2026-11-18"]["returnCode"],1)
