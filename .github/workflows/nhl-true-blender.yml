@@ -209,6 +209,7 @@ jobs:
           VERIFIED_TEST_OUTCOME: ${{ steps.verification.outcome }}
           ENGINE_OUTCOME: ${{ steps.engine.outcome }}
           PERSIST_OUTCOME: ${{ steps.persist.outcome }}
+          GRADE_RETRY_FAILURES: ${{ env.BLENDER_GRADE_RETRY_FAILURES }}
         run: |
           # The collector is allowed to save diagnostics even when it cannot
           # select the original Core. But a GREEN GitHub workflow must mean
@@ -229,6 +230,9 @@ jobs:
               problems.append('Blender engine step did not complete: '+str(engine))
           if persist=='failure':
               problems.append('Authoritative card/evidence persistence failed')
+          if os.environ.get('GRADE_RETRY_FAILURES'):
+              problems.append('Season grading retries failed (live state retained): '+
+                              os.environ['GRADE_RETRY_FAILURES'])
           if mode in ('projected','confirmed'):
               path=Path('state/site_runs')/f'{date}.json'
               try:
