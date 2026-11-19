@@ -33,7 +33,7 @@ def _valid_archived_page(page, day):
             and isinstance(page.get("games"), list))
 
 
-def select_prior_capture(current, prior, manifest):
+def select_prior_capture(current, prior, manifest, *, captured_run=CAPTURE_RUN):
     """Return a validated source archive or None, never manufacture receipts."""
     wanted = sorted(manifest.get("scheduledDates") or [])
     if (manifest.get("start"), manifest.get("end")) != CAPTURE_PERIOD:
@@ -59,7 +59,7 @@ def select_prior_capture(current, prior, manifest):
     return {
         **prior,
         "reusedVerifiedPriorGitHubArtifact": True,
-        "priorEvidenceCaptureRunId": CAPTURE_RUN,
+        "priorEvidenceCaptureRunId": str(captured_run),
         "providerOutageDidNotReplaceOriginalReportTimestamps": True,
         "originalPageDownloadedAtPreserved": True,
         "notCurrentLiveProviderObservation": True,
@@ -84,37 +84,76 @@ def main():
     if not a.repo or not os.getenv("GH_TOKEN"):
         print("DFO_ARCHIVE_RECOVERY_UNAVAILABLE: GitHub Actions read token missing")
         return
+    # Recovered archives are themselves uploaded as an artifact on each replay.
+    # Prefer the newest verified prior capture, and keep the initial known
+    # independently collected capture as the final retention-limited seed.
+    # All candidates must pass select_prior_capture() before being consumed.
+    choices = []
+    try:
+        listing = subprocess.run(
+            ["gh", "api", "-X", "GET",
+             f"repos/{a.repo}/actions/artifacts", "-f", "per_page=100",
+             "-f", f"name={ARTIFACT}"],
+            capture_output=True, text=True, timeout=25, check=False)
+        if listing.returncode == 0:
+            data = json.loads(listing.stdout)
+            for artifact in data.get("artifacts") or []:
+                source_run = str((artifact.get("workflow_run") or {}).get("id") or "")
+                if (not source_run or source_run == os.getenv("GITHUB_RUN_ID")
+                        or artifact.get("expired") is True
+                        or artifact.get("name") != ARTIFACT
+                        or artifact.get("size_in_bytes", 0) < 1_000_000):
+                    continue
+                if source_run not in choices:
+                    choices.append(source_run)
+                if len(choices) >= 5:
+                    break
+    except (OSError, subprocess.TimeoutExpired, ValueError):
+        pass  # pinned original prior capture remains available as a fallback
+    for source_run in (str(a.run),):
+        if source_run not in choices:
+            choices.append(source_run)
+
     with tempfile.TemporaryDirectory(prefix="dfo-prior-source-") as tmp:
-        try:
-            result = subprocess.run(
-                ["gh", "run", "download", str(a.run), "--repo", a.repo,
-                 "--name", ARTIFACT, "--dir", tmp],
-                capture_output=True, text=True, timeout=180, check=False)
-            if result.returncode != 0:
-                print("DFO_ARCHIVE_RECOVERY_UNAVAILABLE: "
-                      + result.stderr.strip()[:600])
-                return
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            print(f"DFO_ARCHIVE_RECOVERY_UNAVAILABLE: {type(exc).__name__}: {exc}")
+        for idx, source_run in enumerate(choices):
+            candidate_dir = Path(tmp) / f"run-{idx}"
+            candidate_dir.mkdir()
+            try:
+                result = subprocess.run(
+                    ["gh", "run", "download", source_run, "--repo", a.repo,
+                     "--name", ARTIFACT, "--dir", str(candidate_dir)],
+                    capture_output=True, text=True, timeout=180, check=False)
+                if result.returncode != 0:
+                    print("DFO_ARCHIVE_CAPTURE_MISSING: run="
+                          + source_run + " " + result.stderr.strip()[:160])
+                    continue
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                print(f"DFO_ARCHIVE_CAPTURE_MISSING: run={source_run} "
+                      f"{type(exc).__name__}: {exc}")
+                continue
+            candidate = candidate_dir / "dfo-goalie-archive.json"
+            if not candidate.is_file():
+                continue
+            try:
+                prior = json.loads(candidate.read_text(encoding="utf-8"))
+            except ValueError:
+                continue
+            selected = select_prior_capture(
+                archive, prior, manifest, captured_run=source_run)
+            if not selected:
+                continue
+            a.archive.write_text(json.dumps(selected, indent=2), encoding="utf-8")
+            print(json.dumps({
+                "status": "RESTORED_ALREADY_OBSERVED_DATED_SOURCE_EVIDENCE",
+                "priorCaptureRun": source_run,
+                "verifiedDatedPages": selected["accessibleDatedPages"],
+                "priorCompleteGamePairs": selected["completeGamePairs"],
+                "pageDownloadsWereLaterThanGames": True,
+                "originalIndividualGoalieReportTimesRetained": True,
+            }, sort_keys=True))
             return
-        candidate = Path(tmp) / "dfo-goalie-archive.json"
-        if not candidate.is_file():
-            print("DFO_ARCHIVE_RECOVERY_UNAVAILABLE: source artifact omitted dated reports")
-            return
-        prior = json.loads(candidate.read_text(encoding="utf-8"))
-        selected = select_prior_capture(archive, prior, manifest)
-        if not selected:
-            print("DFO_ARCHIVE_RECOVERY_REJECTED: original source or 50-day period not proven")
-            return
-        a.archive.write_text(json.dumps(selected, indent=2), encoding="utf-8")
-        print(json.dumps({
-            "status": "RESTORED_ALREADY_OBSERVED_DATED_SOURCE_EVIDENCE",
-            "priorCaptureRun": a.run,
-            "verifiedDatedPages": selected["accessibleDatedPages"],
-            "priorCompleteGamePairs": selected["completeGamePairs"],
-            "pageDownloadsWereLaterThanGames": True,
-            "originalIndividualGoalieReportTimesRetained": True,
-        }, sort_keys=True))
+        print("DFO_ARCHIVE_RECOVERY_UNAVAILABLE: no prior artifact passed source/time checks")
+
 
 
 if __name__ == "__main__":
