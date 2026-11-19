@@ -8,6 +8,7 @@ or replace an original Core here; the engine/storage own those decisions.
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import sqlite3
 import subprocess
@@ -73,7 +74,39 @@ async def official_games(day):
     return games
 
 
-def pending_recent_grades(root, day):
+def _read_grade_retry_journal(root):
+    path = Path(root) / "grade_retry_journal.json"
+    if not path.exists():
+        return {"attempts": {}, "lastResults": {}}
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if (not isinstance(value, dict) or
+            not isinstance(value.get("attempts"), dict) or
+            not isinstance(value.get("lastResults"), dict)):
+        raise ValueError("Grade retry journal is corrupted; cannot discard history")
+    return value
+
+
+def _record_grade_attempt(root, slate_date, return_code, reason=None):
+    """Keep evidence of failed retries without changing a frozen Core or grade."""
+    root = Path(root)
+    root.mkdir(parents=True, exist_ok=True)
+    journal = _read_grade_retry_journal(root)
+    attempts = journal["attempts"]
+    attempts[slate_date] = int(attempts.get(slate_date, 0)) + 1
+    journal["lastResults"][slate_date] = {
+        "returnCode": return_code,
+        "attemptedAtUTC": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "reason": reason,
+        "originalCoreUnchanged": True
+    }
+    path = root / "grade_retry_journal.json"
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(journal, sort_keys=True, indent=2) + chr(10),
+                         encoding="utf-8")
+    temporary.replace(path)
+
+
+def pending_recent_grades(root, day, *, include_today=True):
     """Retry every ungraded frozen Core from the current NHL season.
 
     A seven-day window silently abandoned older cards after an outage.
@@ -86,17 +119,21 @@ def pending_recent_grades(root, day):
     season_start = Date(slate_day.year if slate_day.month >= 9 else slate_day.year - 1, 9, 1)
     if not db.exists():
         return []
+    end = day if include_today else (slate_day - timedelta(days=1)).isoformat()
     con = sqlite3.connect(str(db))
     try:
         rows = con.execute(
             "SELECT slate_date FROM cards WHERE slate_date >= ? AND slate_date <= ? "
             "AND (grade IS NULL OR grade = '') ORDER BY slate_date",
-            (season_start.isoformat(), day),
+            (season_start.isoformat(), end),
         ).fetchall()
-        # Bound per-run replay cost; scheduled runs drain older ungraded cards.
-        return [row[0] for row in rows[:2]]
     finally:
         con.close()
+    attempts = _read_grade_retry_journal(root)["attempts"]
+    # A permanently unavailable older game cannot starve every newer grade.
+    # Least attempted goes first; a new card starts with zero attempts.
+    return sorted((row[0] for row in rows),
+                  key=lambda d: (int(attempts.get(d, 0)), d))[:2]
 
 
 def bootstrap_projected_before_confirmed(day, games, now, *, root="state"):
@@ -150,12 +187,33 @@ def execute_commands(day, mode, *, root="state"):
         subprocess.run(["python", "-m", "scripts.run_cycle", "--date", day,
                         "--mode", mode], check=True)
     if mode != "watch":
-        for other in pending_recent_grades(root, day):
+        failures = []
+        # Save the current slate before reporting old grading errors.
+        # A failed historical retry must never abort publishing new G0-G18
+        # evidence, and it must not be silently marked successful either.
+        for other in pending_recent_grades(
+                root, day, include_today=(mode == "grade")):
             if other == day and mode == "grade":
-                continue  # already tried as the primary phase
-            # No result is invented if those games are not yet final.
-            subprocess.run(["python", "-m", "scripts.run_cycle", "--date", other,
-                            "--mode", "grade"], check=True)
+                continue
+            command = ["python", "-m", "scripts.run_cycle",
+                       "--date", other, "--mode", "grade"]
+            reason = None
+            try:
+                result = subprocess.run(command, check=False)
+                code = result.returncode
+            except OSError as exc:
+                code = -1
+                reason = (type(exc).__name__ + ": " + str(exc))[:300]
+            _record_grade_attempt(root, other, code, reason)
+            if code:
+                failures.append(other + ":" + str(code))
+        if failures:
+            summary = ",".join(failures)
+            github_env = os.getenv("GITHUB_ENV")
+            if github_env:
+                with open(github_env, "a", encoding="utf-8") as env:
+                    env.write("BLENDER_GRADE_RETRY_FAILURES=" + summary + chr(10))
+            print("::error::OFFICIAL_GRADE_RETRY_FAILED: " + summary, flush=True)
 
 
 def main():
