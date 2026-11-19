@@ -98,7 +98,49 @@ def build_day(source, day, out, schedule_row):
     # archived observations from earlier dates. Preserve the scheduled slate
     # and let the engine report missing evidence instead of silently dropping
     # that date from the historical calendar.
-    stage = "CONFIRMED" if any(r["stage"] == "CONFIRMED" for r in rows) else "PROJECTED"
+    # A goalie confirmation is NOT a confirmation of the entire skater slate.
+    # Promoting all players to CONFIRMED because a single DFO GOALIE_STARTER
+    # receipt was confirmed made historical G2/G6 require absent confirmed
+    # dressed skaters and confirmed lines, blocking every otherwise valid
+    # projected replay. Require independently observed confirmed player
+    # availability AND deployment across both clubs in every matchup before
+    # considering the slate a fully confirmed skater snapshot.
+    def confirmed_team_players(team, game_id):
+        roster = [
+            json.loads(r["payload"]) for r in rows
+            if r["kind"] == "TEAM_CURRENT_ROSTER"
+            and r["stage"] == "OFFICIAL"
+            and json.loads(r["payload"]).get("team") == team
+        ]
+        if not roster:
+            return False
+        roster_ids = {str(p.get("id")) for p in roster[-1].get("players", [])
+                      if p.get("id") is not None}
+        actual = set()
+        deployed = set()
+        for r in rows:
+            if str(r["game_id"]) != game_id or r["stage"] != "CONFIRMED":
+                continue
+            pid = str(r["player_id"] or "")
+            if pid not in roster_ids:
+                continue
+            payload = json.loads(r["payload"])
+            if (r["kind"] == "PLAYER_STATUS"
+                    and payload.get("status") in ("DRESSED", "CONFIRMED")):
+                actual.add(pid)
+            if (r["kind"] == "PLAYER_DEPLOYMENT"
+                    and payload.get("status") == "CONFIRMED"
+                    and payload.get("EV")):
+                deployed.add(pid)
+        # Match the official game's documented minimum complete skater
+        # membership; individual confirmed skaters do not confirm a team.
+        return len(actual & deployed) >= 15
+
+    stage = "CONFIRMED" if all(
+        confirmed_team_players(team, str(g["id"]))
+        for g in scheduled_games
+        for team in (g["away"], g["home"])
+    ) else "PROJECTED"
 
     schedules = [r for r in rows if r["kind"] == "GAME_SCHEDULE" and r["stage"] == "OFFICIAL"]
     if schedules:
