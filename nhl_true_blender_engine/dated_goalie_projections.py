@@ -93,6 +93,8 @@ def parse_dated_projections(html, date, games, diagnostics=None):
         reason="SOURCE_MATCHUP_NOT_FOUND"
         team_research={}
         matched=[]
+        seen_starters={}
+        conflicted_starters=set()
         for m in header.finditer(flat):
             # Navigation duplicates each matchup heading. Skip a nav-only
             # section, and only read a card up to the NEXT fixture heading.
@@ -140,16 +142,30 @@ def parse_dated_projections(html, date, games, diagnostics=None):
                     "reason":"MATCHED","sourceGoalieName":source_name,
                     "sourceDisplayNameRepeated":doubled,
                     "officialGoalieId":str(player["id"])}
-            # Never discard an independently verified opponent starter
-            # because the other team's ID is absent/ambiguous. The engine
-            # still requires BOTH directions to be researched for G0 PASS.
+            # Dated pages can repeat a fixture with a partial early card
+            # followed by a more complete card. Inspect EVERY same-matchup
+            # section rather than stopping at the first partial identity.
+            # Conflicting exact-roster identities remain unresolved: taking
+            # the highest-confidence card would be a manual starter choice.
+            for pick in picks:
+                old_id=seen_starters.get(pick["team"])
+                if old_id is not None and old_id!=pick["goalieId"]:
+                    conflicted_starters.add(pick["team"])
+                seen_starters[pick["team"]]=pick["goalieId"]
             if any(value["reason"]!="STARTER_FIELDS_NOT_PARSED"
                    for value in candidate_research.values()):
-                team_research=candidate_research
-                matched=picks
-                break
+                if not team_research or len(picks)>len(matched):
+                    team_research=candidate_research
+                    matched=picks
             reason="STARTER_FIELDS_NOT_PARSED"
         if team_research:
+            if conflicted_starters:
+                matched=[pick for pick in matched
+                         if pick["team"] not in conflicted_starters]
+                for team in conflicted_starters:
+                    team_research[team]={
+                        "reason":"CONFLICTING_SOURCE_STARTER_IDENTITIES",
+                        "noArbitraryStarterSelection":True}
             found.extend(matched)
             reason=("MATCHED" if len(matched)==2 else
                     "PARTIAL_OFFICIAL_GOALIE_ID_MATCH" if matched else
