@@ -23,8 +23,10 @@ async def test_g9_league_history_is_extended_without_extending_eight_game_player
             return {"data":{"games":games},"url":"https://api-web.nhle.com/v1/"+route}
         async def play_by_play(self,game_id):
             return {"data":{"plays":[]},"url":f"https://api-web.nhle.com/v1/gamecenter/{game_id}/play-by-play"}
-    async def boxes(client,con,snapshot,date,stage,target_ids,target_events):
+    async def boxes(client,con,snapshot,date,stage,target_ids,target_events,
+                    pbp_verified_game_ids=None):
         queried.append(set(target_ids))
+        assert pbp_verified_game_ids == set(target_ids)
         return {"status":"EMPTY_FIXTURE"}
     async def shifts(*args):
         return {"byDefendingTeamId":{},"historicalOnly":True}
