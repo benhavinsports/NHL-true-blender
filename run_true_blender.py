@@ -21,6 +21,7 @@ from nhl_true_blender_engine.dated_goalie_projections import collect_dated_goali
 from nhl_true_blender_engine.dfo_dated_starters import collect_dfo_goalies
 from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.goalie_history_fallback import collect_goalie_pbp_fallback
+from nhl_true_blender_engine.official_dressed import collect_official_dressed
 from nhl_true_blender_engine.official_context import collect_context
 from nhl_true_blender_engine.contradiction_review import review_all_candidates
 from nhl_true_blender_engine.first_gate_audit import first_gate_audit
@@ -75,6 +76,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             con,snapshot,date,stage)
         source_research['datedIndependentStartingGoalies']=await collect_dfo_goalies(
             con,snapshot,date,stage)
+        async with _Client() as client:
+            source_research['officialPregameDressed']=await collect_official_dressed(
+                client,con,snapshot,date,stage)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
         if csv_dir and Path(csv_dir, 'skaters.csv').exists():
             source_research['moneypuck'] = import_moneypuck(
@@ -146,6 +150,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             await collect_nhl_projected_goalies(con,snapshot,date,stage)
             await collect_dated_goalie_projections(con,snapshot,date,stage)
             await collect_dfo_goalies(con,snapshot,date,stage)
+            async with _Client() as client:
+                await collect_official_dressed(client,con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
