@@ -101,3 +101,30 @@ def test_official_nhl_mixed_dash_2026_format_keeps_all_four_lines():
     assert ("Mu Twelve","L4","RW") in projected
     assert ("Omicron Fifteen","D2","D") in projected
     assert not any(player.startswith("Other") for player,_,_ in projected)
+
+
+def test_eleven_forward_seven_defender_article_keeps_fourth_line_and_extra_defender():
+    # NHL.com NJD-WPG November 10: the two-name fourth forward line used
+    # to become D1, shifting every actual pair and dropping Brenden Dillon.
+    lines = ["Devils projected lineup",
+             "Arseny Gritsyuk -- Jack Hughes -- Jesper Bratt",
+             "Timo Meier -- Nico Hischier -- Luke Evangelista",
+             "Evan Rodrigues -- Cody Glass -- Connor Brown",
+             "Amadeus Lombardi -- Jesper Boqvist",
+             "Luke Hughes -- Brett Pesce",
+             "Jonas Siegenthaler -- Dougie Hamilton",
+             "Declan Chisholm -- Johnathan Kovacevic",
+             "Brenden Dillon", "Jake Allen", "Connor Hellebuyck",
+             "Scratched: Riley Tufte"]
+    defenders = {"Luke Hughes", "Brett Pesce", "Jonas Siegenthaler", "Dougie Hamilton",
+                 "Declan Chisholm", "Johnathan Kovacevic", "Brenden Dillon"}
+    positions = {normalize(n): "D" for n in defenders}
+    positions.update({normalize("Amadeus Lombardi"): "C", normalize("Jesper Boqvist"): "C"})
+    result = read_lines(lines, "NJD", positions)
+    assert len(result) == 18
+    assert ("Amadeus Lombardi", "L4", "F") in result
+    assert ("Jesper Boqvist", "L4", "F") in result
+    assert ("Luke Hughes", "D1", "D") in result
+    assert ("Brenden Dillon", "D4", "D") in result
+    assert {n for n, _, role in result if role == "D"} == defenders
+    assert not any("Allen" in n or "Hellebuyck" in n for n, _, _ in result)

@@ -92,6 +92,13 @@ jobs:
               "selectorIntegration":report.get("selectorIntegration")
           },sort_keys=True))
           PY
+      - name: Ingest official published pregame NHL line assignments with verified timestamps
+        id: nhl_preview_deployments
+        continue-on-error: true
+        env:
+          PYTHONPATH: .
+        run: |
+          python scripts/ingest_nhl_historical_previews.py state/replay/collector-manifest.json --database state/true_blender.sqlite --output state/replay/nhl-preview-ingestion.json
       - name: Reconstruct official pre-slate goalie profiles and player shooting evidence
         id: historical_pbp
         env:
@@ -114,13 +121,6 @@ jobs:
           if report["totalGoalieProfiles"] == 0:
               raise SystemExit("Historical official PBP yielded no independent goalie profiles")
           PY
-      - name: Ingest official published pregame NHL line assignments with verified timestamps
-        id: nhl_preview_deployments
-        continue-on-error: true
-        env:
-          PYTHONPATH: .
-        run: |
-          python scripts/ingest_nhl_historical_previews.py state/replay/collector-manifest.json --database state/true_blender.sqlite --output state/replay/nhl-preview-ingestion.json
       - name: Build point-in-time bundles and official schedule calendar from ${{ inputs.start_date || '2026-09-29' }} through ${{ inputs.end_date || '2026-11-17' }}
         id: build_bundles
         env:

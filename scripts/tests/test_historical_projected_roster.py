@@ -60,6 +60,35 @@ def test_partial_or_future_or_cross_team_membership_never_creates_complete_pool(
             rows, date=DAY, game_id=GAME, team="BOS", cutoff=CUTOFF) is None
 
 
+def test_complete_eleven_seven_pool_preserves_all_independently_identified_skaters():
+    rows = source_rows()
+    for row in rows:
+        payload = json.loads(row["payload"])
+        payload["officialPosition"] = "D" if payload["EVRole"] == "D" else "C"
+        if payload["EV"] == "L4":
+            if payload["EVRole"] == "RW":
+                payload.update(EV="D4", EVRole="D", officialPosition="D")
+            else:
+                payload["EVRole"] = "F"
+        row["payload"] = json.dumps(payload)
+    full = recover_full_projected_team_pool(rows, date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF)
+    assert full is not None
+    data = json.loads(full["payload"])
+    assert len(data["players"]) == 18
+    assert sum(p["position"] == "D" for p in data["players"]) == 7
+    assert {p["id"] for p in data["players"]} == {r["player_id"] for r in rows}
+    assert all(p["position"] != "F" for p in data["players"])
+    # A short roster or an unverified role cannot be promoted to a full pool.
+    assert recover_full_projected_team_pool(rows[:-1], date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is None
+    payload = json.loads(rows[-1]["payload"])
+    payload.pop("officialPosition")
+    rows[-1]["payload"] = json.dumps(payload)
+    assert recover_full_projected_team_pool(rows, date=DAY, game_id=GAME,
+                                           team="BOS", cutoff=CUTOFF) is None
+
+
 def test_reconstructed_pool_reaches_bundle_only_when_archived_roster_missing(tmp_path):
     db = open_db(str(tmp_path / "source.sqlite"))
     try:

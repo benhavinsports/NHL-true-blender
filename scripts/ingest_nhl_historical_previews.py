@@ -134,7 +134,7 @@ def preview_url(game, date):
     return f"https://www.nhl.com/news/{away}-{home}-game-preview-{month}-{day}-{date[:4]}"
 
 
-def read_lines(lines, team):
+def read_lines(lines, team, positions=None):
     """Return independently named projected EV assignments, no PP claim."""
     nickname = TEAMS[team][1].lower()
     matches = [i for i, line in enumerate(lines)
@@ -150,14 +150,28 @@ def read_lines(lines, team):
         if "projected lineup" in lo or lo.startswith(("status report", "scratched:", "injured:", "suspended:")):
             break
         pieces = [x.strip() for x in re.split(r"\s+(?:--|[–—])\s+", line) if x.strip()]
-        if len(pieces) == 3 and forward < 4 and defense == 0:
+        known_positions = [positions.get(normalize(n)) for n in pieces] if positions else []
+        if (len(pieces) == 2 and forward == 3 and defense == 0
+                and len(known_positions) == 2
+                and all(p in ("L", "R", "C", "LW", "RW") for p in known_positions)):
+            # An official 11F/7D lineup may publish only two fourth-line
+            # forwards. Their catalog positions identify them as forwards;
+            # the article does not establish their left/center/right order.
+            forward += 1
+            out.extend((name, "L4", "F") for name in pieces)
+        elif len(pieces) == 3 and forward < 4 and defense == 0:
             forward += 1
             for n, role in zip(pieces, ("LW", "C", "RW")):
                 out.append((n, "L" + str(forward), role))
         elif len(pieces) == 2 and defense < 3 and forward > 0:
+            if any(p in ("C", "L", "R", "LW", "RW") for p in known_positions):
+                continue
             defense += 1
             for n in pieces:
                 out.append((n, "D" + str(defense), "D"))
+        elif (len(pieces) == 1 and defense == 3 and known_positions == ["D"]):
+            defense += 1
+            out.append((pieces[0], "D4", "D"))
     return out
 
 
@@ -250,6 +264,20 @@ def id_index(roster):
     return {name: ids[0] for name, ids in names.items() if len(ids) == 1}
 
 
+def position_index(roster):
+    """Unique official ID/name positions, used only to interpret article units."""
+    identities = id_index(roster)
+    candidates = {}
+    for section in ("forwards", "defensemen"):
+        for p in roster.get(section) or []:
+            key = normalize(((p.get("firstName") or {}).get("default") or "") + " " +
+                            ((p.get("lastName") or {}).get("default") or ""))
+            position = p.get("positionCode") or ("D" if section == "defensemen" else None)
+            if key in identities and position in ("L", "R", "C", "LW", "RW", "D"):
+                candidates[key] = position
+    return candidates
+
+
 async def ingest_previews(manifest, database, output):
     raw = json.loads(Path(manifest).read_text())
     calendar = raw["officialSchedule"]
@@ -266,13 +294,14 @@ async def ingest_previews(manifest, database, output):
         async with sem:
             try:
                 source = await nhl.get(f"roster/{team}/{season}")
-                return team, id_index(source["data"]), goalie_id_index(source["data"]), None
+                return team, id_index(source["data"]), goalie_id_index(source["data"]), position_index(source["data"]), None
             except Exception as e:
-                return team, {}, {}, type(e).__name__
+                return team, {}, {}, {}, type(e).__name__
     roster_rows = await asyncio.gather(*(roster(t) for t in teams))
-    identities = {team: ids for team, ids, _, _ in roster_rows}
-    goalie_identities = {team: ids for team, _, ids, _ in roster_rows}
-    errors.extend({"team": team, "reason": err} for team, _, _, err in roster_rows if err)
+    identities = {team: ids for team, ids, _, _, _ in roster_rows}
+    goalie_identities = {team: ids for team, _, ids, _, _ in roster_rows}
+    positions = {team: pos for team, _, _, pos, _ in roster_rows}
+    errors.extend({"team": team, "reason": err} for team, _, _, _, err in roster_rows if err)
     games = [(day, game) for day, row in calendar.items() for game in row.get("games") or []]
     async def preview(day, game):
         url = preview_url(game, day)
@@ -312,7 +341,7 @@ async def ingest_previews(manifest, database, output):
                 continue
             valid = False
             for team in (game["away"], game["home"]):
-                assignments = read_lines(article.lines, team)
+                assignments = read_lines(article.lines, team, positions.get(team, {}))
                 if len(assignments) < 5:
                     continue
                 goalie_projection = first_listed_projected_goalie(
@@ -378,6 +407,7 @@ async def ingest_previews(manifest, database, output):
                     payload = {
                         "EV": unit, "EVRole": role, "status": "PROJECTED",
                         "team": team, "playerName": name,
+                        "officialPosition": positions.get(team, {}).get(normalize(name)),
                         "officialSeasonRosterIdentityMatched": True,
                         "sourceType": "OFFICIAL_NHL_COM_PROJECTED_LINEUP_ARTICLE",
                         "projectedNotConfirmed": True, "PP": None,

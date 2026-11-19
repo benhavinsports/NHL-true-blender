@@ -6,8 +6,8 @@ selection rule.  Every included name was independently matched to an NHL
 season-roster ID by the upstream NHL.com article collector, and the archived
 article was published / last modified before the replay cutoff.
 
-To avoid silently omitting depth/defense rivals from a decision, only a full
-four-forward-line + three-defense-pair projection can become a G2 player pool.
+To avoid silently omitting depth/defense rivals from a decision, only a complete
+18-skater projection (12F/6D or independently identified 11F/7D) becomes a G2 pool.
 Partial articles stay as individual PLAYER_DEPLOYMENT evidence and are NOT
 silently promoted to complete skater pools.
 """
@@ -56,7 +56,7 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
                 or (modified and modified > cutoff)):
             continue
         if (not row["player_id"] or
-                payload.get("EVRole") not in ("LW", "C", "RW", "D") or
+                payload.get("EVRole") not in ("LW", "C", "RW", "D", "F") or
                 not isinstance(payload.get("playerName"), str) or
                 not payload.get("playerName", "").strip()):
             continue
@@ -73,7 +73,18 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
             **{(f"D{pair}", "D"): 2 for pair in range(1, 4)}
         }
         ids = [str(x[0]["player_id"]) for x in entries]
-        if counts != required_counts or len(ids) != 18 or len(set(ids)) != 18:
+        eleven_seven_counts = {
+            **{(f"L{line}", role): 1 for line in range(1, 4)
+               for role in ("LW", "C", "RW")},
+            ("L4", "F"): 2,
+            **{(f"D{pair}", "D"): 2 for pair in range(1, 4)},
+            ("D4", "D"): 1,
+        }
+        eleven_seven = counts == eleven_seven_counts and all(
+            payload.get("officialPosition") in
+            (("D",) if payload["EVRole"] == "D" else ("C", "L", "R", "LW", "RW"))
+            for _, payload, _, _ in entries)
+        if (counts != required_counts and not eleven_seven) or len(ids) != 18 or len(set(ids)) != 18:
             continue
         # A single archived article revision must be coherent: mixing
         # old/new versions of an article would invent a pregame lineup.
@@ -83,7 +94,8 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
         published, modified = next(iter(clocks))
         players = [
             {"id": str(r["player_id"]), "name": payload["playerName"].strip(),
-             "position": "D" if payload["EVRole"] == "D" else payload["EVRole"],
+             "position": (payload["officialPosition"] if payload["EVRole"] == "F"
+                          else payload["EVRole"]),
              "availability": "UNVERIFIED", "projectedEV": payload["EV"]}
             for r, payload, _, _ in entries
         ]
@@ -93,7 +105,8 @@ def recover_full_projected_team_pool(rows, *, date, game_id, team, cutoff):
             "team": team, "players": players, "goalies": [],
             "sourceType": "OFFICIAL_NHL_DATED_PROJECTED_GAME_SKATER_POOL",
             "projectionSourceType": SOURCE,
-            "scope": "ALL_FOUR_PROJECTED_FORWARD_LINES_AND_THREE_DEFENSE_PAIRS",
+            "scope": ("ALL_ELEVEN_PROJECTED_FORWARDS_AND_SEVEN_DEFENDERS" if eleven_seven
+                      else "ALL_FOUR_PROJECTED_FORWARD_LINES_AND_THREE_DEFENSE_PAIRS"),
             "fullProjectedSkaterLineupObserved": True,
             "completeOrganizationalCurrentRosterNotClaimed": True,
             "notConfirmedDressedOrEVUnits": True,
