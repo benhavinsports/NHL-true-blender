@@ -276,6 +276,22 @@ def attach(con, snapshot, date, stage):
                                 prior.setdefault('conflictingProjectedAssignments',[]).append(wrapper)
                                 p['deploymentConflict']=True
                                 continue
+                        if kind=='PLAYER_GOAL_EVENTS' and p.get(fld):
+                            # A raw sampled PBP receipt has no independent
+                            # boxscore reconciliation. Preserve it for audit
+                            # without overwriting a paired, source-verified
+                            # boxscore/PBP game-log receipt. These two samples
+                            # may cover DIFFERENT fetched games.
+                            prior=p[fld]
+                            prior_scope=prior.get('data',{}).get('scope')
+                            new_scope=data.get('scope')
+                            if (prior_scope=='SAMPLED_RECENT_TEAM_GAMES_ONLY' and
+                                    new_scope=='SAMPLED_PRE_SLATE_GAMES_ONLY'):
+                                prior['data'].setdefault('rawPbpSupplement',wrapper)
+                                continue
+                            if (prior_scope=='SAMPLED_PRE_SLATE_GAMES_ONLY' and
+                                    new_scope=='SAMPLED_RECENT_TEAM_GAMES_ONLY'):
+                                wrapper['data'].setdefault('rawPbpSupplement',prior)
                         if kind=='PLAYER_FINISH_CREDIT' and p.get(fld):
                             previous=p[fld]
                             prior=previous.get('data',{})

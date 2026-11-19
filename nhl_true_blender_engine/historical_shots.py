@@ -183,12 +183,16 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             pbp_errors.append({"gameId":game_id,"error":err})
         else:
             coverage_events.extend(rows)
+    # Distinguish an independently fetched PBP with zero goals from no PBP
+    # at all. A failed source must not count as a reconciled zero appearance.
+    pbp_verified_ids={str(gid) for gid,rows,err in results if err is None}
     target_events=[e for e in coverage_events if str(e["gameId"]) in target_ids]
     target_game_meta={gid:game_meta[gid] for gid in target_ids if gid in game_meta}
     # Only target-club games contribute to the candidate's actual appearances,
     # goal credits, pressure samples and historical defensive shift receipts.
     boxscore_receipts=await collect_sampled_boxes(
-        client,con,snapshot,slate_date,stage,target_ids,target_events)
+        client,con,snapshot,slate_date,stage,target_ids,target_events,
+        pbp_verified_game_ids=pbp_verified_ids & set(target_ids))
     shift_receipts=await collect_shift_coverage(
         target_ids,target_events,target_game_meta)
     # G9 uses every club's independently sampled recent PBP attempts to build

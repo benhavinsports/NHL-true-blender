@@ -19,7 +19,12 @@ def _versioned_receipt_id(base,payload):
     return f"{base}-{digest}"
 
 
-async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events):
+async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events,
+                                pbp_verified_game_ids=None):
+    # Only reconcile goals where both independent official feeds were read.
+    # An absent PBP feed is NOT a source-verified zero-goal game.
+    verified_pbp_ids = (set(map(str,game_dates)) if pbp_verified_game_ids is None
+                        else {str(gid) for gid in pbp_verified_game_ids})
     sem=asyncio.Semaphore(5)
     async def one(game_id):
         async with sem:
@@ -57,7 +62,10 @@ async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events
     registered=set()
     stats={"verifiedOwnGoalRows":0,"appearanceRows":0,
            "distinctPlayers":0,"sourceGames":len(by_game),
-           "attemptedGames":len(game_dates),"discrepancies":[]}
+           "attemptedGames":len(game_dates),"discrepancies":[],
+           "pbpUnavailableGames":sorted(set(map(str,game_dates))-verified_pbp_ids),
+           "boxscoreUnavailableGames":sorted(set(map(str,game_dates))-set(by_game)),
+           "reconciledSourceGames":len(set(by_game)&verified_pbp_ids)}
     timestamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     for game in snapshot.get("games",[]):
         for team in (game["away"],game["home"]):
@@ -67,20 +75,29 @@ async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events
                 if key in registered:continue
                 registered.add(key)
                 pid=key[1]
-                appearances=sorted(
-                    (players[pid] for players in by_game.values() if pid in players),
+                fetched=sorted(
+                    (players[pid] for gid,players in by_game.items()
+                     if gid in verified_pbp_ids and pid in players),
                     key=lambda x:(x["date"],x["gameId"]),reverse=True)
+                # Reconcile each actual appearance independently. One
+                # conflicting or uncollected PBP must not erase a different
+                # source-verified appearance, or be inserted as a zero.
+                appearances=[]
+                for appearance in fetched:
+                    goals_in_pbp=by_player_events.get((appearance["gameId"],pid),[])
+                    if appearance["goals"]!=len(goals_in_pbp):
+                        stats["discrepancies"].append({
+                            "playerId":pid,"gameId":appearance["gameId"],
+                            "boxScoreGoals":appearance["goals"],
+                            "pbpGoalEvents":len(goals_in_pbp),
+                            "reason":"Game-specific goal credit is unreconciled; excluded from certified sample"})
+                        continue
+                    appearances.append(appearance)
                 if not appearances:continue
                 source_urls=sorted({x["sourceUrl"] for x in appearances})
                 pbp_goals=[e for a in appearances for e in
                            by_player_events.get((a["gameId"],pid),[])]
                 box_goals=sum(a["goals"] for a in appearances)
-                if box_goals!=len(pbp_goals):
-                    stats["discrepancies"].append({
-                        "playerId":pid,"boxScoreGoals":box_goals,
-                        "pbpGoalEvents":len(pbp_goals),
-                        "reason":"Goal-credit receipt incomplete: not promoted to G7/G12"})
-                    continue
                 mapped=[]
                 seen=set()
                 for e in pbp_goals:
