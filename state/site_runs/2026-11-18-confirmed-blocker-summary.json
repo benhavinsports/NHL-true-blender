@@ -1,0 +1,867 @@
+{
+  "slateDate": "2026-11-18",
+  "stage": "CONFIRMED",
+  "g0AcceptedSkaterMatrices": 23,
+  "g0RejectedResearchNeverCountsAsCandidate": true,
+  "allGatesExecutedButNotAllPassed": true,
+  "notScorerSelectionOrRanking": true,
+  "fullActualCandidateGateMatrixStoredSeparately": true,
+  "nonpassingGateCounts": {
+    "G2": 23,
+    "G4": 4,
+    "G5": 4,
+    "G6": 23,
+    "G10": 10,
+    "G12": 10,
+    "G15": 10,
+    "G17": 23,
+    "Step3": 4,
+    "Step6": 23,
+    "Step7": 4,
+    "Step10": 4,
+    "Step14": 8,
+    "G9": 19,
+    "G7": 5,
+    "G11": 5,
+    "Step4": 5,
+    "Step9": 5
+  },
+  "g18NonselectedNotMissingSource": 23,
+  "g18ActualMissingSourceCount": 0,
+  "g18FinalCoreAssemblyNotSourceCollection": true,
+  "exactFailedGateIntersections": [
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6"
+      ],
+      "playerCount": 11
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9"
+      ],
+      "playerCount": 1
+    }
+  ],
+  "oneObservedEvidenceExamplePerGate": {
+    "G2": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "G4": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "G5": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": {
+        "zone": "R Point",
+        "goalieWeakZones": [
+          "Low Slot",
+          "R Circle"
+        ]
+      }
+    },
+    "G6": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": {
+        "deployment": {
+          "EV": "D3",
+          "defensePair": 3,
+          "sourceType": "SECONDARY_PROJECTED_LINEUP",
+          "status": "PROJECTED"
+        }
+      }
+    },
+    "G10": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": {
+        "recipient": null,
+        "ownedGoalsInActualAppearances": null,
+        "creditedGoalsVerified": null
+      }
+    },
+    "G12": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "G15": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "G17": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": {
+        "outcome": "UNRESOLVED_CONTRADICTION",
+        "unresolved": true,
+        "goalieStrengthReview": {
+          "matchedWeakAreas": 0,
+          "opposingBranchesReviewed": 1,
+          "source": [
+            {
+              "anatomicalPlacementVerified": false,
+              "goalieId": "8482657",
+              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482657/now",
+              "observedStrengthAreaNames": [],
+              "observedStrongerArea": false,
+              "observedWeakAreaNames": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "physicalOriginMatch": false,
+              "sourceKind": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
+              "starterSourceUrl": "https://www.dailyfaceoff.com/starting-goalies/2026-11-18",
+              "starterStatus": "EXPECTED"
+            }
+          ],
+          "sourceScope": "GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
+          "strongerAreaContradiction": false
+        },
+        "lineupDisagreementReview": {
+          "availability": "PROJECTED_ACTIVE",
+          "hasProjectedOrConfirmedRole": true,
+          "isTrulyConfirmed": false,
+          "lineupSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+          "projectedOrConfirmedEV": {
+            "EV": "D3",
+            "defensePair": 3,
+            "sourceType": "SECONDARY_PROJECTED_LINEUP",
+            "status": "PROJECTED"
+          }
+        },
+        "strongestRivalReview": {
+          "G9OpponentDefenseWeakZonesUsed": [
+            "Point",
+            "L Point",
+            "R Point",
+            "Center Point"
+          ],
+          "eachSameLaneDefeated": true,
+          "everyRivalReviewed": true,
+          "matchesG10_5GoalieAndDefenseRouteScope": true,
+          "rivalCompared": 17,
+          "rivalResults": [
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8484149",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "L Net Side",
+                "R Circle"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484149/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8486171",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Outside R",
+                "High Slot",
+                "R Net Side",
+                "L Net Side",
+                "Crease",
+                "L Circle",
+                "Offensive Neutral Zone",
+                "R Circle",
+                "R Point",
+                "Center Point",
+                "L Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8486171/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8475172",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "High Slot",
+                "L Circle",
+                "R Circle",
+                "Outside L",
+                "L Point",
+                "Outside R",
+                "R Point",
+                "Crease",
+                "L Net Side",
+                "R Net Side"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475172/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8480448",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "L Circle",
+                "R Circle",
+                "High Slot",
+                "Beyond Red Line",
+                "Low Slot",
+                "L Point",
+                "Offensive Neutral Zone",
+                "Outside L"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480448/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8476455",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Crease",
+                "L Net Side",
+                "L Circle",
+                "Outside L",
+                "High Slot",
+                "Beyond Red Line",
+                "Center Point",
+                "L Point",
+                "Outside R",
+                "R Circle"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476455/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8477476",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "High Slot",
+                "L Circle",
+                "Crease",
+                "R Circle",
+                "L Net Side",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477476/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8480039",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "L Circle",
+                "High Slot",
+                "R Circle",
+                "L Net Side",
+                "Crease",
+                "Outside L",
+                "Center Point",
+                "L Point",
+                "Outside R",
+                "R Point",
+                "Offensive Neutral Zone"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480039/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8475754",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Outside R",
+                "L Net Side",
+                "High Slot",
+                "L Circle",
+                "R Circle",
+                "Behind the Net",
+                "R Net Side",
+                "Center Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475754/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8481186",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "High Slot",
+                "R Circle",
+                "L Net Side",
+                "L Point",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481186/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8478462",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "L Point",
+                "L Circle",
+                "Crease",
+                "High Slot",
+                "R Circle",
+                "Beyond Red Line",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478462/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8475768",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "High Slot",
+                "L Circle",
+                "Outside L",
+                "R Circle",
+                "R Point",
+                "Crease",
+                "L Net Side",
+                "L Point",
+                "Offensive Neutral Zone",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475768/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8482768",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Low Slot",
+                "Crease",
+                "High Slot",
+                "L Circle",
+                "L Point",
+                "Offensive Neutral Zone",
+                "R Circle",
+                "R Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482768/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8482942",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Center Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482942/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8478454",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "Center Point",
+                "R Circle",
+                "R Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478454/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8476967",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "L Point",
+                "Outside L",
+                "Center Point",
+                "L Circle",
+                "Beyond Red Line",
+                "Outside R",
+                "R Point"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476967/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8484258",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "R Point",
+                "Center Point",
+                "R Circle",
+                "L Point",
+                "Beyond Red Line",
+                "High Slot",
+                "Low Slot",
+                "Outside L",
+                "Outside R"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484258/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            },
+            {
+              "G0GoalieWeakZones": [
+                "Low Slot",
+                "R Circle"
+              ],
+              "G9DefensiveWeakZones": [
+                "Center Point",
+                "L Point",
+                "Point",
+                "R Point"
+              ],
+              "candidateZone": "R Point",
+              "challengerId": "8478038",
+              "noneOfKnownRivalOriginsJointlyMatchG0G9": true,
+              "notEvidenceRivalCannotScoreTonight": true,
+              "rivalKnownAreas": [
+                "L Point",
+                "Low Slot",
+                "Beyond Red Line",
+                "L Circle",
+                "L Net Side",
+                "Center Point",
+                "R Point",
+                "R Circle",
+                "High Slot"
+              ],
+              "sourceUrls": [
+                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478038/now"
+              ],
+              "status": "DIFFERENT_TARGET_LANE"
+            }
+          ]
+        }
+      }
+    },
+    "Step3": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "Step6": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "Step7": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "Step10": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "Step14": {
+      "gameId": "2026020346",
+      "playerId": "8470613",
+      "reason": null
+    },
+    "G9": {
+      "gameId": "2026020346",
+      "playerId": "8475172",
+      "reason": {
+        "zone": "Low Slot",
+        "green": [
+          "Point",
+          "L Point",
+          "R Point",
+          "Center Point"
+        ],
+        "red": [],
+        "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "zoneConcession": {
+          "allAttemptsAgainst": 900,
+          "allOnNetShotsAgainst": 413,
+          "attemptShare": 0.29555555555555557,
+          "attemptTypes": [
+            "goal",
+            "shot-on-goal",
+            "missed-shot",
+            "blocked-shot"
+          ],
+          "attemptsAgainst": 266,
+          "attemptsPerGame": 16.625,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1",
+          "gameCount": 16,
+          "goalsAgainst": 29,
+          "independentOnNetConcessionReview": true,
+          "onNetShotsAgainst": 112,
+          "onNetShotsPerGame": 7.0,
+          "peerMedianAttemptsPerGame": 17.647058823529413,
+          "peerMedianOnNetShotsPerGame": 7.8125,
+          "peerTeamsCompared": 31,
+          "positiveConcessionBases": []
+        }
+      }
+    },
+    "G7": {
+      "gameId": "2026020346",
+      "playerId": "8476312",
+      "reason": null
+    },
+    "G11": {
+      "gameId": "2026020346",
+      "playerId": "8476312",
+      "reason": null
+    },
+    "Step4": {
+      "gameId": "2026020346",
+      "playerId": "8476312",
+      "reason": null
+    },
+    "Step9": {
+      "gameId": "2026020346",
+      "playerId": "8476312",
+      "reason": null
+    }
+  }
+}
