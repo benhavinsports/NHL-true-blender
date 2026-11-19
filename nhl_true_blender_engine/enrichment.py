@@ -251,6 +251,22 @@ def attach(con, snapshot, date, stage):
                                 data.get('status')!='CONFIRMED'):
                                 prior.setdefault('projectedAlternatives',[]).append(wrapper)
                                 continue
+                            # Same-EV independent NHL.com lineup evidence
+                            # must not erase separately sourced BTL PP/PK unit
+                            # assignments just because the official article
+                            # does not publish special teams. Retain the more
+                            # complete original receipt as the authority and
+                            # preserve the new source as independent EV support.
+                            # This is NOT a unit inference or a status upgrade.
+                            if (prior.get('status')=='PROJECTED' and
+                                data.get('status')=='PROJECTED' and
+                                prior.get('EV') and prior.get('EV')==data.get('EV')
+                                and (('PP' in prior and prior.get('PP') is not None
+                                      and data.get('PP') is None)
+                                     or ('PK' in prior and prior.get('PK') is not None
+                                         and data.get('PK') is None))):
+                                prior.setdefault('corroboratingProjectedEVSources',[]).append(wrapper)
+                                continue
                             # Keep contradictory projected assignments visible
                             # rather than silently replacing the earlier one.
                             if (prior.get('status')=='PROJECTED' and
