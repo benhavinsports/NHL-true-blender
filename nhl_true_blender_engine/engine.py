@@ -2334,6 +2334,32 @@ def compare_g0_consensus_across_starters(a,b):
         }}
 
 
+
+def partition_nonselected_g0_diagnostics(errors, selected_game_ids):
+    """Separate failed G0 research for non-Core games from Core-fatal failures.
+
+    This is called only AFTER the original G0-G18 engine independently saves a
+    real card. No G0 disposition changes; unresolved games remain visible and
+    still count against whole-slate research completeness. A selected game's
+    G0 issue and any non-G0 error ALWAYS remain fatal.
+    """
+    nonselected_g0=(
+        ' G0 attack sides not physically separated by certified goalie weaknesses',
+        ' G0 no independently evidenced goalie target',
+        ' G0 both attack directions REQUIRE independent goalie profiles',
+        ' G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction',
+        ' G0 source consensus exists but multiple potential opposing goalies remain;',
+    )
+    kept=[]; notes=[]
+    for message in errors:
+        game_id=message.split(' ',1)[0] if isinstance(message,str) else None
+        if (game_id not in selected_game_ids and isinstance(message,str) and
+                any(marker in message for marker in nonselected_g0)):
+            notes.append(message)
+        else:
+            kept.append(message)
+    return kept,notes
+
 def execute(con, snapshot, date, stage='PROJECTED', now=None):
     now=now or datetime.now(timezone.utc)
     if stage not in ('PROJECTED','CONFIRMED'):raise ValueError('Stage is projected or confirmed')
@@ -2721,22 +2747,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     # of a separately certified and preserved Core 3.
     nonselected_game_notes=[]
     if card:
-        selected_game_ids={str(x['gameId']) for x in card['current_legs']}
-        remaining=[]
-        for message in errors:
-            if (isinstance(message,str) and
-                ' G0 attack sides not physically separated by certified goalie weaknesses' in message
-                and message.split(' ',1)[0] not in selected_game_ids):
-                nonselected_game_notes.append(message)
-            elif (isinstance(message,str) and
-                  (' G0 no independently evidenced goalie target' in message or
-                   ' G0 both attack directions REQUIRE independent goalie profiles' in message or
-                   ' G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction' in message)
-                  and message.split(' ',1)[0] not in selected_game_ids):
-                nonselected_game_notes.append(message)
-            else:
-                remaining.append(message)
-        errors=remaining
+        errors,nonselected_game_notes=partition_nonselected_g0_diagnostics(
+            errors,{str(x['gameId']) for x in card['current_legs']})
     gaps=defaultdict(int)
     g18_intentionally_not_selected=0
     for rec in records:
