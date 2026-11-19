@@ -115,7 +115,10 @@ async def execute_cycle(mode, date, root='state'):
                 return {'date':date,'mode':mode,'status':'NO_SCHEDULE'}
             await collect_secondary(con,slate,date,'CONFIRMED')
             lineup=await fetch_and_ingest_lineups(con,slate,date,'CONFIRMED')
-            attach(con,slate,date,'WATCH')
+            # WATCH compares projected/confirmed NHL starter and deployment receipts.
+            # Attaching stage WATCH here filtered out the CONFIRMED evidence
+            # collected immediately above, preventing material-change detection.
+            attach(con,slate,date,'CONFIRMED')
             watch=await collect_watch(None,con,date,slate)
             output={'slateDate':date,'mode':mode,'status':'PREGAME_CHANGE_WATCH',
                     'gameCount':len(slate['games']),'lineupSource':lineup,**watch}
