@@ -1,7 +1,23 @@
 """Aggregate official replay ledgers into per-slate and gate-by-gate audit reports."""
-import argparse, json
+import argparse, json, re
 from collections import Counter
 from pathlib import Path
+
+def blocked_gate_reasons(errors):
+    """Count actual first-level engine blocker messages, not imagined misses.
+
+    Do not treat the G18/PRE_CORE_REVIEW final consequence as another source
+    deficit or grade a scorer who was never originally issued.
+    """
+    counts=Counter()
+    for error in errors or []:
+        line=str(error)
+        if "PRE_CORE_REVIEW:" in line:
+            counts["CORE_ASSEMBLY_UNRESOLVED"]+=1
+            continue
+        found=re.search(r"\\b(G10\\.5|G(?:1[0-8]|[0-9]))\\b",line)
+        counts[found.group(1) if found else "OTHER_SOURCE_BLOCKER"]+=1
+    return dict(counts)
 
 GATES = [f"G{i}" for i in range(1,11)] + ["G10.5"] + [f"G{i}" for i in range(11,19)]
 
@@ -52,11 +68,14 @@ def main():
     dfo_pages={x.get("date"):x for x in dfo.get("pages",[])}
     scheduled=sorted(manifest.get("scheduledDates",[]));off=set(manifest.get("verifiedOffDays",[]))
     per=[];agg={g:Counter() for g in GATES}
+    blocker_totals=Counter()
     for day in sorted(set(scheduled)|off):
         s=sels.get(day) or {"date":day,"status":"MISSING_SELECTION_LEDGER_ROW"}
         e=s.get("engineResult") or {};card=e.get("card") or {};legs=card.get("current_legs") or []
         g=grades.get(day) or {}; pg=post.get(day) or {}
         n,counts=gate_counts(s) if s.get("status")=="REPLAYED" else (0,{})
+        blockers=blocked_gate_reasons(e.get("errors") or ([s.get("reason")] if s.get("reason") else []))
+        blocker_totals.update(blockers)
         for gate,values in counts.items():agg[gate].update(values)
         sched=(manifest.get("officialSchedule") or {}).get(day) or {}
         per.append({
@@ -65,6 +84,8 @@ def main():
             "matchups":[x.get("away","")+"@"+x.get("home","") for x in sched.get("games") or []],
             "replayStatus":s.get("status"),"cutoff":s.get("cutoff"),"stage":s.get("stage"),
             "candidatePlayers":n,"gateCertified":(s.get("gateCertification") or {}).get("selectedCoreOnlyFullyCertified"),
+            "engineBlockerCounts":blockers,
+            "sourceAvailabilityIndependentlyVerified":(manifest.get("slates",{}).get(day) or {}).get("providerAvailabilityTimeIndependentlyVerified"),
             "g0":{"directionsRequired":e.get("games",0)*2,"directionsWithCompleteProfiles":e.get("g0Complete"),
                   "directionsScanned":e.get("g0Directions"),"attackSidesSelected":len(e.get("g0TwoGoalieDirectionDecisions") or {}),
                   "gamesWithoutAttackSide":e.get("games",0)-len(e.get("g0TwoGoalieDirectionDecisions") or {})} if s.get("status")=="REPLAYED" else None,
@@ -149,6 +170,13 @@ def main():
                      "legs":sum((x.get("grade") or {}).get("legs") or 0 for x in core3),
                      "fullCardsHit":sum((x.get("grade") or {}).get("result")=="WIN" for x in core3)},
             "otherCardSizes":dict(Counter((x.get("grade") or {}).get("legs") for x in graded if (x.get("grade") or {}).get("legs")!=3))},
+        "blockerBreakdown":{"engineErrorCounts":dict(sorted(blocker_totals.items())),
+            "scheduledSlatesWithUnverifiedProviderAvailability":sum(
+                x["scheduleStatus"]=="SCHEDULED" and
+                x["sourceAvailabilityIndependentlyVerified"] is not True
+                for x in per),
+            "noCoreIsNotAnOfficiallyGradedLoss":True,
+            "failureDoesNotAuthorizeManualCoreOrBypassedGate":True},
         "gateBreakdown":{"order":GATES,"aggregate":{g:dict(agg[g]) for g in GATES},
                          "playerCandidateDenominator":sum(gate_counts(x)[0] for x in sels.values() if x.get("status")=="REPLAYED"),
                          "G0ReportedAsGameDirectionsSeparately":True},
@@ -196,6 +224,10 @@ def main():
         f"- Fully completed slates: {len(complete)}; unresolved scheduled slates: {len(scheduled)-len(complete)}",
         f"- Graded cards: {len(graded)}; leg hits: {hits}/{legs}; dressed picks: {dressed}; not listed in boxscore: {absent}",
         f"- Full cards hit: {sum((x.get('grade') or {}).get('result')=='WIN' for x in graded)}/{len(graded)}",
+        "", "## Recorded first-level engine blockers (diagnostic only)",
+        *[f"- {gate}: {count}" for gate,count in sorted(blocker_totals.items())],
+        f"- Scheduled slates lacking independent provider publication-time proof: {report['blockerBreakdown']['scheduledSlatesWithUnverifiedProviderAvailability']}",
+        "- NO_CORE is an ungraded issuance failure, never an official graded loss.",
         "", "## Gate breakdown (first nonpassing gate only)",
         "| Gate | Reached | Passed | Merit failures | Evidence blocked | Never reached |","|---|---:|---:|---:|---:|---:|"]
     for g in GATES:
