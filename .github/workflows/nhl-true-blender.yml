@@ -31,13 +31,11 @@ on:
         required: false
         options: [projected, confirmed, watch, grade]
   schedule:
-    # One hourly UTC-minute trigger; the runner chooses the phase from its
-    # actual America/New_York clock, never from a stale/misinterpreted cron.
-    # :38 leaves time for source collection and publication before puck drop.
-    # 08:00-15:59 ET = PROJECTED; 16:00-18:59 ET = CONFIRMED;
-    # 19:00-20:59 ET = WATCH; 21:00-07:59 ET = POSTGAME GRADE.
-    # UTC hour scheduling keeps the local minute stable across DST changes.
-    - cron: '38 * * * *'
+    # Automatic evidence refresh every 30 minutes. The runner reads actual
+    # official NHL start times rather than stopping full gate execution at 7 ET.
+    # Late starts remain eligible for confirmed research until their own puck drop.
+    # After all starts, grade only when the official NHL games are final.
+    - cron: '8,38 * * * *'
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
@@ -103,48 +101,7 @@ jobs:
           TRIGGER_EVENT: ${{ github.event_name }}
           MONEYPUCK_CSV_DIR: data/moneypuck
         run: |
-          python - <<'PY'
-          import datetime
-          import os
-          import subprocess
-          from zoneinfo import ZoneInfo
-
-          now = datetime.datetime.now(ZoneInfo('America/New_York'))
-          mode = os.environ.get('REQUESTED_MODE') or ''
-          if not mode:
-              # Choose from the ACTUAL Eastern clock, not github.event.schedule.
-              # Scheduled events can be delayed or carry a cron expression
-              # whose timezone interpretation differs from the runner clock.
-              # A late confirmed pass must never be mistaken for pregame work.
-              if now.hour < 8:
-                  mode = 'grade'
-              elif now.hour < 16:
-                  mode = 'projected'
-              elif now.hour < 19:
-                  mode = 'confirmed'
-              elif now.hour < 21:
-                  mode = 'watch'
-              else:
-                  mode = 'grade'
-          date = os.environ.get('REQUESTED_DATE') or (
-              (now - datetime.timedelta(days=1)).date().isoformat()
-              if mode == 'grade' and now.hour < 8 else now.date().isoformat()
-          )
-          datetime.date.fromisoformat(date)
-          # Carry exact execution phase/date into state-race reconciliation.
-          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
-              env.write(f'BLENDER_EXECUTED_DATE={date}\n')
-              env.write(f'BLENDER_EXECUTED_MODE={mode}\n')
-          print(f'BLENDER AUTONOMOUS {date} {mode} America/New_York')
-          if mode in ('projected','confirmed'):
-              # Aggregates were freshly downloaded by THIS job, not reused from a past slate.
-              if os.environ.get('MONEYPUCK_CSV_DIR'):
-                  os.environ['MONEYPUCK_EXPORT_ASOF'] = date
-              args = ['python','run_true_blender.py','--date',date,'--mode',mode]
-          else:
-              args = ['python','-m','scripts.run_cycle','--date',date,'--mode',mode]
-          subprocess.run(args,check=True)
-          PY
+          python -m scripts.automatic_blender_cycle
       - name: Persist original canonical G18 state and published site JSON
         id: persist
         if: steps.verification.outcome == 'success' && steps.engine.outcome == 'success'

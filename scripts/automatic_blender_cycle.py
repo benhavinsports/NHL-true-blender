@@ -1,0 +1,136 @@
+"""Choose and execute the NHL Blender's complete autonomous slate lifecycle.
+
+A fixed local clock cannot say when a particular NHL game has reached puck drop.
+Use the official slate instead: a future game must keep receiving original G0-G18
+research, even if other games on the same slate already started. Never select
+or replace an original Core here; the engine/storage own those decisions.
+"""
+from __future__ import annotations
+
+import asyncio
+import os
+import sqlite3
+import subprocess
+from datetime import date as Date, datetime, timedelta, timezone
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+from nhl_true_blender_engine.sources import NHLClient
+
+ET = ZoneInfo("America/New_York")
+VALID_MODES = frozenset({"projected", "confirmed", "watch", "grade"})
+
+
+def choose_mode(games, now, *, date=None):
+    """Choose engine phase from official start times, never a static 7 PM cutoff.
+
+    Projected scouting starts early; use confirmed collection within three
+    hours of the first start, or whenever a game already started and other
+    games remain pre-puck. A game that already started is excluded by the
+    original engine, not reauthorized by this scheduling helper.
+    """
+    if now.tzinfo is None:
+        raise ValueError("Official phase clock must include a timezone")
+    slate_day = Date.fromisoformat(date) if date else now.astimezone(ET).date()
+    if slate_day > now.astimezone(ET).date():
+        raise ValueError("Scheduled automatic runs cannot target a future day")
+    if slate_day < now.astimezone(ET).date():
+        return "grade"
+    if now.astimezone(ET).hour < 8:
+        return "grade"
+    starts = []
+    for game in games:
+        raw = game.get("startTimeUTC") or game.get("startUTC")
+        if not raw:
+            raise ValueError("Official scheduled game has no puck-drop timestamp")
+        start = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        if start.tzinfo is None:
+            raise ValueError("Puck-drop timestamp must be timezone aware")
+        starts.append(start.astimezone(timezone.utc))
+    now_utc = now.astimezone(timezone.utc)
+    future = [start for start in starts if now_utc < start]
+    if not future:
+        return "grade"  # the grade runner waits for official NHL final results
+    if min(starts) <= now_utc or min(future) - now_utc <= timedelta(hours=3):
+        return "confirmed"
+    return "projected"
+
+
+async def official_games(day):
+    client = NHLClient()
+    try:
+        response = await client.score(day)
+    finally:
+        await client.close()
+    games = response.get("data", {}).get("games")
+    if not isinstance(games, list):
+        raise RuntimeError("Official NHL schedule omitted games; refusing to guess phase")
+    return games
+
+
+def pending_recent_grades(root, day, *, lookback_days=7):
+    """Retry missed official grades and postgame audits after overnight outages.
+
+    The original frozen Core is never replaced. Only slates which actually
+    have a saved card are retried; an off day or NO_CORE is not graded as a win.
+    """
+    db = Path(root) / "true_blender.sqlite"
+    if not db.exists():
+        return []
+    con = sqlite3.connect(str(db))
+    try:
+        rows = con.execute(
+            "SELECT slate_date FROM cards WHERE slate_date >= ? AND slate_date <= ? "
+            "AND (grade IS NULL OR grade = '') ORDER BY slate_date",
+            ((Date.fromisoformat(day) - timedelta(days=lookback_days)).isoformat(), day),
+        ).fetchall()
+        # Bound per-run replay cost; hourly runs will drain older ungraded cards.
+        return [row[0] for row in rows[:2]]
+    finally:
+        con.close()
+
+
+def execute_commands(day, mode, *, root="state"):
+    """Execute official research and auditable postgame operations, never picks."""
+    if mode in ("projected", "confirmed"):
+        subprocess.run(["python", "run_true_blender.py", "--date", day,
+                        "--mode", mode], check=True)
+    else:
+        subprocess.run(["python", "-m", "scripts.run_cycle", "--date", day,
+                        "--mode", mode], check=True)
+    if mode != "watch":
+        for other in pending_recent_grades(root, day):
+            if other == day and mode == "grade":
+                continue  # already tried as the primary phase
+            # No result is invented if those games are not yet final.
+            subprocess.run(["python", "-m", "scripts.run_cycle", "--date", other,
+                            "--mode", "grade"], check=True)
+
+
+def main():
+    now = datetime.now(ET)
+    manual_date = os.getenv("REQUESTED_DATE", "").strip()
+    manual_mode = os.getenv("REQUESTED_MODE", "").strip().lower()
+    if manual_mode and manual_mode not in VALID_MODES:
+        raise SystemExit("Unsupported Blender phase: " + manual_mode)
+    if manual_date:
+        day = Date.fromisoformat(manual_date).isoformat()
+    elif now.hour < 8:
+        day = (now.date() - timedelta(days=1)).isoformat()
+    else:
+        day = now.date().isoformat()
+    # Manual runs have an explicit phase. Otherwise the official NHL schedule
+    # is authoritative for projected/confirmed/grade lifecycle transitions.
+    mode = manual_mode or choose_mode(asyncio.run(official_games(day)), now, date=day)
+    github_env = os.getenv("GITHUB_ENV")
+    if github_env:
+        with open(github_env, "a", encoding="utf-8") as env:
+            env.write(f"BLENDER_EXECUTED_DATE={day}\nBLENDER_EXECUTED_MODE={mode}\n")
+    if mode in ("projected", "confirmed") and os.getenv("MONEYPUCK_CSV_DIR"):
+        os.environ["MONEYPUCK_EXPORT_ASOF"] = day
+    print(f"BLENDER AUTOMATIC {day} {mode} {now.isoformat()} ET", flush=True)
+    execute_commands(day, mode)
+
+
+if __name__ == "__main__":
+    main()

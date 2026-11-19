@@ -137,6 +137,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 await collect_season_goal_history(client,con,snapshot,date,stage)
             await collect_secondary(con,snapshot,date,stage)
             await fetch_and_ingest_lineups(con,snapshot,date,stage)
+            # Late source fixes must refresh BOTH deployment collectors before
+            # rerunning all original gates. The first pass already uses both.
+            await fetch_and_ingest_additional_deployment(con,snapshot,date,stage)
             # Refresh independent official projected starter identities too;
             # otherwise the second pass compares new goalie history against
             # stale starter identities and can regress the G0 attack branch.
