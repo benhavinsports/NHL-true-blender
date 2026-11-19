@@ -172,6 +172,18 @@ async def reconstruct(manifest, database, output, limit=18):
                     return gid, value, None
                 except Exception as e:
                     return gid, [], type(e).__name__ + ": " + str(e)[:160]
+        cached_boxscores = {}
+        async def get_boxscore(game_id):
+            async with sem:
+                try:
+                    source = await client.boxscore(game_id)
+                    stats = source["data"].get("playerByGameStats")
+                    if not isinstance(stats, dict):
+                        raise ValueError("Official boxscore missing playerByGameStats")
+                    return game_id, source, None
+                except Exception as exc:
+                    return game_id, None, type(exc).__name__ + ": " + str(exc)[:180]
+
         summary = []
         for date in days:
             games = calendar["officialSchedule"][date]["games"]
@@ -331,11 +343,133 @@ async def reconstruct(manifest, database, output, limit=18):
                                  {"goals": goals, "scope": "PRE_SLATE_PBP_ONLY",
                                   "completeSeason": False},
                                  urls, available_at)
+            # Reconstruct actual PRE-SLATE skater appearances from official
+            # boxscores. This is neither today's dressed roster nor a
+            # projected line/PP assignment, and is never used to infer either.
+            recent_games_by_team = {}
+            box_ids = set()
+            active_teams = {t for g in games for t in (g["away"], g["home"])}
+            for team in active_teams:
+                past = sorted(
+                    (row for row in club_schedules.get(team, [])
+                     if row["id"] in pool), key=lambda row: row["startTimeUTC"])
+                recent_games_by_team[team] = past[-8:]
+                box_ids.update(row["id"] for row in past[-8:])
+            fresh_boxes = sorted(box_ids - set(cached_boxscores))
+            for box_gid, raw, error in await asyncio.gather(
+                    *(get_boxscore(gid) for gid in fresh_boxes)):
+                if raw:
+                    cached_boxscores[box_gid] = raw
+                else:
+                    fetch_errors.append({"date": date, "gameId": box_gid,
+                                         "endpoint": "official-boxscore",
+                                         "error": error})
+            team_appearances = defaultdict(lambda: defaultdict(list))
+            for team, recent in recent_games_by_team.items():
+                for previous in recent:
+                    box = cached_boxscores.get(previous["id"])
+                    if not box:
+                        continue
+                    side = (
+                        "homeTeam" if (previous.get("homeTeam") or {}).get("abbrev") == team
+                        else "awayTeam" if (previous.get("awayTeam") or {}).get("abbrev") == team
+                        else None)
+                    if not side:
+                        continue
+                    data = box["data"]["playerByGameStats"].get(side) or {}
+                    for group in ("forwards", "defense"):
+                        for row in data.get(group) or []:
+                            pid = row.get("playerId")
+                            shots = row.get("shots")
+                            goals = row.get("goals")
+                            if (pid is None or type(shots) is not int or shots < 0
+                                    or type(goals) is not int or goals < 0):
+                                continue
+                            played = str(previous.get("gameDate") or
+                                         previous["startTimeUTC"][:10])[:10]
+                            if played >= date:
+                                continue
+                            team_appearances[team][str(pid)].append({
+                                "date": played, "gameId": previous["id"],
+                                "goals": goals, "shotsOnGoal": shots,
+                                "sourceUrl": box["url"]})
+            box_log_receipts = 0
+            reconciled_recipient_receipts = 0
+            for scheduled in games:
+                upcoming_id = str(scheduled.get("id") or scheduled.get("gameId"))
+                for team in (scheduled["away"], scheduled["home"]):
+                    for pid, appearances in team_appearances[team].items():
+                        appearances.sort(
+                            key=lambda a: (a["date"], a["gameId"]), reverse=True)
+                        game_ids = {x["gameId"] for x in appearances}
+                        historical_games = [pool[x] for x in game_ids]
+                        available_at = max(utc(x["startTimeUTC"]) + FINISH_BUFFER
+                                           for x in historical_games)
+                        if available_at >= cutoff:
+                            continue
+                        urls = [a["sourceUrl"] for a in appearances]
+                        scope = "SAMPLED_RECENT_TEAM_GAMES_ONLY"
+                        log = {
+                            "lastAppearances": appearances,
+                            "appearances": appearances,
+                            "sampleGameIds": sorted(game_ids),
+                            "scope": scope, "notFullSeason": True,
+                            "includesActualZeroShotAppearances": True,
+                            "notEvidenceOfTonightDressedRoster": True}
+                        _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                 "PLAYER_GAME_LOG", log, urls, available_at)
+                        _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                 "PLAYER_PRESSURE", {
+                                     "recentAppearanceShots": [x["shotsOnGoal"]
+                                                               for x in appearances],
+                                     "appearances": appearances,
+                                     "evidenceType": "OFFICIAL_HISTORICAL_SHOT_EVENTS",
+                                     "shotsOnGoalNotTotalAttempts": True,
+                                     "scope": scope,
+                                     "notTonightDeploymentEvidence": True},
+                                 urls, available_at)
+                        box_log_receipts += 1
+                        owned = [event for game_id in game_ids
+                                 for event in cached_pbp[game_id]
+                                 if (event["shooterId"] == pid and
+                                     event["type"] == "goal")]
+                        scored = sum(x["goals"] for x in appearances)
+                        if scored != len(owned):
+                            # Boxscore/PBP disagreement must never certify
+                            # scoring credit or a positive finishing recipient.
+                            continue
+                        mapped = [{"goalId": e["gameId"] + ":" + e["eventId"],
+                                   "date": e["date"], "gameId": e["gameId"],
+                                   "sourceUrl": e["sourceUrl"]} for e in owned]
+                        _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                 "PLAYER_GOAL_EVENTS", {
+                                     "goals": mapped, "scope": scope,
+                                     "notFullSeason": True,
+                                     "verifiedByPlayByPlay": True},
+                                 urls, available_at)
+                        _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                 "PLAYER_OFFICIAL_GOALS", {
+                                     "goals": scored, "scope": scope,
+                                     "notFullSeason": True,
+                                     "verifiedByPlayByPlay": True},
+                                 urls, available_at)
+                        _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                 "PLAYER_FINISH_CREDIT", {
+                                     "recipient": True if scored > 0 else None,
+                                     "ownedGoalsInActualAppearances": scored,
+                                     "creditedGoalsVerified": True,
+                                     "independentHistoricallyScored": scored > 0,
+                                     "notClaimOfTonightGoalCredit": True,
+                                     "scope": scope},
+                                 urls, available_at)
+                        reconciled_recipient_receipts += 1
             summary.append({
                 "date": date, "games": len(games), "goalieStartersWithDatedEvidence": len(starters),
                 "independentGoalieProfilesImported": profiles,
                 "goalieProfilesWithPeerComparedAreas": peer_qualified,
                 "playerRecentOriginReceipts": player_receipts,
+                "historicalBoxscorePlayerLogs": box_log_receipts,
+                "boxscorePbpReconciledRecipients": reconciled_recipient_receipts,
                 "historicalTeamCoverageDirections": coverage_count,
                 "officialMatchContextReceipts": context_count,
                 "allInputsFromPriorFinishedOfficialGames": True,
@@ -348,6 +482,8 @@ async def reconstruct(manifest, database, output, limit=18):
             "totalGoalieProfiles": sum(x["independentGoalieProfilesImported"] for x in summary),
             "totalPeerQualifiedGoalieProfiles": sum(x["goalieProfilesWithPeerComparedAreas"] for x in summary),
             "totalPlayerRecentOriginReceipts": sum(x["playerRecentOriginReceipts"] for x in summary),
+            "totalHistoricalBoxscorePlayerLogs": sum(x["historicalBoxscorePlayerLogs"] for x in summary),
+            "totalBoxscorePbpReconciledRecipients": sum(x["boxscorePbpReconciledRecipients"] for x in summary),
             "totalTeamCoverageDirections": sum(x["historicalTeamCoverageDirections"] for x in summary),
             "totalMatchContextReceipts": sum(x["officialMatchContextReceipts"] for x in summary),
             "days": summary, "sourceFailures": fetch_errors[:200],
