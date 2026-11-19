@@ -15,6 +15,7 @@ from nhl_true_blender_engine.sources import NHLClient, official_slate, collect_w
 from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.secondary_sources import collect_secondary
 from nhl_true_blender_engine.lineup_parser import fetch_and_ingest_lineups, fetch_and_ingest_additional_deployment
+from nhl_true_blender_engine.edgehalla_deployment import collect_edgehalla_deployment
 from nhl_true_blender_engine.historical_shots import collect_history
 from nhl_true_blender_engine.edge_live import collect_edge, review_g0_goalie_origins
 from nhl_true_blender_engine.dated_goalie_projections import collect_dated_goalie_projections
@@ -60,6 +61,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
             con,snapshot,date,stage)
         source_research['additionalStructuredDeployment']=await fetch_and_ingest_additional_deployment(
+            con,snapshot,date,stage)
+        source_research['datedEdgehallaProjection']=await collect_edgehalla_deployment(
             con,snapshot,date,stage)
         # Independent dated NHL.com projected goalie listings are researched
         # rather than treating ambiguous generic EXPECTED branches as final.
@@ -144,6 +147,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             # Late source fixes must refresh BOTH deployment collectors before
             # rerunning all original gates. The first pass already uses both.
             await fetch_and_ingest_additional_deployment(con,snapshot,date,stage)
+            await collect_edgehalla_deployment(con,snapshot,date,stage)
             # Refresh independent official projected starter identities too;
             # otherwise the second pass compares new goalie history against
             # stale starter identities and can regress the G0 attack branch.
