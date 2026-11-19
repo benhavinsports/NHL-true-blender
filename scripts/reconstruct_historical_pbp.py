@@ -84,11 +84,19 @@ def _receipt(con, date, stage, game_id, player_id, kind, payload, urls, availabl
 
 
 def _target_starters(con, date, games, cutoff):
+    """Keep one latest report per independently identifiable goalie-source branch.
+
+    Historical ledger archives may contain hundreds of revisions of the SAME
+    pre-cutoff starter report. Repeated versions are not hundreds of different
+    starters, and rebuilding a goalie profile for each falsely multiplies the
+    evidence count. Never merge different goalie IDs, statuses or providers:
+    genuine starter disagreements remain visible to the original G0 gate.
+    """
     ids = {str(g.get("id") or g.get("gameId")) for g in games}
-    result = []
+    unique = {}
     for row in con.execute(
         "SELECT * FROM evidence WHERE slate_date=? AND kind='GOALIE_STARTER' "
-        "AND stage IN ('PROJECTED','CONFIRMED') ORDER BY observed_at",
+        "AND stage IN ('PROJECTED','CONFIRMED') ORDER BY observed_at, rowid",
         (date,)).fetchall():
         if str(row["game_id"]) not in ids or utc(row["observed_at"]) > cutoff:
             continue
@@ -100,8 +108,13 @@ def _target_starters(con, date, games, cutoff):
                          if str(g.get("id") or g.get("gameId")) == str(row["game_id"])), None)
         if not official or d.get("team") not in (official["away"], official["home"]):
             continue
-        result.append((row, d))
-    return result
+        # The last independently dated revision of this exact evidence branch
+        # supersedes redundant earlier copies. Distinct goalie candidates,
+        # source URLs and projected/confirmed verdicts are NOT collapsed.
+        key = (str(row["game_id"]), str(d["team"]), str(d["goalieId"]),
+               str(d["status"]), str(row["stage"]), str(row["source_url"]))
+        unique[key] = (row, d)
+    return sorted(unique.values(), key=lambda pair: utc(pair[0]["observed_at"]))
 
 
 def _player_route(origin):
