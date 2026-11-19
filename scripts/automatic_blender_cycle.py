@@ -73,8 +73,6 @@ def pending_recent_grades(root, day):
 
     A seven-day window silently abandoned older cards after an outage.
     Keep the old G18 card immutable; grade at most two per automatic cycle.
-    
-
     The original frozen Core is never replaced. Only slates which actually
     have a saved card are retried; an off day or NO_CORE is not graded as a win.
     """
@@ -90,7 +88,7 @@ def pending_recent_grades(root, day):
             "AND (grade IS NULL OR grade = '') ORDER BY slate_date",
             (season_start.isoformat(), day),
         ).fetchall()
-        # Bound per-run replay cost; hourly runs will drain older ungraded cards.
+        # Bound per-run replay cost; scheduled runs drain older ungraded cards.
         return [row[0] for row in rows[:2]]
     finally:
         con.close()

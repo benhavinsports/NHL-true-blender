@@ -7,6 +7,7 @@ before puck drop. It does NOT establish EV lines or PP assignments (G6).
 """
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timezone
 
 from .enrichment import ingest
@@ -104,7 +105,8 @@ async def collect_official_dressed(client, con, snapshot, date, stage):
         for team, pids in teams.items():
             for pid in pids:
                 ingest(con, {
-                    "evidence_id": f"official-prepuck-dressed-{date}-{game['id']}-{pid}",
+                    "evidence_id": f"official-prepuck-dressed-{date}-{game['id']}-{pid}-"
+                                   + hashlib.sha256(response["observedAt"].encode()).hexdigest()[:14],
                     "slate_date": date, "stage": stage, "game_id": str(game["id"]),
                     "player_id": pid, "kind": "PLAYER_STATUS",
                     "source_url": response["url"], "observed_at": response["observedAt"],
