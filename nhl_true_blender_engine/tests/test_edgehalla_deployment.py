@@ -47,7 +47,7 @@ class EdgehallaG6Tests(unittest.TestCase):
     def test_all_skater_ids_are_roster_verified(self):
         rows=parsed_assignments(HTML, ROSTER)
         self.assertEqual(rows["1"], {"EV":"F1", "PP":1})
-        self.assertEqual(rows["4"], {"EV":"D1"})
+        self.assertEqual(rows["4"], {"EV":"D1", "PP":1})
         self.assertNotIn("6", rows)
 
     def test_wrong_shirt_number_is_not_matching_player(self):
