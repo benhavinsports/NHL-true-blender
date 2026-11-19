@@ -16,14 +16,20 @@ on:
       - 'scripts/refresh_selected_gate_exports.py'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
+  # Resync saved canonical GitHub state independently of engine dispatch.
+  # The GitHub Actions GITHUB_TOKEN suppresses push-triggered workflows.
+  schedule:
+    - cron: '13,43 * * * *'
 permissions:
   contents: read
   actions: read # deploy-pages v4 must read the uploaded github-pages artifact
   pages: write
   id-token: write
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  # Avoid stale generic 'pages' group locks and supersede queued older site
+  # builds. This never changes saved Core evidence or state.
+  group: nhl-true-blender-pages-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   deploy:
     environment:
