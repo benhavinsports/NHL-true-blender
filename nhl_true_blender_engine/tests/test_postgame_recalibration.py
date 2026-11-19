@@ -337,3 +337,24 @@ def test_recipient_audit_from_different_card_cannot_trigger_review(tmp_path):
     assert result["decisions"][0]["status"]=="NO_CAUSALLY_PROVEN_PREGAME_GATE_DEFECT"
     assert result["activated"]==[]
     con.close()
+
+
+def test_september_2026_regular_season_opener_is_not_lost_from_history(tmp_path):
+    # NHL 2026-27 begins September 29. Earlier years' graded cards must not
+    # be mixed into the new season or counted as synthetic opening picks.
+    con=open_db(str(tmp_path/"september-season.sqlite"))
+    try:
+        insert_card_and_grade(con,"2026-08-30",miss=True)
+        insert_card_and_grade(con,"2026-09-29",miss=False)
+        insert_card_and_grade(con,"2026-10-01",miss=True)
+        report=season_history(con,2026,"2026-10-01")
+        assert report["season"]=="2026-27"
+        assert report["trackingWindowStart"]=="2026-09-01"
+        assert report["officiallyGradedSlates"]==2
+        assert [row["date"] for row in report["allOfficialGrades"]]==[
+            "2026-09-29","2026-10-01"]
+        assert report["monthlyThreeSlateCalibration"]["2026-09"]["gradedSlatesAvailable"]==1
+        assert report["monthlyThreeSlateCalibration"]["2026-10"]["gradedSlatesAvailable"]==1
+        assert report["wins"]==1 and report["losses"]==1
+    finally:
+        con.close()
