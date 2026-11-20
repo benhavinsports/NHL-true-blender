@@ -573,3 +573,39 @@ test("public interface leaves official grading and recalibration in GitHub, not 
  assert.ok(!js.includes("grade-summary"));
  assert.ok(!js.includes("season-summary"));
 });
+
+
+test("newly published current Core replaces the default old slate once and preserves later archive browsing",async()=>{
+ const {sandbox}=appContext();
+ const script=fs.readFileSync(path.join(root,"site/app.js"),"utf8");
+ vm.runInContext(script.slice(script.indexOf("let latestPublishedSignature=null;"),
+    script.indexOf("setInterval(()=>{pollPublishedResults")),sandbox);
+ vm.runInContext(`
+   const oldDate=state.selectedDate;
+   const today=etToday();
+   const todayCard={date:today,verified:true,publishedAt:"first",card:{
+      cardId:"AUTOMATIC-ISSUANCE-FIXTURE",current_legs:sample.legs}};
+   const updatedArchive=[...state.archive,{date:today,verified:true,
+      cardId:todayCard.card.cardId,current_legs:sample.legs}];
+   latestPublishedSignature=publishedSignature(state.latest,state.archive);
+   globalThis.polled={todayCard,updatedArchive};globalThis.loaded=[];
+   json=async url=>url.includes("cards-archive")?{cards:polled.updatedArchive}:polled.todayCard;
+   renderAll=()=>{};loadEvidence=async day=>loaded.push(day);
+   document.hidden=false;
+ `,sandbox);
+ await vm.runInContext("pollPublishedResults()",sandbox);
+ assert.equal(vm.runInContext("state.selectedDate===today",sandbox),true);
+ assert.equal(vm.runInContext("loaded[0]===today",sandbox),true);
+ assert.equal(vm.runInContext("state.selectedLeg",sandbox),
+    String(sandbox.sample.legs[0].gameId)+":"+String(sandbox.sample.legs[0].playerId));
+ vm.runInContext(`state.selectedDate=oldDate;polled.todayCard.publishedAt="second";`,sandbox);
+ await vm.runInContext("pollPublishedResults()",sandbox);
+ assert.equal(vm.runInContext("state.selectedDate===oldDate",sandbox),true);
+ assert.equal(vm.runInContext("loaded[1]===oldDate",sandbox),true);
+ // A failed initial feed load must also recover without a manual refresh.
+ vm.runInContext(`state.latest=null;state.archive=[];state.selectedDate=null;
+    latestPublishedSignature=null;`,sandbox);
+ await vm.runInContext("pollPublishedResults()",sandbox);
+ assert.equal(vm.runInContext("state.selectedDate===today",sandbox),true);
+ assert.equal(vm.runInContext("loaded[2]===today",sandbox),true);
+});

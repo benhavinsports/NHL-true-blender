@@ -542,7 +542,7 @@ boot().catch(e=>{
 // and never re-run scorer selection from client-side code.
 let latestPublishedSignature=null;
 async function pollPublishedResults(){
- if(document.hidden||!state.selectedDate)return;
+ if(document.hidden)return;
  const fresh=await Promise.allSettled([
    json("./data/latest.json"),
    json("./data/cards-archive.json")
@@ -552,22 +552,24 @@ async function pollPublishedResults(){
  const archived=(fresh[1].value.cards||[]).filter(x=>
    x.verified===true&&Array.isArray(x.current_legs));
  const fingerprint=publishedSignature(next,archived);
- if(latestPublishedSignature===null){
-   latestPublishedSignature=fingerprint;
-   return;
- }
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
+ const previous=state.latest;
  state.latest=next;state.archive=archived;
  // Automatically show the newly issued current Core when it first arrives.
  // Do not replace a deliberate archived selection after today was already issued.
  const days=unique([next.date,...archived.map(x=>x.date)]);
  const newlyIssuedToday=next.date===etToday() && next.verified===true &&
    Array.isArray(next.card?.current_legs) && next.card.current_legs.length>0 &&
-   !(state.latest?.verified===true && state.latest?.date===next.date &&
-     Array.isArray(state.latest?.card?.current_legs) && state.latest.card.current_legs.length>0);
- if(newlyIssuedToday || !days.includes(state.selectedDate))
+   !(previous?.verified===true && previous?.date===next.date &&
+     Array.isArray(previous?.card?.current_legs) && previous.card.current_legs.length>0);
+ if(newlyIssuedToday || !days.includes(state.selectedDate)){
    state.selectedDate=newlyIssuedToday?next.date:days[0]||null;
+   const first=selectedEntry()?.current_legs?.[0];
+   state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
+   state.flippedLeg=null;state.gateFilter="all";
+   document.body?.classList?.toggle("core-report-open",false);
+ }
  renderAll();
  if(state.selectedDate)await loadEvidence(state.selectedDate);
 }
