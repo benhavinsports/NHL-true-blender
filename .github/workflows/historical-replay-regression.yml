@@ -137,6 +137,32 @@ jobs:
         id: historical_lines
         continue-on-error: true
         run: python scripts/probe_5v5_historical_lines.py state/replay/5v5-historical-lines-probe.json
+      - name: Replay archived sources through the latest authoritative main scorer engine
+        # Historical collectors on this audit branch reconstruct evidence;
+        # the current original G0-G18, overlay and opponent-route decisions
+        # live on main. An older audit-branch engine cannot certify the latest
+        # live scorer fixes. Freeze one exact main SHA for the whole replay.
+        env:
+          PYTHONPATH: .
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          scorer_sha="$(git rev-parse origin/main)"
+          echo "$scorer_sha" > state/replay/scorer-engine-main-sha.txt
+          echo "Historical evidence-collection branch: $GITHUB_SHA"
+          echo "Authoritative scorer engine for this replay: $scorer_sha"
+          # Save the earlier baseline before replacing these modules. Do not
+          # modify archived evidence, immutable historical cards, or source
+          # cutoff timestamps to manufacture qualified recipients.
+          rm -rf nhl_true_blender_engine
+          git archive "$scorer_sha" nhl_true_blender_engine | tar -xf -
+          python -m compileall -q nhl_true_blender_engine scripts/replay_historical_season.py
+          python -m pytest -q \
+            nhl_true_blender_engine/tests/test_tonight_matchup_recipient_priority.py \
+            nhl_true_blender_engine/tests/test_tonight_cross_game_g16.py \
+            nhl_true_blender_engine/tests/test_tonight_shooting_lane_choice.py \
+            nhl_true_blender_engine/tests/test_no_gate_skipping.py \
+            nhl_true_blender_engine/tests/test_overlay_independent_execution.py
       - name: Create opening-week manifest from the same frozen official calendar
         run: |
           python - <<'PY'
