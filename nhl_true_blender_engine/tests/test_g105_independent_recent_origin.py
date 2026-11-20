@@ -18,18 +18,17 @@ def tied():
     b=skater(701,"High Slot",5,2)
     return a,b
 
-def test_recent_direct_nhl_pbp_scoring_can_distinguish_actual_season_route_tie():
+def test_recent_historical_goals_cannot_decide_tonights_equal_route_opportunity():
     a,b=tied()
     a["recentOrigin"]=recent(2,4)
     b["recentOrigin"]=recent(0,5)
     wins,rows=challenger_proof(a,[b],{"High Slot":{}},["High Slot"])
-    assert wins is True
-    assert rows[0]["status"]=="DEFEATED"
-    assert rows[0]["independentRecentTieReview"]["own"]["ownedGoals"]==2
-    assert URL in rows[0]["sourceUrls"]
+    assert wins is False
+    assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
+    assert rows[0]["independentRecentTieReview"] is None
     other,opposite=challenger_proof(b,[a],{"High Slot":{}},["High Slot"])
     assert other is False
-    assert opposite[0]["status"]=="RIVAL_DOMINATES"
+    assert opposite[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
 
 def test_missing_or_same_recent_proof_never_manufactures_direct_recipient():
     a,b=tied()
