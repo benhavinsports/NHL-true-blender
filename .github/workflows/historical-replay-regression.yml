@@ -174,7 +174,7 @@ jobs:
           scorer_sha="$(cat state/replay/scorer-engine-main-sha.txt)"
           # Verify the actual collector/scorer bytes against the immutable pin.
           # A newer main commit cannot invalidate this already-frozen research.
-          git diff --exit-code "$scorer_sha" -- nhl_true_blender_engine
+          diff -r --exclude=__pycache__ --exclude=.pytest_cache /tmp/blender-authoritative/nhl_true_blender_engine nhl_true_blender_engine
           echo "Historical PBP collector and scorer engine SHA: $scorer_sha"
           python -m compileall -q nhl_true_blender_engine scripts/reconstruct_historical_pbp.py scripts/build_replay_bundles.py scripts/replay_historical_season.py
           python -m pytest -q \
