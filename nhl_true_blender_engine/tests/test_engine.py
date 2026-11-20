@@ -23,7 +23,7 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
              for k in range(goals)]
     sample_ids=[f'recent-{pid}-1',f'recent-{pid}-2']
     sample_dates=['2026-11-01','2026-11-02']
-    lane_shots=[attempts//2,attempts-attempts//2]
+    lane_shots=[max(3,attempts//2),max(4,attempts-attempts//2)]
     lane_goals_total=min(goals,attempts)
     first_lane_goals=min(lane_goals_total,lane_shots[0])
     lane_goals=[first_lane_goals,min(lane_goals_total-first_lane_goals,lane_shots[1])]
@@ -54,6 +54,9 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
                 'sampleCoverageComplete':True,
                 'sampleIncludesActualZeroShotAppearances':True,
                 'unclassifiedOnNetShots':0,
+                'pbpBoxscoreSogReconciled':True,
+                'pbpOnNetShotsByGame':{sample_ids[i]:total_shots[i] for i in range(2)},
+                'boxscoreShotsOnGoalByGame':{sample_ids[i]:total_shots[i] for i in range(2)},
                 'zoneCounts':{zone:recent_lane},
                 'rinkBinsApproximateNotNhlEdgePolygons':True,
                 'historicalOwnGoalCreditOnly':True,

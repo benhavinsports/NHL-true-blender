@@ -13,7 +13,7 @@ def _set_recent_lane(player, counts, goals=None):
     ids=[f"sample-{player['id']}-{i+1}" for i in range(len(counts))]
     dates=[f"2026-11-{i+1:02d}" for i in range(len(counts))]
     goals=list(goals if goals is not None else [0]*len(counts))
-    pressure_counts=[max(3,x) for x in counts]
+    pressure_counts=list(counts)
     player["pressure"]["data"]={
         "recentAppearanceShots":pressure_counts,
         "appearances":[{"date":dates[i],"gameId":ids[i],
@@ -33,6 +33,9 @@ def _set_recent_lane(player, counts, goals=None):
         "sampleAppearanceCount":len(ids),
         "sampleSourcesByGame":{gid:[SRC] for gid in ids},
         "sampleCoverageComplete":True,
+        "pbpBoxscoreSogReconciled":True,
+        "pbpOnNetShotsByGame":{gid:counts[i] for i,gid in enumerate(ids)},
+        "boxscoreShotsOnGoalByGame":{gid:counts[i] for i,gid in enumerate(ids)},
         "sampleIncludesActualZeroShotAppearances":True,
         "unclassifiedOnNetShots":0,
         "zoneCounts":{zone:{

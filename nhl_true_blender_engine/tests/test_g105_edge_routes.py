@@ -28,7 +28,7 @@ def p(pid,zone,shots,goals,additional=None):
             "ownedGoals":sum(goals_by_game),"gameIds":sample_ids,
             "sourceUrls":sorted({u for urls in pbp_urls.values() for u in urls}),
             "byGame":rows}
-    pressure_counts=[max(3,x) for x in total_by_game]
+    pressure_counts=total_by_game
     return {"id":str(pid),"name":"Fixture "+str(pid),"availability":"PROJECTED_ACTIVE",
             "deployment":{"sourceUrl":SRC+str(pid)+"/projected-line",
                           "observedAt":"2026-11-15T12:00:00Z",
@@ -46,6 +46,9 @@ def p(pid,zone,shots,goals,additional=None):
                     "sampleAsOfSlateDate":"2026-11-15",
                     "sampleGameIds":sample_ids,"sampleAppearanceCount":4,
                     "sampleSourcesByGame":pbp_urls,"sampleCoverageComplete":True,
+                    "pbpBoxscoreSogReconciled":True,
+                    "pbpOnNetShotsByGame":{sample_ids[i]:total_by_game[i] for i in range(4)},
+                    "boxscoreShotsOnGoalByGame":{sample_ids[i]:total_by_game[i] for i in range(4)},
                     "sampleIncludesActualZeroShotAppearances":True,
                     "unclassifiedOnNetShots":0,"zoneCounts":zone_counts,
                     "sourceUrls":sorted({u for urls in pbp_urls.values() for u in urls}),

@@ -9,6 +9,9 @@ URL="https://api-web.nhle.com/v1/gamecenter/2026020134/play-by-play"
 def recent(player,goals,shots_by_game):
     pressure=player["pressure"]["data"]
     appearances=pressure["appearances"]
+    for i,value in enumerate(shots_by_game):
+        appearances[i]["shotsOnGoal"]=value
+    pressure["recentAppearanceShots"]=list(shots_by_game)
     ids=[str(x["gameId"]) for x in appearances]
     dates=[x["date"] for x in appearances]
     goal_counts=list(goals if isinstance(goals,list) else [goals]+[0]*(len(ids)-1))
@@ -22,6 +25,9 @@ def recent(player,goals,shots_by_game):
         "sampleAppearanceCount":len(ids),
         "sampleSourcesByGame":{gid:[URL] for gid in ids},
         "sampleCoverageComplete":True,
+        "pbpBoxscoreSogReconciled":True,
+        "pbpOnNetShotsByGame":{gid:shots_by_game[i] for i,gid in enumerate(ids)},
+        "boxscoreShotsOnGoalByGame":{gid:shots_by_game[i] for i,gid in enumerate(ids)},
         "sampleIncludesActualZeroShotAppearances":True,
         "unclassifiedOnNetShots":0,
         "zoneCounts":{zone:{"shotsOnGoal":sum(shots_by_game),
