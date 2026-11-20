@@ -100,6 +100,24 @@ def _publish_official_grade(root,date,grade,audits,patch_adjudication=None,recip
     _write(path,prior)
     return report
 
+def _load_verified_recipient_audit(root,date,card):
+    """Reuse only a complete postgame receipt for this exact immutable card."""
+    path=Path(root)/'site_runs'/f'{date}-recipient-audit.json'
+    if not path.is_file():
+        return None
+    try:
+        audit=json.loads(path.read_text(encoding='utf-8'))
+    except (OSError,ValueError,TypeError):
+        return None
+    if (audit.get('status')!='OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON'
+            or audit.get('readOnlyPostgameAudit') is not True
+            or audit.get('cardId')!=card.get('card_id')
+            or audit.get('originalFingerprint')!=card.get('fingerprint')
+            or audit.get('originalRevision')!=card.get('revision')):
+        return None
+    return audit
+
+
 async def execute_cycle(mode, date, root='state'):
     root=Path(root)
     root.mkdir(parents=True,exist_ok=True)
@@ -146,31 +164,35 @@ async def execute_cycle(mode, date, root='state'):
                     status=official.get('status','WAITING_FOR_FINAL')
                 if grade:
                     audits=audit_misses(con,date)
-                    # Independently confirm EVERY official scorer in each
-                    # locked matchup against NHL PBP AND NHL boxscore, then
-                    # compare their frozen PRE-PUCK G0/G10.5/G15/G17 proofs.
-                    # An outcome-only mismatch never mutates a source gate.
-                    nhl=NHLClient()
-                    try:
-                        recipient_audit=await collect_official_recipients(con,date,nhl,root=root)
-                    except Exception as exc:
-                        # Do not lose/undo an already official frozen grade if
-                        # an independent postgame source request times out.
-                        recipient_audit={
-                            'status':'SOURCE_VERIFICATION_PENDING',
-                            'errorType':type(exc).__name__,
-                            'error':str(exc)[:1200],
-                            'failedAtET':datetime.now(ET).isoformat(timespec='seconds'),
-                            'attemptedGameIds':sorted({
-                                str(x.get('gameId')) for x in
-                                (card.get('current_legs') or [])
-                                if x.get('gameId') is not None}),
-                            'doesNotOverrideOfficialGrade':True,
-                            'notACertifiedRecipientComparison':True}
-                    finally:
-                        await nhl.close()
-                    if recipient_audit.get('status')=='OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON':
-                        _write(root/'site_runs'/f'{date}-recipient-audit.json',recipient_audit)
+                    # Reuse only a completed source-verified audit for this
+                    # exact frozen card. Pending or mismatched receipts are
+                    # never reused; they trigger a fresh independent NHL check.
+                    recipient_audit=(
+                        _load_verified_recipient_audit(root,date,card)
+                        if card.get('grade') else None)
+                    if recipient_audit is None:
+                        nhl=NHLClient()
+                        try:
+                            recipient_audit=await collect_official_recipients(
+                                con,date,nhl,root=root)
+                        except Exception as exc:
+                            # Do not lose/undo an already official frozen grade if
+                            # an independent postgame source request times out.
+                            recipient_audit={
+                                'status':'SOURCE_VERIFICATION_PENDING',
+                                'errorType':type(exc).__name__,
+                                'error':str(exc)[:1200],
+                                'failedAtET':datetime.now(ET).isoformat(timespec='seconds'),
+                                'attemptedGameIds':sorted({
+                                    str(x.get('gameId')) for x in
+                                    (card.get('current_legs') or [])
+                                    if x.get('gameId') is not None}),
+                                'doesNotOverrideOfficialGrade':True,
+                                'notACertifiedRecipientComparison':True}
+                        finally:
+                            await nhl.close()
+                        if recipient_audit.get('status')=='OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON':
+                            _write(root/'site_runs'/f'{date}-recipient-audit.json',recipient_audit)
                     # A real official grade triggers automatic adjudication,
                     # not a hand-entered patch or a new Core. A missed goal
                     # alone NEVER activates a policy.
