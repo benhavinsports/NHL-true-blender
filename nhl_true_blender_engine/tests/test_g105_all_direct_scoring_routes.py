@@ -17,9 +17,19 @@ def players():
 
 def test_higher_direct_recipient_in_other_independently_weak_lane_not_falsely_defeated():
     candidate,rival=players()
-    wins,rows=challenger_proof(candidate,[rival],
-        {"slot":{"savePctg":.80},"circle":{"savePctg":.81}},
-        ["slot","circle"])
+    # Both rival routes are eligible. Circle is independently more exposed
+    # TONIGHT against the goalie AND the defenders; old goal counts are not the proof.
+    goalie={"slot":{"leagueSavePctgPercentile":.40,"shotsAgainst":50,"goalsAgainst":10},
+            "circle":{"leagueSavePctgPercentile":.10,"shotsAgainst":55,"goalsAgainst":17}}
+    exposure={"zoneConcessions":{
+        "slot":{"onNetShotsPerGame":9,"peerMedianOnNetShotsPerGame":8,
+                "independentOnNetConcessionReview":True,
+                "positiveConcessionBases":["ON_NET_SHOTS_AGAINST_PEER"]},
+        "circle":{"onNetShotsPerGame":14,"peerMedianOnNetShotsPerGame":8,
+                  "independentOnNetConcessionReview":True,
+                  "positiveConcessionBases":["ON_NET_SHOTS_AGAINST_PEER"]}}}
+    wins,rows=challenger_proof(candidate,[rival],goalie,["slot","circle"],
+                               opponent_coverage=exposure)
     assert wins is False
     assert len(rows)==1
     proof=rows[0]
