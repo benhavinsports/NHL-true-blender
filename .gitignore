@@ -9,3 +9,8 @@ state/true_blender.sqlite.restore-tmp
 state/true_blender.sqlite.restore-tmp-shm
 state/true_blender.sqlite.restore-tmp-wal
 state/true_blender.sqlite.restore-tmp-journal
+
+# Multipart authoritative gzip transport; never stage incomplete chunks.
+state/true_blender.sqlite.gz.part-*.tmp
+state/true_blender.sqlite.chunks.json.tmp
+state/true_blender.sqlite.archive-restore-tmp
