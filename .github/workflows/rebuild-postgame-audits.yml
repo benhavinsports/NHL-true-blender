@@ -1,0 +1,93 @@
+name: Rebuild original frozen postgame audits
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/rebuild-postgame-audits.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: nhl-true-blender-authoritative
+  cancel-in-progress: false
+jobs:
+  frozen-audit-backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install and verify the complete existing engine
+        run: |
+          python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+          python -m pytest -q --import-mode=importlib
+      - name: Restore verified canonical history
+        run: python scripts/ledger_persistence.py restore
+      - name: Rebuild audits without changing any original card or grade
+        run: |
+          python - <<'PY'
+          import asyncio, contextlib, json, sqlite3
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          from scripts.run_cycle import execute_cycle
+          root=Path('state')
+          db=root/'true_blender.sqlite'
+          con=sqlite3.connect(db)
+          columns='slate_date,card_id,initial_legs,current_legs,stage,fingerprint,revision,first_issued_at,updated_at,grade'
+          before=con.execute('SELECT '+columns+' FROM cards ORDER BY slate_date').fetchall()
+          dates=[r[0] for r in before if r[-1]]
+          con.close()
+          results=[]
+          with open('/tmp/frozen-audit-backfill.log','w') as log:
+              for day in dates:
+                  with contextlib.redirect_stdout(log):
+                      result=asyncio.run(execute_cycle('grade',day,root))
+                  if result.get('status')!='ALREADY_OFFICIALLY_GRADED':
+                      raise RuntimeError('Expected an existing immutable official grade: '+day)
+                  grade=result.get('grade') or {}
+                  results.append({
+                      'date':day,'status':result['status'],'cardId':result.get('cardId'),
+                      'hits':grade.get('hits'),'legs':grade.get('legs'),'result':grade.get('result'),
+                      'missAudits':[{
+                          'player':x.get('player'),'gameId':x.get('gameId'),
+                          'originalLockReceiptCount':x.get('originalLockReceiptCount'),
+                          'auditStage':x.get('auditStage'),'conclusion':x.get('conclusion')
+                      } for x in grade.get('missAudits',[])]})
+          con=sqlite3.connect(db)
+          after=con.execute('SELECT '+columns+' FROM cards ORDER BY slate_date').fetchall()
+          con.close()
+          if before!=after:
+              raise RuntimeError('Frozen card or official grade changed; refusing to persist this backfill')
+          day=datetime.now(ZoneInfo('America/New_York')).date().isoformat()
+          report={'date':day,'operation':'ORIGINAL_FROZEN_POSTGAME_AUDIT_BACKFILL',
+                  'allOriginalCardsAndGradesUnchanged':True,
+                  'gradedCardsReviewed':len(results),'results':results,
+                  'missingOriginalSourceEvidenceNotInvented':True}
+          path=root/'history'/('offday-audit-backfill-'+day+'.json')
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
+          print(json.dumps(report,sort_keys=True))
+          PY
+      - name: Preserve the complete canonical ledger and corrected audit receipts
+        run: |
+          set -euo pipefail
+          python scripts/ledger_persistence.py prepare
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u -- state
+          git add -- state/true_blender.sqlite.chunks.json state/true_blender.sqlite.gz.part-* state/site_cards state/site_runs state/history
+          if ! git diff --cached --quiet; then
+            git commit -m "Rebuild original frozen postgame audits without changing selected players or grades"
+            git push origin HEAD:main
+          fi
+      - name: Publish the immutable-card verification receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-audit-backfill-${{ github.run_id }}
+          path: state/history/offday-audit-backfill-*.json
+          if-no-files-found: warn
