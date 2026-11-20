@@ -25,6 +25,7 @@ from nhl_true_blender_engine.enrichment import ingest
 from nhl_true_blender_engine.official_defense_coverage import make_coverage
 from nhl_true_blender_engine.shift_coverage import collect_shift_coverage
 from nhl_true_blender_engine.storage import open_db
+from scripts.historical_season_credits import collect_historical_season_credits
 
 UTC = timezone.utc
 # An explicit conservative *estimated* event-availability boundary. The source
@@ -220,6 +221,7 @@ async def reconstruct(manifest, database, output, limit=18):
                 except Exception as e:
                     return gid, [], type(e).__name__ + ": " + str(e)[:160]
         cached_boxscores = {}
+        cached_season_logs = {}
         cached_shifts = {}
         async def get_boxscore(game_id):
             async with sem:
@@ -541,7 +543,11 @@ async def reconstruct(manifest, database, output, limit=18):
                                      "scope": scope},
                                  urls, available_at)
                         reconciled_recipient_receipts += 1
+            season_credits = await collect_historical_season_credits(
+                client, con, date, games, club_schedules, cached_season_logs,
+                cached_pbp, _receipt, fetch_errors)
             summary.append({
+                "officialDatedSeasonCreditCoverage": season_credits,
                 "date": date, "games": len(games), "goalieStartersWithDatedEvidence": len(starters),
                 "independentGoalieProfilesImported": profiles,
                 "goalieProfilesWithPeerComparedAreas": peer_qualified,
