@@ -69,11 +69,18 @@ def four_game_matchup_fixture():
         away,home=game['away'],game['home']
         game['goalies'][home][0]['data']['weakZones']['slot'][
             'leagueSavePctgPercentile']=[.10,.20,.30,.85][i]
+        attempts=[120,112,104,96][i]
+        onnet=[88,80,72,64][i]
         game['coverage'][away]['data']['zoneConcessions']['slot'].update({
-            'onNetShotsPerGame':[13.0,12.0,11.0,8.5][i],
-            'peerMedianOnNetShotsPerGame':8.0,
+            'attemptsAgainst':attempts,
+            'attemptsPerGame':attempts/8,
+            'peerMedianAttemptsPerGame':10.0,
+            'onNetShotsAgainst':onnet,
+            'onNetShotsPerGame':onnet/8,
+            'peerMedianOnNetShotsPerGame':7.0,
             'independentOnNetConcessionReview':True,
-            'positiveConcessionBases':['ON_NET_SHOTS_AGAINST_PEER']})
+            'positiveConcessionBases':[
+                'ATTEMPTS_AGAINST_PEER','ON_NET_SHOTS_AGAINST_PEER']})
     return data
 
 
