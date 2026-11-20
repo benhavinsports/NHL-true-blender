@@ -4,7 +4,7 @@
   "cardId": "NHL-2026-11-19-CANONICAL",
   "cardSavedByEngine": false,
   "coreEligibleSkaterMatrices": 73,
-  "currentRunFullyCertified": true,
+  "currentRunFullyCertified": false,
   "datedGoalieSourceCoverage": {
     "asOf": "2026-11-20T01:10:27+00:00",
     "boundedRetryCount": 0,
@@ -936,7 +936,7 @@
                   "area": "Low Slot",
                   "goalsAgainst": 5,
                   "savePctg": 0.933333,
-                  "savePctgPercentile": 1.0,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 75
                 },
                 {
@@ -1055,8 +1055,8 @@
                 {
                   "area": "R Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 41
                 }
               ],
@@ -1084,8 +1084,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 31
                 },
                 {
@@ -1283,8 +1283,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 35
                 },
                 {
@@ -1361,8 +1361,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 36
                 },
                 {
@@ -1424,8 +1424,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 30
                 },
                 {
@@ -1772,8 +1772,8 @@
                 {
                   "area": "Center Point",
                   "goalsAgainst": 0,
-                  "savePctg": 1.0,
-                  "savePctgPercentile": 1.0,
+                  "savePctg": 1,
+                  "savePctgPercentile": 1,
                   "shotsAgainst": 30
                 },
                 {
@@ -2717,8 +2717,8 @@
             "alternateSample": {
               "data": {
                 "evidenceType": "HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION",
-                "ownedGoals": 15.0,
-                "primaryAssists": 5.0,
+                "ownedGoals": 15,
+                "primaryAssists": 5,
                 "recipient": null,
                 "recipientUndetermined": true
               },
@@ -3038,8 +3038,8 @@
             "Center Point": {
               "goalsAgainst": 0,
               "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-              "leagueSavePctgPercentile": 1.0,
-              "savePctg": 1.0,
+              "leagueSavePctgPercentile": 1,
+              "savePctg": 1,
               "saves": 21,
               "shotsAgainst": 21,
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8478499/now"
@@ -3387,8 +3387,8 @@
             "alternateSample": {
               "data": {
                 "evidenceType": "HISTORICAL_OWN_GOALS_NOT_TONIGHT_PROJECTION",
-                "ownedGoals": 10.0,
-                "primaryAssists": 6.0,
+                "ownedGoals": 10,
+                "primaryAssists": 6,
                 "recipient": null,
                 "recipientUndetermined": true
               },
@@ -6397,5 +6397,12 @@
   ],
   "stage": "CONFIRMED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-20T01:13:35+00:00"
+  "updatedUTC": "2026-11-20T01:13:35+00:00",
+  "fullSlateEvidenceCertified": false,
+  "frozenCoreContinuationCertified": true,
+  "certificationScopeCorrection": {
+    "previousCurrentRunFullyCertified": true,
+    "reason": "Frozen incumbent review verified the existing Core continuation; incomplete full-slate gate evidence was not certified.",
+    "cardIdentityRecipientsAndSourceEvidenceUnchanged": true
+  }
 }
