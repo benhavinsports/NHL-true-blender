@@ -404,6 +404,13 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                     unresolved.append({"gameId":str(game["id"]),"goalieId":pid,
                            "reason":"No individually identified NHL goalie saves/goals with historical rink coordinates"})
                     continue
+                # Preserve the dated, SAME goalie cohort down to every
+                # independently measured origin. G10.5 receives zone rows,
+                # not the top-level G0 profile. Without this the opponent
+                # comparison cannot safely use a PBP percentile.
+                for zone_row in derived.get("weakZones",{}).values():
+                    zone_row["samplePeerPopulationId"]=population
+                    zone_row["samplePeerPopulationStable"]=fixed_cohort
                 derived.update({"team":team,"goalieId":pid,"status":branch["data"]["status"],
                     "starterSourceUrl":branch["sourceUrl"],
                     "historicalSampleAsOf":date,
