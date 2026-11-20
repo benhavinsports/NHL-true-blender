@@ -30,7 +30,7 @@ The first canonical-archive rerun collected and built its season bundles but sto
 
 The resumed frozen-input run completed at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44816177284 . It verified the exact collector/scorer commit 575eb4deb4a93fd54dd354b2cadf6abd562ac22e, passed 502 tests plus five subtests, replayed all 50 scheduled slates, ran the baseline and official scorer research, and published its audits. Its actual summary is **0 fully completed slates, 0 graded leg opportunities, 0 goal hits**. The final certification step correctly failed; there was no replay software crash. Baseline comparison recorded 49 identical-input rows, one changed Core date and 44 changed G0 dates. These figures do not establish improved prediction quality. The recovery workflow is committed on repair/historical-replay-resume and does not write production selections.
 
-A fresh full source-collection run also continues at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44815935845 .
+The fresh full source-collection run also finished at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44815935845 . Its corrected pinned-file verification and final pinned-engine regression completed successfully. The final scheduled-slate completeness check failed, so that fresh run also did not certify the full historical period. Its detailed evidence is uploaded with the run. The explicit 0/50 result above is from the completed resumed frozen-input run, whose compact job summary was verified.
 
 ## Remaining limits
 
