@@ -474,7 +474,8 @@ def independently_dated_origin_route(player,zone):
         or data.get("historicalOwnGoalCreditOnly") is not True
         or data.get("sampleCoverageComplete") is not True
         or data.get("sampleIncludesActualZeroShotAppearances") is not True
-        or data.get("unclassifiedOnNetShots")!=0):
+        or data.get("unclassifiedOnNetShots")!=0
+        or data.get("pbpBoxscoreSogReconciled") is not True):
         return None
     as_of=data.get("sampleAsOfSlateDate")
     sample_ids=data.get("sampleGameIds")
@@ -489,19 +490,33 @@ def independently_dated_origin_route(player,zone):
         or len({str(x) for x in sample_ids})!=len(sample_ids)):
         return None
     appearance_dates={}
+    appearance_shots={}
     appearance_ids=[]
     for item in appearances:
         if not isinstance(item,dict):
             return None
         gid=str(item.get("gameId") or "")
         day=item.get("date")
+        shots=item.get("shotsOnGoal")
         if (not gid or not isinstance(day,str) or len(day)<10 or day[:10]>=as_of
-            or gid in appearance_dates):
+            or gid in appearance_dates or type(shots) is not int or shots<0):
             return None
         appearance_ids.append(gid)
         appearance_dates[gid]=day[:10]
+        appearance_shots[gid]=shots
     normalized_ids=[str(x) for x in sample_ids]
     if appearance_ids!=normalized_ids:
+        return None
+    pbp_sog=data.get("pbpOnNetShotsByGame")
+    boxscore_sog=data.get("boxscoreShotsOnGoalByGame")
+    if (not isinstance(pbp_sog,dict) or not isinstance(boxscore_sog,dict)
+        or set(pbp_sog)!=set(normalized_ids)
+        or set(boxscore_sog)!=set(normalized_ids)
+        or any(type(pbp_sog.get(gid)) is not int or pbp_sog[gid]<0
+               or type(boxscore_sog.get(gid)) is not int or boxscore_sog[gid]<0
+               or pbp_sog[gid]!=boxscore_sog[gid]
+               or boxscore_sog[gid]!=appearance_shots[gid]
+               for gid in normalized_ids)):
         return None
     for gid in normalized_ids:
         urls=sample_sources.get(gid)
@@ -555,6 +570,9 @@ def independently_dated_origin_route(player,zone):
             "sampleGameIds":normalized_ids,
             "sampleDates":[appearance_dates[x] for x in normalized_ids],
             "sourceUrls":source_urls,
+            "pbpBoxscoreSogReconciled":True,
+            "pbpOnNetShotsByGame":{gid:pbp_sog[gid] for gid in normalized_ids},
+            "boxscoreShotsOnGoalByGame":{gid:boxscore_sog[gid] for gid in normalized_ids},
             "scope":"SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
             "notAnNhlEdgeAreaPolygon":True,
             "seasonTotalsNotUsed":True,

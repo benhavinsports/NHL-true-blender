@@ -39,7 +39,8 @@ async def collect_sampled_boxes(client,con,snapshot,date,stage,game_dates,events
                             pid=player.get("playerId")
                             if pid is None:continue
                             goals=player.get("goals")
-                            shots=player.get("shots")
+                            shots=(player.get("sog") if type(player.get("sog")) is int
+                                   else player.get("shots"))
                             if not isinstance(goals,int) or goals<0:continue
                             if shots is not None and (not isinstance(shots,int) or shots<0):shots=None
                             key=str(pid)

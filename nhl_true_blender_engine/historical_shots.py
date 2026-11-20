@@ -135,6 +135,38 @@ def measured_recent_shooter_origins(events,player_id):
             for z,r in sorted(zones.items())}
 
 
+def reconcile_player_sog_by_game(appearances,events,player_id):
+    """Require every dated shooter PBP SOG count to equal its official boxscore row."""
+    boxscore={}
+    duplicate=False
+    for item in appearances if isinstance(appearances,list) else []:
+        if not isinstance(item,dict):
+            duplicate=True
+            continue
+        gid=str(item.get("gameId") or "")
+        shots=item.get("shotsOnGoal")
+        if not gid or gid in boxscore or type(shots) is not int or shots<0:
+            duplicate=True
+            continue
+        boxscore[gid]=shots
+    pbp={gid:0 for gid in boxscore}
+    for event in events:
+        gid=str(event.get("gameId") or "")
+        if (gid in pbp and str(event.get("shooterId"))==str(player_id)
+                and event.get("type") in ON_NET):
+            pbp[gid]+=1
+    complete=bool(boxscore) and not duplicate and all(
+        pbp.get(gid,0)==shots for gid,shots in boxscore.items())
+    mismatches=[
+        {"gameId":gid,"boxscoreShotsOnGoal":shots,
+         "pbpShooterOnNetEvents":pbp.get(gid,0)}
+        for gid,shots in boxscore.items() if pbp.get(gid,0)!=shots]
+    return {"pbpBoxscoreSogReconciled":complete,
+            "pbpOnNetShotsByGame":pbp,
+            "boxscoreShotsOnGoalByGame":boxscore,
+            "pbpBoxscoreSogMismatches":mismatches}
+
+
 async def collect_history(client, con, snapshot, slate_date, stage,
                           max_games=8, defense_research_games=16):
     """Collect target-team recent logs plus league-wide peer games for G9.
@@ -248,12 +280,15 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                     gid:sorted({e["sourceUrl"] for e in target_events
                                 if str(e.get("gameId"))==gid and e.get("sourceUrl")})
                     for gid in appearance_ids if gid}
+                sog_reconciliation=reconcile_player_sog_by_game(
+                    appearance_rows,target_events,pid)
                 sample_complete=bool(appearance_rows) and (
                     len(appearance_ids)==len(set(appearance_ids)) and
                     all(gid and gid in pbp_verified_ids and source_urls_by_game.get(gid)
                         for gid in appearance_ids) and
                     all(isinstance(x.get("date"),str) and x["date"][:10]<slate_date
-                        for x in appearance_rows))
+                        for x in appearance_rows) and
+                    sog_reconciliation["pbpBoxscoreSogReconciled"])
                 # An on-net PBP event with no usable rink origin makes this
                 # lane sample incomplete; it must never be treated as a zero.
                 unmapped_onnet=sum(
@@ -276,6 +311,7 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                         "sampleCoverageComplete":sample_complete and unmapped_onnet==0,
                         "sampleIncludesActualZeroShotAppearances":True,
                         "unclassifiedOnNetShots":unmapped_onnet,
+                        **sog_reconciliation,
                         "sourceUrls":sample_urls,
                         "rinkBinsApproximateNotNhlEdgePolygons":True,
                         "historicalOwnGoalCreditOnly":True,
