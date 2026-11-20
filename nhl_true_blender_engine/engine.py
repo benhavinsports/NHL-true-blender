@@ -1679,35 +1679,60 @@ def _route_vector(ev):
     on_net_peer=defense.get('peerMedianOnNetShotsPerGame')
     attempts=defense.get('attemptsPerGame')
     attempts_peer=defense.get('peerMedianAttemptsPerGame')
+    available={}
     if ('ON_NET_SHOTS_AGAINST_PEER' in methods
         and defense.get('independentOnNetConcessionReview') is True
         and type(on_net) in (int,float) and type(on_net_peer) in (int,float)
         and on_net>on_net_peer>0):
-        defense_method='G9_INDEPENDENT_ON_NET_VS_PEERS'
-        exposure=on_net/on_net_peer
-    elif ('ATTEMPTS_AGAINST_PEER' in methods
-          and type(attempts) in (int,float)
-          and type(attempts_peer) in (int,float)
-          and attempts>attempts_peer>0):
-        defense_method='G9_OFFICIAL_ATTEMPTS_VS_PEERS'
-        exposure=attempts/attempts_peer
-    else:
+        available['G9_INDEPENDENT_ON_NET_VS_PEERS']=on_net/on_net_peer
+    if ('ATTEMPTS_AGAINST_PEER' in methods
+        and type(attempts) in (int,float)
+        and type(attempts_peer) in (int,float)
+        and attempts>attempts_peer>0):
+        available['G9_OFFICIAL_ATTEMPTS_VS_PEERS']=attempts/attempts_peer
+    if not available:
         return None
-    return (goalie_method+'|'+defense_method,1-percentile,exposure,
+    # Preserve a readable preferred source label, but retain BOTH certified
+    # methods so pairwise G16 comparisons can select a genuinely SHARED
+    # method rather than erasing shot-attempt evidence on dual-proof routes.
+    preferred=('G9_INDEPENDENT_ON_NET_VS_PEERS'
+               if 'G9_INDEPENDENT_ON_NET_VS_PEERS' in available else
+               'G9_OFFICIAL_ATTEMPTS_VS_PEERS')
+    return (goalie_method+'|'+preferred,1-percentile,available,
             _STATUS_LEVEL.get(ev['goalieStatus'],0),
             _STATUS_LEVEL.get(ev['deploymentStatus'],0))
 
 
-def _dominates(a,b):
-    """A strictly better *comparable* source vector, no invented weights.
+def _g16_shared_method(a,b):
+    """One compatible goalie peer population and one COMMON G9 method."""
+    if not a or not b:
+        return None
+    goalie_a=a[0].split('|',1)[0]
+    goalie_b=b[0].split('|',1)[0]
+    if goalie_a!=goalie_b or not isinstance(a[2],dict) or not isinstance(b[2],dict):
+        return None
+    common=set(a[2]) & set(b[2])
+    if 'G9_INDEPENDENT_ON_NET_VS_PEERS' in common:
+        return 'G9_INDEPENDENT_ON_NET_VS_PEERS'
+    if 'G9_OFFICIAL_ATTEMPTS_VS_PEERS' in common:
+        return 'G9_OFFICIAL_ATTEMPTS_VS_PEERS'
+    return None
 
-    Incomparable vulnerability/defense/confirmation stays unresolved, never
-    settled by a previous-season scoring advantage.
+
+def _dominates(a,b):
+    """Only source-comparable, source-positive goalie+defense dimensions.
+
+    If both have independently verified on-net evidence, compare on-net.
+    Otherwise compare shot attempts only when BOTH have valid attempts.
+    An unrelated historical-goal record cannot manufacture domination.
     """
-    if not a or not b or a[0]!=b[0]:
+    method=_g16_shared_method(a,b)
+    if method is None:
         return False
-    return all(x>=y for x,y in zip(a[1:],b[1:])) and any(
-        x>y for x,y in zip(a[1:],b[1:]))
+    va=(a[1],a[2][method],a[3],a[4])
+    vb=(b[1],b[2][method],b[3],b[4])
+    return all(x>=y for x,y in zip(va,vb)) and any(
+        x>y for x,y in zip(va,vb))
 
 
 def g16_cross_game_finalists(finalists, required):
@@ -1734,6 +1759,7 @@ def g16_cross_game_finalists(finalists, required):
         vector=_route_vector(ev)
         vectors.append(vector)
         ev['g16ComparisonBasis']=vector[0] if vector else 'NOT_COMPARABLE'
+        ev['g16AvailableDefenseMethods']=(sorted(vector[2]) if vector else [])
         rows.append(ev)
     retained=[];excluded=[]
     for i,(ev,vec) in enumerate(zip(rows,vectors)):
@@ -1745,6 +1771,11 @@ def g16_cross_game_finalists(finalists, required):
             if j!=i and other is not None and
             rows[j]['gameId']!=ev['gameId'] and _dominates(other,vec)]
         ev['dominatedBy']=by
+        ev['dominatedBySharedMethods']={
+            rows[j]['playerId']:_g16_shared_method(other,vec)
+            for j,other in enumerate(vectors)
+            if j!=i and rows[j]['playerId'] in by
+            and rows[j]['gameId']!=ev['gameId']}
         if len(by)>=required:
             ev['g16Decision']='EXCLUDED_STRICTLY_DOMINATED_BY_A_FULL_CORE'
             excluded.append(i)
