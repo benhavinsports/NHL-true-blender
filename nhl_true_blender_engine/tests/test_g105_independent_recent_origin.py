@@ -47,7 +47,7 @@ def test_recent_historical_goals_cannot_decide_equal_same_lane_shot_rates():
     assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
     proof=rows[0]["independentRecentTieReview"]
     assert proof["result"]=="UNSEPARATED"
-    assert proof["seasonOrRecentOwnedGoalTotalsNotUsed"] is True
+    assert rows[0]["seasonOrRecentOwnedGoalTotalsNotUsed"] is True
 
 
 def test_missing_or_same_recent_proof_never_manufactures_direct_recipient():
