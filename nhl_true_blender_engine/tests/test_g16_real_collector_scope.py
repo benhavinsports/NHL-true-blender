@@ -64,3 +64,33 @@ def test_qualified_attempts_only_defense_still_advances_without_on_net_override(
     selected,receipt=g16_cross_game_finalists(rows,3)
     assert len(selected)==4
     assert receipt["separated"] is False
+
+
+def test_dual_method_route_uses_shared_attempts_against_attempt_only_rivals():
+    # All goalie values use the SAME NHL EDGE cohort. The first three games
+    # have G9 positive on-net plus attempts; the fourth has only attempts.
+    # G16 must not refuse to compare because its preferred evidence differs.
+    rows=[
+        matched_finalist(1,"a",1,11,.05,2.0),
+        matched_finalist(2,"b",2,12,.10,1.9),
+        matched_finalist(3,"c",3,13,.15,1.8),
+        matched_finalist(4,"d",14,24,.85,1.1),
+    ]
+    for i, row in enumerate(rows):
+        z=row["candidate"]["release"]["zone"]
+        proof=row["game"]["coverage"]["AWAY"]["data"]["zoneConcessions"][z]
+        proof.update({"attemptsPerGame":[15,14,13,9][i],
+                      "peerMedianAttemptsPerGame":8,
+                      "positiveConcessionBases":(
+                          ["ATTEMPTS_AGAINST_PEER","ON_NET_SHOTS_AGAINST_PEER"]
+                          if i<3 else ["ATTEMPTS_AGAINST_PEER"]),
+                      "onNetShotsPerGame":7 if i==3 else [12,11,10][i],
+                      "peerMedianOnNetShotsPerGame":8})
+    selected,receipt=g16_cross_game_finalists(rows,3)
+    assert [x["candidate"]["player"]["id"] for x in selected]==["a","b","c"]
+    fourth=receipt["finalists"][3]
+    assert sorted(fourth["dominatedBy"])==["a","b","c"]
+    assert set(fourth["dominatedBySharedMethods"].values())=={
+        "G9_OFFICIAL_ATTEMPTS_VS_PEERS"}
+    assert all(len(r["g16AvailableDefenseMethods"])==2
+               for r in receipt["finalists"][:3])
