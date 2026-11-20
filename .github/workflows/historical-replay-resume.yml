@@ -1,0 +1,106 @@
+name: Resume frozen historical calibration
+on:
+  push:
+    branches: [repair/historical-replay-resume]
+    paths: ['.github/workflows/historical-replay-resume.yml']
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Completed run containing the frozen season bundles"
+        required: true
+        default: "44812774750"
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: historical-replay-resume-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  frozen-calibration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Recover immutable season inputs already collected
+        uses: actions/download-artifact@v4
+        with:
+          name: historical-replay-2026-09-29-through-2026-11-17
+          path: state/replay
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run_id || '44812774750' }}
+      - name: Restore exactly the authoritative engine that produced these bundles
+        run: |
+          set -euo pipefail
+          scorer_sha="$(cat state/replay/scorer-engine-main-sha.txt)"
+          [[ "$scorer_sha" =~ ^[0-9a-f]{40}$ ]]
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$scorer_sha" origin/main
+          mkdir -p /tmp/blender-authoritative state/replay/resumed
+          git archive "$scorer_sha" | tar -xf - -C /tmp/blender-authoritative
+          rm -rf nhl_true_blender_engine
+          cp -a /tmp/blender-authoritative/nhl_true_blender_engine .
+          diff -r --exclude=__pycache__ --exclude=.pytest_cache /tmp/blender-authoritative/nhl_true_blender_engine nhl_true_blender_engine
+          python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+          echo "Reused source run: ${{ inputs.source_run_id || '44812774750' }}"
+          echo "Immutable collector and scorer SHA: $scorer_sha"
+      - name: Verify complete pinned engine and lifecycle
+        run: |
+          cd /tmp/blender-authoritative
+          python -m pytest -q --import-mode=importlib --junitxml=/tmp/pinned-regression.xml
+      - name: Prepare signature-compatible historical comparison engine
+        run: |
+          mkdir -p /tmp/blender-baseline/nhl_true_blender_engine /tmp/blender-baseline/scripts
+          cp -a nhl_true_blender_engine/. /tmp/blender-baseline/nhl_true_blender_engine/
+          git show dd3bf67:nhl_true_blender_engine/engine.py > /tmp/blender-baseline/nhl_true_blender_engine/engine.py
+          python scripts/prepare_historical_baseline.py /tmp/blender-baseline/nhl_true_blender_engine/engine.py
+          cp scripts/replay_historical_season.py scripts/replay_postgame_grade.py /tmp/blender-baseline/scripts/
+      - name: Execute every scheduled slate against its verified frozen inputs
+        id: patched
+        continue-on-error: true
+        env:
+          PYTHONPATH: .
+        run: python scripts/replay_historical_season.py state/replay/manifest.json state/replay/resumed/selections.jsonl --grades state/replay/resumed/grades.jsonl
+      - name: Execute the baseline on the identical source bundles
+        id: baseline
+        continue-on-error: true
+        env:
+          PYTHONPATH: /tmp/blender-baseline:.
+        run: |
+          mkdir -p state/replay/resumed/baseline
+          python /tmp/blender-baseline/scripts/replay_historical_season.py state/replay/manifest.json state/replay/resumed/baseline/selections.jsonl --grades state/replay/resumed/baseline/grades.jsonl
+      - name: Audit official scorers and recipient comparisons
+        id: research
+        continue-on-error: true
+        env:
+          PYTHONPATH: .
+        run: python scripts/replay_postgame_research.py state/replay/manifest.json state/replay/resumed/selections.jsonl state/replay/resumed/postgame-research.jsonl
+      - name: Compare frozen baseline and repaired selections
+        if: always()
+        run: python scripts/compare_historical_replays.py state/replay/resumed/baseline/selections.jsonl state/replay/resumed/baseline/grades.jsonl state/replay/resumed/selections.jsonl state/replay/resumed/grades.jsonl state/replay/resumed/baseline-vs-patched.json
+      - name: Record every unresolved date and original gate
+        if: always()
+        run: python scripts/summarize_historical_replay.py state/replay/manifest.json state/replay/resumed/selections.jsonl state/replay/resumed/grades.jsonl state/replay/resumed/postgame-research.jsonl state/replay/resumed/baseline-vs-patched.json state/replay/resumed/audit-report.json --dfo state/replay/dfo-goalie-archive.json
+      - name: Publish calibration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resumed-historical-calibration-${{ github.run_id }}
+          path: |
+            state/replay/resumed/
+            state/replay/manifest.json
+            state/replay/scorer-engine-main-sha.txt
+            /tmp/pinned-regression.xml
+          if-no-files-found: error
+      - name: Require certified selection, grading and comparison
+        if: always()
+        run: |
+          if [ "${{ steps.patched.outcome }}" != "success" ] || [ "${{ steps.baseline.outcome }}" != "success" ] || [ "${{ steps.research.outcome }}" != "success" ]; then
+            echo "Calibration is incomplete. No missing Core or missing source may be called a successful slate."
+            exit 1
+          fi
