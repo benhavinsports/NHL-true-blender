@@ -36,8 +36,28 @@ jobs:
         run: python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
       - name: Verify historical collectors and replay lifecycle before main-engine handoff
         run: python -m pytest -q --import-mode=importlib nhl_true_blender_engine/tests scripts/tests
-      - name: Restore canonical archive into isolated Actions workspace
-        run: python scripts/ledger_persistence.py restore
+      - name: Pin authoritative main engine and canonical ledger before research
+        id: main_engine_pin
+        env:
+          PYTHONPATH: .
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          scorer_sha="$(git rev-parse origin/main)"
+          mkdir -p state/replay
+          echo "$scorer_sha" > state/replay/scorer-engine-main-sha.txt
+          echo "Historical PBP collector and scorer engine SHA: $scorer_sha"
+          mkdir -p /tmp/blender-authoritative
+          git archive "$scorer_sha" | tar -xf - -C /tmp/blender-authoritative
+          # Replay starts from the same canonical archive as the live engine.
+          # The historical branch's older gzip must not supply a second authority.
+          git archive "$scorer_sha" state | tar -xf -
+          rm -rf nhl_true_blender_engine
+          git archive "$scorer_sha" nhl_true_blender_engine | tar -xf -
+          python -m pip install -r nhl_true_blender_engine/requirements.txt
+          python -m compileall -q nhl_true_blender_engine scripts/reconstruct_historical_pbp.py scripts/build_replay_bundles.py scripts/replay_historical_season.py
+      - name: Restore pinned canonical archive into isolated Actions workspace
+        run: python /tmp/blender-authoritative/scripts/ledger_persistence.py restore
       - name: Inventory source archive without modifying it
         run: |
           mkdir -p state/replay
@@ -101,22 +121,6 @@ jobs:
           PYTHONPATH: .
         run: |
           python scripts/ingest_nhl_historical_previews.py state/replay/collector-manifest.json --database state/true_blender.sqlite --output state/replay/nhl-preview-ingestion.json
-      - name: Pin authoritative main engine before historical PBP reconstruction
-        id: main_engine_pin
-        env:
-          PYTHONPATH: .
-        run: |
-          set -euo pipefail
-          git fetch --no-tags origin main
-          scorer_sha="$(git rev-parse origin/main)"
-          echo "$scorer_sha" > state/replay/scorer-engine-main-sha.txt
-          echo "Historical PBP collector and scorer engine SHA: $scorer_sha"
-          mkdir -p /tmp/blender-authoritative
-          git archive "$scorer_sha" | tar -xf - -C /tmp/blender-authoritative
-          rm -rf nhl_true_blender_engine
-          git archive "$scorer_sha" nhl_true_blender_engine | tar -xf -
-          python -m pip install -r nhl_true_blender_engine/requirements.txt
-          python -m compileall -q nhl_true_blender_engine scripts/reconstruct_historical_pbp.py scripts/build_replay_bundles.py scripts/replay_historical_season.py
       - name: Reconstruct official pre-slate goalie profiles and player shooting evidence
         id: historical_pbp
         env:
@@ -168,12 +172,9 @@ jobs:
         run: |
           set -euo pipefail
           scorer_sha="$(cat state/replay/scorer-engine-main-sha.txt)"
-          git fetch --no-tags origin main
-          current_main="$(git rev-parse origin/main)"
-          if [ "$scorer_sha" != "$current_main" ]; then
-            echo "Main changed after the historical collector was pinned; rerun against one immutable SHA."
-            exit 1
-          fi
+          # Verify the actual collector/scorer bytes against the immutable pin.
+          # A newer main commit cannot invalidate this already-frozen research.
+          git diff --exit-code "$scorer_sha" -- nhl_true_blender_engine
           echo "Historical PBP collector and scorer engine SHA: $scorer_sha"
           python -m compileall -q nhl_true_blender_engine scripts/reconstruct_historical_pbp.py scripts/build_replay_bundles.py scripts/replay_historical_season.py
           python -m pytest -q \
