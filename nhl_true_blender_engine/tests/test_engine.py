@@ -21,6 +21,18 @@ def evidence(data,source=SRC):
 def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
     entries=[{'date':'2026-11-01','goalId':f'goal-{pid}-{k}','sourceUrl':SRC}
              for k in range(goals)]
+    sample_ids=[f'recent-{pid}-1',f'recent-{pid}-2']
+    sample_dates=['2026-11-01','2026-11-02']
+    lane_shots=[attempts//2,attempts-attempts//2]
+    lane_goals_total=min(goals,attempts)
+    first_lane_goals=min(lane_goals_total,lane_shots[0])
+    lane_goals=[first_lane_goals,min(lane_goals_total-first_lane_goals,lane_shots[1])]
+    total_shots=[max(3,lane_shots[0]),max(4,lane_shots[1])]
+    recent_lane={'shotsOnGoal':sum(lane_shots),'ownedGoals':sum(lane_goals),
+        'gameIds':sample_ids,'sourceUrls':[SRC],
+        'byGame':[{'gameId':sample_ids[i],'date':sample_dates[i],
+                   'shotsOnGoal':lane_shots[i],'ownedGoals':lane_goals[i],
+                   'sourceUrls':[SRC]} for i in range(2)]}
     return {'id':str(pid),'name':'Skater '+str(pid),'position':'D' if who else 'C',
             'jersey':pid%90+1,'availability':avail,
             'release':evidence({'archetype':'own wrist/snap release','zone':zone,'attempts':attempts,'ownedGoals':goals}, source=SRC+'/shot-origin/'+str(pid)),
@@ -29,9 +41,24 @@ def skater(pid,zone,attempts,goals,avail='CONFIRMED',who=False):
             'mappedGoals':evidence({'goals':entries}),
             'officialGoalTotal':evidence({'goals':goals}),
             'finishOwnership':evidence({'recipient':True,'creditedGoalsVerified':True}),
-            'pressure':evidence({'recentAppearanceShots':[3,4],
-                'appearances':[{'date':'2026-11-01'},{'date':'2026-11-02'}],
+            'pressure':evidence({'recentAppearanceShots':total_shots,
+                'appearances':[{'date':sample_dates[i],'gameId':sample_ids[i],
+                    'shotsOnGoal':total_shots[i],'sourceUrl':SRC} for i in range(2)],
                 'evidenceType':'OFFICIAL_HISTORICAL_SHOT_EVENTS'}),
+            'recentOrigin':evidence({
+                'sourceType':'OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN',
+                'scope':'RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY',
+                'sampleAsOfSlateDate':DATE,'sampleGameIds':sample_ids,
+                'sampleAppearanceCount':2,
+                'sampleSourcesByGame':{gid:[SRC] for gid in sample_ids},
+                'sampleCoverageComplete':True,
+                'sampleIncludesActualZeroShotAppearances':True,
+                'unclassifiedOnNetShots':0,
+                'zoneCounts':{zone:recent_lane},
+                'rinkBinsApproximateNotNhlEdgePolygons':True,
+                'historicalOwnGoalCreditOnly':True,
+                'notTonightGoalPrediction':True
+            },source=SRC+'/recent-origin/'+str(pid)),
             'contradictions':evidence({
                 'sourceType':'FIXTURE_STRUCTURED_G17','unresolved':False,
                 'anatomicalWeaknessCertified':True,

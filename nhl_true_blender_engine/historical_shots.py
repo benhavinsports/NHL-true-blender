@@ -89,6 +89,8 @@ def measured_recent_shooter_origins(events,player_id):
     NHL play-by-play rink x/y is an APPROXIMATE shooting origin, never an
     anatomical goalie target nor an exact NHL EDGE tracking polygon.
     Only own goals/on-net shots count; assists and blocked/missed shots do not.
+    Each zone retains per-game counts so the engine can normalize by actual
+    boxscore appearances instead of comparing cumulative season totals.
     """
     zones={}
     seen=set()
@@ -100,17 +102,36 @@ def measured_recent_shooter_origins(events,player_id):
         if key in seen:
             continue
         seen.add(key)
+        game_id=str(event.get("gameId"))
+        day=str(event.get("date") or "")
         labels=set(filter(None,(conservative_zone(event.get("x"),event.get("y")),
                                 detailed_shot_origin_zone(event.get("x"),event.get("y")))))
         for name in labels:
             row=zones.setdefault(name,{"shotsOnGoal":0,"ownedGoals":0,
-                                        "gameIds":set(),"sourceUrls":set()})
+                                        "gameIds":set(),"sourceUrls":set(),
+                                        "byGame":{}})
             row["shotsOnGoal"]+=1
-            row["ownedGoals"]+=int(event["type"]=="goal")
-            row["gameIds"].add(str(event["gameId"]))
-            row["sourceUrls"].add(event["sourceUrl"])
+            goal=int(event["type"]=="goal")
+            row["ownedGoals"]+=goal
+            row["gameIds"].add(game_id)
+            if event.get("sourceUrl"):
+                row["sourceUrls"].add(event["sourceUrl"])
+            per_game=row["byGame"].setdefault(game_id,{
+                "date":day,"shotsOnGoal":0,"ownedGoals":0,"sourceUrls":set()})
+            if per_game["date"]!=day:
+                raise ValueError("One NHL game ID has conflicting PBP dates")
+            per_game["shotsOnGoal"]+=1
+            per_game["ownedGoals"]+=goal
+            if event.get("sourceUrl"):
+                per_game["sourceUrls"].add(event["sourceUrl"])
     return {z:{"shotsOnGoal":r["shotsOnGoal"],"ownedGoals":r["ownedGoals"],
-               "gameIds":sorted(r["gameIds"]),"sourceUrls":sorted(r["sourceUrls"])}
+               "gameIds":sorted(r["gameIds"]),"sourceUrls":sorted(r["sourceUrls"]),
+               "byGame":[{"gameId":gid,"date":r["byGame"][gid]["date"],
+                          "shotsOnGoal":r["byGame"][gid]["shotsOnGoal"],
+                          "ownedGoals":r["byGame"][gid]["ownedGoals"],
+                          "sourceUrls":sorted(r["byGame"][gid]["sourceUrls"])}
+                         for gid in sorted(r["byGame"],
+                             key=lambda value:(r["byGame"][value]["date"],value))]}
             for z,r in sorted(zones.items())}
 
 
@@ -206,19 +227,57 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             for player in roster:
                 pid=player["id"]
                 summary=shooter_summary(target_events,pid)
-                if not summary["attempts"]:
-                    continue
-                urls=sorted({e["sourceUrl"] for e in target_events if e["shooterId"]==str(pid)})
-                # Preserve dated, game-by-game positive shooter origin facts
-                # for independent tie review in G10.5. This receipt is not a
-                # fabricated future scorer and never overrides NHL EDGE goals.
+                # Use the paired, source-verified boxscore/PBP appearance list.
+                # The later pooled shot collector must not replace this with
+                # undated aggregate counts or invent zero-shot appearances.
+                pressure_rows=con.execute("""SELECT payload FROM evidence
+                    WHERE slate_date=? AND stage=? AND game_id=? AND player_id=?
+                      AND kind='PLAYER_PRESSURE'
+                    ORDER BY observed_at DESC, rowid DESC""",
+                    (slate_date,stage,str(game["id"]),str(pid))).fetchall()
+                pressure_data={}
+                for pressure_row in pressure_rows:
+                    candidate_data=json.loads(pressure_row["payload"])
+                    if (isinstance(candidate_data.get("recentAppearanceShots"),list)
+                        and isinstance(candidate_data.get("appearances"),list)):
+                        pressure_data=candidate_data
+                        break
+                appearance_rows=pressure_data.get("appearances") or []
+                appearance_ids=[str(x.get("gameId") or "") for x in appearance_rows]
+                source_urls_by_game={
+                    gid:sorted({e["sourceUrl"] for e in target_events
+                                if str(e.get("gameId"))==gid and e.get("sourceUrl")})
+                    for gid in appearance_ids if gid}
+                sample_complete=bool(appearance_rows) and (
+                    len(appearance_ids)==len(set(appearance_ids)) and
+                    all(gid and gid in pbp_verified_ids and source_urls_by_game.get(gid)
+                        for gid in appearance_ids) and
+                    all(isinstance(x.get("date"),str) and x["date"][:10]<slate_date
+                        for x in appearance_rows))
+                # An on-net PBP event with no usable rink origin makes this
+                # lane sample incomplete; it must never be treated as a zero.
+                unmapped_onnet=sum(
+                    1 for e in target_events
+                    if str(e.get("shooterId"))==str(pid) and e.get("type") in ON_NET
+                    and not set(filter(None,(
+                        conservative_zone(e.get("x"),e.get("y")),
+                        detailed_shot_origin_zone(e.get("x"),e.get("y"))))))
                 origins=measured_recent_shooter_origins(target_events,pid)
-                if origins:
-                    origin_urls=sorted({u for area in origins.values()
-                                        for u in area["sourceUrls"]})
+                sample_urls=sorted({u for values in source_urls_by_game.values()
+                                    for u in values})
+                if appearance_rows and sample_urls:
                     origin_payload={"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
                         "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-                        "zoneCounts":origins,"rinkBinsApproximateNotNhlEdgePolygons":True,
+                        "zoneCounts":origins,
+                        "sampleAsOfSlateDate":slate_date,
+                        "sampleGameIds":appearance_ids,
+                        "sampleAppearanceCount":len(appearance_ids),
+                        "sampleSourcesByGame":source_urls_by_game,
+                        "sampleCoverageComplete":sample_complete and unmapped_onnet==0,
+                        "sampleIncludesActualZeroShotAppearances":True,
+                        "unclassifiedOnNetShots":unmapped_onnet,
+                        "sourceUrls":sample_urls,
+                        "rinkBinsApproximateNotNhlEdgePolygons":True,
                         "historicalOwnGoalCreditOnly":True,
                         "notTonightGoalPrediction":True}
                     ingest(con,{"evidence_id":_versioned_receipt_id(
@@ -226,9 +285,13 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                             origin_payload),
                         "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                         "player_id":pid,"kind":"PLAYER_RECENT_ORIGIN",
-                        "source_url":origin_urls[0],
+                        "source_url":sample_urls[0],
                         "observed_at":datetime.now(timezone.utc).isoformat(),
                         "payload":origin_payload})
+                if not summary["attempts"]:
+                    continue
+                urls=sorted({e["sourceUrl"] for e in target_events
+                             if str(e["shooterId"])==str(pid) and e.get("sourceUrl")})
                 payload={"recentAppearanceShots":summary["attempts"],
                          "shotsOnGoal":summary["shotsOnGoal"],
                          "ownedGoals":summary["ownedGoals"],

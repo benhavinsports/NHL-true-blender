@@ -456,28 +456,109 @@ def reconcile_logs(p):
 
 
 def independently_dated_origin_route(player,zone):
-    """A positive NHL PBP shooter-origin observation for G10.5 tied recipients."""
+    """Return a complete, dated recent PBP lane sample for one actual appearance.
+
+    A missing lane is a measured zero ONLY when every actual appearance has
+    complete official PBP coverage and every on-net event was mappable. Season
+    EDGE totals and goal totals never substitute for this sample.
+    """
     wrapper=player.get("recentOrigin")
-    if not receipt(wrapper):
+    pressure=player.get("pressure")
+    if not receipt(wrapper) or not receipt(pressure):
         return None
     data=wrapper.get("data") or {}
+    pressure_data=evidence_data(pressure) or {}
     if (data.get("sourceType")!="OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN"
         or data.get("scope")!="RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY"
         or data.get("rinkBinsApproximateNotNhlEdgePolygons") is not True
-        or data.get("historicalOwnGoalCreditOnly") is not True):
+        or data.get("historicalOwnGoalCreditOnly") is not True
+        or data.get("sampleCoverageComplete") is not True
+        or data.get("sampleIncludesActualZeroShotAppearances") is not True
+        or data.get("unclassifiedOnNetShots")!=0):
         return None
-    area=(data.get("zoneCounts") or {}).get(zone)
-    if not isinstance(area,dict):
+    as_of=data.get("sampleAsOfSlateDate")
+    sample_ids=data.get("sampleGameIds")
+    appearances=pressure_data.get("appearances")
+    sample_sources=data.get("sampleSourcesByGame")
+    if (not isinstance(as_of,str) or len(as_of)<10
+        or not isinstance(sample_ids,list) or not sample_ids
+        or type(data.get("sampleAppearanceCount")) is not int
+        or data["sampleAppearanceCount"]!=len(sample_ids)
+        or not isinstance(appearances,list) or len(appearances)!=len(sample_ids)
+        or not isinstance(sample_sources,dict)
+        or len({str(x) for x in sample_ids})!=len(sample_ids)):
         return None
-    onnet=area.get("shotsOnGoal");goals=area.get("ownedGoals")
-    if not (type(onnet) is int and onnet>0 and type(goals) is int
-            and 0<=goals<=onnet and isinstance(area.get("sourceUrls"),list)
-            and len(area["sourceUrls"])>0):
+    appearance_dates={}
+    appearance_ids=[]
+    for item in appearances:
+        if not isinstance(item,dict):
+            return None
+        gid=str(item.get("gameId") or "")
+        day=item.get("date")
+        if (not gid or not isinstance(day,str) or len(day)<10 or day[:10]>=as_of
+            or gid in appearance_dates):
+            return None
+        appearance_ids.append(gid)
+        appearance_dates[gid]=day[:10]
+    normalized_ids=[str(x) for x in sample_ids]
+    if appearance_ids!=normalized_ids:
         return None
-    return {"ownedGoals":goals,"shotsOnGoal":onnet,
-            "sourceUrls":area["sourceUrls"],
+    for gid in normalized_ids:
+        urls=sample_sources.get(gid)
+        if (not isinstance(urls,list) or not urls
+            or any(not isinstance(u,str) or not u.startswith("https://") for u in urls)):
+            return None
+    zone_counts=data.get("zoneCounts")
+    if not isinstance(zone_counts,dict):
+        return None
+    area=zone_counts.get(zone)
+    by_game={}
+    if area is not None:
+        if (not isinstance(area,dict) or not isinstance(area.get("byGame"),list)
+            or not isinstance(area.get("sourceUrls"),list) or not area["sourceUrls"]):
+            return None
+        for item in area["byGame"]:
+            if not isinstance(item,dict):
+                return None
+            gid=str(item.get("gameId") or "")
+            day=item.get("date")
+            shots=item.get("shotsOnGoal")
+            goals=item.get("ownedGoals")
+            urls=item.get("sourceUrls")
+            if (gid not in appearance_dates or gid in by_game
+                or day!=appearance_dates[gid]
+                or type(shots) is not int or shots<0
+                or type(goals) is not int or goals<0 or goals>shots
+                or not isinstance(urls,list) or not urls
+                or any(u not in sample_sources[gid] for u in urls)):
+                return None
+            by_game[gid]={"shotsOnGoal":shots,"ownedGoals":goals}
+        total_shots=area.get("shotsOnGoal")
+        total_goals=area.get("ownedGoals")
+        if (type(total_shots) is not int or type(total_goals) is not int
+            or total_shots!=sum(x["shotsOnGoal"] for x in by_game.values())
+            or total_goals!=sum(x["ownedGoals"] for x in by_game.values())):
+            return None
+    # An absent zone is a source-verified zero only because sampleCoverageComplete
+    # and unclassifiedOnNetShots==0 were checked above.
+    rows=[{"gameId":gid,"date":appearance_dates[gid],
+           "shotsOnGoal":by_game.get(gid,{}).get("shotsOnGoal",0),
+           "ownedGoals":by_game.get(gid,{}).get("ownedGoals",0)}
+          for gid in normalized_ids]
+    source_urls=sorted({u for gid in normalized_ids for u in sample_sources[gid]})
+    return {"zone":zone,
+            "ownedGoals":sum(x["ownedGoals"] for x in rows),
+            "shotsOnGoal":sum(x["shotsOnGoal"] for x in rows),
+            "appearanceCount":len(rows),
+            "positiveShotAppearances":sum(x["shotsOnGoal"]>0 for x in rows),
+            "shotsByAppearance":rows,
+            "sampleGameIds":normalized_ids,
+            "sampleDates":[appearance_dates[x] for x in normalized_ids],
+            "sourceUrls":source_urls,
             "scope":"SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
-            "notAnNhlEdgeAreaPolygon":True}
+            "notAnNhlEdgeAreaPolygon":True,
+            "seasonTotalsNotUsed":True,
+            "notProofOfFutureGoal":True}
 
 
 def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage):
@@ -568,14 +649,13 @@ def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage
 
 def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
                                        rival_route, goalie_areas, defense_areas):
-    """Same goalie/defender lane: require sourced deployment and shot ACCESS.
+    """Same-lane recipients: compare recent dated own shots per actual appearance.
 
-    Both players are mapped to the exact opponent vulnerability; their
-    independently observed OWN on-net route attempts plus recurring own-shot
-    pressure help distinguish opportunity, NEVER old goals. This remains a
-    prediction of access to tonight's scoring lane, not a claimed future goal.
-    Two players without comparable active roles and recurring pressure remain
-    unresolved; PP-unit rank and player fame are ignored.
+    NHL EDGE season-to-date SOG totals are not tonight's access and cannot
+    defeat a teammate. Once G0/G9 establish the same vulnerable lane, the only
+    player-level separator here is a complete recent official PBP lane sample,
+    normalized by each player's actual boxscore appearances. Exact cross
+    multiplication avoids rounding; equal or missing evidence stays unresolved.
     """
     zone=candidate_route.get('zone')
     if (not zone or zone!=rival_route.get('zone') or
@@ -583,37 +663,64 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
             (defense_areas is not None and zone not in defense_areas)):
         return None
     sources=[]
+    recent_routes=[]
     for player in (candidate,rival):
         deployment=player.get('deployment')
         pressure=player.get('pressure')
         d=evidence_data(deployment) or {}
         p=evidence_data(pressure) or {}
         shot_review=observed_own_shot_appearances(p)
-        # Never turn two unlabeled list entries into two verified games.
-        # G7/G11 require source-dated actual appearances for this exact
-        # claim, and G10.5 must enforce the same provenance before using
-        # recurrence to defeat a teammate on the same route.
         if not (receipt(player.get('release')) and receipt(deployment) and
                 receipt(pressure) and isinstance(d.get('EV'),str) and d['EV']
                 and d.get('status') in ('CONFIRMED','PROJECTED') and
                 shot_review.get('datedAppearanceAlignmentVerified') is True and
                 shot_review.get('repeatedOwnShotPressure') is True):
             return None
-        sources.extend([deployment['sourceUrl'],pressure['sourceUrl']])
-    onnet_a=candidate_route.get('attempts')
-    onnet_b=rival_route.get('sog',rival_route.get('attempts'))
-    if not (type(onnet_a) is int and type(onnet_b) is int and
-            onnet_a>0 and onnet_b>=0):
-        return None
-    return {'result':('CANDIDATE' if onnet_a>onnet_b else
-                      'RIVAL' if onnet_b>onnet_a else 'UNSEPARATED'),
-            'sourceScope':'BOTH_PLAYERS_TONIGHT_EV_ROLE_MATCHED_SAME_WEAK_LANE',
-            'sameLaneOwnOnNetShots':{'candidate':onnet_a,'rival':onnet_b},
+        route=independently_dated_origin_route(player,zone)
+        if route is None or route.get('appearanceCount',0)<2:
+            return None
+        recent_routes.append(route)
+        sources.extend([deployment['sourceUrl'],pressure['sourceUrl'],
+                        player['recentOrigin']['sourceUrl']])
+    candidate_recent,rival_recent=recent_routes
+    # Compare shots/actual appearance by exact integer cross-product, never
+    # cumulative NHL EDGE season shots or goal totals.
+    left=(candidate_recent['shotsOnGoal']*rival_recent['appearanceCount'])
+    right=(rival_recent['shotsOnGoal']*candidate_recent['appearanceCount'])
+    result=('CANDIDATE' if left>right else
+            'RIVAL' if right>left else 'UNSEPARATED')
+    comparison={
+        'candidate':{'recentSameLaneOnNetShots':candidate_recent['shotsOnGoal'],
+                     'actualAppearances':candidate_recent['appearanceCount'],
+                     'positiveShotAppearances':candidate_recent['positiveShotAppearances'],
+                     'rateNumerator':candidate_recent['shotsOnGoal'],
+                     'rateDenominator':candidate_recent['appearanceCount']},
+        'rival':{'recentSameLaneOnNetShots':rival_recent['shotsOnGoal'],
+                 'actualAppearances':rival_recent['appearanceCount'],
+                 'positiveShotAppearances':rival_recent['positiveShotAppearances'],
+                 'rateNumerator':rival_recent['shotsOnGoal'],
+                 'rateDenominator':rival_recent['appearanceCount']},
+        'comparison':'RECENT_OFFICIAL_PBP_SAME_LANE_SHOTS_PER_ACTUAL_APPEARANCE',
+        'decisionByExactIntegerCrossProduct':True,
+        'candidateCrossProduct':left,'rivalCrossProduct':right,
+        'seasonEdgeCumulativeShotsNotUsed':True,
+        'seasonOrRecentOwnedGoalTotalsNotUsed':True,
+        'sampleGameIds':{'candidate':candidate_recent['sampleGameIds'],
+                         'rival':rival_recent['sampleGameIds']},
+        'sampleDates':{'candidate':candidate_recent['sampleDates'],
+                       'rival':rival_recent['sampleDates']},
+        'sourceUrls':sorted(set(candidate_recent['sourceUrls']+rival_recent['sourceUrls'])),
+        'notProofOfFutureGoal':True,
+    }
+    return {'result':result,
+            'sourceScope':'TONIGHT_G0_G9_SAME_LANE_PLUS_RECENT_DATED_PBP',
+            'sameLaneRecentShotComparison':comparison,
             'bothHaveRecurringOwnShotPressure':True,
             'bothHaveSourcedTonightEVDeployment':True,
-            'ownGoalsNeverCompared':True,
+            'seasonEdgeCumulativeShotsNotUsed':True,
+            'seasonOrRecentOwnedGoalsNeverCompared':True,
             'notProofOfFutureGoal':True,
-            'sourceUrls':sorted(set(sources))}
+            'sourceUrls':sorted(set(sources+comparison['sourceUrls']))}
 
 
 def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None,
@@ -747,8 +854,13 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'sourceUrl':wrapper['sourceUrl']})
             all_defeated=False
             continue
-        recent_tie_proof=None
+        same_lane_proofs=[proof for x,proof in route_comparisons
+                          if x['zone']==base['zone'] and proof is not None]
+        recent_tie_proof=(same_lane_proofs[0] if len(same_lane_proofs)==1 else
+                          same_lane_proofs if same_lane_proofs else None)
         decision_basis=(
+            'TONIGHT_G0_G9_MATCHUP_PLUS_DATED_SAME_LANE_SHOT_RATE'
+            if (dominates or defeated_by) and same_lane_proofs else
             'TONIGHT_OPPONENT_GOALIE_AND_DEFENSE_ALL_RIVAL_ROUTES'
             if dominates or defeated_by else
             'UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK')
@@ -787,7 +899,8 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 'G9 tonight opponent defensive on-net exposure',
                 'Every viable rival scoring lane compared, not just historical best'],
             'noFameOddsOrPPShortcut':True,
-            'rule':'only sourced matchup exposure decides; no historical goal/shot fallback',
+            'sameLaneSeasonCumulativeCountsNotUsed':True,
+            'rule':'only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback',
         })
     return all_defeated,rows
 
