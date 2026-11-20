@@ -18,7 +18,8 @@ from pathlib import Path
 from nhl_true_blender_engine.sources import NHLClient
 from nhl_true_blender_engine.secondary_sources import TEAM_SLUGS
 from nhl_true_blender_engine.historical_shots import (
-    extract_events, measured_recent_shooter_origins, ON_NET)
+    extract_events, measured_recent_shooter_origins, ON_NET,
+    conservative_zone, detailed_shot_origin_zone)
 from nhl_true_blender_engine.goalie_history_fallback import (
     summarize_goalie_origin_pbp, derive_independent_pbp_goalie_profile)
 from nhl_true_blender_engine.enrichment import ingest
@@ -173,6 +174,72 @@ def _player_route(origin):
             {"zone": z, "sog": d["shotsOnGoal"], "ownedGoals": d["ownedGoals"],
              "sourceUrls": d["sourceUrls"]} for z, d in ranked]
     }
+
+
+def build_player_recent_origin_sample(player_id, appearances, cached_pbp, slate_date, team):
+    """Build a PBP lane sample aligned to actual, source-verified boxscore appearances.
+
+    Zero-shot appearances remain in the denominator. A lane can be called zero
+    only when every appearance has PBP coverage and every own on-net event has
+    a dated, mappable rink origin.
+    """
+    sample_ids=[str(x.get("gameId") or "") for x in appearances]
+    appearance_dates={str(x.get("gameId") or ""):str(x.get("date") or "")[:10]
+                      for x in appearances}
+    def game_events(gid):
+        found=cached_pbp.get(gid)
+        if found is None and gid.isdigit():
+            found=cached_pbp.get(int(gid))
+        return found or []
+    sample_sources_by_game={
+        gid:sorted({e.get("sourceUrl") for e in game_events(gid)
+                    if isinstance(e.get("sourceUrl"),str)
+                    and e["sourceUrl"].startswith("https://")})
+        for gid in sample_ids if gid
+    }
+    player_events=[e for gid in sample_ids for e in game_events(gid)
+                   if str(e.get("shooterId"))==str(player_id)]
+    origins=measured_recent_shooter_origins(player_events,player_id)
+    unmapped_onnet=0
+    for event in player_events:
+        if event.get("type") not in ON_NET:
+            continue
+        gid=str(event.get("gameId") or "")
+        day=str(event.get("date") or "")[:10]
+        has_origin=bool(conservative_zone(event.get("x"),event.get("y")) or
+                        detailed_shot_origin_zone(event.get("x"),event.get("y")))
+        if (not has_origin or not day or
+                day!=appearance_dates.get(gid)):
+            unmapped_onnet+=1
+    dates_complete=all(
+        isinstance(x.get("date"),str) and x["date"][:10]<slate_date
+        for x in appearances)
+    sample_complete=bool(appearances) and (
+        len(sample_ids)==len(appearances) and
+        len(sample_ids)==len(set(sample_ids)) and
+        all(gid and gid in sample_sources_by_game and sample_sources_by_game[gid]
+            for gid in sample_ids) and
+        dates_complete and unmapped_onnet==0)
+    source_urls=sorted({u for values in sample_sources_by_game.values() for u in values})
+    payload={
+        "sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+        "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+        "zoneCounts":origins,
+        "sampleAsOfSlateDate":slate_date,
+        "sampleGameIds":sample_ids,
+        "sampleAppearanceCount":len(sample_ids),
+        "sampleSourcesByGame":sample_sources_by_game,
+        "sampleCoverageComplete":sample_complete,
+        "sampleIncludesActualZeroShotAppearances":True,
+        "unclassifiedOnNetShots":unmapped_onnet,
+        "sourceUrls":source_urls,
+        "actualBoxscoreAppearancesUsed":True,
+        "candidateTeamFromOfficialEventOwnerTeamId":team,
+        "rinkBinsApproximateNotNhlEdgePolygons":True,
+        "historicalOwnGoalCreditOnly":True,
+        "notTonightGoalPrediction":True,
+    }
+    return payload,source_urls
 
 
 async def reconstruct(manifest, database, output, limit=18):
@@ -359,66 +426,9 @@ async def reconstruct(manifest, database, output, limit=18):
                 profiles += 1
                 peer_qualified += int(profile["fullySourceComparedAreas"] > 0)
 
-            # Retain independently owned historical skater shooting evidence.
-            # It is attached ONLY to a separately verified historical roster,
-            # and never manufactures one or claims a projected EV/PP assignment.
-            # The target team ID comes from NHL's own official game metadata.
+            # Player origin and release receipts are built below only after the
+            # actual pre-slate boxscore appearance denominator is reconstructed.
             player_receipts = 0
-            for scheduled in games:
-                gid = str(scheduled.get("id") or scheduled.get("gameId"))
-                for team in (scheduled["away"], scheduled["home"]):
-                    club_rows = [row for row in club_schedules.get(team, [])
-                                 if row["id"] in pool]
-                    club_rows.sort(key=lambda x: x["startTimeUTC"])
-                    relevant = {r["id"] for r in club_rows[-8:]}
-                    team_ids = {str((r.get("awayTeam") or {}).get("id"))
-                                for r in club_rows if (r.get("awayTeam") or {}).get("abbrev") == team}
-                    team_ids |= {str((r.get("homeTeam") or {}).get("id"))
-                                 for r in club_rows if (r.get("homeTeam") or {}).get("abbrev") == team}
-                    own_events = [e for game_id in relevant for e in cached_pbp[game_id]
-                                  if e.get("ownerTeamId") in team_ids]
-                    owners = sorted({e["shooterId"] for e in own_events})
-                    for pid in owners:
-                        by_pid = [e for e in own_events if e["shooterId"] == pid]
-                        source_games = {e["gameId"] for e in by_pid}
-                        valid_games = [pool[x] for x in source_games if x in pool]
-                        if not valid_games:
-                            continue
-                        available_at = max(utc(x["startTimeUTC"]) + FINISH_BUFFER
-                                           for x in valid_games)
-                        if available_at >= cutoff:
-                            continue
-                        origins = measured_recent_shooter_origins(by_pid, pid)
-                        if not origins:
-                            continue
-                        urls = sorted({u for z in origins.values() for u in z["sourceUrls"]})
-                        source_payload = {
-                            "sourceType": "OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
-                            "scope": "RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-                            "zoneCounts": origins,
-                            "historicalOwnGoalCreditOnly": True,
-                            "rinkBinsApproximateNotNhlEdgePolygons": True,
-                            "notTonightGoalPrediction": True,
-                            "gameDates": sorted({e["date"] for e in by_pid}),
-                            "candidateTeamFromOfficialEventOwnerTeamId": team,
-                        }
-                        # These facts remain independent of roster/deployment.
-                        if _receipt(con, date, "PROJECTED", gid, pid,
-                                    "PLAYER_RECENT_ORIGIN", source_payload, urls,
-                                    available_at) is not False:
-                            player_receipts += 1
-                        route = _player_route(origins)
-                        if route:
-                            _receipt(con, date, "PROJECTED", gid, pid,
-                                     "PLAYER_RELEASE", route, urls, available_at)
-                        goals = [{"goalId": f"{e['gameId']}:{e['eventId']}",
-                                  "date": e["date"], "sourceUrl": e["sourceUrl"]}
-                                 for e in by_pid if e["type"] == "goal"]
-                        _receipt(con, date, "PROJECTED", gid, pid,
-                                 "PLAYER_GOAL_EVENTS",
-                                 {"goals": goals, "scope": "PRE_SLATE_PBP_ONLY",
-                                  "completeSeason": False},
-                                 urls, available_at)
             # Reconstruct actual PRE-SLATE skater appearances from official
             # boxscores. This is neither today's dressed roster nor a
             # projected line/PP assignment, and is never used to infer either.
@@ -508,6 +518,22 @@ async def reconstruct(manifest, database, output, limit=18):
                                      "scope": scope,
                                      "notTonightDeploymentEvidence": True},
                                  urls, available_at)
+                        # Only now do we have the exact actual-appearance
+                        # denominator. Include zero-shot appearances and every
+                        # game's PBP source; incomplete coverage remains pending.
+                        origin_payload, origin_urls = build_player_recent_origin_sample(
+                            pid, appearances, cached_pbp, date, team)
+                        if origin_urls:
+                            if _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                        "PLAYER_RECENT_ORIGIN", origin_payload,
+                                        origin_urls, available_at) is not False:
+                                player_receipts += 1
+                            if origin_payload["sampleCoverageComplete"]:
+                                route = _player_route(origin_payload["zoneCounts"])
+                                if route:
+                                    _receipt(con, date, "PROJECTED", upcoming_id, pid,
+                                             "PLAYER_RELEASE", route, origin_urls,
+                                             available_at)
                         box_log_receipts += 1
                         owned = [event for game_id in game_ids
                                  for event in cached_pbp[game_id]
