@@ -150,10 +150,22 @@ def apply_active_guards(candidate,traces,guards):
         fired.append(proof)
     if fired:
         candidate["complete"]=False
+        # The production executor builds the game survivor pool from
+        # preCoreQualified (G18 is deferred). Resetting only "complete"
+        # would leave an actual future guard rejection in the Core pool.
+        candidate["preCoreQualified"]=False
         for row in traces:
             if row["gate"]=="G18":
                 row["disposition"]="ELIMINATED"
                 row["details"]["activatedPostgameGuards"]=fired
+        # Both the saved gate trace AND the in-memory gate dispositions
+        # must reflect the exact same source-verified guard rejection.
+        for proof in fired:
+            gate=proof["gate"]
+            item=(candidate.get("dispositions") or {}).get(gate)
+            if item:
+                item["disposition"]="ELIMINATED"
+                item.setdefault("details",{})["patchEnforcement"]=proof
         candidate.setdefault("patchGuardRejections",[]).extend(fired)
     return candidate,traces,fired
 
