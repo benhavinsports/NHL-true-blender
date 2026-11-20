@@ -37,7 +37,7 @@ def test_matchup_dominates_even_if_old_goals_rank_it_last():
     winners, report=g16_cross_game_finalists(rows,3)
     assert [x['candidate']['player']['id'] for x in winners]==['a','b','c']
     assert report['excludedPlayerIds']==['d']
-    assert all(x['g16ComparisonBasis']=='TONIGHT_MATCHUP_OPPONENT_EXPOSURE'
+    assert all(x['g16ComparisonBasis'].startswith('NHL_EDGE_LEAGUE_SAVEPCTG_PERCENTILE|G9_')
                for x in report['finalists'])
     assert sorted(report['finalists'][3]['dominatedBy'])==['a','b','c']
 
