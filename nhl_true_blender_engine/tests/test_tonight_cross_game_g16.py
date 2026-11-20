@@ -67,5 +67,5 @@ def test_incomplete_matchup_scope_cannot_dominate_sourced_scope():
     winners, report=g16_cross_game_finalists(rows,3)
     assert len(winners)==4
     assert report['separated'] is False
-    assert report['finalists'][3]['g16ComparisonBasis'].startswith('HISTORICAL_')
+    assert report['finalists'][3]['g16ComparisonBasis']=='NOT_COMPARABLE'
     assert report['finalists'][3]['dominatedBy']==[]
