@@ -254,54 +254,72 @@ def main():
     if (stage not in (None, 'PROJECTED', 'CONFIRMED') or end < start):
         parser.error('Expected a valid date range and optional PROJECTED/CONFIRMED default stage')
     failures = 0
-    status_counts = Counter()
-    schedule = manifest.get('officialSchedule')
-    if isinstance(schedule, dict):
-        days = sorted(schedule)
-        if any(not (start.isoformat() <= day <= end.isoformat()) for day in days):
-            parser.error('Official schedule dates must fall inside the manifest range')
-    else:
-        scheduled = manifest.get('scheduledSlates')
-        if isinstance(scheduled, dict):
-            days = sorted(scheduled)
-        else:
-            days = [(start + timedelta(days=offset)).isoformat()
-                    for offset in range((end - start).days + 1)]
-    verified_off_days = set(manifest.get('verifiedOffDays', []))
+    # Do not classify an independently documented NHL off-day as an engine
+    # failure, and NEVER infer an off-day merely from a missing source bundle.
+    # This is the same point-in-time official calendar contract used by the
+    # season replay builder; no historical player status or goalie is inferred.
+    schedule = manifest.get('officialSchedule') or {}
+    off_days = set(manifest.get('verifiedOffDays') or [])
     with args.output.open('x', encoding='utf-8') as out:
-        for day in days:
+        for offset in range((end - start).days + 1):
+            day = (start + timedelta(days=offset)).isoformat()
             bundle = manifest['slates'].get(day)
-            if bundle is None and day in verified_off_days:
+            official = schedule.get(day) if isinstance(schedule, dict) else None
+            verified_off_day = (day in off_days and isinstance(official, dict)
+                                and official.get('verifiedOffDay') is True
+                                and official.get('games') == []
+                                and bool(official.get('source')))
+            if verified_off_day and bundle is not None:
+                row = {'date': day, 'status': 'REPLAY_ERROR',
+                       'reason': 'Off-day schedule contradicts an archived game bundle'}
+                failures += 1
+            elif verified_off_day:
                 row = {'date': day, 'status': 'VERIFIED_OFF_DAY',
-                       'officialSchedule': (schedule or {}).get(day)}
+                       'officialScheduleSource': official['source']}
             elif bundle is None:
-                schedule_row = (schedule or {}).get(day)
-                scheduled = bool((schedule_row or {}).get('games'))
-                status = 'SCHEDULED_SOURCE_BLOCKED' if scheduled else 'SCHEDULE_UNVERIFIED'
-                row = {'date': day, 'status': status,
-                       'officialSchedule': schedule_row,
-                       'reason': ('Scheduled slate has no archived point-in-time pregame bundle'
-                                  if scheduled else 'No official schedule/off-day receipt')}
+                documented_game = bool(isinstance(official, dict) and
+                                        official.get('games'))
+                row = {
+                    'date': day,
+                    'status': ('SCHEDULE_UNVERIFIED'
+                               if day in off_days else
+                               'SCHEDULED_SOURCE_BLOCKED' if documented_game
+                               else 'SOURCE_BLOCKED'),
+                    'reason': ('Scheduled NHL games have no archived pregame bundle'
+                               if documented_game else
+                               'No independently verified pregame/off-day evidence')
+                }
                 failures += 1
             else:
                 try:
                     row = replay_day(args.manifest.parent, day, stage, bundle)
+                    # Running the gates is necessary but NOT sufficient. A
+                    # replay without a source-certified Core must make the
+                    # historical workflow fail, even if Python execution and
+                    # all synthetic unit tests succeeded.
+                    card = row['engineResult'].get('card')
+                    certified = (row['gateCertification'].get(
+                        'selectedCoreOnlyFullyCertified') is True)
+                    if not card:
+                        row['coreIssuanceStatus'] = 'NO_CORE'
+                        row['reason'] = ('Original gates executed, but no certified '
+                                         'Core recipients were issued')
+                        failures += 1
+                    elif not certified:
+                        row['coreIssuanceStatus'] = 'CORE_NOT_CERTIFIED'
+                        row['reason'] = ('Issued Core did not pass independent '
+                                         'G0-G18 gate certification')
+                        failures += 1
+                    else:
+                        row['coreIssuanceStatus'] = 'CERTIFIED_CORE'
                 except (OSError, ValueError, TypeError, KeyError) as exc:
                     row = {'date': day, 'status': 'REPLAY_ERROR',
                            'errorType': type(exc).__name__, 'reason': str(exc)}
-                    status_counts['REPLAY_ERROR'] += 1
                     failures += 1
-            status_counts[row['status']] += 1
             out.write(json.dumps(row, default=str) + '\n')
             out.flush()
     if args.grades:
         failures += asyncio.run(grade_ledger(args.output, args.grades))
-    print(json.dumps({'dateRange': [start.isoformat(), end.isoformat()],
-                      'dateCount': len(days), 'statusCounts': dict(status_counts),
-                      'selectionLedger': str(args.output),
-                      'gradeLedger': str(args.grades) if args.grades else None,
-                      'unresolvedDatesRemainNonzeroExit': bool(failures)},
-                     sort_keys=True))
     return int(bool(failures))
 
 

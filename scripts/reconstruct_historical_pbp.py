@@ -128,8 +128,20 @@ def _player_route(origin):
     if not ranked:
         return None
     key = (ranked[0][1]["ownedGoals"], ranked[0][1]["shotsOnGoal"])
-    if sum((x["ownedGoals"], x["shotsOnGoal"]) == key for _, x in ranked) != 1:
-        return None
+    tied = [(zone, data) for zone, data in ranked
+            if (data["ownedGoals"], data["shotsOnGoal"]) == key]
+    if len(tied) > 1:
+        # A historical top-area tie is not missing shooting evidence. Keep
+        # every independently observed lane for the original engine's
+        # opponent-specific G0/G9 comparison; do not choose a lane here.
+        routes = [{"zone": z, "sog": d["shotsOnGoal"],
+                   "ownedGoals": d["ownedGoals"], "sourceUrls": d["sourceUrls"]}
+                  for z, d in ranked]
+        return {"ambiguousRoutes": [r for r in routes
+                    if (r["ownedGoals"], r["sog"]) == key],
+                "allRoutes": routes, "canDeterminePrimary": False,
+                "sourceType": "OFFICIAL_PRE_SLATE_PBP_SHOT_ORIGIN",
+                "isAnatomicalReleaseClaim": False}
     zone, data = ranked[0]
     return {
         "archetype": "OBSERVED_OWN_SHOT_ORIGIN",

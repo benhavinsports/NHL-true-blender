@@ -34,6 +34,8 @@ jobs:
           python-version: '3.11'
       - name: Install replay dependencies
         run: python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+      - name: Verify historical collectors and replay lifecycle before main-engine handoff
+        run: python -m pytest -q --import-mode=importlib nhl_true_blender_engine/tests scripts/tests
       - name: Restore canonical archive into isolated Actions workspace
         run: python scripts/ledger_persistence.py restore
       - name: Inventory source archive without modifying it
@@ -151,6 +153,13 @@ jobs:
           echo "$scorer_sha" > state/replay/scorer-engine-main-sha.txt
           echo "Historical evidence-collection branch: $GITHUB_SHA"
           echo "Authoritative scorer engine for this replay: $scorer_sha"
+          # Keep a complete, SHA-pinned main runtime for its regression suite.
+          # Tests import runner helpers as well as engine modules. Mixing main
+          # tests with old audit-branch scripts produces import/contract errors.
+          mkdir -p /tmp/blender-authoritative
+          git archive "$scorer_sha" nhl_true_blender_engine scripts site \
+            run_true_blender.py requirements.txt postgame_grade.py postgame_audit.py \
+            .github/workflows | tar -xf - -C /tmp/blender-authoritative
           # Save the earlier baseline before replacing these modules. Do not
           # modify archived evidence, immutable historical cards, or source
           # cutoff timestamps to manufacture qualified recipients.
@@ -272,9 +281,12 @@ jobs:
           name: historical-replay-${{ inputs.start_date || '2026-09-29' }}-through-${{ inputs.end_date || '2026-11-17' }}
           path: state/replay/
           if-no-files-found: error
-      - name: Run full engine regression suite
+      - name: Run SHA-pinned authoritative engine and runner regression suite
         if: always()
-        run: python -m pytest -q nhl_true_blender_engine/tests
+        run: |
+          test -f /tmp/blender-authoritative/scripts/automatic_blender_cycle.py
+          cd /tmp/blender-authoritative
+          python -m pytest -q nhl_true_blender_engine/tests
       - name: Fail CI if any scheduled slate remains incomplete
         if: always()
         run: |

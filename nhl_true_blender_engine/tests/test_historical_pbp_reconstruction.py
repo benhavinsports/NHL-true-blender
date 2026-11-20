@@ -30,7 +30,11 @@ def test_own_shot_origin_tie_stays_unresolved():
     def area():
         return {"shotsOnGoal": 5, "ownedGoals": 1,
                 "sourceUrls": ["https://api-web.nhle.com/v1/gamecenter/1/play-by-play"]}
-    assert _player_route({"Low Slot": area(), "High Slot": area()}) is None
+    route = _player_route({"Low Slot": area(), "High Slot": area()})
+    assert route["canDeterminePrimary"] is False
+    assert "zone" not in route
+    assert {r["zone"] for r in route["allRoutes"]} == {"Low Slot", "High Slot"}
+    assert len(route["ambiguousRoutes"]) == 2
 
 
 def test_own_origin_never_claims_goal_mouth():
@@ -40,3 +44,19 @@ def test_own_origin_never_claims_goal_mouth():
     assert observed["zone"] == "Low Slot"
     assert observed["isAnatomicalReleaseClaim"] is False
     assert observed["sourceType"] == "OFFICIAL_PRE_SLATE_PBP_SHOT_ORIGIN"
+
+
+def test_tied_historical_routes_can_be_resolved_only_by_opponent_evidence():
+    from nhl_true_blender_engine.engine import release_matched_to_g0_target, player_releases
+    from nhl_true_blender_engine.tests.test_engine import evidence
+    origins = {zone: {"shotsOnGoal": 5, "ownedGoals": 1,
+                       "sourceUrls": ["https://api-web.nhle.com/v1/gamecenter/1/play-by-play"]}
+               for zone in ("Low Slot", "High Slot")}
+    player = {"id": "123", "release": evidence(_player_route(origins))}
+    assert player_releases(player) is None
+    goalie = evidence({"weakZones": {"Low Slot": {"shotsAgainst": 50, "goalsAgainst": 10}}})
+    defense = evidence({"greenWeakZones": ["Low Slot"]})
+    matched = release_matched_to_g0_target(player, goalie, defense)
+    assert player_releases(matched)["zone"] == "Low Slot"
+    assert matched["release"]["data"]["g9DefensiveLaneIndependentlyMatched"] is True
+    assert player_releases(player) is None
