@@ -313,8 +313,17 @@ def export_run(con, slate_date, stage, result, root='state'):
         except (AssertionError,ValueError,KeyError,OSError,TypeError) as exc:
             status['frozenContinuationGaps']=[str(exc)]
         else:
+            # A successful incumbent review certifies only the frozen Core
+            # continuation. It cannot certify missing full-slate research just
+            # because the engine returned an empty error list.
+            full_slate_certified = bool(
+                full_execution
+                and census.get('allGateChecksExecutedWithEvidence') is True
+                and not result.get('errors'))
             status.update(selectedCoreFullyCertified=True,
-                currentRunFullyCertified=not bool(result.get('errors')),
+                frozenCoreContinuationCertified=True,
+                fullSlateEvidenceCertified=full_slate_certified,
+                currentRunFullyCertified=full_slate_certified,
                 publicationDecision='FROZEN_CORE_REVALIDATED_UNSTARTED_RECIPIENTS')
         _write(status_path,status)
         return status

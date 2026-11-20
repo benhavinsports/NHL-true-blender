@@ -33,6 +33,12 @@ def test_started_leg_is_never_reopened_and_unstarted_incumbents_require_fresh_ga
     export_dashboard(con,DATE,'CONFIRMED',slate,tmp_path)
     status=export_run(con,DATE,'CONFIRMED',result,tmp_path)
     assert status['publicationDecision']=='FROZEN_CORE_REVALIDATED_UNSTARTED_RECIPIENTS',status
+    assert status['selectedCoreFullyCertified'] is True
+    assert status['frozenCoreContinuationCertified'] is True
+    # Empty engine errors and a valid saved card do not repair incomplete
+    # slate-wide research after the first game has frozen.
+    assert status['currentRunFullyCertified'] is False
+    assert status['fullSlateEvidenceCertified'] is False
     verified=verify_published_core(tmp_path,DATE)
     assert verified['frozenLegs']==1 and verified['unstartedLegsRevalidated']==2
     assert get_card(con,DATE)==before
