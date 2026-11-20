@@ -51,9 +51,14 @@ def fixture(root):
 
 def test_cycle_applies_sourced_future_guard_and_saves_cumulative_official_history(tmp_path,monkeypatch):
     # Synthetic official recipient comparison fixture, no live NHL request.
-    async def synthetic_official_recipients(con,date,nhl):
+    calls={'count':0}
+    async def synthetic_official_recipients(con,date,nhl,root='state'):
+        calls['count']+=1
         return {'status':'OFFICIALLY_VERIFIED_FULL_SCORER_COMPARISON',
-                'cardId':f'NHL-{DATE}-CANONICAL','readOnlyPostgameAudit':True,
+                'cardId':f'NHL-{DATE}-CANONICAL',
+                'originalFingerprint':'frozen-synthetic-fingerprint',
+                'originalRevision':1,
+                'readOnlyPostgameAudit':True,
                 'selectedLegs':[],'officialSourceUrls':[OFFICIAL],
                 'syntheticTestFixtureOnly':True}
     monkeypatch.setattr('scripts.run_cycle.collect_official_recipients',
@@ -85,6 +90,7 @@ def test_cycle_applies_sourced_future_guard_and_saves_cumulative_official_histor
     before_bytes=card_path.read_bytes()
     again=asyncio.run(execute_cycle("grade",DATE,root))
     assert again["patchAdjudication"]["activated"]==[GUARD_POLICIES["G10.5"]]
+    assert calls["count"]==1
     assert card_path.read_bytes()==before_bytes
 
 def test_cycle_without_card_cannot_generate_fake_patch_or_history(tmp_path):
