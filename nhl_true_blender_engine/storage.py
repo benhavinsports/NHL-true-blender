@@ -343,13 +343,15 @@ def save_card(con, slate_date, stage, legs, games_count, audit=None, now=None):
                 if ['PROJECTED','MIXED','CONFIRMED'].index(stage) < ['PROJECTED','MIXED','CONFIRMED'].index(existing['stage']):
                     raise ValueError('Cannot demote confirmed card')
                 # Already identical: idempotent, no new version.
-                if existing['stage'] == stage:
+                if existing['stage'] == stage and existing['current_legs'] == legs:
                     return existing
-                rationale = {'type':'SAME_RECIPIENT_STAGE_ADVANCE','sourceIds':sorted({s for l in legs for s in l['sourceIds']})}
+                rationale = {'type':('SAME_RECIPIENT_STAGE_ADVANCE'
+                    if existing['stage'] != stage else 'SAME_RECIPIENT_SOURCE_REFRESH'),
+                    'sourceIds':sorted({s for l in legs for s in l['sourceIds']})}
                 for leg in existing['current_legs']:
                     if game_started(leg,now) and any(n['gameId']==leg['gameId'] and n!=leg for n in legs):
                         # Keep old record exactly, including source status, for frozen legs.
-                        raise ValueError('Post-puck stage change modified frozen leg')
+                        raise ValueError('Post-puck stage change or source refresh modified frozen leg')
             revision = existing['revision']+1
             card_id = existing['card_id']
             con.execute('UPDATE cards SET current_legs=?,stage=?,fingerprint=?,revision=?,updated_at=? WHERE slate_date=?',
