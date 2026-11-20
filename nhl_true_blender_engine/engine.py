@@ -588,13 +588,16 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
         pressure=player.get('pressure')
         d=evidence_data(deployment) or {}
         p=evidence_data(pressure) or {}
-        shots=p.get('recentAppearanceShots')
+        shot_review=observed_own_shot_appearances(p)
+        # Never turn two unlabeled list entries into two verified games.
+        # G7/G11 require source-dated actual appearances for this exact
+        # claim, and G10.5 must enforce the same provenance before using
+        # recurrence to defeat a teammate on the same route.
         if not (receipt(player.get('release')) and receipt(deployment) and
                 receipt(pressure) and isinstance(d.get('EV'),str) and d['EV']
                 and d.get('status') in ('CONFIRMED','PROJECTED') and
-                isinstance(shots,list) and len(shots)>=2 and
-                all(type(x) is int and x>=0 for x in shots) and
-                sum(x>0 for x in shots)>=2):
+                shot_review.get('datedAppearanceAlignmentVerified') is True and
+                shot_review.get('repeatedOwnShotPressure') is True):
             return None
         sources.extend([deployment['sourceUrl'],pressure['sourceUrl']])
     onnet_a=candidate_route.get('attempts')
