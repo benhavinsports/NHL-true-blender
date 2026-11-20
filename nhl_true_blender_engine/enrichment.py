@@ -111,6 +111,63 @@ def _same_ev_assignment(left, right):
     return identity(left)==identity(right)
 
 
+def _same_sample_loses_detail(kind, old, new):
+    """Do not erase dated official observations with a lossy summary of them.
+
+    This is only an identity-preserving attachment rule. A different game
+    window, changed measured count, or changed provenance remains a new
+    observation; no gate status or completeness flag is manufactured.
+    """
+    if kind in ('PLAYER_GAME_LOG', 'PLAYER_PRESSURE'):
+        before, after = old.get('appearances'), new.get('appearances')
+        if not isinstance(before, list) or not before or not isinstance(after, list):
+            return False
+        def index(rows):
+            result = {}
+            for row in rows:
+                if not isinstance(row, dict):
+                    return None
+                key = (str(row.get('gameId') or ''), row.get('date'), row.get('sourceUrl'))
+                if not all(key) or key in result:
+                    return None
+                result[key] = row
+            return result
+        a, b = index(before), index(after)
+        if not a or not b or a.keys() != b.keys():
+            return False
+        lost = False
+        for key in a:
+            for field in ('shotsOnGoal', 'goals'):
+                prior, latest = a[key].get(field), b[key].get(field)
+                if latest is not None and latest != prior:
+                    return False
+                if latest is None and type(prior) is int:
+                    lost = True
+        return lost
+    if kind == 'PLAYER_RECENT_ORIGIN':
+        if (old.get('sourceType') != 'OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN'
+                or new.get('sourceType') != old.get('sourceType')
+                or new.get('scope') != old.get('scope')
+                or not old.get('sampleGameIds') or new.get('sampleGameIds')):
+            return False
+        a, b = old.get('zoneCounts'), new.get('zoneCounts')
+        if not isinstance(a, dict) or not a or not isinstance(b, dict) or a.keys() != b.keys():
+            return False
+        for zone, prior in a.items():
+            latest = b[zone]
+            if not isinstance(prior, dict) or not isinstance(latest, dict):
+                return False
+            dated = prior.get('byGame')
+            if not isinstance(dated, list) or not dated or latest.get('byGame'):
+                return False
+            if (any(latest.get(k) != prior.get(k) for k in ('shotsOnGoal', 'ownedGoals'))
+                    or set(latest.get('gameIds') or []) != {str(r.get('gameId')) for r in dated}
+                    or set(latest.get('sourceUrls') or []) != set(prior.get('sourceUrls') or [])):
+                return False
+        return True
+    return False
+
+
 def attach(con, snapshot, date, stage):
     """Project/confirmed remain independent. Projected does not become confirmed by reuse."""
     if stage in ('WATCH','CONFIRMED'):
@@ -340,6 +397,13 @@ def attach(con, snapshot, date, stage):
                                 prior.setdefault('conflictingProjectedAssignments',[]).append(wrapper)
                                 p['deploymentConflict']=True
                                 continue
+                        if p.get(fld) and _same_sample_loses_detail(
+                                kind, p[fld].get('data', {}), data):
+                            summaries = p[fld]['data'].setdefault('sameSampleSummarySources', [])
+                            if not any(s.get('evidenceId') == wrapper.get('evidenceId')
+                                       for s in summaries):
+                                summaries.append(wrapper)
+                            continue
                         if kind=='PLAYER_GOAL_EVENTS' and p.get(fld):
                             # A raw sampled PBP receipt has no independent
                             # boxscore reconciliation. Preserve it for audit

@@ -71,7 +71,10 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
             return {"url":f"https://api-web.nhle.com/v1/gamecenter/{gid}/play-by-play",
                     "data":{"plays":plays}}
     captured={}
-    async def fake_boxes(client,con,snapshot,date,stage,game_dates,events):
+    async def fake_boxes(client,con,snapshot,date,stage,game_dates,events,
+                         *,pbp_verified_game_ids):
+        assert pbp_verified_game_ids == set(game_dates)
+        assert all(gid.startswith(('MTL-', 'NYR-')) for gid in pbp_verified_game_ids)
         captured["box_game_count"]=len(game_dates)
         captured["box_event_count"]=len(events)
         return {"attemptedGames":len(game_dates)}
@@ -115,7 +118,8 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
     assert result["historicalGames"]==16
     assert result["shotEvents"]==16
     assert captured["coverage_game_count"]==256
-    assert captured["coverage_event_count"]==256
+    assert revised["coveragePeerEvents"]==512
+    assert captured["coverage_event_count"]==512  # corrected source: shot + goal per game
     assert captured["box_game_count"]==16
     assert captured["shift_game_count"]==16
     assert result["G9PeerSampleIsLeagueWide"] is True
