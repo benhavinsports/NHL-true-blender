@@ -397,6 +397,8 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
             'tonightRouteUnresolved':True,
             'g0MatchedOwnOriginRoute':False,
             'g9DefensiveLaneIndependentlyMatched':bool(jointly_sourced),
+            'g9CoverageSourceUrl':(
+                defensive_coverage.get('sourceUrl') if jointly_sourced else None),
             'consideredOwnGoalieWeakRoutes':sorted(x['zone'] for x in matching),
             'jointlyDefenseSupportedRoutes':sorted(x['zone'] for x in jointly_sourced),
             'historicalTotalsCannotResolveTonightRoute':True,
