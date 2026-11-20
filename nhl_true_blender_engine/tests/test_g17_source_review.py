@@ -10,6 +10,44 @@ def ev(kind,ident,data):
     return {"sourceUrl":URL+kind+"/"+str(ident),"observedAt":"2026-11-15T13:00:00Z",
             "data":data}
 
+def _recent_sample(pid,zones):
+    ids=[f"recent-{pid}-{i+1}" for i in range(3)]
+    dates=["2026-11-11","2026-11-12","2026-11-13"]
+    pbp_urls={gid:[URL+"pbp/"+gid] for gid in ids}
+    zone_counts={}
+    totals=[0,0,0]
+    for zone,(shots,goals) in zones.items():
+        per=[shots//3+(1 if i<shots%3 else 0) for i in range(3)]
+        remaining=goals
+        goal_per=[]
+        for value in per:
+            credited=min(remaining,value);goal_per.append(credited);remaining-=credited
+        rows=[]
+        for i,gid in enumerate(ids):
+            totals[i]+=per[i]
+            rows.append({"gameId":gid,"date":dates[i],"shotsOnGoal":per[i],
+                         "ownedGoals":goal_per[i],"sourceUrls":pbp_urls[gid]})
+        zone_counts[zone]={"shotsOnGoal":shots,"ownedGoals":sum(goal_per),
+            "gameIds":ids,"sourceUrls":sorted({u for x in pbp_urls.values() for u in x}),
+            "byGame":rows}
+    pressure_counts=[max(3,x) for x in totals]
+    pressure=ev("shots",pid,{"recentAppearanceShots":pressure_counts,
+        "appearances":[{"date":dates[i],"gameId":ids[i],
+            "shotsOnGoal":pressure_counts[i],"sourceUrl":pbp_urls[ids[i]][0]}
+            for i in range(3)]})
+    recent=ev("recent-origin",pid,{
+        "sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+        "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+        "sampleAsOfSlateDate":DATE,"sampleGameIds":ids,
+        "sampleAppearanceCount":3,"sampleSourcesByGame":pbp_urls,
+        "sampleCoverageComplete":True,"sampleIncludesActualZeroShotAppearances":True,
+        "unclassifiedOnNetShots":0,"zoneCounts":zone_counts,
+        "sourceUrls":sorted({u for x in pbp_urls.values() for u in x}),
+        "rinkBinsApproximateNotNhlEdgePolygons":True,
+        "historicalOwnGoalCreditOnly":True,"notTonightGoalPrediction":True})
+    return pressure,recent
+
+
 def build(deployment=True,better_rival=False):
     p1={"id":"1","name":"Shooter 1","position":"C",
         "availability":"PROJECTED_ACTIVE",
@@ -18,8 +56,7 @@ def build(deployment=True,better_rival=False):
             "allRoutes":[{"zone":"Low Slot","sog":36,"ownedGoals":8}]})}
     if deployment:
         p1["deployment"]=ev("lines",1,{"EV":"F1","status":"PROJECTED"})
-    p1["pressure"]=ev("shots",1,{"recentAppearanceShots":[3,4,3],
-        "appearances":[{"date":"2026-11-11"},{"date":"2026-11-12"},{"date":"2026-11-13"}]})
+    p1["pressure"],p1["recentOrigin"]=_recent_sample(1,{"Low Slot":(36,8)})
     p2={"id":"2","name":"Shooter 2","position":"D",
         "availability":"PROJECTED_ACTIVE",
         "release":ev("edge",2,{"archetype":"OBSERVED_OWN_SHOT_ORIGIN",
@@ -28,8 +65,10 @@ def build(deployment=True,better_rival=False):
                          {"zone":"Low Slot","sog":18 if not better_rival else 45,
                           "ownedGoals":3 if not better_rival else 11}]})}
     p2["deployment"]=ev("lines",2,{"EV":"D2","status":"PROJECTED"})
-    p2["pressure"]=ev("shots",2,{"recentAppearanceShots":[1,2,1],
-        "appearances":[{"date":"2026-11-11"},{"date":"2026-11-12"},{"date":"2026-11-13"}]})
+    p2["pressure"],p2["recentOrigin"]=_recent_sample(2,{
+        "High Slot":(19,2),
+        "Low Slot":(18 if not better_rival else 45,
+                    3 if not better_rival else 11)})
     goalie={"goalieId":"99","status":"EXPECTED","team":"BOS",
         "weakZones":{"Low Slot":{"shotsAgainst":42}},
         "strengthZones":{"High Slot":{"shotsAgainst":65}},

@@ -160,14 +160,40 @@ def test_core2_two_game_slate_never_runs_cross_game_exclusion():
 def test_g105_rival_dominating_route_is_elimination_not_missing_evidence():
     src = 'https://api-web.nhle.com/v1/edge/skater-shot-location-detail/%s/now'
     def rel(pid, goals, shots):
+        ids=[f"recent-{pid}-{i+1}" for i in range(3)]
+        dates=['2026-11-11','2026-11-12','2026-11-13']
+        per=[shots//3+(1 if i<shots%3 else 0) for i in range(3)]
+        remaining=goals
+        goal_per=[]
+        for value in per:
+            credited=min(remaining,value);goal_per.append(credited);remaining-=credited
+        urls={gid:[src % pid+'/pbp/'+gid] for gid in ids}
+        rows=[{'gameId':ids[i],'date':dates[i],'shotsOnGoal':per[i],
+               'ownedGoals':goal_per[i],'sourceUrls':urls[ids[i]]}
+              for i in range(3)]
+        totals=[max(3,value) for value in per]
         return {'id': pid,
                 'deployment': {'sourceUrl':src % pid+'/deployment','observedAt':'x',
                                'data':{'EV':'F2','status':'PROJECTED'}},
                 'pressure': {'sourceUrl':src % pid+'/pressure','observedAt':'x',
-                             'data':{'recentAppearanceShots':[1,2,3],
-                                       'appearances':[{'date':'2026-11-11'},
-                                                      {'date':'2026-11-12'},
-                                                      {'date':'2026-11-13'}]}},
+                             'data':{'recentAppearanceShots':totals,
+                                     'appearances':[{'date':dates[i],'gameId':ids[i],
+                                         'shotsOnGoal':totals[i],'sourceUrl':urls[ids[i]][0]}
+                                         for i in range(3)]}},
+                'recentOrigin': {'sourceUrl':src % pid+'/recent-origin','observedAt':'x',
+                    'data':{'sourceType':'OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN',
+                        'scope':'RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY',
+                        'sampleAsOfSlateDate':DATE,'sampleGameIds':ids,
+                        'sampleAppearanceCount':3,'sampleSourcesByGame':urls,
+                        'sampleCoverageComplete':True,
+                        'sampleIncludesActualZeroShotAppearances':True,
+                        'unclassifiedOnNetShots':0,
+                        'zoneCounts':{'slot':{'shotsOnGoal':shots,'ownedGoals':sum(goal_per),
+                            'gameIds':ids,'sourceUrls':sorted({u for x in urls.values() for u in x}),
+                            'byGame':rows}},
+                        'sourceUrls':sorted({u for x in urls.values() for u in x}),
+                        'rinkBinsApproximateNotNhlEdgePolygons':True,
+                        'historicalOwnGoalCreditOnly':True,'notTonightGoalPrediction':True}},
                 'release': {'sourceUrl': src % pid, 'observedAt': 'x',
                 'data': {'archetype': 'wrist', 'zone': 'slot', 'attempts': shots,
                          'ownedGoals': goals,

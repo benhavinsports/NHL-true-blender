@@ -13,6 +13,19 @@ def ev(data,source=SRC):
     return {"sourceUrl": source, "observedAt": "2026-11-15T12:00:00Z", "data": data}
 
 def player(pid, attempts, goals):
+    sample_ids=[f"recent-{pid}-1",f"recent-{pid}-2"]
+    sample_dates=["2026-11-01","2026-11-02"]
+    lane_shots=[attempts//2,attempts-attempts//2]
+    lane_goals_total=min(goals,attempts)
+    first_goals=min(lane_goals_total,lane_shots[0])
+    lane_goals=[first_goals,min(lane_goals_total-first_goals,lane_shots[1])]
+    total_shots=[max(3,lane_shots[0]),max(3,lane_shots[1])]
+    pbp_urls={gid:[SRC+"/pbp/"+gid] for gid in sample_ids}
+    recent_area={"shotsOnGoal":sum(lane_shots),"ownedGoals":sum(lane_goals),
+        "gameIds":sample_ids,"sourceUrls":[SRC+"/pbp/"+sample_ids[0]],
+        "byGame":[{"gameId":sample_ids[i],"date":sample_dates[i],
+            "shotsOnGoal":lane_shots[i],"ownedGoals":lane_goals[i],
+            "sourceUrls":pbp_urls[sample_ids[i]]} for i in range(2)]}
     return {
         "id": str(pid), "name": "Test "+str(pid), "position": "C",
         "availability": "CONFIRMED", "jersey": 18,
@@ -24,9 +37,23 @@ def player(pid, attempts, goals):
         "mappedGoals": ev({"goals": [{"goalId": str(pid)+":"+str(i), "date": "2026-11-01", "sourceUrl": SRC} for i in range(goals)]}),
         "officialGoalTotal": ev({"goals": goals}),
         "finishOwnership": ev({"recipient": True, "creditedGoalsVerified": True}),
-        "pressure": ev({"recentAppearanceShots": [attempts, 1],
-            "appearances": [{"date": "2026-11-01"}, {"date": "2026-11-02"}],
+        "pressure": ev({"recentAppearanceShots": total_shots,
+            "appearances": [{"date": sample_dates[i],"gameId":sample_ids[i],
+                "shotsOnGoal":total_shots[i],"sourceUrl":SRC+"/pbp/"+sample_ids[i]}
+                for i in range(2)],
             "evidenceType": "OFFICIAL_HISTORICAL_SHOT_EVENTS"}),
+        "recentOrigin": ev({
+            "sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
+            "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
+            "sampleAsOfSlateDate":DATE,"sampleGameIds":sample_ids,
+            "sampleAppearanceCount":2,"sampleSourcesByGame":pbp_urls,
+            "sampleCoverageComplete":True,
+            "sampleIncludesActualZeroShotAppearances":True,
+            "unclassifiedOnNetShots":0,"zoneCounts":{"slot":recent_area},
+            "sourceUrls":[SRC+"/pbp/"+sample_ids[0]],
+            "rinkBinsApproximateNotNhlEdgePolygons":True,
+            "historicalOwnGoalCreditOnly":True,"notTonightGoalPrediction":True
+        },SRC+"/recent-origin/"+str(pid)),
         "contradictions": ev({"sourceType":"FIXTURE_STRUCTURED_G17",
             "unresolved":False,"anatomicalWeaknessCertified":True,
             "goalieStrengthReview":{"matchedWeakAreas":1,"strongerAreaContradiction":False},

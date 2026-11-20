@@ -46,13 +46,14 @@ def test_recent_historical_goals_cannot_decide_equal_same_lane_shot_rates():
     assert wins is False
     assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
     proof=rows[0]["independentRecentTieReview"]
-    assert proof["sameLaneRecentShotComparison"]["result"]=="UNSEPARATED"
+    assert proof["result"]=="UNSEPARATED"
     assert proof["seasonOrRecentOwnedGoalTotalsNotUsed"] is True
 
 
 def test_missing_or_same_recent_proof_never_manufactures_direct_recipient():
     a,b=tied()
     a["recentOrigin"]=recent(a,[2,0],[2,2])
+    b.pop("recentOrigin")
     wins,rows=challenger_proof(a,[b],{"High Slot":{}},["High Slot"])
     assert wins is False and rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
     assert rows[0]["independentRecentTieReview"] is None
