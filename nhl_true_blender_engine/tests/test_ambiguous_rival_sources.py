@@ -17,8 +17,9 @@ def test_tied_primary_rival_is_still_compared_from_verified_same_area():
                  "allRoutes":[{"zone":"Low Slot","sog":14,"ownedGoals":2},
                               {"zone":"High Slot","sog":14,"ownedGoals":2}]})
     won,rows=challenger_proof(a,[b],{"Low Slot":{}})
-    assert won is True
-    assert rows[0]["status"]=="DEFEATED"
+    assert won is False
+    assert rows[0]["status"]=="NO_DECISIVE_ROUTE_SEPARATION"
+    assert rows[0]["decisionBasis"]=="UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK"
     assert rows[0]["challenger"]["ownedGoals"]==2
 
 def test_g0_can_expose_own_verified_secondary_lane_from_tied_primary_source():
