@@ -379,14 +379,14 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
     # strictly better independently sourced matchup exposure than EVERY
     # other jointly viable origin, it owns today's physical route choice.
     # Unmeasured or conflicting exposure must not be made into a fake win.
-    matchup_winners=[
-        own for own in considered if all(
+    matchup_winners=(
+        [own for own in considered if all(
             own is other or
             (_tonight_route_comparison(
                 own['zone'],other['zone'],weak,defense) or {}).get('result')
                     == 'CANDIDATE'
             for other in considered)]
-        if len(considered)>1 and jointly_sourced else []
+        if len(considered)>1 and jointly_sourced else [])
     matchup_aligned=len(matchup_winners)==1
     if matchup_aligned:
         top=matchup_winners[0]
