@@ -1,7 +1,7 @@
 """Rebuild point-in-time replay bundles from the canonical evidence ledger.
 
-Only dates with a completed engine job, official schedule, and pre-cutoff source
-receipts are bundled. An original card is not required. Missing dates are never fabricated.
+Official schedule dates are rebuilt from dated source receipts without requiring
+a saved card or engine job. Each matchup freezes at its own pregame deadline.
 """
 from __future__ import annotations
 import argparse
@@ -17,6 +17,7 @@ from nhl_true_blender_engine.enrichment import attach
 from nhl_true_blender_engine.sources import normalize_games
 from nhl_true_blender_engine.storage import open_db, record_evidence
 from nhl_true_blender_engine.sources import NHLClient
+from scripts.historical_pregame_clock import first_issuance_windows, game_deadline
 from scripts.historical_projected_roster import recover_full_projected_team_pool
 
 RAW_DB = Path("state/true_blender.sqlite")
@@ -80,10 +81,10 @@ def _historical_goalie_profile_candidates(source, day, cutoff):
     ).fetchall()
 
 
-def build_day(source, day, out, schedule_row):
+def build_day(source, day, out, schedule_row, *, replay_cutoff=None):
     """Build a slate from dated evidence without requiring an old engine job or saved card.
 
-    The replay cutoff is derived from the official first puck-drop time. Cards,
+    Replay windows are derived from official puck-drop times. Cards,
     prior engine jobs, grades and outcomes are never used to decide whether a
     slate can be reconstructed.
     """
@@ -103,10 +104,13 @@ def build_day(source, day, out, schedule_row):
         starts.append(datetime.fromisoformat(start_value.replace("Z", "+00:00")))
         normalized_schedule_games.append(game)
     scheduled_games = normalized_schedule_games
-    # Freeze the entire slate at the first puck drop. Later-game receipts
-    # require a separately modeled per-game replay, not a later global clock.
+    # Later first-issuance windows exclude already-started games in execute().
+    # Source rows for each game still stop at that game’s own deadline.
     first_start = min(starts)
-    cutoff_dt = first_start - timedelta(minutes=5)
+    cutoff_dt = replay_cutoff or (first_start - timedelta(minutes=5))
+    if replay_cutoff is not None and replay_cutoff not in first_issuance_windows(scheduled_games):
+        raise ValueError("Invalid historical first-issuance window")
+    deadlines={str(g["id"]):game_deadline(g) for g in scheduled_games}
     cutoff = cutoff_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
 
     # Keep the projected/confirmed evidence branches distinct. Prefer a
@@ -115,8 +119,17 @@ def build_day(source, day, out, schedule_row):
         "SELECT * FROM evidence WHERE slate_date=? ORDER BY observed_at, rowid", (day,)
     ).fetchall()
     eligible = [r for r in all_rows if r["stage"] in ("OFFICIAL", "PROJECTED", "CONFIRMED")]
-    rows = [r for r in eligible if datetime.fromisoformat(
-        r["observed_at"].replace("Z", "+00:00")) <= cutoff_dt]
+    def available_in_window(row):
+        limit=min(cutoff_dt,deadlines.get(str(row["game_id"]),cutoff_dt))
+        payload=_payload_object(row["payload"])
+        clocks=[row["observed_at"],payload.get("sourceArticlePublishedAt"),
+                payload.get("sourceArticleModifiedAt")]
+        try:
+            return all(datetime.fromisoformat(t.replace("Z","+00:00"))<=limit
+                       for t in clocks if t)
+        except (ValueError,TypeError):
+            return False
+    rows = [r for r in eligible if available_in_window(r)]
     # A date with no same-day receipts may still have legitimate pre-cutoff
     # archived observations from earlier dates. Preserve the scheduled slate
     # and let the engine report missing evidence instead of silently dropping
@@ -276,7 +289,7 @@ def build_day(source, day, out, schedule_row):
         game_id = str(starter["game_id"])
         if not goalie_id or not team or (game_id, goalie_id) in existing_profiles:
             continue
-        historical = _historical_goalie_profile_candidates(source, day, cutoff)
+        historical = _historical_goalie_profile_candidates(source, day, min(cutoff_dt,deadlines[game_id]).isoformat())
         for old in historical:
             profile = json.loads(old["payload"])
             if str(profile.get("goalieId") or "") != goalie_id or profile.get("team") != team:
@@ -297,7 +310,8 @@ def build_day(source, day, out, schedule_row):
     snapshot = {"games": games}
 
     out.mkdir(parents=True, exist_ok=True)
-    evidence_path = out / f"{day}-evidence.sqlite"
+    stem=day if replay_cutoff is None else day+"-"+cutoff_dt.strftime("%H%M%S")
+    evidence_path = out / f"{stem}-evidence.sqlite"
     con = open_db(str(evidence_path))
     try:
         for row in [*rows, *carry_rows, *projected_pool_rows, *carried_profiles]:
@@ -314,10 +328,10 @@ def build_day(source, day, out, schedule_row):
 
     snapshot_bytes = json.dumps(snapshot, sort_keys=True, separators=(",", ":"),
                                 ensure_ascii=False).encode()
-    snapshot_path = out / f"{day}-snapshot.json"
+    snapshot_path = out / f"{stem}-snapshot.json"
     snapshot_path.write_bytes(snapshot_bytes)
     db_bytes = evidence_path.read_bytes()
-    compressed_path = out / f"{day}-evidence.sqlite.gz"
+    compressed_path = out / f"{stem}-evidence.sqlite.gz"
     compressed_path.write_bytes(gzip.compress(db_bytes, compresslevel=6, mtime=0))
     evidence_path.unlink()
 
@@ -423,6 +437,10 @@ def main():
             day = (start.fromordinal(start.toordinal() + offset)).isoformat()
             bundle = build_day(source, day, args.output, official_schedule_by_date[day])
             if bundle:
+                windows=first_issuance_windows(official_schedule_by_date[day]["games"])
+                bundle["laterPregameAttempts"]=[build_day(
+                    source,day,args.output,official_schedule_by_date[day],replay_cutoff=t)
+                    for t in windows[1:]]
                 slates[day] = bundle
     finally:
         source.close()

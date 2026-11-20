@@ -96,6 +96,9 @@ def assert_database_as_of(con, cutoff, slate_date):
             payload = json.loads(row["payload"])
         except (TypeError, ValueError):
             raise ValueError(f"Evidence payload is invalid JSON: {row['evidence_id']}")
+        for clock_key in ('sourceArticlePublishedAt','sourceArticleModifiedAt'):
+            if payload.get(clock_key) and timestamp(payload[clock_key])>cutoff:
+                raise ValueError('Evidence source article revision is after replay cutoff: '+row['evidence_id'])
         if payload.get("historicalReconstruction") is True:
             reconstructed.append(row["evidence_id"])
         dates = _event_dates(row["kind"], payload)
@@ -125,7 +128,7 @@ def assert_database_as_of(con, cutoff, slate_date):
         "limitation": "Collector observation time is known; provider publication/as-of time is not exposed for every source payload.",
     }
 
-def replay_day(root, day, default_stage, bundle):
+def _replay_attempt(root, day, default_stage, bundle):
     stage = bundle.get('stage', default_stage)
     if stage not in ('PROJECTED', 'CONFIRMED'):
         raise ValueError('Each replay bundle requires PROJECTED or CONFIRMED stage')
@@ -174,6 +177,30 @@ def replay_day(root, day, default_stage, bundle):
                     'pointInTimeAudit': point_in_time_audit}
         finally:
             con.close()
+
+
+def replay_day(root, day, default_stage, bundle):
+    """Preserve the first certified issuance across separate pregame windows."""
+    attempts=[bundle,*bundle.get('laterPregameAttempts',[])]
+    cutoffs=[timestamp(a['cutoff']) for a in attempts]
+    if cutoffs!=sorted(set(cutoffs)):
+        raise ValueError('Historical first-issuance windows must be ordered and unique')
+    reviews=[]
+    for attempt in attempts:
+        result=_replay_attempt(root,day,default_stage,attempt)
+        certified=(result['gateCertification'].get('selectedCoreOnlyFullyCertified') is True
+            and bool(result['engineResult'].get('card')))
+        reviews.append({'cutoff':attempt['cutoff'],'stage':attempt.get('stage',default_stage),
+            'cardIssued':bool(result['engineResult'].get('card')),
+            'selectedCoreCertified':certified,
+            'errors':result['engineResult'].get('errors',[])})
+        if result['engineResult'].get('card'):
+            # Even a failed independent certification cannot authorize a
+            # hindsight second first-issuance attempt on the same slate.
+            break
+    result['pregameLifecycleAttempts']=reviews
+    result['firstIssuedCardNeverReplacedByLaterHistoricalResearch']=True
+    return result
 
 
 async def grade_ledger(source, target):

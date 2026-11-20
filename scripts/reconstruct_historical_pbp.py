@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from collections import defaultdict
+from scripts.historical_pregame_clock import first_issuance_windows, game_deadline
 from datetime import datetime, timedelta, timezone
 import hashlib
 import json
@@ -93,13 +94,14 @@ def _target_starters(con, date, games, cutoff):
     evidence count. Never merge different goalie IDs, statuses or providers:
     genuine starter disagreements remain visible to the original G0 gate.
     """
-    ids = {str(g.get("id") or g.get("gameId")) for g in games}
+    deadlines = {str(g.get("id") or g.get("gameId")):min(cutoff,game_deadline(g)) for g in games}
+    ids = set(deadlines)
     unique = {}
     for row in con.execute(
         "SELECT * FROM evidence WHERE slate_date=? AND kind='GOALIE_STARTER' "
         "AND stage IN ('PROJECTED','CONFIRMED') ORDER BY observed_at, rowid",
         (date,)).fetchall():
-        if str(row["game_id"]) not in ids or utc(row["observed_at"]) > cutoff:
+        if str(row["game_id"]) not in ids or utc(row["observed_at"]) > deadlines[str(row["game_id"])]:
             continue
         d = json.loads(row["payload"])
         if (not d.get("goalieId") or d.get("status") not in
@@ -202,8 +204,7 @@ async def reconstruct(manifest, database, output, limit=18):
         summary = []
         for date in days:
             games = calendar["officialSchedule"][date]["games"]
-            cutoff = min(utc(g.get("startTimeUTC") or g.get("startUTC"))
-                         for g in games) - timedelta(minutes=5)
+            cutoff = max(first_issuance_windows(games))
             pool = league_pregame_games(club_schedules, cutoff, limit)
             missing = [(gid, row) for gid, row in pool.items() if gid not in cached_pbp]
             collected = await asyncio.gather(*(

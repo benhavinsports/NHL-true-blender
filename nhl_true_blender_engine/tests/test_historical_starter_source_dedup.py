@@ -32,7 +32,7 @@ def test_dedupe_exact_historical_source_branch_but_keep_real_goalie_disagreement
         put("222", "2026-11-17T17:00:00Z", a, status="CONFIRMED",
             stage="CONFIRMED")
         put("333", "2026-11-17T22:00:00Z", a)  # After the slate cutoff.
-        games = [{"id": "fixture-game", "away": "NYR", "home": "BOS"}]
+        games = [{"id": "fixture-game", "away": "NYR", "home": "BOS", "startTimeUTC":"2026-11-17T23:00:00Z"}]
         cutoff = datetime(2026, 11, 17, 18, 0, tzinfo=timezone.utc)
         result = _target_starters(con, "2026-11-17", games, cutoff)
         rows = {(d["goalieId"], d["status"], row["source_url"]): row

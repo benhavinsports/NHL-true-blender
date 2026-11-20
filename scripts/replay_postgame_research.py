@@ -76,6 +76,13 @@ async def audit_day(selection, manifest, root):
     bundle = (manifest.get("slates") or {}).get(day)
     if not bundle:
         return {"date": day, "status": "NO_PREGAME_BUNDLE", "postgameAudit": False}
+    candidates=[bundle,*bundle.get('laterPregameAttempts',[])]
+    matching=[b for b in candidates if b.get('cutoff')==selection.get('cutoff')
+              and b.get('snapshotSha256')==selection.get('snapshotSha256')]
+    if selection.get('snapshotSha256'):
+        if len(matching)!=1:
+            raise ValueError('Postgame audit cannot identify exact pregame selection bundle')
+        bundle=matching[0]
     snapshot = json.loads((root / bundle["snapshot"]).read_text(encoding="utf-8"))
     names, roster_teams = _roster_names(snapshot)
     engine = selection.get("engineResult") or {}

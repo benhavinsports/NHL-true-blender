@@ -1,7 +1,7 @@
 """Ingest verifiable pregame NHL.com projected lineup deployments (not rosters).
 
 This source is only valid when official article publication metadata has an
-offset-aware timestamp BEFORE the original slate cutoff. A date-only article
+offset-aware timestamp BEFORE that matchup’s pregame deadline. A date-only article
 or page modified after cutoff is excluded; no postgame correction is allowed.
 Official historical season rosters resolve player IDs only, never establish
 a dated complete roster or a confirmed lineup.
@@ -9,6 +9,7 @@ a dated complete roster or a confirmed lineup.
 from __future__ import annotations
 import argparse
 import asyncio
+from scripts.historical_pregame_clock import game_deadline
 from datetime import datetime, timedelta, timezone
 from html import unescape
 from html.parser import HTMLParser
@@ -350,9 +351,7 @@ async def ingest_previews(manifest, database, output):
             article.feed(html)
             article._flush()
             published, modified = publication_clock(article)
-            cutoff = min(
-                utc(g.get("startTimeUTC") or g.get("startUTC"))
-                for g in calendar[day]["games"]) - timedelta(minutes=5)
+            cutoff = game_deadline(game)
             # Do not use a dated ARTICLE as historical proof if it lacks a
             # verified time, or if this living page says it changed later.
             if not published or published > cutoff or (modified and modified > cutoff):
@@ -421,7 +420,7 @@ async def ingest_previews(manifest, database, output):
                         "game_id": str(game.get("id") or game.get("gameId")),
                         "player_id": goalie["id"], "kind": "GOALIE_STARTER",
                         "source_url": url,
-                        "observed_at": published.isoformat().replace("+00:00", "Z"),
+                        "observed_at": max(published,modified or published).isoformat().replace("+00:00", "Z"),
                         "payload": goalie_payload,
                     }):
                         projected_goalies += 1
@@ -433,6 +432,7 @@ async def ingest_previews(manifest, database, output):
                         "status": status,
                         "sourceType": "OFFICIAL_NHL_COM_PROJECTED_LINEUP_ARTICLE",
                         "sourceArticlePublishedAt": published.isoformat(),
+                        "sourceArticleModifiedAt": modified.isoformat() if modified else None,
                         "historicalReconstruction": True,
                         "historicalSourceObservedAtCutoffVerified": False,
                         "confirmedDressedNotInferred": True,
@@ -445,7 +445,7 @@ async def ingest_previews(manifest, database, output):
                         "game_id": str(game.get("id") or game.get("gameId")),
                         "player_id": player_id, "kind": "PLAYER_STATUS",
                         "source_url": url,
-                        "observed_at": published.isoformat().replace("+00:00", "Z"),
+                        "observed_at": max(published,modified or published).isoformat().replace("+00:00", "Z"),
                         "payload": status_payload})
                 for name, unit, role in assignments:
                     player_id = identities.get(team, {}).get(normalize(name))
@@ -474,7 +474,7 @@ async def ingest_previews(manifest, database, output):
                         "game_id": str(game.get("id") or game.get("gameId")),
                         "player_id": player_id, "kind": "PLAYER_DEPLOYMENT",
                         "source_url": url,
-                        "observed_at": published.isoformat().replace("+00:00", "Z"),
+                        "observed_at": max(published,modified or published).isoformat().replace("+00:00", "Z"),
                         "payload": payload}
                     signature = hashlib.sha256(json.dumps(
                         payload, sort_keys=True).encode()).hexdigest()[:14]

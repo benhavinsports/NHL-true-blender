@@ -83,6 +83,7 @@ def main():
             "games":len(sched.get("games") or []),
             "matchups":[x.get("away","")+"@"+x.get("home","") for x in sched.get("games") or []],
             "replayStatus":s.get("status"),"cutoff":s.get("cutoff"),"stage":s.get("stage"),
+            "pregameLifecycleAttempts":s.get("pregameLifecycleAttempts",[]),
             "candidatePlayers":n,"gateCertified":(s.get("gateCertification") or {}).get("selectedCoreOnlyFullyCertified"),
             "engineBlockerCounts":blockers,
             "sourceAvailabilityIndependentlyVerified":(manifest.get("slates",{}).get(day) or {}).get("providerAvailabilityTimeIndependentlyVerified"),
