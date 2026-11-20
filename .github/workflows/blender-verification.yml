@@ -5,6 +5,9 @@ on:
     paths:
       - 'nhl_true_blender_engine/**'
       - 'run_true_blender.py'
+      - '*.py'
+      - 'pytest.ini'
+      - 'requirements.txt'
       - 'scripts/**'
       - 'site/**'
       - '.github/workflows/blender-verification.yml'
@@ -119,8 +122,8 @@ jobs:
               finally:
                   con.close()
           PY
-      - name: G0-first G1-G18 and overlay integration regression
-        run: python -m pytest -q nhl_true_blender_engine/tests --junitxml=integration-results.xml
+      - name: Complete repository G0-G18, overlay, collector and lifecycle regression
+        run: python -m pytest -q --junitxml=integration-results.xml
       - name: Verify complete synthetic card and postgame grading
         run: python -m pytest -q nhl_true_blender_engine/tests/test_end_to_end_contract.py
       - name: Publish verification artifacts
