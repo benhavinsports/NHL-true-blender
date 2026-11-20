@@ -407,6 +407,12 @@ async def collect_goalie_pbp_fallback(client,con,snapshot,date,stage,max_games=1
                 derived.update({"team":team,"goalieId":pid,"status":branch["data"]["status"],
                     "starterSourceUrl":branch["sourceUrl"],
                     "historicalSampleAsOf":date,
+                    # Shared independent pre-slate peer cohort is required for
+                    # later G10.5/G16 comparison. Never treat a locally
+                    # assembled, starter-dependent cohort as league-wide.
+                    "samplePeerPopulationId":population,
+                    "samplePeerPopulationStable":fixed_cohort,
+                    "peerSampleNeverLeagueEDGEPercentile":True,
                     "sourceGameIds":derived["sample"]["historicalGameIds"]})
                 if not derived["fullySourceComparedAreas"]:
                     unresolved.append({"gameId":str(game["id"]),"goalieId":pid,
