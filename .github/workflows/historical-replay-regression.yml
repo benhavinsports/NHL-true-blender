@@ -156,6 +156,9 @@ jobs:
           # cutoff timestamps to manufacture qualified recipients.
           rm -rf nhl_true_blender_engine
           git archive "$scorer_sha" nhl_true_blender_engine | tar -xf -
+          # Main's scorer engine has dependencies (including source parsers)
+          # which the older audit branch's requirements do not install.
+          python -m pip install -r nhl_true_blender_engine/requirements.txt
           python -m compileall -q nhl_true_blender_engine scripts/replay_historical_season.py
           python -m pytest -q \
             nhl_true_blender_engine/tests/test_tonight_matchup_recipient_priority.py \
