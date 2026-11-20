@@ -60,3 +60,19 @@ def test_tied_historical_routes_can_be_resolved_only_by_opponent_evidence():
     assert player_releases(matched)["zone"] == "Low Slot"
     assert matched["release"]["data"]["g9DefensiveLaneIndependentlyMatched"] is True
     assert player_releases(player) is None
+
+
+def test_historical_peer_identity_tracks_source_events_not_starter_order():
+    from scripts.reconstruct_historical_pbp import historical_goalie_peer_population
+    events = [{"gameId": "1", "eventId": "4", "goalieId": "100",
+               "type": "shot-on-goal", "date": "2026-10-01"},
+              {"gameId": "2", "eventId": "8", "goalieId": "200",
+               "type": "goal", "date": "2026-10-02"}]
+    cohort = historical_goalie_peer_population(events, "2026-10-03")
+    assert cohort == historical_goalie_peer_population(list(reversed(events)), "2026-10-03")
+    assert cohort == historical_goalie_peer_population(events + events, "2026-10-03")
+    assert cohort != historical_goalie_peer_population(events, "2026-10-04")
+    corrected = [dict(x) for x in events]
+    corrected[0]["type"] = "goal"
+    assert cohort != historical_goalie_peer_population(corrected, "2026-10-03")
+    assert historical_goalie_peer_population([], "2026-10-03") is None

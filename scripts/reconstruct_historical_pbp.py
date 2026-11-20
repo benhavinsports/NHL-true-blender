@@ -120,6 +120,25 @@ def _target_starters(con, date, games, cutoff):
     return sorted(unique.values(), key=lambda pair: utc(pair[0]["observed_at"]))
 
 
+def historical_goalie_peer_population(events, day):
+    """Name the actual independent pre-slate PBP cohort, not today's starters.
+
+    Both the G0 goalie comparison and later lane comparisons must retain this
+    identity. A peer event correction changes it; starter/report order cannot.
+    """
+    signature = sorted(set(
+        (str(e["gameId"]), str(e["eventId"]), str(e["goalieId"]),
+         str(e["type"]), str(e["date"]))
+        for e in events if e.get("goalieId") and e.get("type") in ON_NET))
+    if not signature:
+        return None
+    return hashlib.sha256(json.dumps({
+        "slate": day, "sampleEvents": signature,
+        "referenceIndependentOfProjectedGoalies": True,
+        "sourceScope": "ALL_NHL_CLUBS_PRE_SLATE_OFFICIAL_PBP"},
+        sort_keys=True).encode()).hexdigest()[:20]
+
+
 def _player_route(origin):
     """Use a player's own observed route; retain tied origins as unresolved."""
     ranked = sorted(
@@ -232,6 +251,7 @@ async def reconstruct(manifest, database, output, limit=18):
             pool = {gid: r for gid, r in pool.items() if gid in cached_pbp}
             all_events = [e for gid in pool for e in cached_pbp[gid]]
             counts = summarize_goalie_origin_pbp(all_events)
+            peer_population = historical_goalie_peer_population(all_events, date)
             peer_asof = max((utc(r["startTimeUTC"]) + FINISH_BUFFER
                              for r in pool.values()), default=None)
             snapshot = {"games": [
@@ -302,10 +322,21 @@ async def reconstruct(manifest, database, output, limit=18):
                 sampled = [pool[gid] for gid in own_games if gid in pool]
                 if not sampled:
                     continue
-                available_at = max(utc(g["startTimeUTC"]) + FINISH_BUFFER for g in sampled)
-                if available_at >= cutoff:
+                # Percentiles depend on the whole independent peer sample,
+                # not just this starter's own games. Retain the latest source
+                # availability needed to reproduce that comparison.
+                available_at = max(
+                    max(utc(g["startTimeUTC"]) + FINISH_BUFFER for g in sampled),
+                    peer_asof)
+                if available_at >= cutoff or not peer_population:
                     continue
+                for area in profile.get("observedAreas", {}).values():
+                    area["samplePeerPopulationId"] = peer_population
+                    area["samplePeerPopulationStable"] = True
                 profile.update({
+                    "samplePeerPopulationId": peer_population,
+                    "samplePeerPopulationStable": True,
+                    "peerSampleNeverLeagueEDGEPercentile": True,
                     "goalieId": pid, "team": data["team"], "status": data["status"],
                     "sourceReviewed": profile["fullySourceComparedAreas"] > 0,
                     "historicalSampleAsOf": date,
@@ -318,6 +349,11 @@ async def reconstruct(manifest, database, output, limit=18):
                 sources = profile["historicalPbpSources"]
                 _receipt(con, date, starter["stage"], starter["game_id"], pid,
                          "GOALIE_PROFILE", profile, sources, available_at)
+                # Preserve the same independent comparison supplement used
+                # by main's live collector. This never changes starter status
+                # or substitutes a different goalie profile.
+                _receipt(con, date, starter["stage"], starter["game_id"], pid,
+                         "GOALIE_PBP_PEER_CONTEXT", profile, sources, available_at)
                 profiles += 1
                 peer_qualified += int(profile["fullySourceComparedAreas"] > 0)
 
