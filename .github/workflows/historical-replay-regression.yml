@@ -157,9 +157,7 @@ jobs:
           # Tests import runner helpers as well as engine modules. Mixing main
           # tests with old audit-branch scripts produces import/contract errors.
           mkdir -p /tmp/blender-authoritative
-          git archive "$scorer_sha" nhl_true_blender_engine scripts site \
-            run_true_blender.py requirements.txt postgame_grade.py postgame_audit.py \
-            .github/workflows | tar -xf - -C /tmp/blender-authoritative
+          git archive "$scorer_sha" | tar -xf - -C /tmp/blender-authoritative
           # Save the earlier baseline before replacing these modules. Do not
           # modify archived evidence, immutable historical cards, or source
           # cutoff timestamps to manufacture qualified recipients.
