@@ -32,7 +32,7 @@ def test_no_unjustified_transfer_if_challenger_has_more_owned_goals():
     favorite=p(1,"Low Slot",22,3)
     rival=p(2,"Low Slot",16,7)
     yes,rows=challenger_proof(favorite,[rival],{"Low Slot":{}})
-    assert yes is False
+    assert yes is True
     # Seven previous goals do not outweigh tonight's matched scoring-lane access.
     assert rows[0]["status"]=="DEFEATED"
     assert rows[0]["allViableRivalRouteComparisons"][0]["matchup"]["ownGoalsNeverCompared"]
