@@ -736,7 +736,7 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 ['G0 goalie peer vulnerability in TONIGHT opponent lane',
                  'G9 independent TONIGHT opponent defensive on-net exposure']
                 if matchup is not None else
-                ['historicalOwnedGoalsFromSameShotOrigin',
+                ['ownedGoalsFromSameShotOrigin',
                  'historicalOnNetShotPressureOnlyWhenGoalsEqual']),
             'noFameOddsOrPPShortcut':True,
             'rule':('source-comparable current opponent physical-lane exposure; '
