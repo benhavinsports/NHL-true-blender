@@ -199,6 +199,29 @@ def build_player_recent_origin_sample(player_id, appearances, cached_pbp, slate_
     }
     player_events=[e for gid in sample_ids for e in game_events(gid)
                    if str(e.get("shooterId"))==str(player_id)]
+    boxscore_sog={}
+    invalid_boxscore_sog=False
+    for appearance in appearances:
+        gid=str(appearance.get("gameId") or "")
+        shots=appearance.get("shotsOnGoal")
+        if not gid or gid in boxscore_sog or type(shots) is not int or shots<0:
+            invalid_boxscore_sog=True
+        else:
+            boxscore_sog[gid]=shots
+    pbp_sog={
+        gid:sum(1 for event in game_events(gid)
+                if str(event.get("shooterId"))==str(player_id)
+                and event.get("type") in ON_NET)
+        for gid in sample_ids if gid
+    }
+    sog_mismatches=[
+        {"gameId":gid,"boxscoreShotsOnGoal":shots,
+         "pbpShooterOnNetEvents":pbp_sog.get(gid,0)}
+        for gid,shots in boxscore_sog.items() if pbp_sog.get(gid,0)!=shots]
+    sog_reconciled=(bool(appearances) and not invalid_boxscore_sog
+        and set(boxscore_sog)==set(sample_ids)
+        and set(pbp_sog)==set(sample_ids)
+        and not sog_mismatches)
     origins=measured_recent_shooter_origins(player_events,player_id)
     unmapped_onnet=0
     for event in player_events:
@@ -219,7 +242,7 @@ def build_player_recent_origin_sample(player_id, appearances, cached_pbp, slate_
         len(sample_ids)==len(set(sample_ids)) and
         all(gid and gid in sample_sources_by_game and sample_sources_by_game[gid]
             for gid in sample_ids) and
-        dates_complete and unmapped_onnet==0)
+        dates_complete and unmapped_onnet==0 and sog_reconciled)
     source_urls=sorted({u for values in sample_sources_by_game.values() for u in values})
     payload={
         "sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
@@ -232,6 +255,10 @@ def build_player_recent_origin_sample(player_id, appearances, cached_pbp, slate_
         "sampleCoverageComplete":sample_complete,
         "sampleIncludesActualZeroShotAppearances":True,
         "unclassifiedOnNetShots":unmapped_onnet,
+        "pbpBoxscoreSogReconciled":sog_reconciled,
+        "pbpOnNetShotsByGame":pbp_sog,
+        "boxscoreShotsOnGoalByGame":boxscore_sog,
+        "pbpBoxscoreSogMismatches":sog_mismatches,
         "sourceUrls":source_urls,
         "actualBoxscoreAppearancesUsed":True,
         "candidateTeamFromOfficialEventOwnerTeamId":team,

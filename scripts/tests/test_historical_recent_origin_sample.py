@@ -24,6 +24,9 @@ def test_recent_origin_sample_keeps_actual_zero_shot_appearances_in_denominator(
     payload,urls=build_player_recent_origin_sample(
         "700",appearances,cached,"2026-11-03","BOS")
     assert payload["sampleCoverageComplete"] is True
+    assert payload["pbpBoxscoreSogReconciled"] is True
+    assert payload["pbpOnNetShotsByGame"]=={"2026020001":2,"2026020002":0}
+    assert payload["boxscoreShotsOnGoalByGame"]=={"2026020001":2,"2026020002":0}
     assert payload["sampleGameIds"]==["2026020001","2026020002"]
     assert payload["sampleAppearanceCount"]==2
     assert payload["sampleSourcesByGame"]=={
@@ -74,3 +77,26 @@ def test_missing_pbp_game_does_not_become_a_measured_zero_appearance():
     assert urls==[URL1]
     assert payload["sampleCoverageComplete"] is False
     assert payload["sampleGameIds"]==["2026020001","2026020002"]
+
+
+def test_boxscore_pbp_sog_mismatch_never_certifies_recent_lane_sample():
+    appearances=[
+        {"gameId":"2026020001","date":"2026-11-01","shotsOnGoal":2},
+        {"gameId":"2026020002","date":"2026-11-02","shotsOnGoal":0},
+    ]
+    cached={
+        "2026020001":[
+            {"gameId":"2026020001","eventId":"1","shooterId":"700","type":"goal",
+             "date":"2026-11-01","x":60,"y":3,"sourceUrl":URL1},
+        ],
+        "2026020002":[],
+    }
+    payload,urls=build_player_recent_origin_sample(
+        "700",appearances,cached,"2026-11-03","BOS")
+    assert payload["pbpBoxscoreSogReconciled"] is False
+    assert payload["sampleCoverageComplete"] is False
+    assert payload["pbpBoxscoreSogMismatches"]==[
+        {"gameId":"2026020001","boxscoreShotsOnGoal":2,
+         "pbpShooterOnNetEvents":1}]
+
+
