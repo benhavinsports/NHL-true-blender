@@ -1533,46 +1533,91 @@ _STATUS_LEVEL={'CONFIRMED':2,'EXPECTED':1,'PROJECTED':1}
 
 
 def finalist_route_evidence(item):
-    """The exact G10.5/G11/G17 evidence a per-game survivor carries into G16."""
+    """Carry THIS game's goalie, defense and scorer-route evidence into G16.
+
+    Historical own goals and shots remain visible as source-backed finishing
+    context. When both opponent-specific matchup indicators are available,
+    they—not old scoring totals—determine cross-game separation.
+    """
     cand=item['candidate']; release=cand.get('release') or {}
     goalie=(item.get('targetGoalie') or {}).get('data') or {}
     dep=evidence_data(cand['player'].get('deployment')) or {}
+    zone=release.get('zone')
+    attack=item.get('attackTeam')
+    coverage=(item['game'].get('coverage') or {}).get(attack)
+    coverage_data=evidence_data(coverage) or {}
     return {
         'gameId':str(item['game']['id']),
         'playerId':str(cand['player']['id']),
         'player':cand['player'].get('name'),
-        'routeZone':release.get('zone'),
-        # G10.5 direct-route evidence: own credited goals from the matched
-        # lane, then own on-net shots from that same lane.
+        'routeZone':zone,
         'ownedGoalsInMatchedLane':release.get('ownedGoals'),
         'ownShotsOnGoalInMatchedLane':release.get('attempts'),
-        # G17 branch uncertainty.
+        'opponentGoalieZone':(goalie.get('weakZones') or {}).get(zone),
+        'opponentDefenseZone':(coverage_data.get('zoneConcessions') or {}).get(zone),
+        'goalieProfileSourceUrl':(item.get('targetGoalie') or {}).get('sourceUrl'),
+        'defensiveCoverageSourceUrl':coverage.get('sourceUrl') if receipt(coverage) else None,
         'goalieStatus':goalie.get('status'),
         'deploymentStatus':dep.get('status'),
     }
 
 
 def _route_vector(ev):
+    """A same-method partial order, with *measured matchup* first.
+
+    Legacy/source-incomplete synthetic research still has the old historic
+    comparison available and visibly labeled. The two different evidence
+    scopes must NEVER dominate one another.
+    """
+    goalie=ev.get('opponentGoalieZone') or {}
+    defense=ev.get('opponentDefenseZone') or {}
+    percentile=goalie.get('leagueSavePctgPercentile')
+    gshots=goalie.get('shotsAgainst')
+    ggoals=goalie.get('goalsAgainst')
+    exposed=defense.get('onNetShotsPerGame')
+    peer=defense.get('peerMedianOnNetShotsPerGame')
+    if (type(percentile) in (int,float) and 0<=percentile<=1
+            and type(gshots) is int and gshots>=20
+            and type(ggoals) is int and 0<=ggoals<=gshots
+            and type(exposed) in (int,float) and exposed>0
+            and type(peer) in (int,float) and peer>0
+            and defense.get('independentOnNetConcessionReview') is True
+            and 'ON_NET_SHOTS_AGAINST_PEER' in
+                (defense.get('positiveConcessionBases') or [])
+            and ev.get('goalieProfileSourceUrl')
+            and ev.get('defensiveCoverageSourceUrl')):
+        return ('TONIGHT_MATCHUP_OPPONENT_EXPOSURE', 1-percentile, exposed/peer,
+                _STATUS_LEVEL.get(ev['goalieStatus'],0),
+                _STATUS_LEVEL.get(ev['deploymentStatus'],0))
     goals=ev['ownedGoalsInMatchedLane']; shots=ev['ownShotsOnGoalInMatchedLane']
     if type(goals) is not int or type(shots) is not int:
         return None
-    return (goals,shots,_STATUS_LEVEL.get(ev['goalieStatus'],0),
+    return ('HISTORICAL_FINISHING_FALLBACK_NOT_TONIGHT_PROOF',
+            goals,shots,_STATUS_LEVEL.get(ev['goalieStatus'],0),
             _STATUS_LEVEL.get(ev['deploymentStatus'],0))
 
 
 def _dominates(a,b):
-    """a strictly dominates b: at least as strong on EVERY dimension and
-    stronger on at least one. No sums, weights, rates or tie-breaks."""
-    return all(x>=y for x,y in zip(a,b)) and any(x>y for x,y in zip(a,b))
+    """A strictly better *comparable* source vector, no invented weights.
+
+    A historic finishing vector cannot defeat a tonight-opponent vector, or
+    vice versa. Incomparable vulnerability/defense/confirmation stays open.
+    """
+    if not a or not b or a[0]!=b[0]:
+        return False
+    return all(x>=y for x,y in zip(a[1:],b[1:])) and any(
+        x>y for x,y in zip(a[1:],b[1:]))
 
 
 def g16_cross_game_finalists(finalists, required):
     """G16 FINAL CHALLENGER COMPETITION across every per-game survivor.
 
     Each finalist already won G0-G17 inside its own game. G16 now compares
-    all meaningful surviving candidates, using only the original direct
-    evidence: G10.5 own goals and own on-net shots from the matched lane,
-    plus G17 goalie/deployment confirmation status.
+    all meaningful surviving candidates, prioritizing tonight's opponent
+    goalie-area vulnerability and defensive concession exposure whenever
+    independently comparable. Season goals stay finishing context, never
+    outrank direct matchup alignment. G17 confirmation status remains source
+    uncertainty, not a forecast of future goals.
 
     A finalist is excluded only when at least ``required`` finalists from
     OTHER games each strictly dominate it, i.e. a full Core can be built
@@ -1585,7 +1630,9 @@ def g16_cross_game_finalists(finalists, required):
     vectors=[]
     for item in finalists:
         ev=finalist_route_evidence(item)
-        vectors.append(_route_vector(ev))
+        vector=_route_vector(ev)
+        vectors.append(vector)
+        ev['g16ComparisonBasis']=vector[0] if vector else 'NOT_COMPARABLE'
         rows.append(ev)
     retained=[];excluded=[]
     for i,(ev,vec) in enumerate(zip(rows,vectors)):
@@ -1610,10 +1657,11 @@ def g16_cross_game_finalists(finalists, required):
         'finalists':rows,
         'retainedPlayerIds':[rows[i]['playerId'] for i in retained],
         'excludedPlayerIds':[rows[i]['playerId'] for i in excluded],
-        'comparisonDimensions':['G10.5 ownedGoalsInMatchedLane',
-            'G10.5/G11 ownShotsOnGoalInMatchedLane',
+        'comparisonDimensions':['G0 goalie-area league save percentile (lower is more vulnerable)',
+            'G9 opponent on-net lane concessions relative to league peer (higher is more exposed)',
             'G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)',
-            'G17 deploymentStatus (CONFIRMED > PROJECTED)'],
+            'G17 deploymentStatus (CONFIRMED > PROJECTED)',
+            'Historical goals/shots: clearly labeled fallback only when matchup sources incomplete'],
         'rule':('Exclude a finalist only if >= requiredCoreSize finalists from '
                 'other games strictly dominate it on every dimension'),
         'noWeightsSumsRatesOrTieBreaks':True,
