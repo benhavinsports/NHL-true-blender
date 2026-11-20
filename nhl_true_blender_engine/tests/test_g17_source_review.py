@@ -18,6 +18,7 @@ def build(deployment=True,better_rival=False):
             "allRoutes":[{"zone":"Low Slot","sog":36,"ownedGoals":8}]})}
     if deployment:
         p1["deployment"]=ev("lines",1,{"EV":"F1","status":"PROJECTED"})
+    p1["pressure"]=ev("shots",1,{"recentAppearanceShots":[3,4,3]})
     p2={"id":"2","name":"Shooter 2","position":"D",
         "availability":"PROJECTED_ACTIVE",
         "release":ev("edge",2,{"archetype":"OBSERVED_OWN_SHOT_ORIGIN",
@@ -25,6 +26,8 @@ def build(deployment=True,better_rival=False):
             "allRoutes":[{"zone":"High Slot","sog":19,"ownedGoals":2},
                          {"zone":"Low Slot","sog":18 if not better_rival else 45,
                           "ownedGoals":3 if not better_rival else 11}]})}
+    p2["deployment"]=ev("lines",2,{"EV":"D2","status":"PROJECTED"})
+    p2["pressure"]=ev("shots",2,{"recentAppearanceShots":[1,2,1]})
     goalie={"goalieId":"99","status":"EXPECTED","team":"BOS",
         "weakZones":{"Low Slot":{"shotsAgainst":42}},
         "strengthZones":{"High Slot":{"shotsAgainst":65}},
