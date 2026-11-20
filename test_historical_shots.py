@@ -103,8 +103,11 @@ def test_g9_fetches_league_peer_games_but_keeps_recent_player_logs_target_scoped
     revised=asyncio.run(hs.collect_history(
         client,con,snapshot,"2026-11-16","PROJECTED"))
     assert revised["historicalGames"]==16
-    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_PRESSURE'").fetchone()[0]==2
-    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_GOAL_EVENTS'").fetchone()[0]==2
+    # The official boxscore collector owns pressure and goal-credit receipts.
+    # The PBP origin collector must not overwrite them with scalar aggregate
+    # attempts or re-attach goals from games the player appeared against.
+    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_PRESSURE'").fetchone()[0]==0
+    assert con.execute("SELECT COUNT(*) FROM evidence WHERE kind='PLAYER_GOAL_EVENTS'").fetchone()[0]==0
     assert set(schedules)==set(teams)
     assert result["coveragePeerTeams"]==len(teams)==32
     assert result["coveragePeerGames"]==256

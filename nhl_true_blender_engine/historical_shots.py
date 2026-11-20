@@ -258,7 +258,6 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             roster=(game.get("rosters",{}).get(team) or {}).get("data",{}).get("players",[])
             for player in roster:
                 pid=player["id"]
-                summary=shooter_summary(target_events,pid)
                 # Use the paired, source-verified boxscore/PBP appearance list.
                 # The later pooled shot collector must not replace this with
                 # undated aggregate counts or invent zero-shot appearances.
@@ -276,12 +275,15 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                         break
                 appearance_rows=pressure_data.get("appearances") or []
                 appearance_ids=[str(x.get("gameId") or "") for x in appearance_rows]
+                appearance_id_set=set(appearance_ids)
+                sample_events=[e for e in target_events
+                               if str(e.get("gameId")) in appearance_id_set]
                 source_urls_by_game={
-                    gid:sorted({e["sourceUrl"] for e in target_events
+                    gid:sorted({e["sourceUrl"] for e in sample_events
                                 if str(e.get("gameId"))==gid and e.get("sourceUrl")})
                     for gid in appearance_ids if gid}
                 sog_reconciliation=reconcile_player_sog_by_game(
-                    appearance_rows,target_events,pid)
+                    appearance_rows,sample_events,pid)
                 sample_complete=bool(appearance_rows) and (
                     len(appearance_ids)==len(set(appearance_ids)) and
                     all(gid and gid in pbp_verified_ids and source_urls_by_game.get(gid)
@@ -292,12 +294,12 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 # An on-net PBP event with no usable rink origin makes this
                 # lane sample incomplete; it must never be treated as a zero.
                 unmapped_onnet=sum(
-                    1 for e in target_events
+                    1 for e in sample_events
                     if str(e.get("shooterId"))==str(pid) and e.get("type") in ON_NET
                     and not set(filter(None,(
                         conservative_zone(e.get("x"),e.get("y")),
                         detailed_shot_origin_zone(e.get("x"),e.get("y"))))))
-                origins=measured_recent_shooter_origins(target_events,pid)
+                origins=measured_recent_shooter_origins(sample_events,pid)
                 sample_urls=sorted({u for values in source_urls_by_game.values()
                                     for u in values})
                 if appearance_rows and sample_urls:
@@ -324,46 +326,7 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                         "source_url":sample_urls[0],
                         "observed_at":datetime.now(timezone.utc).isoformat(),
                         "payload":origin_payload})
-                if not summary["attempts"]:
-                    continue
-                urls=sorted({e["sourceUrl"] for e in target_events
-                             if str(e["shooterId"])==str(pid) and e.get("sourceUrl")})
-                payload={"recentAppearanceShots":summary["attempts"],
-                         "shotsOnGoal":summary["shotsOnGoal"],
-                         "ownedGoals":summary["ownedGoals"],
-                         "byShotType":summary["byShotType"],
-                         "historicalSourceUrls":urls,
-                         "sampleGameIds":sorted({e["gameId"] for e in target_events if e["shooterId"]==str(pid)}),
-                         "evidenceType":"OFFICIAL_HISTORICAL_SHOT_EVENTS"}
-                ingest(con,{"evidence_id":_versioned_receipt_id(
-                        f"historical-pressure-{slate_date}-{stage}-{game['id']}-{pid}",payload),
-                    "slate_date":slate_date,"stage":stage,"game_id":game["id"],
-                    "player_id":pid,"kind":"PLAYER_PRESSURE",
-                    "source_url":urls[0],"observed_at":datetime.now(timezone.utc).isoformat(),
-                    "payload":payload})
-    # Preserve every official target-player goal as a source-linked recipient event.
-    for game in snapshot["games"]:
-        for team in (game["away"],game["home"]):
-            roster=(game.get("rosters",{}).get(team) or {}).get("data",{}).get("players",[])
-            for player in roster:
-                pid=str(player["id"])
-                own=[e for e in target_events if e["shooterId"]==pid]
-                if not own:
-                    continue
-                goals=[e for e in own if e["type"]=="goal"]
-                urls=sorted({e["sourceUrl"] for e in own})
-                observed=datetime.now(timezone.utc).isoformat()
-                base={"slate_date":slate_date,"stage":stage,"game_id":game["id"],
-                      "player_id":pid,"source_url":urls[0],"observed_at":observed}
-                mapped=[{"goalId":e["gameId"]+":"+e["eventId"],
-                         "date":e["date"],"sourceUrl":e["sourceUrl"]}
-                        for e in goals]
-                goal_payload={"goals":mapped,"scope":"SAMPLED_PRE_SLATE_GAMES_ONLY",
-                              "completeSeason":False}
-                ingest(con,{**base,
-                    "evidence_id":_versioned_receipt_id(
-                        f"historical-goals-{slate_date}-{stage}-{game['id']}-{pid}",goal_payload),
-                    "kind":"PLAYER_GOAL_EVENTS","payload":goal_payload})
+
     errors=schedule_errors+pbp_errors
     return {"historicalGames":len(target_ids),"shotEvents":len(target_events),
             "coveragePeerGames":len(coverage_ids),
