@@ -94,10 +94,15 @@ async def grade_ledger(source, target):
                     grade = {'status': 'VERIFIED_OFF_DAY'}
                 elif row['status'] != 'REPLAYED':
                     grade = {'status': row['status']}
+                    # A missing/unverified replay is never an acceptable grade.
+                    failures += 1
                 else:
                     card = row['engineResult'].get('card')
                     if not card:
                         grade = {'status': 'NO_CORE'}
+                        # No selected scorers is incomplete execution, not a win
+                        # and not a successful historical calibration.
+                        failures += 1
                     elif row['gateCertification'].get('selectedCoreOnlyFullyCertified') is not True:
                         grade = {'status': 'CORE_NOT_CERTIFIED'}
                         failures += 1
@@ -170,6 +175,25 @@ def main():
             else:
                 try:
                     row = replay_day(args.manifest.parent, day, stage, bundle)
+                    # Running the gates is necessary but NOT sufficient. A
+                    # replay without a source-certified Core must make the
+                    # historical workflow fail, even if Python execution and
+                    # all synthetic unit tests succeeded.
+                    card = row['engineResult'].get('card')
+                    certified = (row['gateCertification'].get(
+                        'selectedCoreOnlyFullyCertified') is True)
+                    if not card:
+                        row['coreIssuanceStatus'] = 'NO_CORE'
+                        row['reason'] = ('Original gates executed, but no certified '
+                                         'Core recipients were issued')
+                        failures += 1
+                    elif not certified:
+                        row['coreIssuanceStatus'] = 'CORE_NOT_CERTIFIED'
+                        row['reason'] = ('Issued Core did not pass independent '
+                                         'G0-G18 gate certification')
+                        failures += 1
+                    else:
+                        row['coreIssuanceStatus'] = 'CERTIFIED_CORE'
                 except (OSError, ValueError, TypeError, KeyError) as exc:
                     row = {'date': day, 'status': 'REPLAY_ERROR',
                            'errorType': type(exc).__name__, 'reason': str(exc)}

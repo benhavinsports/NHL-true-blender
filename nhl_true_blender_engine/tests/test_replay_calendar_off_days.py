@@ -54,3 +54,46 @@ def test_unverified_off_day_flag_never_invents_off_day(tmp_path):
     result,rows,_=run_manifest(tmp_path,manifest)
     assert result==1
     assert rows[0]["status"]=="SCHEDULE_UNVERIFIED"
+
+
+def test_replayed_no_core_is_an_incomplete_historical_slate(tmp_path):
+    """A green test suite cannot turn zero real scorers into a valid replay."""
+    day = "2026-11-19"
+    manifest = {"start": day, "end": day, "stage": "PROJECTED",
+                "slates": {day: {"dummy": "independently timestamped bundle"}}}
+    replay = {"date": day, "status": "REPLAYED",
+              "engineResult": {"card": None},
+              "gateCertification": {"selectedCoreOnlyFullyCertified": False}}
+    with patch("scripts.replay_historical_season.replay_day", return_value=replay):
+        code, rows, selection = run_manifest(tmp_path, manifest)
+    assert code == 1
+    assert rows[0]["status"] == "REPLAYED"
+    assert rows[0]["coreIssuanceStatus"] == "NO_CORE"
+    grades = tmp_path / "grades.jsonl"
+    assert asyncio.run(grade_ledger(selection, grades)) == 1
+    assert json.loads(grades.read_text())["grade"]["status"] == "NO_CORE"
+
+
+def test_replayed_uncertified_core_fails_selection_and_grade(tmp_path):
+    day = "2026-11-19"
+    manifest = {"start": day, "end": day, "stage": "PROJECTED",
+                "slates": {day: {"dummy": "pregame bundle"}}}
+    replay = {"date": day, "status": "REPLAYED",
+              "engineResult": {"card": {"current_legs": [{"gameId": "1", "playerId": "9"}]}},
+              "gateCertification": {"selectedCoreOnlyFullyCertified": False}}
+    with patch("scripts.replay_historical_season.replay_day", return_value=replay):
+        code, rows, selection = run_manifest(tmp_path, manifest)
+    assert code == 1
+    assert rows[0]["coreIssuanceStatus"] == "CORE_NOT_CERTIFIED"
+    grades = tmp_path / "grades.jsonl"
+    assert asyncio.run(grade_ledger(selection, grades)) == 1
+    assert json.loads(grades.read_text())["grade"]["status"] == "CORE_NOT_CERTIFIED"
+
+
+def test_blocked_source_is_not_successful_postgame_grading(tmp_path):
+    selection = tmp_path / "blocked.jsonl"
+    selection.write_text(json.dumps({"date": "2026-11-19",
+                                     "status": "SCHEDULED_SOURCE_BLOCKED"}) + "\n")
+    grades = tmp_path / "blocked_grades.jsonl"
+    assert asyncio.run(grade_ledger(selection, grades)) == 1
+    assert json.loads(grades.read_text())["grade"]["status"] == "SCHEDULED_SOURCE_BLOCKED"
