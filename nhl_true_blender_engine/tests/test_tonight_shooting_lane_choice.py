@@ -47,5 +47,6 @@ def test_conflicting_matchup_indicators_not_called_clear_tonight_alignment():
     p,goalie,cover=_sample()
     cover["data"]["zoneConcessions"]["R Circle"]["onNetShotsPerGame"]=20
     r=release_matched_to_g0_target(p,goalie,cover)["release"]["data"]
-    assert r["tonightRouteSelectionBasis"]=="HISTORICAL_OWN_ORIGIN_FALLBACK_NOT_TONIGHT_PROOF"
+    assert r["tonightRouteSelectionBasis"]=="UNRESOLVED_MATCHUP_NO_HISTORICAL_FALLBACK"
+    assert r["tonightRouteUnresolved"] is True
     assert r["zone"]=="R Circle"
