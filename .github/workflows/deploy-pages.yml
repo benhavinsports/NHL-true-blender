@@ -106,7 +106,11 @@ jobs:
               # REMOVE an independently certified earlier, still-locked card.
               # The archived gate receipts must independently prove EVERY
               # original gate before the old selection is visible.
-              if not current_match and original_proof is None:
+              if original_proof is None:
+                  # An old verified flag or a nonconflicting newer run is
+                  # not proof that the saved recipients passed pre-puck gates.
+                  # Preserve the historical card/grade in state, but do not
+                  # advertise an unsupported archived selection as verified.
                   print('::warning::Saved Core has no independent source proof for '+saved_date)
                   continue
               if not current_match:
@@ -216,13 +220,12 @@ jobs:
               legs=json.loads(card['legsJson']) if card else []
               saved_proof=saved_original_proof(date,card)
               current_match=same_upstream_core(date,legs) if card else False
-              if card and not current_match:
-                  if saved_proof is None:
-                      print('::warning::Latest Core conflicts with source run AND has no independent saved pre-puck receipt for '+date)
-                      card=None
-                      legs=[]
-                  else:
-                      print('::warning::Latest runner is unresolved; independently verified prior G18 card is preserved, not recertified by this run: '+date)
+              if card and saved_proof is None:
+                  print('::warning::Latest Core lacks independent saved pre-puck proof for '+date)
+                  card=None
+                  legs=[]
+              elif card and not current_match:
+                  print('::warning::Latest runner is unresolved; independently verified prior G18 card is preserved, not recertified by this run: '+date)
               grade_report=None
               if card and card.get('gradeJson'):
                   grade_report=json.loads(card['gradeJson'])
