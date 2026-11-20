@@ -191,7 +191,13 @@ def test_end_to_end_four_qualified_games_issue_one_g16_separated_core(tmp_path):
     con = open_db(str(tmp_path / 'four.sqlite'))
     try:
         result = execute(con, data, DATE, 'CONFIRMED')
-        assert result['uniqueGameSurvivors'] == 4
+        assert result['uniqueGameSurvivors'] == 4, {
+            'errors':result.get('errors'),
+            'missingByGate':result.get('missingByGate'),
+            'pool':[(p.get('matchup'),p.get('status'),
+                     p.get('firstNonPassGateCounts')) for p in
+                    result.get('gameSurvivorPool',[])],
+        }
         assert 'allG18QualifiedSurvivors' not in result
         survivors = result['preCoreQualifiedSurvivors']
         assert {x['playerId'] for x in survivors} == {'100', '110', '120', '130'}
