@@ -531,6 +531,53 @@ def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage
             "noWeightsOrOdds": True}
 
 
+def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
+                                       rival_route, goalie_areas, defense_areas):
+    """Same goalie/defender lane: require sourced deployment and shot ACCESS.
+
+    Both players are mapped to the exact opponent vulnerability; their
+    independently observed OWN on-net route attempts plus recurring own-shot
+    pressure help distinguish opportunity, NEVER old goals. This remains a
+    prediction of access to tonight's scoring lane, not a claimed future goal.
+    Two players without comparable active roles and recurring pressure remain
+    unresolved; PP-unit rank and player fame are ignored.
+    """
+    zone=candidate_route.get('zone')
+    if (not zone or zone!=rival_route.get('zone') or
+            zone not in (goalie_areas or {}) or
+            (defense_areas is not None and zone not in defense_areas)):
+        return None
+    sources=[]
+    for player in (candidate,rival):
+        deployment=player.get('deployment')
+        pressure=player.get('pressure')
+        d=evidence_data(deployment) or {}
+        p=evidence_data(pressure) or {}
+        shots=p.get('recentAppearanceShots')
+        if not (receipt(player.get('release')) and receipt(deployment) and
+                receipt(pressure) and isinstance(d.get('EV'),str) and d['EV']
+                and d.get('status') in ('CONFIRMED','PROJECTED') and
+                isinstance(shots,list) and len(shots)>=2 and
+                all(type(x) is int and x>=0 for x in shots) and
+                sum(x>0 for x in shots)>=2):
+            return None
+        sources.extend([deployment['sourceUrl'],pressure['sourceUrl']])
+    onnet_a=candidate_route.get('attempts')
+    onnet_b=rival_route.get('sog',rival_route.get('attempts'))
+    if not (type(onnet_a) is int and type(onnet_b) is int and
+            onnet_a>0 and onnet_b>=0):
+        return None
+    return {'result':('CANDIDATE' if onnet_a>onnet_b else
+                      'RIVAL' if onnet_b>onnet_a else 'UNSEPARATED'),
+            'sourceScope':'BOTH_PLAYERS_TONIGHT_EV_ROLE_MATCHED_SAME_WEAK_LANE',
+            'sameLaneOwnOnNetShots':{'candidate':onnet_a,'rival':onnet_b},
+            'bothHaveRecurringOwnShotPressure':True,
+            'bothHaveSourcedTonightEVDeployment':True,
+            'ownGoalsNeverCompared':True,
+            'notProofOfFutureGoal':True,
+            'sourceUrls':sorted(set(sources))}
+
+
 def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None,
                      opponent_coverage=None):
     """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
@@ -632,8 +679,11 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
         # the candidate defeats the rival only if EVERY route is less
         # exposed. Identical lanes or conflicting evidence remain unresolved.
         route_comparisons=[
-            (x,_tonight_route_comparison(
-                base['zone'],x['zone'],goalie_weak_zones,opponent_coverage))
+            (x,(_same_lane_tonight_shot_opportunity(
+                candidate,rival,base,x,goalie_weak_zones,defensive_areas)
+                if x['zone']==base['zone'] else
+                _tonight_route_comparison(
+                    base['zone'],x['zone'],goalie_weak_zones,opponent_coverage)))
             for x in viable]
         rival_dominating=[
             (x,proof) for x,proof in route_comparisons
@@ -677,9 +727,8 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                           'ownedGoals':opponent_goals},
             'sourceUrls':sorted(set(
                 [candidate['release']['sourceUrl'],wrapper['sourceUrl']] +
-                (recent_tie_proof['own']['sourceUrls']+
-                 recent_tie_proof['rival']['sourceUrls']
-                 if recent_tie_proof else []))),
+                [url for _,proof in route_comparisons if proof
+                 for url in proof.get('sourceUrls',[])])),
             'independentRecentTieReview':recent_tie_proof,
             'tonightMatchupComparison':matchup,
             'allViableRivalRouteComparisons':[
