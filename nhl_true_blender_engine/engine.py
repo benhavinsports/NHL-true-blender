@@ -1558,9 +1558,8 @@ def finalist_route_evidence(item):
 def _route_vector(ev):
     """A same-method partial order, with *measured matchup* first.
 
-    Legacy/source-incomplete synthetic research still has the old historic
-    comparison available and visibly labeled. The two different evidence
-    scopes must NEVER dominate one another.
+    When source data is insufficient, comparison is unresolved. Historical
+    goal/shot totals are never a fallback winner criterion.
     """
     goalie=ev.get('opponentGoalieZone') or {}
     defense=ev.get('opponentDefenseZone') or {}
@@ -1582,19 +1581,17 @@ def _route_vector(ev):
         return ('TONIGHT_MATCHUP_OPPONENT_EXPOSURE', 1-percentile, exposed/peer,
                 _STATUS_LEVEL.get(ev['goalieStatus'],0),
                 _STATUS_LEVEL.get(ev['deploymentStatus'],0))
-    goals=ev['ownedGoalsInMatchedLane']; shots=ev['ownShotsOnGoalInMatchedLane']
-    if type(goals) is not int or type(shots) is not int:
-        return None
-    return ('HISTORICAL_FINISHING_FALLBACK_NOT_TONIGHT_PROOF',
-            goals,shots,_STATUS_LEVEL.get(ev['goalieStatus'],0),
-            _STATUS_LEVEL.get(ev['deploymentStatus'],0))
+    # Missing goalie / defense comparison is NOT permission to select from
+    # historical finishing counts. Retain the unresolved candidate for source
+    # research, but do not let it dominate or be defeated by past goals.
+    return None
 
 
 def _dominates(a,b):
     """A strictly better *comparable* source vector, no invented weights.
 
-    A historic finishing vector cannot defeat a tonight-opponent vector, or
-    vice versa. Incomparable vulnerability/defense/confirmation stays open.
+    Incomparable vulnerability/defense/confirmation stays unresolved, never
+    settled by a previous-season scoring advantage.
     """
     if not a or not b or a[0]!=b[0]:
         return False
@@ -1654,7 +1651,7 @@ def g16_cross_game_finalists(finalists, required):
             'G9 opponent on-net lane concessions relative to league peer (higher is more exposed)',
             'G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)',
             'G17 deploymentStatus (CONFIRMED > PROJECTED)',
-            'Historical goals/shots: clearly labeled fallback only when matchup sources incomplete'],
+            'Historical goals/shots: context only; NEVER a fallback selection'],
         'rule':('Exclude a finalist only if >= requiredCoreSize finalists from '
                 'other games strictly dominate it on every dimension'),
         'noWeightsSumsRatesOrTieBreaks':True,
