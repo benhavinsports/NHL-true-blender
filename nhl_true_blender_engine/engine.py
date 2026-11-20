@@ -472,7 +472,63 @@ def independently_dated_origin_route(player,zone):
             "notAnNhlEdgeAreaPolygon":True}
 
 
-def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None):
+def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage):
+    """Compare THIS opposing goalie's source-reported vulnerability and THIS
+    opponent's measured defensive exposure, not the skaters' past goal totals.
+
+    Only same-population NHL EDGE goalie-area percentiles and independently
+    sourced, comparable defense on-net concessions are accepted. If either
+    metric is missing or they disagree, no winner is invented. These are
+    pregame matchup indicators, never a guarantee of a goal tonight.
+    """
+    if not isinstance(goalie_zones, dict) or not isinstance(coverage, dict):
+        return None
+    if candidate_zone == rival_zone:
+        return None
+    zones = coverage.get("zoneConcessions") or {}
+    def observed(zone):
+        goalie = goalie_zones.get(zone) or {}
+        defense = zones.get(zone) or {}
+        percentile = goalie.get("leagueSavePctgPercentile")
+        shots = goalie.get("shotsAgainst")
+        goals = goalie.get("goalsAgainst")
+        exposed = defense.get("onNetShotsPerGame")
+        peer = defense.get("peerMedianOnNetShotsPerGame")
+        if not (type(percentile) in (int, float) and 0 <= percentile <= 1
+                and type(shots) is int and shots >= 20
+                and type(goals) is int and 0 <= goals <= shots
+                and type(exposed) in (int, float) and exposed > 0
+                and type(peer) in (int, float) and peer > 0
+                and defense.get("independentOnNetConcessionReview") is True
+                and "ON_NET_SHOTS_AGAINST_PEER" in
+                    (defense.get("positiveConcessionBases") or [])):
+            return None
+        # Both normalizations come from published peer comparisons; no
+        # invented scoring weights or additions of unrelated quantities.
+        return {"savePercentile":percentile,
+                "defensiveOnNetVsPeer":exposed / peer,
+                "goalieSource":goalie.get("sourceUrl")}
+    a, b = observed(candidate_zone), observed(rival_zone)
+    if a is None or b is None:
+        return None
+    a_better = (a["savePercentile"] <= b["savePercentile"] and
+                a["defensiveOnNetVsPeer"] >= b["defensiveOnNetVsPeer"])
+    b_better = (b["savePercentile"] <= a["savePercentile"] and
+                b["defensiveOnNetVsPeer"] >= a["defensiveOnNetVsPeer"])
+    if a_better == b_better:
+        result = "UNSEPARATED"
+    else:
+        result = "CANDIDATE" if a_better else "RIVAL"
+    return {"result": result, "candidate": a, "rival": b,
+            "candidateZone": candidate_zone, "rivalZone": rival_zone,
+            "sourceScope": "SAME_OPPONENT_GOALIE_AND_DEFENSE_PREPUCK",
+            "noHistoricalGoalsUsedForDecision": True,
+            "notGoalMouthAnatomy": True,
+            "noWeightsOrOdds": True}
+
+
+def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None,
+                     opponent_coverage=None):
     """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
 
     NHL EDGE independently measures each skater's shots on goal and own goals
@@ -589,10 +645,23 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
         # counts are equal. No fame/PP status/odds or numeric weights.
         candidate_direct=(base['ownedGoals'],base['attempts'])
         rival_direct=(opponent_goals,opponent_shots)
-        dominates=candidate_direct>rival_direct
-        defeated_by=rival_direct>candidate_direct
+        # The game's G0/G9 opponent-lane matchup has first claim. Do not
+        # let more goals against unrelated past opponents defeat a source-
+        # proved better matchup against TONIGHT'S goalie and defenders.
+        matchup=_tonight_route_comparison(
+            base['zone'],target['zone'],goalie_weak_zones,opponent_coverage)
+        if matchup is not None:
+            dominates=matchup['result']=='CANDIDATE'
+            defeated_by=matchup['result']=='RIVAL'
+            decision_basis='TONIGHT_OPPONENT_GOALIE_AND_DEFENSE'
+        else:
+            # Legacy evidence fallback is explicit: this is past finishing,
+            # not a verified winner on tonight's physical matchup.
+            dominates=candidate_direct>rival_direct
+            defeated_by=rival_direct>candidate_direct
+            decision_basis='HISTORICAL_OWN_FINISHING_FALLBACK_NOT_TONIGHT_PROOF'
         recent_tie_proof=None
-        if candidate_direct==rival_direct:
+        if matchup is None and candidate_direct==rival_direct:
             # A season NHL EDGE tie is not permission to choose chalk or
             # arbitrarily move G10.5. Research BOTH players' independent,
             # dated, directly credited NHL PBP shots from their own routes.
@@ -629,6 +698,9 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                  recent_tie_proof['rival']['sourceUrls']
                  if recent_tie_proof else []))),
             'independentRecentTieReview':recent_tie_proof,
+            'tonightMatchupComparison':matchup,
+            'decisionBasis':decision_basis,
+            'historicalTotalsNeverOverrideMeasuredTonightMatchup':True,
             'sameLane':target['zone']==base['zone'],
             'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
             'allRivalJointlyViableZones':sorted({x['zone'] for x in viable}),
@@ -1142,7 +1214,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     # Use the actual G9 coverage finding and G4 shooter release, only now.
     wins,rows=challenger_proof(player,rivals,weak,
-        (coverage_data or {}).get('greenWeakZones'))
+        (coverage_data or {}).get('greenWeakZones'),
+        opponent_coverage=coverage_data)
     # A same-route rival whose OWN direct evidence is strictly stronger owns
     # the route: that is a genuine G10.5 recipient-separation loss, not an
     # unresolved source gap. Unresolved rows (missing rival source, exact
