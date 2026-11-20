@@ -318,10 +318,18 @@ def certify_gates(con,date,stage,expected_game_count=None):
             all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsWereIndependentlyChecked":bool(
             all_matrix_present and all_matrix_in_order and not overlay_copies),
-        "allOverlayStepsSourceCompleteForEveryRejectedSkater":not any(
-            distributions[g]["NOT_EXECUTED"] for g in OVERLAY),
+        "allOverlayStepsSourceCompleteForEveryRejectedSkater":bool(
+            independent and not any(
+                distributions[g]["NOT_EXECUTED"] or semantic_failed_by_gate[g]
+                for g in OVERLAY)),
         "nonselectedIncompleteEvidenceRemainsVisible":True,
-        "allGateChecksExecutedWithEvidence":not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER),
+        # No skater matrices (for example, missing starters at G0) and
+        # missing rows must never certify through an empty `any()` check.
+        "allGateChecksExecutedWithEvidence":bool(
+            directions_complete and independent
+            and all(r['disposition']=='PASS' for r in goalie_directions)
+            and not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER)
+            and not semantic_failed_by_gate and not source_unattributed),
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "originalFunctionDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
