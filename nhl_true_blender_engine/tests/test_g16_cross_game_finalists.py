@@ -171,7 +171,7 @@ def test_g105_rival_dominating_route_is_elimination_not_missing_evidence():
         rows=[{'gameId':ids[i],'date':dates[i],'shotsOnGoal':per[i],
                'ownedGoals':goal_per[i],'sourceUrls':urls[ids[i]]}
               for i in range(3)]
-        totals=[max(3,value) for value in per]
+        totals=per
         return {'id': pid,
                 'deployment': {'sourceUrl':src % pid+'/deployment','observedAt':'x',
                                'data':{'EV':'F2','status':'PROJECTED'}},
@@ -186,6 +186,9 @@ def test_g105_rival_dominating_route_is_elimination_not_missing_evidence():
                         'sampleAsOfSlateDate':DATE,'sampleGameIds':ids,
                         'sampleAppearanceCount':3,'sampleSourcesByGame':urls,
                         'sampleCoverageComplete':True,
+                        'pbpBoxscoreSogReconciled':True,
+                        'pbpOnNetShotsByGame':{ids[i]:per[i] for i in range(3)},
+                        'boxscoreShotsOnGoalByGame':{ids[i]:per[i] for i in range(3)},
                         'sampleIncludesActualZeroShotAppearances':True,
                         'unclassifiedOnNetShots':0,
                         'zoneCounts':{'slot':{'shotsOnGoal':shots,'ownedGoals':sum(goal_per),

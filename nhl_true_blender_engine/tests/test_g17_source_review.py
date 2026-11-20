@@ -30,7 +30,7 @@ def _recent_sample(pid,zones):
         zone_counts[zone]={"shotsOnGoal":shots,"ownedGoals":sum(goal_per),
             "gameIds":ids,"sourceUrls":sorted({u for x in pbp_urls.values() for u in x}),
             "byGame":rows}
-    pressure_counts=[max(3,x) for x in totals]
+    pressure_counts=totals
     pressure=ev("shots",pid,{"recentAppearanceShots":pressure_counts,
         "appearances":[{"date":dates[i],"gameId":ids[i],
             "shotsOnGoal":pressure_counts[i],"sourceUrl":pbp_urls[ids[i]][0]}
@@ -41,6 +41,9 @@ def _recent_sample(pid,zones):
         "sampleAsOfSlateDate":DATE,"sampleGameIds":ids,
         "sampleAppearanceCount":3,"sampleSourcesByGame":pbp_urls,
         "sampleCoverageComplete":True,"sampleIncludesActualZeroShotAppearances":True,
+        "pbpBoxscoreSogReconciled":True,
+        "pbpOnNetShotsByGame":{ids[i]:totals[i] for i in range(3)},
+        "boxscoreShotsOnGoalByGame":{ids[i]:totals[i] for i in range(3)},
         "unclassifiedOnNetShots":0,"zoneCounts":zone_counts,
         "sourceUrls":sorted({u for x in pbp_urls.values() for u in x}),
         "rinkBinsApproximateNotNhlEdgePolygons":True,

@@ -19,7 +19,7 @@ def player(pid, attempts, goals):
     lane_goals_total=min(goals,attempts)
     first_goals=min(lane_goals_total,lane_shots[0])
     lane_goals=[first_goals,min(lane_goals_total-first_goals,lane_shots[1])]
-    total_shots=[max(3,lane_shots[0]),max(3,lane_shots[1])]
+    total_shots=lane_shots
     pbp_urls={gid:[SRC+"/pbp/"+gid] for gid in sample_ids}
     recent_area={"shotsOnGoal":sum(lane_shots),"ownedGoals":sum(lane_goals),
         "gameIds":sample_ids,"sourceUrls":[SRC+"/pbp/"+sample_ids[0]],
@@ -48,6 +48,9 @@ def player(pid, attempts, goals):
             "sampleAsOfSlateDate":DATE,"sampleGameIds":sample_ids,
             "sampleAppearanceCount":2,"sampleSourcesByGame":pbp_urls,
             "sampleCoverageComplete":True,
+            "pbpBoxscoreSogReconciled":True,
+            "pbpOnNetShotsByGame":{sample_ids[i]:lane_shots[i] for i in range(2)},
+            "boxscoreShotsOnGoalByGame":{sample_ids[i]:lane_shots[i] for i in range(2)},
             "sampleIncludesActualZeroShotAppearances":True,
             "unclassifiedOnNetShots":0,"zoneCounts":{"slot":recent_area},
             "sourceUrls":[SRC+"/pbp/"+sample_ids[0]],
