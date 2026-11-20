@@ -541,11 +541,11 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
     scored in the sampled last-eight games; the rival's observed season zone
     data remains valid challenger evidence.
 
-    G10.5 compares DIRECT credited goals from the exact same target area
-    before shot volume (which is supporting pressure, not a scored goal).
-    This is categorical, source-linked separation with NO ranking weights;
-    equal own-goal counts are compared on observed SOG, and equal results
-    remain unresolved. All teammates and alternative routes remain audited.
+    Old goals and release shots establish the skater's historical shooting
+    mechanism but cannot defeat a competing current recipient. G10.5 only
+    resolves distinct viable player lanes if tonight's goalie + defense
+    exposure independently separates EVERY rival viable route. Same-lane
+    teammates without direct matchup separation remain pending.
     """
     base=player_releases(candidate)
     rows=[]; all_defeated=True
@@ -625,67 +625,45 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'notEvidenceRivalCannotScoreTonight':True,
                          'sourceUrls':[wrapper['sourceUrl']]})
             continue
-        # Own direct goal credit first; on-net shots break only goal ties.
-        # Routes with exactly matching evidence do not require an arbitrary
-        # choice to compare THIS rival with the candidate.
-        priority=lambda x:(x['ownedGoals'],x.get('sog',x.get('attempts')))
-        target=max(viable,key=priority)
-        tied_zones=sorted({x['zone'] for x in viable if priority(x)==priority(target)})
+        # Compare ALL of the rival's separately verified viable routes
+        # against tonight's opposing goalie AND defense. Historic goals
+        # cannot pick the rival's route, defeat the rival, or break a tie.
+        # A different-lane rival wins if ANY own route is more exposed;
+        # the candidate defeats the rival only if EVERY route is less
+        # exposed. Identical lanes or conflicting evidence remain unresolved.
+        route_comparisons=[
+            (x,_tonight_route_comparison(
+                base['zone'],x['zone'],goalie_weak_zones,opponent_coverage))
+            for x in viable]
+        rival_dominating=[
+            (x,proof) for x,proof in route_comparisons
+            if proof is not None and proof['result']=='RIVAL']
+        candidate_dominates=bool(route_comparisons) and all(
+            proof is not None and proof['result']=='CANDIDATE'
+            for _,proof in route_comparisons)
+        defeated_by=bool(rival_dominating)
+        dominates=candidate_dominates and not defeated_by
+        # Pick a witness for reporting, NEVER a history-ranked route.
+        target=(rival_dominating[0][0] if rival_dominating else
+                sorted(viable,key=lambda x:x['zone'])[0])
+        matchup=(
+            rival_dominating[0][1] if rival_dominating else
+            route_comparisons[0][1] if len(route_comparisons)==1 else None)
         opponent_shots=target.get('sog',target.get('attempts'))
         opponent_goals=target.get('ownedGoals')
-        if (not isinstance(opponent_shots,int) or
-                not isinstance(opponent_goals,int) or
-                opponent_goals<0 or opponent_shots<opponent_goals):
+        tied_zones=sorted(x['zone'] for x in viable)
+        if (type(opponent_shots) is not int or type(opponent_goals) is not int
+                or opponent_goals<0 or opponent_shots<opponent_goals):
             rows.append({'challengerId':str(rival['id']),
                          'status':'INCOMPLETE_OWN_FINISH_DATA',
                          'sourceUrl':wrapper['sourceUrl']})
             all_defeated=False
             continue
-        # G10.5 is DIRECT RECIPIENT separation, not a requirement for a
-        # scorer to lead every teammate in BOTH shots and goals. A skater
-        # with 7 actual goals on this lane is not disproved by a teammate
-        # with 6 actual goals and more harmless on-net shots.
-        # Compare OWN credited goals first; use SOG only if the OWN goal
-        # counts are equal. No fame/PP status/odds or numeric weights.
-        candidate_direct=(base['ownedGoals'],base['attempts'])
-        rival_direct=(opponent_goals,opponent_shots)
-        # The game's G0/G9 opponent-lane matchup has first claim. Do not
-        # let more goals against unrelated past opponents defeat a source-
-        # proved better matchup against TONIGHT'S goalie and defenders.
-        matchup=_tonight_route_comparison(
-            base['zone'],target['zone'],goalie_weak_zones,opponent_coverage)
-        if matchup is not None:
-            dominates=matchup['result']=='CANDIDATE'
-            defeated_by=matchup['result']=='RIVAL'
-            decision_basis='TONIGHT_OPPONENT_GOALIE_AND_DEFENSE'
-        else:
-            # Legacy evidence fallback is explicit: this is past finishing,
-            # not a verified winner on tonight's physical matchup.
-            dominates=candidate_direct>rival_direct
-            defeated_by=rival_direct>candidate_direct
-            decision_basis='HISTORICAL_OWN_FINISHING_FALLBACK_NOT_TONIGHT_PROOF'
         recent_tie_proof=None
-        if matchup is None and candidate_direct==rival_direct:
-            # A season NHL EDGE tie is not permission to choose chalk or
-            # arbitrarily move G10.5. Research BOTH players' independent,
-            # dated, directly credited NHL PBP shots from their own routes.
-            # Positive evidence must exist for BOTH, using the same source
-            # method. Missing/identical observations stay unresolved.
-            own_recent=independently_dated_origin_route(candidate,base["zone"])
-            rival_recent=independently_dated_origin_route(rival,target["zone"])
-            if own_recent and rival_recent:
-                pair_a=(own_recent["ownedGoals"],own_recent["shotsOnGoal"])
-                pair_b=(rival_recent["ownedGoals"],rival_recent["shotsOnGoal"])
-                recent_tie_proof={
-                    "method":"INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN",
-                    "own":own_recent,"rival":rival_recent,
-                    "sameRecentSampleMethod":True,
-                    "seasonGoalAndShotTieReviewed":True,
-                    "notAnatomicalPlacement":True}
-                if pair_a!=pair_b:
-                    dominates=pair_a>pair_b
-                    defeated_by=pair_b>pair_a
-                    decision_basis='DATED_DIRECT_SHOOTER_ORIGIN_HISTORICAL_TIE_REVIEW'
+        decision_basis=(
+            'TONIGHT_OPPONENT_GOALIE_AND_DEFENSE_ALL_RIVAL_ROUTES'
+            if dominates or defeated_by else
+            'UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK')
         if not dominates:
             all_defeated=False
         rows.append({
@@ -704,7 +682,10 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                  if recent_tie_proof else []))),
             'independentRecentTieReview':recent_tie_proof,
             'tonightMatchupComparison':matchup,
+            'allViableRivalRouteComparisons':[
+                {'zone':x['zone'],'matchup':proof} for x,proof in route_comparisons],
             'decisionBasis':decision_basis,
+            'historicalTotalsCannotSetRecipient':True,
             'historicalTotalsNeverOverrideMeasuredTonightMatchup':True,
             'sameLane':target['zone']==base['zone'],
             'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
@@ -714,17 +695,12 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
             'rivalEVRole':evidence_data(rival.get('deployment')),
             'roleReviewIncomplete':not receipt(rival.get('deployment')),
             'noSeasonTotalInvented':True,
-            'comparisonPriority':(
-                ['G0 goalie peer vulnerability in TONIGHT opponent lane',
-                 'G9 independent TONIGHT opponent defensive on-net exposure']
-                if matchup is not None else
-                ['ownedGoalsFromSameShotOrigin',
-                 'historicalOnNetShotPressureOnlyWhenGoalsEqual']),
+            'comparisonPriority':[
+                'G0 goalie peer vulnerability in tonight opponent lane',
+                'G9 tonight opponent defensive on-net exposure',
+                'Every viable rival scoring lane compared, not just historical best'],
             'noFameOddsOrPPShortcut':True,
-            'rule':('source-comparable current opponent physical-lane exposure; '
-                    'no past-goal selection when opponent comparison is available'
-                    if matchup is not None else
-                    'past goal recipient evidence only; fallback NOT proof of tonight goal'),
+            'rule':'only sourced matchup exposure decides; no historical goal/shot fallback',
         })
     return all_defeated,rows
 
