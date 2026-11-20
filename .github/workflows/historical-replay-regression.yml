@@ -149,6 +149,10 @@ jobs:
           mkdir -p /tmp/blender-baseline/nhl_true_blender_engine /tmp/blender-baseline/scripts
           cp -a nhl_true_blender_engine/. /tmp/blender-baseline/nhl_true_blender_engine/
           git show dd3bf67:nhl_true_blender_engine/engine.py > /tmp/blender-baseline/nhl_true_blender_engine/engine.py
+          # The pinned pre-G0 engine predates the opponent_coverage argument
+          # used by newer shared historical helper code. Adapt its CALL
+          # signature only; do not import newer scorer judgments into baseline.
+          python scripts/prepare_historical_baseline.py /tmp/blender-baseline/nhl_true_blender_engine/engine.py
           cp scripts/replay_historical_season.py /tmp/blender-baseline/scripts/
           cp scripts/replay_postgame_grade.py /tmp/blender-baseline/scripts/
       - name: Probe 5V5 Hockey dated pregame forward-line archive
