@@ -374,10 +374,28 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
     green=set(defense.get('greenWeakZones') or [])
     jointly_sourced=[x for x in matching if x['zone'] in green]
     considered=jointly_sourced if jointly_sourced else matching
-    considered.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
-    top=considered[0]
-    tied=[x for x in considered if
-          (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
+    # This is TONIGHT'S goalie and defense, not a ranking of what the player
+    # scored against previous opponents. If one own-shooting origin has
+    # strictly better independently sourced matchup exposure than EVERY
+    # other jointly viable origin, it owns today's physical route choice.
+    # Unmeasured or conflicting exposure must not be made into a fake win.
+    matchup_winners=[
+        own for own in considered if all(
+            own is other or
+            (_tonight_route_comparison(
+                own['zone'],other['zone'],weak,defense) or {}).get('result')
+                    == 'CANDIDATE'
+            for other in considered)]
+        if len(considered)>1 and jointly_sourced else []
+    matchup_aligned=len(matchup_winners)==1
+    if matchup_aligned:
+        top=matchup_winners[0]
+        tied=[top]
+    else:
+        considered.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
+        top=considered[0]
+        tied=[x for x in considered if
+              (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
     tied_origin_evidence=None
     if len(tied)>1:
         # Never discard jointly G0/G9-supported strongest OWN scoring lanes
@@ -416,6 +434,10 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
         'originalPrimaryOrigin':base.get('zone'),
         'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
         'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
+        'tonightRouteSelectionBasis':(
+            'G0_GOALIE_G9_DEFENSE_MATCHUP_DOMINANCE'
+            if matchup_aligned else
+            'HISTORICAL_OWN_ORIGIN_FALLBACK_NOT_TONIGHT_PROOF'),
         'datedPbpLaneTieResolution':tied_origin_evidence,
         'anatomicalPlacementCertified':False,
         'noPreG0SkaterPreference':True
