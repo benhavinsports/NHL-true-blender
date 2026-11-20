@@ -206,6 +206,32 @@ async def fetch_and_ingest_lineups(con,snapshot,date,stage):
                 "error":f"{type(exc).__name__}: {exc}"}
 
 
+def dated_deployment_row(row,date):
+    """Resolve only assignments independently dated to this NHL slate.
+
+    A fetched season article or an unrelated provider's date cannot turn an
+    undated line/PP assignment into tonight's role. Resolve conflicts after
+    filtering dates, so stale disagreement cannot veto dated current proof.
+    """
+    result={**row,'conflicts':[],'line':None,'powerPlayUnit':None}
+    for field,key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
+        evidence=[]
+        for item in row.get(key,[]):
+            source_date=item.get('sourceDate')
+            match=re.match(r'^(20\d\d-\d\d-\d\d)(?:$|[T ])',str(source_date or ''))
+            url=item.get('sourceUrl')
+            if (match and match.group(1)==date and item.get('dateVerified') is not False
+                    and isinstance(url,str) and url.startswith('https://')):
+                evidence.append(item)
+        result[key]=evidence
+        values={item.get('value') for item in evidence}
+        if len(values)==1:
+            result[field]=next(iter(values))
+        elif len(values)>1:
+            result['conflicts'].append({'field':field,'values':sorted(values)})
+    return result
+
+
 async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
     """Use the existing multi-source structured parser, not unparsed HTML.
 
@@ -237,7 +263,10 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
             roster=(game.get('rosters',{}).get(team) or {}).get('data',{})
             players=roster.get('players') or []
             for row in rows:
-                if row.get('conflicts') or row.get('line') is None:
+                row=dated_deployment_row(row,date)
+                if row.get('line') is None:
+                    skipped.append({'team':team,'name':row.get('playerName'),
+                                    'reason':'NO_UNAMBIGUOUS_SLATE_DATED_FORWARD_LINE'})
                     continue
                 player=unique_official_player(row.get('playerName'),players)
                 if player is None:

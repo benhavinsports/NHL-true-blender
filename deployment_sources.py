@@ -273,11 +273,15 @@ def fetch_deployment(team, team_name=None, mode='projected'):
     # Preserve the fetched document URL, not a parser-local JSON path or a
     # human-readable provider label. Downstream G6 requires attributable URLs.
     source_urls={}
+    source_dates={}
     for attempt in attempts:
         label=attempt.get('source')
         url=attempt.get('url')
         if label and isinstance(url,str) and url.startswith('https://'):
             source_urls.setdefault(label,set()).add(url)
+            source_dates[(label,url)] = {
+                'sourceDate':attempt.get('sourceDate'),
+                'dateVerified':attempt.get('dateVerified')}
     for row in collected:
         label=row.get('source')
         path=row.get('sourcePath')
@@ -305,7 +309,10 @@ def fetch_deployment(team, team_name=None, mode='projected'):
         for field, evidence_key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
             value=row.get(field)
             if value is None: continue
-            evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt'),'sourceUrl':row.get('sourceUrl')}
+            # Retrieval time is not the source's lineup/slate date. Preserve
+            # each provider's own freshness, never another provider's date.
+            freshness=source_dates.get((src,row.get('sourceUrl')), {})
+            evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt'),'sourceUrl':row.get('sourceUrl'),**freshness}
             if evidence not in item[evidence_key]: item[evidence_key].append(evidence)
 
     for item in by_player.values():
