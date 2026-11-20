@@ -681,6 +681,7 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 if pair_a!=pair_b:
                     dominates=pair_a>pair_b
                     defeated_by=pair_b>pair_a
+                    decision_basis='DATED_DIRECT_SHOOTER_ORIGIN_HISTORICAL_TIE_REVIEW'
         if not dominates:
             all_defeated=False
         rows.append({
@@ -709,9 +710,17 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
             'rivalEVRole':evidence_data(rival.get('deployment')),
             'roleReviewIncomplete':not receipt(rival.get('deployment')),
             'noSeasonTotalInvented':True,
-            'comparisonPriority':['ownedGoalsFromSameShotOrigin','onNetShotPressureOnlyWhenGoalsEqual'],
+            'comparisonPriority':(
+                ['G0 goalie peer vulnerability in TONIGHT opponent lane',
+                 'G9 independent TONIGHT opponent defensive on-net exposure']
+                if matchup is not None else
+                ['historicalOwnedGoalsFromSameShotOrigin',
+                 'historicalOnNetShotPressureOnlyWhenGoalsEqual']),
             'noFameOddsOrPPShortcut':True,
-            'rule':'direct same-origin NHL EDGE credited own goals; when tied use same-origin on-net shots, never combined weights',
+            'rule':('source-comparable current opponent physical-lane exposure; '
+                    'no past-goal selection when opponent comparison is available'
+                    if matchup is not None else
+                    'past goal recipient evidence only; fallback NOT proof of tonight goal'),
         })
     return all_defeated,rows
 
