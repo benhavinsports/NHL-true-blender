@@ -2716,7 +2716,15 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     if not games:
         msg={'reason':'No official NHL game data provided','stage':stage}
         log_job(con,f'{date}-{stage}',date,stage,'SOURCE_ERROR',msg,now=now)
-        return {'card':None,'errors':[msg['reason']],'gateRows':0,'scan':[]}
+        # Keep the normal execution contract even when there is no player
+        # pool. The CLI and evidence exporters still consume these fields;
+        # a missing schedule must report its source error, not crash later
+        # while printing a report that has already been persisted.
+        return {'card':None,'date':date,'stage':stage,'games':0,
+                'errors':[msg['reason']],'gateRows':0,'scan':[],
+                'eligibleSkaterRows':0,'g0Directions':0,'g0Complete':0,
+                'missingByGate':{},'preCoreQualifiedSurvivors':[],
+                'gameSurvivorPool':[]}
     prior_card=get_card(con,date)
     frozen_games=sorted(str(l['gameId']) for l in (prior_card or {}).get('current_legs',[])
                         if game_started(l,now))
