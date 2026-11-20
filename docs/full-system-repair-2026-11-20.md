@@ -28,7 +28,7 @@
 
 The first canonical-archive rerun collected and built its season bundles but stopped at a Git-index-dependent file verification check introduced during this repair. That check was corrected to compare actual extracted files. No scorer gates were bypassed.
 
-The frozen bundles from that run are being replayed using their own pinned engine in https://github.com/benhavinsports/NHL-true-blender/actions/runs/44816177284 . The evidence recovery workflow is committed on repair/historical-replay-resume. It verifies input hashes through the existing replay runner, runs the baseline separately, grades only issued certified cards, publishes per-slate audits, and fails if certification is incomplete. It does not write production selections.
+The resumed frozen-input run completed at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44816177284 . It verified the exact collector/scorer commit 575eb4deb4a93fd54dd354b2cadf6abd562ac22e, passed 502 tests plus five subtests, replayed all 50 scheduled slates, ran the baseline and official scorer research, and published its audits. Its actual summary is **0 fully completed slates, 0 graded leg opportunities, 0 goal hits**. The final certification step correctly failed; there was no replay software crash. Baseline comparison recorded 49 identical-input rows, one changed Core date and 44 changed G0 dates. These figures do not establish improved prediction quality. The recovery workflow is committed on repair/historical-replay-resume and does not write production selections.
 
 A fresh full source-collection run also continues at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44815935845 .
 
@@ -38,3 +38,11 @@ A fresh full source-collection run also continues at https://github.com/benhavin
 - Missing/ambiguous G0, roster, deployment and recipient-separation evidence must remain unresolved; no weights, goal-total fallback, forced path labels or manual scorer substitutions were added.
 - A real upcoming projected → confirmed research → authoritative saved card → individual puck-drop freeze → official-final grade cycle remains to be demonstrated with the repaired engine. Synthetic lifecycle tests and an idempotent prior-card grading retry are narrower evidence.
 - The recovered operational master was checked. It explicitly identifies itself as a reconstruction, not the independently recovered verbatim original manuscript. No separate complete original 17-situation list was recovered from the retrieved thread context.
+
+## Corrected production audits saved
+
+The backfill at https://github.com/benhavinsports/NHL-true-blender/actions/runs/44817656138 completed successfully. It reran the complete test suite, restored the verified canonical ledger, rebuilt all four already-graded cards' miss audits, and compared every original card field and official grade before persistence. All four original cards and grades remained identical. The full lossless ledger and corrected audit exports were committed to main.
+
+Receipt: https://github.com/benhavinsports/NHL-true-blender/blob/main/state/history/offday-audit-backfill-2026-11-20.json
+
+The November 16, 17 and 19 misses now each recover their 20 master records plus 16 independently recorded original-function checks. November 15's Morgan Frost and Evan Bouchard still have zero recoverable original pre-lock receipts. Their missing original evidence remains explicitly unresolved; it was not recreated after the result. Every missed selection remains marked PREGAME_GATE_REPLAY_REQUIRED, not a proven source-caused error or an automatically patched winner.
