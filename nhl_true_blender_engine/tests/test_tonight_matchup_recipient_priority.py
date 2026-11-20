@@ -40,7 +40,7 @@ def test_tonight_aligned_route_beats_more_old_goals():
     assert rows[0]["status"] == "DEFEATED"
     assert rows[0]["candidate"]["ownedGoals"] == 1
     assert rows[0]["challenger"]["ownedGoals"] == 7
-    assert rows[0]["decisionBasis"] == "TONIGHT_OPPONENT_GOALIE_AND_DEFENSE"
+    assert rows[0]["decisionBasis"] == "TONIGHT_OPPONENT_GOALIE_AND_DEFENSE_ALL_RIVAL_ROUTES"
     assert rows[0]["tonightMatchupComparison"]["result"] == "CANDIDATE"
     loser, rows = challenger_proof(
         rival, [candidate], goalie, list(defense["zoneConcessions"]),
@@ -66,4 +66,4 @@ def test_missing_real_matchup_evidence_never_fabricated():
         candidate, [rival], goalie, list(defense["zoneConcessions"]),
         opponent_coverage=defense)
     assert rows[0]["tonightMatchupComparison"] is None
-    assert rows[0]["decisionBasis"] == "HISTORICAL_OWN_FINISHING_FALLBACK_NOT_TONIGHT_PROOF"
+    assert rows[0]["decisionBasis"] == "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK"
