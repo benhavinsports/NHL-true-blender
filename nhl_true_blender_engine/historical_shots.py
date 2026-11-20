@@ -204,16 +204,12 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             pbp_errors.append({"gameId":game_id,"error":err})
         else:
             coverage_events.extend(rows)
-    # Distinguish an independently fetched PBP with zero goals from no PBP
-    # at all. A failed source must not count as a reconciled zero appearance.
-    pbp_verified_ids={str(gid) for gid,rows,err in results if err is None}
     target_events=[e for e in coverage_events if str(e["gameId"]) in target_ids]
     target_game_meta={gid:game_meta[gid] for gid in target_ids if gid in game_meta}
     # Only target-club games contribute to the candidate's actual appearances,
     # goal credits, pressure samples and historical defensive shift receipts.
     boxscore_receipts=await collect_sampled_boxes(
-        client,con,snapshot,slate_date,stage,target_ids,target_events,
-        pbp_verified_game_ids=pbp_verified_ids & set(target_ids))
+        client,con,snapshot,slate_date,stage,target_ids,target_events)
     shift_receipts=await collect_shift_coverage(
         target_ids,target_events,target_game_meta)
     # G9 uses every club's independently sampled recent PBP attempts to build
@@ -227,57 +223,19 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             for player in roster:
                 pid=player["id"]
                 summary=shooter_summary(target_events,pid)
-                # Use the paired, source-verified boxscore/PBP appearance list.
-                # The later pooled shot collector must not replace this with
-                # undated aggregate counts or invent zero-shot appearances.
-                pressure_rows=con.execute("""SELECT payload FROM evidence
-                    WHERE slate_date=? AND stage=? AND game_id=? AND player_id=?
-                      AND kind='PLAYER_PRESSURE'
-                    ORDER BY observed_at DESC, rowid DESC""",
-                    (slate_date,stage,str(game["id"]),str(pid))).fetchall()
-                pressure_data={}
-                for pressure_row in pressure_rows:
-                    candidate_data=json.loads(pressure_row["payload"])
-                    if (isinstance(candidate_data.get("recentAppearanceShots"),list)
-                        and isinstance(candidate_data.get("appearances"),list)):
-                        pressure_data=candidate_data
-                        break
-                appearance_rows=pressure_data.get("appearances") or []
-                appearance_ids=[str(x.get("gameId") or "") for x in appearance_rows]
-                source_urls_by_game={
-                    gid:sorted({e["sourceUrl"] for e in target_events
-                                if str(e.get("gameId"))==gid and e.get("sourceUrl")})
-                    for gid in appearance_ids if gid}
-                sample_complete=bool(appearance_rows) and (
-                    len(appearance_ids)==len(set(appearance_ids)) and
-                    all(gid and gid in pbp_verified_ids and source_urls_by_game.get(gid)
-                        for gid in appearance_ids) and
-                    all(isinstance(x.get("date"),str) and x["date"][:10]<slate_date
-                        for x in appearance_rows))
-                # An on-net PBP event with no usable rink origin makes this
-                # lane sample incomplete; it must never be treated as a zero.
-                unmapped_onnet=sum(
-                    1 for e in target_events
-                    if str(e.get("shooterId"))==str(pid) and e.get("type") in ON_NET
-                    and not set(filter(None,(
-                        conservative_zone(e.get("x"),e.get("y")),
-                        detailed_shot_origin_zone(e.get("x"),e.get("y"))))))
+                if not summary["attempts"]:
+                    continue
+                urls=sorted({e["sourceUrl"] for e in target_events if e["shooterId"]==str(pid)})
+                # Preserve dated, game-by-game positive shooter origin facts
+                # for independent tie review in G10.5. This receipt is not a
+                # fabricated future scorer and never overrides NHL EDGE goals.
                 origins=measured_recent_shooter_origins(target_events,pid)
-                sample_urls=sorted({u for values in source_urls_by_game.values()
-                                    for u in values})
-                if appearance_rows and sample_urls:
+                if origins:
+                    origin_urls=sorted({u for area in origins.values()
+                                        for u in area["sourceUrls"]})
                     origin_payload={"sourceType":"OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN",
                         "scope":"RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY",
-                        "zoneCounts":origins,
-                        "sampleAsOfSlateDate":slate_date,
-                        "sampleGameIds":appearance_ids,
-                        "sampleAppearanceCount":len(appearance_ids),
-                        "sampleSourcesByGame":source_urls_by_game,
-                        "sampleCoverageComplete":sample_complete and unmapped_onnet==0,
-                        "sampleIncludesActualZeroShotAppearances":True,
-                        "unclassifiedOnNetShots":unmapped_onnet,
-                        "sourceUrls":sample_urls,
-                        "rinkBinsApproximateNotNhlEdgePolygons":True,
+                        "zoneCounts":origins,"rinkBinsApproximateNotNhlEdgePolygons":True,
                         "historicalOwnGoalCreditOnly":True,
                         "notTonightGoalPrediction":True}
                     ingest(con,{"evidence_id":_versioned_receipt_id(
@@ -285,13 +243,9 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                             origin_payload),
                         "slate_date":slate_date,"stage":stage,"game_id":game["id"],
                         "player_id":pid,"kind":"PLAYER_RECENT_ORIGIN",
-                        "source_url":sample_urls[0],
+                        "source_url":origin_urls[0],
                         "observed_at":datetime.now(timezone.utc).isoformat(),
                         "payload":origin_payload})
-                if not summary["attempts"]:
-                    continue
-                urls=sorted({e["sourceUrl"] for e in target_events
-                             if str(e["shooterId"])==str(pid) and e.get("sourceUrl")})
                 payload={"recentAppearanceShots":summary["attempts"],
                          "shotsOnGoal":summary["shotsOnGoal"],
                          "ownedGoals":summary["ownedGoals"],
