@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 from .storage import stamp, transaction, encode, get_card
-from .engine import GATE_PATCHES, MASTER, OVERLAY
+from .engine import GATE_PATCHES, MASTER, OVERLAY, STEPS_BY_GATE
 
 REQUIRED = tuple(MASTER + OVERLAY)
 GATE_INDEX = {gate: index for index, gate in enumerate(MASTER[:-1] + OVERLAY + [MASTER[-1]])}
@@ -46,6 +46,29 @@ def _issued_gate_receipts(con, date, card, leg):
     stage = card.get("stage")
     issued = _timestamp(card.get("updated_at") or card.get("first_issued_at"))
     puck = _timestamp(leg.get("startUTC"))
+    if issued is not None and puck is not None:
+        versions = con.execute(
+            "SELECT stage,legs,created_at FROM card_versions "
+            "WHERE slate_date=? AND card_id=? ORDER BY revision DESC",
+            (date, card['card_id'])).fetchall()
+        if versions:
+            matched = None
+            for version in versions:
+                clock = _timestamp(version['created_at'])
+                if clock is None or clock > min(issued, puck):
+                    continue
+                if leg in json.loads(version['legs']):
+                    matched = (version['stage'], clock)
+                    break
+            if matched is None:
+                return {}, {'status': 'ORIGINAL_LOCK_VERSION_UNAVAILABLE', 'stage': stage}
+            stage, issued = matched
+    evidence_stage = stage
+    # MIXED describes the source statuses on a card produced by the
+    # CONFIRMED research pass. It is not a gates-table phase. Preserve those
+    # source labels while locating the actual original evaluation receipts.
+    if stage == 'MIXED':
+        stage = 'CONFIRMED'
     if stage not in ("PROJECTED", "CONFIRMED") or issued is None or puck is None:
         return {}, {"status": "ORIGINAL_LOCK_TIMESTAMP_UNAVAILABLE", "stage": stage}
     cutoff = min(issued, puck)
@@ -64,9 +87,31 @@ def _issued_gate_receipts(con, date, card, leg):
                 receipts[row["gate"]] = (measured, row)
             if table == "gate_history":
                 archived_count += 1
-    return {gate: item[1] for gate, item in receipts.items()}, {
+    original = {gate: item[1] for gate, item in receipts.items()}
+    # Unified traces retain the original functions inside their owning gate.
+    # Audit those exact recorded observations, not nonexistent extra Step rows
+    # and not a copy of the master gate's PASS.
+    for gate, row in list(original.items()):
+        detail = json.loads(row['details'])
+        for fn in (detail.get('evidence') or {}).get('originalFunctionEvidence') or []:
+            if not isinstance(fn, dict):
+                continue
+            step = fn.get('step')
+            evidence = fn.get('evidence') or {}
+            if (step not in STEPS_BY_GATE.get(gate, []) or step in original
+                    or evidence.get('independentOverlayEvaluation') is not True
+                    or evidence.get('checkedBeforeG18') is not True
+                    or evidence.get('masterGateVerdictCopied') is not False):
+                continue
+            original[step] = {**dict(row), 'gate': step,
+                'disposition': fn.get('disposition'),
+                'details': encode({'evidence': evidence,
+                    'sourceIds': fn.get('sourceIds') or [],
+                    'embeddedInOriginalMasterGate': gate})}
+    return original, {
         "status": "ISSUANCE_ANCHORED_GATE_RECEIPTS",
         "stage": stage, "issuedAt": issued.isoformat(), "puckDrop": puck.isoformat(),
+        "cardEvidenceStage": evidence_stage,
         "archivedPregameRowsConsidered": archived_count,
         "crossStageRowsNeverOverrideOriginalCard": True,
         "postIssuanceRowsExcluded": True,

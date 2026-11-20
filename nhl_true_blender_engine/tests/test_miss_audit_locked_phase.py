@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import nhl_true_blender_engine.audit as audit
-from nhl_true_blender_engine.engine import MASTER, OVERLAY
+from nhl_true_blender_engine.engine import MASTER, OVERLAY, STEPS_BY_GATE
 from nhl_true_blender_engine.storage import open_db
 
 DATE = "2026-11-16"
@@ -74,6 +74,60 @@ def test_confirmed_locked_card_keeps_actual_confirmed_gap(tmp_path, monkeypatch)
     assert result[0]["earliestGate"] == "G2"
     assert result[0]["conclusion"] == "ORIGINAL_LOCK_GATE_RECEIPTS_UNVERIFIED"
     assert result[0]["patchesToAudit"] == []
+    db.close()
+
+
+def test_mixed_card_reads_confirmed_research_without_promoting_source_status(tmp_path, monkeypatch):
+    db = _setup(tmp_path, monkeypatch, stage='MIXED', confirmed_gap=False)
+    db.execute('UPDATE gates SET evaluated_at=?', (PREGAME,))
+    card = audit.get_card(db, DATE)
+    rows, scope = audit._issued_gate_receipts(db, DATE, card, card['current_legs'][0])
+    assert len(rows) == len(MASTER + OVERLAY)
+    assert scope['stage'] == 'CONFIRMED'
+    assert scope['cardEvidenceStage'] == 'MIXED'
+    assert card['stage'] == 'MIXED'
+    db.close()
+
+
+def test_frozen_leg_audit_uses_its_own_pre_puck_card_version(tmp_path, monkeypatch):
+    db = _setup(tmp_path, monkeypatch, stage='MIXED')
+    card = audit.get_card(db, DATE)
+    card['updated_at'] = '2026-11-16T20:00:00-05:00'
+    for revision, stage, clock in [(1, 'PROJECTED', LOCK),
+                                   (2, 'MIXED', card['updated_at'])]:
+        db.execute('INSERT INTO card_versions VALUES (?,?,?,?,?,?,?,?,?)',
+                   (f'v{revision}', DATE, card['card_id'], revision, stage,
+                    card['fingerprint'], json.dumps(card['current_legs']), '{}', clock))
+    rows, scope = audit._issued_gate_receipts(db, DATE, card, card['current_legs'][0])
+    assert len(rows) == len(MASTER + OVERLAY)
+    assert scope['stage'] == 'PROJECTED'
+    assert scope['issuedAt'] == LOCK
+    assert all(r['disposition'] == 'PASS' for r in rows.values())
+    db.close()
+
+
+def test_unified_original_functions_are_audited_without_invented_extra_gate_rows(tmp_path, monkeypatch):
+    db = _setup(tmp_path, monkeypatch)
+    db.execute("DELETE FROM gate_history WHERE gate LIKE 'Step%'")
+    for gate, steps in STEPS_BY_GATE.items():
+        functions = [{'step': step, 'disposition': 'PASS',
+                      'sourceIds': ['https://nhl.com/source'],
+                      'evidence': {'independentOverlayEvaluation': True,
+                                   'checkedBeforeG18': True,
+                                   'masterGateVerdictCopied': False}} for step in steps]
+        db.execute('UPDATE gate_history SET details=? WHERE gate=?',
+                   (json.dumps({'evidence': {'originalFunctionEvidence': functions}}), gate))
+    card = audit.get_card(db, DATE)
+    rows, _ = audit._issued_gate_receipts(db, DATE, card, card['current_legs'][0])
+    assert len(rows) == len(MASTER + OVERLAY)
+    assert db.execute('SELECT COUNT(*) FROM gate_history').fetchone()[0] == len(MASTER)
+    # A failed internal function cannot inherit its owning gate's PASS.
+    detail = json.loads(db.execute("SELECT details FROM gate_history WHERE gate='G4'").fetchone()[0])
+    detail['evidence']['originalFunctionEvidence'][0]['disposition'] = 'NOT_EXECUTED'
+    db.execute("UPDATE gate_history SET details=? WHERE gate='G4'", (json.dumps(detail),))
+    rows, _ = audit._issued_gate_receipts(db, DATE, card, card['current_legs'][0])
+    failed = detail['evidence']['originalFunctionEvidence'][0]['step']
+    assert rows[failed]['disposition'] == 'NOT_EXECUTED'
     db.close()
 
 
