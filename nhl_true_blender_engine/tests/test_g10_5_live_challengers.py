@@ -51,7 +51,7 @@ def test_unresolved_rival_cannot_eliminate(tmp_path, monkeypatch):
     def all_unresolved(results):
         real_stop(results)
         return {str(r['player']['id']):'G6:NOT_EXECUTED' for r in results}
-    def dominated(player,rivals,weak,green):
+    def dominated(player,rivals,weak,green,opponent_coverage=None):
         return False,[{'challengerId':str(r['id']),'status':'RIVAL_DOMINATES',
                        'sameLane':True,'sourceUrls':[]} for r in rivals]
     monkeypatch.setattr(engine,'stopped_before_g10_5',all_unresolved)
