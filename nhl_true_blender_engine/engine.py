@@ -481,58 +481,89 @@ def independently_dated_origin_route(player,zone):
 
 
 def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage):
-    """Compare THIS opposing goalie's source-reported vulnerability and THIS
-    opponent's measured defensive exposure, not the skaters' past goal totals.
+    """Source-comparable G0 + G9 opponent vulnerability for two scoring lanes.
 
-    Only same-population NHL EDGE goalie-area percentiles and independently
-    sourced, comparable defense on-net concessions are accepted. If either
-    metric is missing or they disagree, no winner is invented. These are
-    pregame matchup indicators, never a guarantee of a goal tonight.
+    One opposing goalie is shared between the players; no skater's historical
+    GOALS can declare a winner. NHL EDGE league and source-consistent PBP
+    sampled-peer percentiles are *different populations*, not interchangeable.
+    The defender may be independently vulnerable in on-net shots OR attempts.
+    Compare identical methods only; otherwise preserve unresolved status.
     """
-    if not isinstance(goalie_zones, dict) or not isinstance(coverage, dict):
+    if not isinstance(goalie_zones,dict) or not isinstance(coverage,dict):
         return None
-    if candidate_zone == rival_zone:
+    if candidate_zone==rival_zone:
         return None
-    zones = coverage.get("zoneConcessions") or {}
+    zones=coverage.get("zoneConcessions") or {}
     def observed(zone):
-        goalie = goalie_zones.get(zone) or {}
-        defense = zones.get(zone) or {}
-        percentile = goalie.get("leagueSavePctgPercentile")
-        shots = goalie.get("shotsAgainst")
-        goals = goalie.get("goalsAgainst")
-        exposed = defense.get("onNetShotsPerGame")
-        peer = defense.get("peerMedianOnNetShotsPerGame")
-        if not (type(percentile) in (int, float) and 0 <= percentile <= 1
-                and type(shots) is int and shots >= 20
-                and type(goals) is int and 0 <= goals <= shots
-                and type(exposed) in (int, float) and exposed > 0
-                and type(peer) in (int, float) and peer > 0
-                and defense.get("independentOnNetConcessionReview") is True
-                and "ON_NET_SHOTS_AGAINST_PEER" in
-                    (defense.get("positiveConcessionBases") or [])):
+        goalie=goalie_zones.get(zone) or {}
+        defense=zones.get(zone) or {}
+        shots=goalie.get("shotsAgainst"); goals=goalie.get("goalsAgainst")
+        if not (type(shots) is int and shots>=20 and
+                type(goals) is int and 0<=goals<=shots):
             return None
-        # Both normalizations come from published peer comparisons; no
-        # invented scoring weights or additions of unrelated quantities.
-        return {"savePercentile":percentile,
-                "defensiveOnNetVsPeer":exposed / peer,
-                "goalieSource":goalie.get("sourceUrl")}
-    a, b = observed(candidate_zone), observed(rival_zone)
-    if a is None or b is None:
+        league=goalie.get("leagueSavePctgPercentile")
+        sampled=goalie.get("samplePeerSavePctgPercentile")
+        if type(league) in (int,float) and 0<=league<=1:
+            method="NHL_EDGE_LEAGUE"
+            pct=league
+        elif (type(sampled) in (int,float) and 0<=sampled<=1
+              and type(goalie.get("peerGoaliesSampled")) is int
+              and goalie["peerGoaliesSampled"]>=4
+              and goalie.get("samplePeerPopulationStable") is True
+              and goalie.get("samplePeerPopulationId")):
+            method="OFFICIAL_PBP_STABLE_PEERS:"+str(goalie["samplePeerPopulationId"])
+            pct=sampled
+        else:
+            return None
+        supported=defense.get("positiveConcessionBases") or []
+        options={}
+        onnet=defense.get("onNetShotsPerGame")
+        peer_net=defense.get("peerMedianOnNetShotsPerGame")
+        if ("ON_NET_SHOTS_AGAINST_PEER" in supported and
+            defense.get("independentOnNetConcessionReview") is True and
+            type(onnet) in (int,float) and type(peer_net) in (int,float) and
+            onnet>peer_net>0):
+            options["G9_ON_NET_VS_PEERS"]=onnet/peer_net
+        attempts=defense.get("attemptsPerGame")
+        peer_attempts=defense.get("peerMedianAttemptsPerGame")
+        if ("ATTEMPTS_AGAINST_PEER" in supported and
+            type(attempts) in (int,float) and
+            type(peer_attempts) in (int,float) and
+            attempts>peer_attempts>0):
+            options["G9_ATTEMPTS_VS_PEERS"]=attempts/peer_attempts
+        if not options:
+            return None
+        return {"savePercentile":pct, "goaliePeerMethod":method,
+                "defensiveMethods":options,"goalieSource":goalie.get("sourceUrl")}
+    a,b=observed(candidate_zone),observed(rival_zone)
+    if a is None or b is None or a["goaliePeerMethod"]!=b["goaliePeerMethod"]:
         return None
-    a_better = (a["savePercentile"] <= b["savePercentile"] and
-                a["defensiveOnNetVsPeer"] >= b["defensiveOnNetVsPeer"])
-    b_better = (b["savePercentile"] <= a["savePercentile"] and
-                b["defensiveOnNetVsPeer"] >= a["defensiveOnNetVsPeer"])
-    if a_better == b_better:
-        result = "UNSEPARATED"
+    # On-net direct scoring opportunity is the first common comparable
+    # method. When not shared, attempts against peers is independently
+    # admissible under the original G9. No combined scoring weights.
+    common=set(a["defensiveMethods"]) & set(b["defensiveMethods"])
+    if "G9_ON_NET_VS_PEERS" in common:
+        method="G9_ON_NET_VS_PEERS"
+    elif "G9_ATTEMPTS_VS_PEERS" in common:
+        method="G9_ATTEMPTS_VS_PEERS"
     else:
-        result = "CANDIDATE" if a_better else "RIVAL"
-    return {"result": result, "candidate": a, "rival": b,
-            "candidateZone": candidate_zone, "rivalZone": rival_zone,
-            "sourceScope": "SAME_OPPONENT_GOALIE_AND_DEFENSE_PREPUCK",
-            "noHistoricalGoalsUsedForDecision": True,
-            "notGoalMouthAnatomy": True,
-            "noWeightsOrOdds": True}
+        return None
+    a_exposure=a["defensiveMethods"][method]
+    b_exposure=b["defensiveMethods"][method]
+    a_better=(a["savePercentile"]<=b["savePercentile"] and
+              a_exposure>=b_exposure)
+    b_better=(b["savePercentile"]<=a["savePercentile"] and
+              b_exposure>=a_exposure)
+    result=("UNSEPARATED" if a_better==b_better else
+            "CANDIDATE" if a_better else "RIVAL")
+    return {"result":result,"candidate":a,"rival":b,
+            "candidateZone":candidate_zone,"rivalZone":rival_zone,
+            "comparableGoaliePeerMethod":a["goaliePeerMethod"],
+            "comparableDefenseConcessionMethod":method,
+            "sourceScope":"SAME_OPPONENT_GOALIE_AND_DEFENSE_PREPUCK",
+            "noHistoricalGoalsUsedForDecision":True,
+            "notGoalMouthAnatomy":True,"noWeightsOrOdds":True}
+
 
 
 def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
