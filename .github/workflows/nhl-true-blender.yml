@@ -320,8 +320,14 @@ jobs:
               for problem in problems:
                   print('::error::'+problem)
               raise SystemExit('BLENDER EXECUTION FAILED CERTIFICATION; evidence was preserved')
-          print('BLENDER VERIFIED: original selected Core, phase and canonical evidence match.')
-          print('Full slate completeness is reported separately; a valid Core is not a 12/12 survivor guarantee.')
+          if mode in ('projected','confirmed'):
+              print('BLENDER CORE VERIFIED: original selected Core, phase and canonical evidence match.')
+              print('Full slate completeness is reported separately; a valid Core is not a 12/12 survivor guarantee.')
+          elif mode == 'grade':
+              print('BLENDER GRADE PHASE VERIFIED: run completed; NO scorer Core issuance or selection certification was asserted.')
+              print('A grade-mode success is not proof any historical replay slate or new Core was certified.')
+          else:
+              print('BLENDER WATCH PHASE VERIFIED: monitoring completed; NO new Core issuance was asserted.')
           PY
       - name: Publish engine execution diagnostics
         if: always()
