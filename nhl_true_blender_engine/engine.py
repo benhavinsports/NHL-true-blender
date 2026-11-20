@@ -1601,6 +1601,8 @@ def finalist_route_evidence(item):
         'ownShotsOnGoalInMatchedLane':release.get('attempts'),
         'opponentGoalieZone':(goalie.get('weakZones') or {}).get(zone),
         'opponentDefenseZone':(coverage_data.get('zoneConcessions') or {}).get(zone),
+        'goalieSamplePeerPopulationId':goalie.get('samplePeerPopulationId'),
+        'goalieSamplePeerPopulationStable':goalie.get('samplePeerPopulationStable'),
         'goalieProfileSourceUrl':(item.get('targetGoalie') or {}).get('sourceUrl'),
         'defensiveCoverageSourceUrl':coverage.get('sourceUrl') if receipt(coverage) else None,
         'goalieStatus':goalie.get('status'),
@@ -1609,35 +1611,60 @@ def finalist_route_evidence(item):
 
 
 def _route_vector(ev):
-    """A same-method partial order, with *measured matchup* first.
+    """G16 compares opponent vulnerability only within identical peer methods.
 
-    When source data is insufficient, comparison is unresolved. Historical
-    goal/shot totals are never a fallback winner criterion.
+    NHL EDGE league percentiles are NOT equivalent to locally measured
+    NHL PBP peer percentiles. PBP comparison requires the same independently
+    sourced, fixed pregame population; the collector must retain its ID.
+    G9 can certify either on-net or shot-attempt concessions. Those methods
+    are also incomparable and never combined into an invented weighted score.
     """
     goalie=ev.get('opponentGoalieZone') or {}
     defense=ev.get('opponentDefenseZone') or {}
-    percentile=goalie.get('leagueSavePctgPercentile')
+    league=goalie.get('leagueSavePctgPercentile')
+    sample=goalie.get('samplePeerSavePctgPercentile')
     gshots=goalie.get('shotsAgainst')
     ggoals=goalie.get('goalsAgainst')
-    exposed=defense.get('onNetShotsPerGame')
-    peer=defense.get('peerMedianOnNetShotsPerGame')
-    if (type(percentile) in (int,float) and 0<=percentile<=1
-            and type(gshots) is int and gshots>=20
-            and type(ggoals) is int and 0<=ggoals<=gshots
-            and type(exposed) in (int,float) and exposed>0
-            and type(peer) in (int,float) and peer>0
-            and defense.get('independentOnNetConcessionReview') is True
-            and 'ON_NET_SHOTS_AGAINST_PEER' in
-                (defense.get('positiveConcessionBases') or [])
-            and ev.get('goalieProfileSourceUrl')
-            and ev.get('defensiveCoverageSourceUrl')):
-        return ('TONIGHT_MATCHUP_OPPONENT_EXPOSURE', 1-percentile, exposed/peer,
-                _STATUS_LEVEL.get(ev['goalieStatus'],0),
-                _STATUS_LEVEL.get(ev['deploymentStatus'],0))
-    # Missing goalie / defense comparison is NOT permission to select from
-    # historical finishing counts. Retain the unresolved candidate for source
-    # research, but do not let it dominate or be defeated by past goals.
-    return None
+    if (type(gshots) is not int or gshots<20 or type(ggoals) is not int
+            or not 0<=ggoals<=gshots
+            or not ev.get('goalieProfileSourceUrl')
+            or not ev.get('defensiveCoverageSourceUrl')):
+        return None
+    if type(league) in (int,float) and 0<=league<=1:
+        goalie_method='NHL_EDGE_LEAGUE_SAVEPCTG_PERCENTILE'
+        percentile=league
+    elif (type(sample) in (int,float) and 0<=sample<=1
+          and type(goalie.get('peerGoaliesSampled')) is int
+          and goalie['peerGoaliesSampled']>=4
+          and ev.get('goalieSamplePeerPopulationStable') is True
+          and ev.get('goalieSamplePeerPopulationId')):
+        goalie_method=('OFFICIAL_PBP_STABLE_PEERS:'+
+                       str(ev['goalieSamplePeerPopulationId']))
+        percentile=sample
+    else:
+        return None
+    methods=defense.get('positiveConcessionBases') or []
+    on_net=defense.get('onNetShotsPerGame')
+    on_net_peer=defense.get('peerMedianOnNetShotsPerGame')
+    attempts=defense.get('attemptsPerGame')
+    attempts_peer=defense.get('peerMedianAttemptsPerGame')
+    if ('ON_NET_SHOTS_AGAINST_PEER' in methods
+        and defense.get('independentOnNetConcessionReview') is True
+        and type(on_net) in (int,float) and type(on_net_peer) in (int,float)
+        and on_net>on_net_peer>0):
+        defense_method='G9_INDEPENDENT_ON_NET_VS_PEERS'
+        exposure=on_net/on_net_peer
+    elif ('ATTEMPTS_AGAINST_PEER' in methods
+          and type(attempts) in (int,float)
+          and type(attempts_peer) in (int,float)
+          and attempts>attempts_peer>0):
+        defense_method='G9_OFFICIAL_ATTEMPTS_VS_PEERS'
+        exposure=attempts/attempts_peer
+    else:
+        return None
+    return (goalie_method+'|'+defense_method,1-percentile,exposure,
+            _STATUS_LEVEL.get(ev['goalieStatus'],0),
+            _STATUS_LEVEL.get(ev['deploymentStatus'],0))
 
 
 def _dominates(a,b):
@@ -1700,8 +1727,8 @@ def g16_cross_game_finalists(finalists, required):
         'finalists':rows,
         'retainedPlayerIds':[rows[i]['playerId'] for i in retained],
         'excludedPlayerIds':[rows[i]['playerId'] for i in excluded],
-        'comparisonDimensions':['G0 goalie-area league save percentile (lower is more vulnerable)',
-            'G9 opponent on-net lane concessions relative to league peer (higher is more exposed)',
+        'comparisonDimensions':['G0 NHL EDGE league or source-proven stable PBP peer save-percentile (never mixed)',
+            'G9 source-positive on-net or shot-attempt concessions vs peers (never mixed)',
             'G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)',
             'G17 deploymentStatus (CONFIRMED > PROJECTED)',
             'Historical goals/shots: context only; NEVER a fallback selection'],
