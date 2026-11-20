@@ -374,11 +374,10 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
     green=set(defense.get('greenWeakZones') or [])
     jointly_sourced=[x for x in matching if x['zone'] in green]
     considered=jointly_sourced if jointly_sourced else matching
-    # This is TONIGHT'S goalie and defense, not a ranking of what the player
-    # scored against previous opponents. If one own-shooting origin has
-    # strictly better independently sourced matchup exposure than EVERY
-    # other jointly viable origin, it owns today's physical route choice.
-    # Unmeasured or conflicting exposure must not be made into a fake win.
+    # Selecting from multiple goalie-and-defense viable origins by historic
+    # goal count is not a TONIGHT decision. A sole verified route is enough;
+    # otherwise every alternative must be defeated by source-comparable
+    # opponent-specific goalie AND defensive exposure observations.
     matchup_winners=(
         [own for own in considered if all(
             own is other or
@@ -387,40 +386,22 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
                     == 'CANDIDATE'
             for other in considered)]
         if len(considered)>1 and jointly_sourced else [])
-    matchup_aligned=len(matchup_winners)==1
-    if matchup_aligned:
-        top=matchup_winners[0]
-        tied=[top]
-    else:
-        considered.sort(key=lambda x:(x['ownedGoals'],x['sog']),reverse=True)
-        top=considered[0]
-        tied=[x for x in considered if
-              (x['ownedGoals'],x['sog'])==(top['ownedGoals'],top['sog'])]
+    matchup_aligned=len(considered)==1 or len(matchup_winners)==1
+    if not matchup_aligned:
+        # Preserve the original release WITHOUT manufacturing a new lane.
+        # G5 explicitly records this as unresolved and G18 cannot select it.
+        result=dict(player)
+        result['release']={**wrapper,'data':{
+            **base,
+            'tonightRouteSelectionBasis':'UNRESOLVED_MATCHUP_NO_HISTORICAL_FALLBACK',
+            'tonightRouteUnresolved':True,
+            'consideredOwnGoalieWeakRoutes':sorted(x['zone'] for x in matching),
+            'jointlyDefenseSupportedRoutes':sorted(x['zone'] for x in jointly_sourced),
+            'historicalTotalsCannotResolveTonightRoute':True,
+        }}
+        return result
+    top=considered[0] if len(considered)==1 else matchup_winners[0]
     tied_origin_evidence=None
-    if len(tied)>1:
-        # Never discard jointly G0/G9-supported strongest OWN scoring lanes
-        # and silently revert to a weaker default EDGE area. Resolve a tie
-        # only from the same player's independently dated OFFICIAL PBP origin
-        # rows, with identical source scope across ALL tied lanes. PBP bins
-        # are approximate rink origins, not NHL EDGE anatomical polygons.
-        observed_ties=[(x,independently_dated_origin_route(player,x['zone']))
-                       for x in tied]
-        if any(observation is None for _,observation in observed_ties):
-            return player  # no unsupported or arbitrary lane winner
-        priority=lambda item:(item[1]['ownedGoals'],item[1]['shotsOnGoal'])
-        best=max(priority(item) for item in observed_ties)
-        winners=[item for item in observed_ties if priority(item)==best]
-        if len(winners)!=1:
-            return player  # exact source tie remains unresolved
-        top=winners[0][0]
-        tied_origin_evidence={
-            'method':'INDEPENDENT_DATED_OFFICIAL_SHOOTER_PBP_ORIGIN',
-            'matchedTiedNhlEdgeOrigins':[x['zone'] for x in tied],
-            'datedRouteEvidence':[
-                {'zone':x['zone'],**observation} for x,observation in observed_ties],
-            'noArbitraryLaneSelection':True,
-            'notAnatomicalPlacement':True,
-        }
     observed=dict(base)
     observed.update({
         'archetype':base.get('archetype') or 'OBSERVED_OWN_SHOT_ORIGIN',
@@ -435,9 +416,10 @@ def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
         'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
         'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
         'tonightRouteSelectionBasis':(
-            'G0_GOALIE_G9_DEFENSE_MATCHUP_DOMINANCE'
-            if matchup_aligned else
-            'HISTORICAL_OWN_ORIGIN_FALLBACK_NOT_TONIGHT_PROOF'),
+            'ONLY_JOINTLY_VIABLE_ORIGIN' if len(considered)==1 else
+            'G0_GOALIE_G9_DEFENSE_MATCHUP_DOMINANCE'),
+        'tonightRouteUnresolved':False,
+        'historicalTotalsCannotResolveTonightRoute':True,
         'datedPbpLaneTieResolution':tied_origin_evidence,
         'anatomicalPlacementCertified':False,
         'noPreG0SkaterPreference':True
@@ -1135,9 +1117,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     emit('G4',bool(release), {'archetype':release.get('archetype') if release else None,
          'ownRelease':release},source_ids=[player.get('release',{}).get('sourceUrl','')])
     overlap=bool(release and release['zone'] in weak)
-    emit('G5',bool(weak and release) and overlap,
+    emit('G5',bool(weak and release) and overlap and
+         not (release or {}).get('tonightRouteUnresolved',False),
          {'shooterZone':release['zone'] if release else None,'weakZones':weak,
-          'goalieStrengthZones':strong},
+          'goalieStrengthZones':strong,
+          'tonightRouteSelectionBasis':(release or {}).get('tonightRouteSelectionBasis'),
+          'historicalTotalsCannotResolveTonightRoute':True,
+          'tonightRouteUnresolved':(release or {}).get('tonightRouteUnresolved',False)},
          eliminate=bool(weak and release and not overlap),
          source_ids=list(filter(None,[player.get('release',{}).get('sourceUrl'),
              goalie_profile['data'].get('goalieProfileSourceUrl'),goalie_profile['sourceUrl']])))
