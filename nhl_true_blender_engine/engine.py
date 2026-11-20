@@ -2726,11 +2726,6 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 'missingByGate':{},'preCoreQualifiedSurvivors':[],
                 'gameSurvivorPool':[]}
     prior_card=get_card(con,date)
-    # Postgame-only, SOURCE-VERIFIED guards activated for strictly EARLIER
-    # slates are enforced on this slate's scorer candidates. The guard
-    # cannot force a selection or modify any pre-existing locked Core.
-    from .postgame_recalibration import active_guards, apply_active_guards
-    future_guards=active_guards(con,date)
     frozen_games=sorted(str(l['gameId']) for l in (prior_card or {}).get('current_legs',[])
                         if game_started(l,now))
     scan,g0_direction_notes=g0_full_slate(games,stage)
@@ -2928,10 +2923,6 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 # goalie-first selection; never infer direction from a PASS.
                 result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage,
                                               stopped_before_g10_5=stopped,defer_g18=True)
-                # Guard enforcement belongs AFTER all original independent
-                # G0-G17/overlay checks and BEFORE the game survivor pool,
-                # G16 and G18. A recorded false PASS cannot slip into Core.
-                result,traces,_=apply_active_guards(result,traces,future_guards)
                 records+=traces
                 deferred_g18.append((match,result))
                 stop=next((g for g in MASTER[:-1] if
