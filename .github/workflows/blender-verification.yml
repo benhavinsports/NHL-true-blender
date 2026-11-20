@@ -72,21 +72,26 @@ jobs:
           assert Path('site/app.js').is_file() and Path('site/styles.css').is_file()
           print('Frontend passed syntax, unique IDs, evidence drilldown and asset linkage')
           PY
-      - name: Inspect recorded pre-Core survivor evidence (read-only)
+      - name: Inspect actual saved pre-Core evidence from checked chunked ledger
         run: |
+          # The current canonical ledger lives in verified gzip chunks, not
+          # state/true_blender.sqlite.gz. Never silently skip this inspection.
+          python scripts/ledger_persistence.py restore
           python - <<'PY'
-          import gzip, json, os, shutil, sqlite3, tempfile
+          import json, sqlite3
           from pathlib import Path
-          source=Path('state/true_blender.sqlite.gz')
+          source=Path('state/true_blender.sqlite')
+          manifest=Path('state/true_blender.sqlite.chunks.json')
+          if manifest.exists() and not source.exists():
+              raise RuntimeError('A chunked saved ledger exists but was not restored')
           if not source.exists():
-              print('Saved database not available for diagnostic')
+              print('No saved ledger exists on initial setup; synthetic regressions follow')
           else:
-              with tempfile.TemporaryDirectory() as tmp:
-                  database=Path(tmp)/'blender.sqlite'
-                  with gzip.open(source,'rb') as inp,open(database,'wb') as out:
-                      shutil.copyfileobj(inp,out)
-                  con=sqlite3.connect(str(database))
-                  con.row_factory=sqlite3.Row
+              con=sqlite3.connect(f'file:{source}?mode=ro',uri=True)
+              con.row_factory=sqlite3.Row
+              try:
+                  total=con.execute('SELECT COUNT(*) FROM gates').fetchone()[0]
+                  print('VERIFIED_SAVED_GATE_ROWS',total)
                   for pid,name in [('8477933','Reinhart'),('8482116','Stutzle'),
                                    ('8474716','Spurgeon'),('8484227','Smith')]:
                       rows=con.execute("""
@@ -100,18 +105,18 @@ jobs:
                           details=json.loads(row['details'])
                           ev=details.get('evidence') or {}
                           rec=ev.get('eventLogReconciled') or {}
-                          pressure=ev.get('recentOwnAttempts')
-                          print('ORIGINAL_SURVIVOR_EVIDENCE',
-                                json.dumps({'player':name,'stage':row['stage'],
-                                  'gate':row['gate'],'disposition':row['disposition'],
-                                  'appearanceDates':rec.get('appearanceDates'),
-                                  'distinctGoalDates':rec.get('distinctGoalDates'),
-                                  'sampleGoals':rec.get('officialGoals'),
-                                  'recentOwnAttempts':pressure,
-                                  'routeOwnedGoals':(ev.get('ownRelease') or {}).get('ownedGoals'),
-                                  'G17Unresolved':(ev.get('counterevidence') or {}).get('unresolved'),
-                                  'firstElimination':ev.get('alreadyEliminatedAtGate'),
-                                  'evaluatedAt':row['evaluated_at']},sort_keys=True))
+                          print('ORIGINAL_SURVIVOR_EVIDENCE',json.dumps({
+                              'player':name,'stage':row['stage'],
+                              'gate':row['gate'],'disposition':row['disposition'],
+                              'appearanceDates':rec.get('appearanceDates'),
+                              'distinctGoalDates':rec.get('distinctGoalDates'),
+                              'sampleGoals':rec.get('officialGoals'),
+                              'recentOwnAttempts':ev.get('recentOwnAttempts'),
+                              'routeOwnedGoals':(ev.get('ownRelease') or {}).get('ownedGoals'),
+                              'G17Unresolved':(ev.get('counterevidence') or {}).get('unresolved'),
+                              'firstElimination':ev.get('alreadyEliminatedAtGate'),
+                              'evaluatedAt':row['evaluated_at']},sort_keys=True))
+              finally:
                   con.close()
           PY
       - name: G0-first G1-G18 and overlay integration regression
