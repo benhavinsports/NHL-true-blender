@@ -42,6 +42,12 @@ def verify_published_core(root: Path, date: str):
     run = _read(root, date, "site_runs")
     card = _read(root, date, "site_cards")
     gates = _read(root, date, "site_gates")
+    if run.get('executionPurpose')=='FROZEN_CORE_CONTINUATION':
+        from scripts.frozen_core_continuation import verify_frozen_continuation
+        _require(run.get('selectedCoreFullyCertified') is True and
+                 run.get('publishedToSite') is True,
+                 'frozen Core continuation did not pass current source review')
+        return verify_frozen_continuation(root,date,run)
     _require(run.get("slateDate") == card.get("slateDate") ==
              gates.get("slateDate") == date, "slate date disagreement")
     _require(run.get("stage") in ("PROJECTED", "CONFIRMED"), "invalid run phase")

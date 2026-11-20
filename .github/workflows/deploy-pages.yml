@@ -69,6 +69,13 @@ jobs:
               if not run_path.exists():
                   return True
               run=json.loads(run_path.read_text(encoding='utf-8'))
+              if run.get('executionPurpose')=='FROZEN_CORE_CONTINUATION':
+                  from scripts.frozen_core_continuation import verify_frozen_continuation
+                  try:
+                      proof=verify_frozen_continuation(root,date,run)
+                      return proof.get('verified') is True
+                  except (AssertionError,ValueError,KeyError,OSError,TypeError):
+                      return False
               survivors=run.get('preCoreQualifiedSurvivors')
               if not isinstance(survivors,list) or not survivors:
                   return True  # Grade-only or older receipts are not reparsed.

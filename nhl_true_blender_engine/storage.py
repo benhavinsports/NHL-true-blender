@@ -174,7 +174,7 @@ def save_gates(con, date, stage, records, now=None):
             payload=[row[k] for k in (
                 'slate_date','stage','game_id','player_id',
                 'gate','disposition','details')]
-            digest=hashlib.sha256(encode(payload).encode('utf-8')).hexdigest()
+            digest=hashlib.sha256(encode([*payload,row['evaluated_at']]).encode('utf-8')).hexdigest()
             con.execute(
                 """INSERT OR IGNORE INTO gate_history
                    (snapshot_hash,slate_date,stage,game_id,player_id,

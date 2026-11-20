@@ -287,6 +287,37 @@ def export_run(con, slate_date, stage, result, root='state'):
         and census.get('copiedOverlayReceiptCount') == 0
         and census.get('twoDirectionsPerScheduledGameRecorded') is True
     )
+    if result.get('frozenCardContinuation'):
+        from nhl_true_blender_engine.storage import get_card
+        from scripts.frozen_core_continuation import (
+            capture_current_incumbent_reviews,verify_frozen_continuation)
+        canonical=get_card(con,slate_date)
+        prior=root/'site_cards'/f'{slate_date}.json'
+        locked=_active_saved_card(prior)
+        proof=dict(result['frozenCardContinuation'])
+        if canonical:
+            proof['incumbentReviews']=capture_current_incumbent_reviews(
+                con,slate_date,stage,canonical)
+        status.update(frozenCardContinuation=proof,
+            executionPurpose='FROZEN_CORE_CONTINUATION',
+            cardId=(locked or {}).get('cardId'),
+            fingerprint=(locked or {}).get('fingerprint'),
+            retainedOriginalLockedCard=bool(locked),
+            publishedToSite=bool(locked and locked.get('verified') is True),
+            selectedCoreFullyCertified=False,currentRunFullyCertified=False,
+            publicationDecision='FROZEN_CORE_CURRENT_REVIEW_INCOMPLETE')
+        try:
+            if not canonical or not locked or canonical['fingerprint']!=locked.get('fingerprint') or canonical['revision']!=locked.get('revision'):
+                raise AssertionError('Canonical frozen card and published revision differ')
+            status['frozenContinuationVerification']=verify_frozen_continuation(root,slate_date,status)
+        except (AssertionError,ValueError,KeyError,OSError,TypeError) as exc:
+            status['frozenContinuationGaps']=[str(exc)]
+        else:
+            status.update(selectedCoreFullyCertified=True,
+                currentRunFullyCertified=not bool(result.get('errors')),
+                publicationDecision='FROZEN_CORE_REVALIDATED_UNSTARTED_RECIPIENTS')
+        _write(status_path,status)
+        return status
     if not full_execution:
         prior=root/'site_cards'/f'{slate_date}.json'
         old=_active_saved_card(prior)

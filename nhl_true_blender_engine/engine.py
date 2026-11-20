@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
-from .storage import save_card, save_gates, log_job, get_card, fingerprint
+from .storage import save_card, save_gates, log_job, get_card, fingerprint, game_started, stamp
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .rival_scope import g17_resolved_without_eliminated_rivals
 from .semantic_certification import audit_gate
@@ -2464,6 +2464,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         msg={'reason':'No official NHL game data provided','stage':stage}
         log_job(con,f'{date}-{stage}',date,stage,'SOURCE_ERROR',msg,now=now)
         return {'card':None,'errors':[msg['reason']],'gateRows':0,'scan':[]}
+    prior_card=get_card(con,date)
+    frozen_games=sorted(str(l['gameId']) for l in (prior_card or {}).get('current_legs',[])
+                        if game_started(l,now))
     scan,g0_direction_notes=g0_full_slate(games,stage)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
     errors=[]
@@ -2749,6 +2752,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             f"G16 cross-game finalist competition left {len(finalists)} "
             f"unseparated finalists for a Core {required_core}: "
             f"{', '.join(g16_receipt['retainedPlayerIds'])}; no ranking or tie-break applied")
+    # A started canonical leg is closed, not a vacancy for another game.
+    # Keep researching the unstarted recipients without issuing a second Core.
+    if frozen_games:
+        chosen=[]
+        selection_errors=[]
     # Finish the same G16 adjudication across ALL game survivors before
     # writing the only authoritative G18 final-card decision.
     final_keys={(str(x['game']['id']),str(x['candidate']['player']['id']))
@@ -2785,6 +2793,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'originalFunctionsReviewedBeforeG18':True,
             'notPresetOneOfEach':True,
             'G18FinalAssemblyAfterFullG16':True,
+            'frozenCanonicalCardPreventsNewIssuance':bool(frozen_games),
             'G18CoreSlotGrantedOnlyAfterG16':bool(selected),
             'G16FinalistDecision':(finalist or {}).get('g16Decision'),
             'G16Exclusion':(finalist or {}).get('dominatedBy',[]) if not selected else [],
@@ -2885,6 +2894,12 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'nonselectedGameResearchNotes':nonselected_game_notes,
             'nonselectedGameResearchNeverReplacesLockedCore':True,
             'retroactiveCardMutation':False,
+            'frozenCardContinuation':({
+                'cardId':prior_card['card_id'],'fingerprint':prior_card['fingerprint'],
+                'revision':prior_card['revision'],'frozenGameIds':frozen_games,
+                'reviewedAt':stamp(now),'newCardIssued':False,
+                'reason':'Started canonical legs remain closed; independently recheck every unstarted incumbent'
+            } if frozen_games else None),
             'errors':errors,'scan':scan}
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
             {k:v for k,v in result.items() if k not in ('card','scan')},now=now)
