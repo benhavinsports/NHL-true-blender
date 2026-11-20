@@ -341,8 +341,7 @@ async def reconstruct(manifest, database, output, limit=18):
                 # joined, even when later slates reuse downloaded charts.
                 shift_report = await collect_shift_coverage(
                     {gid: str(r.get('gameDate') or r['startTimeUTC'][:10])
-                     for gid,r in pool.items()}, all_events, game_meta,
-                    source_cache=cached_shifts)
+                     for gid,r in pool.items()}, all_events, game_meta)
                 report = make_coverage(
                     con, snapshot, date, "PROJECTED", all_events, game_meta, shift_report,
                     historical_replay_observed_at=peer_asof.isoformat())
