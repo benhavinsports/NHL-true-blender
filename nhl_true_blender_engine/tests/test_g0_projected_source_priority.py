@@ -67,3 +67,16 @@ def test_explicit_confirmed_starter_supersedes_projected_conflicts_and_preserves
     selected=all_goalie_branches(game_with(projected,confirmed),"PROJECTED")["CAR"]
     assert [x["data"]["goalieId"] for x in selected]==["KOC"]
     assert any(x["goalieId"]=="BUS" for x in selected[0]["data"]["projectedBranchConflicts"])
+
+
+
+def test_official_projected_source_survives_same_goalie_identity_merge():
+    merged=branch("KOC","https://daily.hockey/starting-goalies/2026-11-21",
+                  "DATED_SECONDARY_ALGORITHMIC_PROJECTION")
+    merged["data"]["officialProjectedLineupSourceUrls"]=[
+        "https://www.nhl.com/news/edm-car-projected-lineups-2026-11-21"]
+    secondary=branch("BUS","https://www.fsroundup.com/nhl/starting-goalies",
+                     "SECONDARY_PROJECTED_STARTER")
+    selected=all_goalie_branches(game_with(secondary,merged),"PROJECTED")["CAR"]
+    assert [x["data"]["goalieId"] for x in selected]==["KOC"]
+    assert selected[0]["data"]["officialProjectedLineupSourceUrls"]
