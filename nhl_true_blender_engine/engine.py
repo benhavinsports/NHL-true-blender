@@ -130,7 +130,6 @@ def all_goalie_branches(game, stage):
         # two alleged starters in PROJECTED, despite an independently
         # confirmed name, and G0 then failed before evaluating skaters.
         confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
-        resolved_ids=set()
         conflict_rows=[]
         def keep_authoritative(selected,reason):
             nonlocal branches
@@ -154,7 +153,19 @@ def all_goalie_branches(game, stage):
             if len(confirmed_ids)==1:
                 keep_authoritative(confirmed,'EXPLICIT_CONFIRMED_STARTER_SUPERSEDES_PROJECTIONS')
             else:
+                lower=[b for b in branches if b not in confirmed]
+                conflict_rows.extend({
+                    'goalieId':str(b['data'].get('goalieId') or ''),
+                    'status':b['data'].get('status'),
+                    'sourceUrl':b.get('sourceUrl'),
+                    'sourceType':b['data'].get('starterSourceStatus') or b['data'].get('sourceType'),
+                    'reason':'LOWER_AUTHORITY_PROJECTED_CONFLICT_WITH_CONFIRMED_SOURCES',
+                    'preservedAsCounterevidence':True,
+                } for b in lower)
                 branches=confirmed
+                for selected_branch in branches:
+                    selected_branch['data']['projectedBranchConflicts']=list(conflict_rows)
+                    selected_branch['data']['projectionAuthorityDecision']='CONFIRMED_SOURCES_CONFLICT_KEEP_ALL'
         else:
             # A dated first-hand morning-skate FIRST-GOALIE-OFF report is
             # direct rink observation, stronger evidence than an algorithmic
@@ -170,7 +181,19 @@ def all_goalie_branches(game, stage):
                 reported=next(iter(first_off_ids))
                 keep_authoritative(first_off,'DATED_FIRST_HAND_MORNING_SKATE_FIRST_OFF')
             elif len(first_off_ids)>1:
+                lower=[b for b in branches if b not in first_off]
+                conflict_rows.extend({
+                    'goalieId':str(b['data'].get('goalieId') or ''),
+                    'status':b['data'].get('status'),
+                    'sourceUrl':b.get('sourceUrl'),
+                    'sourceType':b['data'].get('starterSourceStatus') or b['data'].get('sourceType'),
+                    'reason':'LOWER_AUTHORITY_PROJECTION_CONFLICT_WITH_FIRST_OFF_REPORTS',
+                    'preservedAsCounterevidence':True,
+                } for b in lower)
                 branches=first_off
+                for selected_branch in branches:
+                    selected_branch['data']['projectedBranchConflicts']=list(conflict_rows)
+                    selected_branch['data']['projectionAuthorityDecision']='FIRST_OFF_SOURCES_CONFLICT_KEEP_ALL'
             else:
                 # For the projected-starter fact, a dated, matchup-specific
                 # NHL.com projected-lineup receipt outranks a secondary
@@ -285,7 +308,9 @@ def g0_full_slate(games, stage):
                        'goalieProfileEvidenceId':x.get('goalieProfileEvidenceId'),
                        'sameCohortPbp':sample_peer,
                        'goalieTeam':defender,
-                       'sameGoalieIdentitySourceUrls':x.get('sameGoalieIdentitySourceUrls',[])}
+                       'sameGoalieIdentitySourceUrls':x.get('sameGoalieIdentitySourceUrls',[]),
+                       'projectedBranchConflicts':x.get('projectedBranchConflicts',[]),
+                       'projectionAuthorityDecision':x.get('projectionAuthorityDecision')}
                 proofs.append(proof)
             complete=bool(proofs) and all(p['profileReviewed'] and bool(p['sample'])
                     and p['counterevidence'] is not None for p in proofs)
