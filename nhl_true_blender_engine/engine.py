@@ -3143,10 +3143,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         gid=str(match['id'])
         if gid in selected_directions:
             continue
-        started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
-            match.get('startUTC') and
-            datetime.fromisoformat(match['startUTC'].replace('Z','+00:00'))<=now)
-        if started:
+        if _is_game_started(match,now):
             continue
         for attacker,defender in ((match['away'],match['home']),
                                   (match['home'],match['away'])):
@@ -3248,9 +3245,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                        for x in g16_receipt['finalists']}
     # Phase B records the one authoritative G0-G18 trace for each skater.
     for match in games:
-        is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
-            match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
-        if is_started:
+        if _is_game_started(match,now):
             # Not eligible for new selection; frozen cards remain in storage.
             pool_entry(match,'STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION')
             continue
