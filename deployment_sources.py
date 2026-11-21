@@ -124,26 +124,75 @@ def _date_in(obj):
     return None
 
 
-def fetch_nhl_article(team, team_name=None):
-    """Fallback to NHL.com's current-season projected-lineup article, if readable."""
+def _nhl_article_game_day_verified(text, slate_date, team_slug, opponent_slug):
+    """Verify the NHL article's exact scheduled matchup and intended day.
+
+    A publication date alone is NOT the game date. The official daily article
+    must contain the exact opponent pair below the matching weekday header,
+    and its publication must be no more than two days before that date.
+    This remains a PROJECTED lineup, never a confirmed dressed roster.
+    """
+    if not (slate_date and team_slug and opponent_slug):
+        return False
+    from datetime import date as Date, datetime as Datetime
     try:
-        html=get(NHL_LINEUP_URL).text
-        txt=re.sub(r'<(script|style)\b[^>]*>.*?</\1>',' ',html,flags=re.I|re.S)
-        txt=re.sub(r'<[^>]+>','\n',txt)
-        for old,new in (('&nbsp;',' '),('&#x27;',"'"),('&amp;','&'),('&ndash;','--'),('&mdash;','--')): txt=txt.replace(old,new)
-        txt=re.sub(r'\s+',' ',txt).strip()
-        # Article labels use city/nickname headings, not always full club names.
+        target = Date.fromisoformat(slate_date)
+    except (TypeError, ValueError):
+        return False
+    published = re.search(
+        r'\b(January|February|March|April|May|June|July|August|September|'
+        r'October|November|December)\s+(\d{1,2}),\s+(20\d{2})\b', text, re.I)
+    if published is None:
+        return False
+    try:
+        publication = Datetime.strptime(published.group(0), '%B %d, %Y').date()
+    except ValueError:
+        return False
+    if not 0 <= (target - publication).days <= 2:
+        return False
+    nickname = lambda slug: str(slug).replace('-', ' ').split()[-1].lower()
+    wanted = {nickname(team_slug), nickname(opponent_slug)}
+    days = r'MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY'
+    # Opponent identities must be stated in the actual projected matchup
+    # heading. A cross-game or yesterday's projection cannot supply G6.
+    matchup = re.finditer(
+        r'\b([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)\s+(?:at|vs\.?)\s+'
+        r'([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)', text, re.I)
+    for match in matchup:
+        pair = {match.group(1).split()[-1].lower(),
+                match.group(2).split()[-1].lower()}
+        if pair != wanted:
+            continue
+        headings = list(re.finditer(r'\b('+days+r')\b', text[:match.start()], re.I))
+        if headings and headings[-1].group(1).lower() == target.strftime('%A').lower():
+            return True
+    return False
+
+
+def fetch_nhl_article(team, team_name=None, slate_date=None, opponent_slug=None):
+    """Read only NHL.com explicitly published forward-line units.
+
+    The season article changes daily. Certify its DATE only when the actual
+    NHL matchup and weekday are checked against the official slate passed by
+    the caller. No line, goalie, or PP role is inferred from a bare mention.
+    """
+    try:
+        html = get(NHL_LINEUP_URL).text
+        txt = re.sub(r'<(script|style)\b[^>]*>.*?</\1>', ' ', html, flags=re.I|re.S)
+        txt = re.sub(r'<[^>]+>', '\n', txt)
+        for old,new in (('&nbsp;', ' '), ('&#x27;', "'"), ('&amp;', '&'),
+                        ('&ndash;', '--'), ('&mdash;', '--')):
+            txt = txt.replace(old,new)
+        txt = re.sub(r'\s+', ' ', txt).strip()
         aliases=[]
         if team_name:
-            parts=team_name.strip().split()
-            aliases.extend([team_name.strip(), parts[-1] if parts else team_name.strip()])
+            display = team_name.replace('-', ' ').strip()
+            aliases.extend([display, display.split()[-1]])
         aliases.append(team)
         lower=txt.lower(); start=-1; matched=None
-        for alias in aliases:
+        for alias in dict.fromkeys(aliases):
             if not alias: continue
-            # Anchor on the explicit projected lineup heading to avoid accidentally
-            # collecting a nearby opponent's line based on a loose substring match.
-            pattern=re.compile(re.escape(alias.lower())+r'\s+projected lineup',re.I)
+            pattern=re.compile(r'\b'+re.escape(alias.lower())+r'\s+projected lineup\b', re.I)
             m=pattern.search(lower)
             if m: start=m.start(); matched=alias; break
         if start < 0:
@@ -151,17 +200,34 @@ def fetch_nhl_article(team, team_name=None):
         tail=txt[start:]
         next_heading=re.search(r'\b[A-Z][A-Za-z .-]+\s+projected lineup\b',tail[len(matched)+18:],re.I)
         if next_heading: tail=tail[:len(matched)+18+next_heading.start()]
-        # Forward line rows are the only units reliably published in this article.
+        # HTML occasionally uses en/em dashes between published line members.
+        normalized = re.sub(r'\s+[–—]\s+', ' -- ', tail)
         rows=[]; line_no=0
-        for raw in re.findall(r'([A-ZÀ-ÿ][A-Za-zÀ-ÿ .\'-]+?\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .\'-]+?(?:\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .\'-]+)?)',tail):
+        pattern = r"([A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?)(?=\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+\s+--|\s+Scratched:|\s+Injured:|\s+Status report|\s*$)"
+        for raw in re.findall(pattern, normalized):
             parts=[x.strip() for x in raw.split('--')]
             if len(parts)==3 and all(len(x)>2 for x in parts):
                 line_no+=1
-                for n in parts:
-                    rows.append({'playerName':n,'line':line_no if line_no<=4 else None,'powerPlayUnit':None,'source':'NHL.com projected lineup article','sourcePath':f'forward line {line_no}','retrievedAt':datetime.now(timezone.utc).isoformat(),'sourceTeam':team.upper()})
-        if rows:return rows, {'source':'NHL.com projected lineup article','url':NHL_LINEUP_URL,'sourceDate':None,'dateVerified':False,'errors':['Season-long projected-lineup article does not establish slate-date freshness']}
-        return [], {'source':None,'errors':['NHL.com team section found but no reliable forward-line rows parsed']}
-    except Exception as e:return [], {'source':None,'errors':[f'NHL.com article: {type(e).__name__}: {e}']}
+                if line_no>4: break
+                for name in parts:
+                    rows.append({'playerName':name,'line':line_no,'powerPlayUnit':None,
+                                 'source':'NHL.com projected lineup article',
+                                 'sourcePath':f'forward line {line_no}',
+                                 'retrievedAt':datetime.now(timezone.utc).isoformat(),
+                                 'sourceTeam':team.upper()})
+        if not rows:
+            return [], {'source':None,'errors':['NHL.com team section found but no reliable forward-line rows parsed']}
+        date_ok=_nhl_article_game_day_verified(txt,slate_date,team_name,opponent_slug)
+        return rows, {
+            'source':'NHL.com projected lineup article',
+            'url':NHL_LINEUP_URL,
+            'sourceDate':slate_date if date_ok else None,
+            'dateVerified':bool(date_ok),
+            'errors':[] if date_ok else [
+                'Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only']
+        }
+    except Exception as e:
+        return [], {'source':None,'errors':[f'NHL.com article: {type(e).__name__}: {e}']}
 
 
 def fetch_dailyfaceoff(team, team_name=None):
@@ -247,7 +313,7 @@ def fetch_web_search(team, team_name=None):
                   'errors':[] if rows else ['Multiple web indexes searched; no explicit structured line/PP assignments found']}
 
 
-def fetch_deployment(team, team_name=None, mode='projected'):
+def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, opponent_slug=None):
     """Search all configured web sources; never silently choose between conflicts.
 
     In confirmed mode, projected-only sources are still searched for context but are
@@ -256,7 +322,9 @@ def fetch_deployment(team, team_name=None, mode='projected'):
     """
     attempts=[]; collected=[]
     for fn in (fetch_hockeyinsights, fetch_nhl_article, fetch_dailyfaceoff):
-        rows,meta=fn(team) if fn is fetch_hockeyinsights else fn(team,team_name)
+        rows,meta=(fn(team) if fn is fetch_hockeyinsights else
+                   fn(team,team_name,slate_date,opponent_slug) if fn is fetch_nhl_article
+                   else fn(team,team_name))
         attempts.append(meta)
         collected.extend(rows)
 
