@@ -116,66 +116,19 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         contradiction_research = result.get('g17ReviewSummary')
-        # Evidence feedback: re-research the actual source-search-required gate
-        # candidates, refresh the attached snapshot, and execute the entire
-        # original gate order again. Never promote NOT_EXECUTED to PASS.
+        # Keep searching every still-pre-puck game at its first
+        # nonpassing original gate. A source returning no usable observation
+        # is not a terminal result: the next complete refresh searches again.
+        # The only per-game end condition is the original puck-drop freeze.
         feedback=[]
         from nhl_true_blender_engine.gate_census import certify_gates as _census
-        initial_census=_census(con,date,stage,result.get('games'))
-        unresolved=initial_census.get('firstFailureClassificationCounts',{}).get(
-            'SOURCE_SEARCH_REQUIRED',0)
-        # In the exact live failure observed Nov 17, all 11 scheduled games
-        # lacked a dated STARTER identity.  That generated ZERO skater rows,
-        # hence "unresolved == 0" incorrectly disabled this entire second
-        # evidence-research pass.  G0 missing G0 source research is independently a
-        # source-refresh trigger even when no skater can yet be evaluated.
-        g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
-                    or result.get('g0Complete',0) < result.get('g0Directions',0))
-        # Continue targeted source discovery while it changes the original
-        # gate evidence. There is no fixed retry count: repeat full independent
-        # source collection whenever the preceding pass changes G0 coverage,
-        # eligible skater coverage, or the unresolved-gate signature. If a
-        # complete source refresh produces no gate-evidence progress, finish
-        # this cycle so the actual result can be saved; the next scheduled
-        # pregame cycle repeats source discovery. Started games are excluded.
-        previous_recovery_signature = None
-        recovery_round = 0
-        # This is a per-workflow execution window, not a gate retry count.
-        # If NHL sources have not updated yet, the next scheduled pregame
-        # cycle resumes the same search. A repeated evidence signature
-        # never ends discovery by itself.
-        recovery_deadline = time.monotonic() + 12 * 60
+        recovery_round=0
         while True:
-            retry_snapshot = recovery_snapshot(con,snapshot,date,stage,result)
+            retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
             if not retry_snapshot['games']:
                 break
-            if time.monotonic() >= recovery_deadline:
-                feedback.append({
-                    'pass':recovery_round,
-                    'researchContinuesNextScheduledCycle':True,
-                    'remainingGameIds':[str(g['id']) for g in retry_snapshot['games']],
-                    'noAutomaticPasses':True})
-                break
-            recovery_round += 1
-            recovery_signature = (
-                tuple(sorted(str(g['id']) for g in retry_snapshot['games'])),
-                result.get('g0Complete'),
-                result.get('eligibleSkaterRows'),
-                tuple(sorted((str(k),str(v)) for k,v in
-                    (result.get('missingByGate') or {}).items())),
-            )
-            same_as_prior_signature = recovery_signature == previous_recovery_signature
-            previous_recovery_signature = recovery_signature
-            feedback.append({
-                    'pass':recovery_round,'unresolvedFirstGateCandidates':unresolved,
-                    'sameEvidenceSignatureAsPriorPass':same_as_prior_signature,
-                    'repeatedSignatureDoesNotEndSearch':True,
-                    'g0SourceGapTriggeredRefresh':g0_missing,
-                    'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
-                    'unaffectedMatchupsNotRefetched':True,
-                    'g0CompleteDirectionsBeforeRefresh':result.get('g0Complete',0),
-                    'g0ScheduledDirections':2*len(snapshot.get('games',[])),
-                    'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
+            recovery_round+=1
+            affected_game_ids=[str(g['id']) for g in retry_snapshot['games']]
             async with _Client() as client:
                 refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
                 refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
@@ -184,13 +137,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 await collect_season_goal_history(client,con,retry_snapshot,date,stage)
             await collect_secondary(con,retry_snapshot,date,stage)
             await fetch_and_ingest_lineups(con,retry_snapshot,date,stage)
-            # Late source fixes must refresh BOTH deployment collectors before
-            # rerunning all original gates. The first pass already uses both.
             await fetch_and_ingest_additional_deployment(con,retry_snapshot,date,stage)
             await collect_edgehalla_deployment(con,retry_snapshot,date,stage)
-            # Refresh independent official projected starter identities too;
-            # otherwise the second pass compares new goalie history against
-            # stale starter identities and can regress the G0 attack branch.
             await collect_nhl_projected_goalies(con,retry_snapshot,date,stage)
             await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
             await collect_dfo_goalies(con,retry_snapshot,date,stage)
@@ -204,30 +152,22 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                     client,con,retry_snapshot,date,stage,
                     league_peer_events=refreshed_peer_events)
             attach(con,snapshot,date,stage)
-            # G0 source-origin review is an input to the selection engine,
-            # not merely a report. Recompute it after changing goalie evidence.
             review_g0_goalie_origins(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             result=execute(con,snapshot,date,stage)
             contradiction_research=result.get('g17ReviewSummary')
             after=_census(con,date,stage,result.get('games'))
-            next_unresolved=after.get('firstFailureClassificationCounts',{}).get(
-                'SOURCE_SEARCH_REQUIRED',0)
-            feedback.append({'pass':recovery_round,
-                'unresolvedFirstGateCandidates':next_unresolved,
-                'resolvedCandidateCount':max(0,unresolved-next_unresolved),
-                'noAutomaticPasses':True})
-            # The next research cycle uses the latest census and current
-            # goalie-direction coverage, not stale first-pass counts.
-            initial_census=after
-            unresolved=next_unresolved
-            g0_missing=(result.get('g0Directions',0) !=
-                2*len(snapshot.get('games',[])) or
-                result.get('g0Complete',0) < result.get('g0Directions',0))
+            feedback.append({
+                'pass':recovery_round,
+                'affectedGameIds':affected_game_ids,
+                'firstNonpassingGateDispositionCountsAfterRefresh':
+                    after.get('firstNonpassingGateDispositionCounts',{}),
+                'noAutomaticPasses':True
+            })
+            # Poll again after a short refresh interval so providers can publish
+            # new observations. This is a pause between searches, never an exit.
+            await asyncio.sleep(60)
         result['evidenceFeedbackLoop']=feedback
-        result['sourceResearchStatus']=('CONTINUING_NEXT_SCHEDULED_CYCLE'
-            if feedback and feedback[-1].get('researchContinuesNextScheduledCycle')
-            else 'NO_PREPUCK_SOURCE_SEARCH_REMAINS')
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
         result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)

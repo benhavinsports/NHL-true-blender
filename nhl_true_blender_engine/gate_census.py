@@ -212,9 +212,9 @@ def certify_gates(con,date,stage,expected_game_count=None):
     # Keep genuine source gaps in the audit, but don't require every rejected
     # player to pass before certifying the three surviving recipients.
     outcome_counts=Counter()
-    # A candidate eliminated by a proven earlier gate is different from a
-    # candidate whose first nonpassing gate lacks source evidence. Preserve
-    # the first failure in the original execution order for auditability.
+    # Preserve the first actual gate disposition in original execution order.
+    # Research continuation is controlled by the live runner, not by a
+    # synthetic missing-source classification in this audit.
     first_failure_counts=Counter()
     first_failure_examples=[]
     for key,matrix in skaters.items():
@@ -237,22 +237,18 @@ def certify_gates(con,date,stage,expected_game_count=None):
                     if g not in matrix or matrix[g]["disposition"]!="PASS"),None)
         if first:
             gate,disposition=first
-            kind=("CROSS_GAME_NOT_SELECTED" if legitimate_cross_game_nonselection else
-                  "SOURCE_SEARCH_REQUIRED" if disposition in ("NOT_EXECUTED", "MISSING", None)
-                  else "SOURCE_ELIMINATED")
+            kind=("CROSS_GAME_NOT_SELECTED" if legitimate_cross_game_nonselection
+                  else str(disposition or "MISSING"))
             first_failure_counts[kind]+=1
             if len(first_failure_examples)<30:
                 first_failure_examples.append({"gameId":key[0],
-                    "playerId":key[1],"firstGate":gate,"disposition":disposition,
-                    "classification":kind})
+                    "playerId":key[1],"firstGate":gate,"disposition":disposition})
         if key in selected_keyset:
             outcome_counts["SELECTED"]+=1
         elif legitimate_cross_game_nonselection:
             outcome_counts["QUALIFIED_NOT_CHOSEN_G18"]+=1
         elif any(r["disposition"]=="ELIMINATED" for r in matrix.values()):
             outcome_counts["GATE_ELIMINATED"]+=1
-        elif any(r["disposition"]=="NOT_EXECUTED" for r in matrix.values()):
-            outcome_counts["NOT_QUALIFIED_SOURCE_SEARCH_REQUIRED"]+=1
         elif all(g in matrix and matrix[g]["disposition"]=="PASS" for g in required):
             outcome_counts["QUALIFIED_NOT_CHOSEN_G18"]+=1
         else:
@@ -260,7 +256,6 @@ def certify_gates(con,date,stage,expected_game_count=None):
     funnel={
         "surveyedEligibleSkaters":len(skaters),
         "sourceEliminated":outcome_counts["GATE_ELIMINATED"],
-        "sourceSearchRequired":outcome_counts["NOT_QUALIFIED_SOURCE_SEARCH_REQUIRED"],
         "qualifiedButNotChosen":outcome_counts["QUALIFIED_NOT_CHOSEN_G18"],
         "otherNotSelected":outcome_counts["OTHER_NOT_SELECTED"],
         "lockedCoreRecipients":outcome_counts["SELECTED"],
@@ -318,11 +313,11 @@ def certify_gates(con,date,stage,expected_game_count=None):
             all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsWereIndependentlyChecked":bool(
             all_matrix_present and all_matrix_in_order and not overlay_copies),
-        "allOverlayStepsSourceCompleteForEveryRejectedSkater":bool(
+        "allRejectedSkaterOverlayReceiptsIndependentlyAudited":bool(
             independent and not any(
                 distributions[g]["NOT_EXECUTED"] or semantic_failed_by_gate[g]
                 for g in OVERLAY)),
-        "nonselectedIncompleteEvidenceRemainsVisible":True,
+        "nonselectedGateAuditPreserved":True,
         # No skater matrices (for example, missing starters at G0) and
         # missing rows must never certify through an empty `any()` check.
         "allGateChecksExecutedWithEvidence":bool(
@@ -350,7 +345,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "sourceUnattributedPassingGateExamples":source_unattributed[:15],
         "selectedLegs":selected,
         "selectionFunnel":funnel,
-        "firstFailureClassificationCounts":dict(first_failure_counts),
+        "firstNonpassingGateDispositionCounts":dict(first_failure_counts),
         "firstFailureExamples":first_failure_examples,
         "selectedMasterGatesAllPass":all_selected_master,
         "selectedOverlayGatesAllPass":all_selected_overlay,
