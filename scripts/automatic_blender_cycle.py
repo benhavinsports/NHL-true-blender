@@ -226,9 +226,9 @@ def main():
         # gate outcomes, replacements, scores, or another Core generator.
         request=json.loads(Path('.github/nhl-live-validation.json').read_text())
         if (not {'date','mode'}<=set(request) or
-                set(request)-{'date','mode','requestId'} or request['mode']!='projected' or
+                set(request)-{'date','mode','requestId'} or request['mode'] not in ('projected','confirmed') or
                 ('requestId' in request and not isinstance(request['requestId'],str))):
-            raise SystemExit('Live validation request accepts only date, projected mode and an optional audit ID')
+            raise SystemExit('Live validation request accepts only date, projected/confirmed mode and an optional audit ID')
         manual_date=Date.fromisoformat(request['date']).isoformat()
         manual_mode=request['mode']
     if manual_mode and manual_mode not in VALID_MODES:
