@@ -53,13 +53,64 @@ def preview_urls(game,date):
     return [f"https://www.nhl.com/news/{away}-{home}-game-preview-{suffix}",
             f"https://www.nhl.com/news/{away}-{home}-projected-lineups-{suffix}"]
 
-def parse_projected_goalies(html,game,date):
+
+def _article_date_targets_game(html,game,date,source_url=None):
+    """Independently verify publication time vs the EXACT preview matchup.
+
+    A day-before NHL.com preview may describe tomorrow's scheduled game.
+    That is not a historical replay and does not require inventing the
+    article's publication date. Only an exact official game preview URL
+    *and* its displayed away-at-home heading can authorize this exception.
+    Season-long articles cannot borrow the game-preview date.
+    """
+    if not isinstance(html,str):
+        return False
+    try:
+        requested=datetime.strptime(date,"%Y-%m-%d").date()
+    except (TypeError,ValueError):
+        return False
+    content=article_text(html)
+    match=re.search(
+        r"\b(January|February|March|April|May|June|July|August|September|"
+        r"October|November|December)\s+(\d{1,2}),\s*(20\d{2})\b",
+        content,re.I)
+    if match is None:
+        return False
+    try:
+        published=datetime.strptime(match.group(0),"%B %d, %Y").date()
+    except ValueError:
+        return False
+    source_is_preview=(isinstance(source_url,str) and
+                       source_url in preview_urls(game,date))
+    # An explicitly requested official preview may be published one or two
+    # days ahead. An unrelated preview must never authenticate this matchup.
+    if source_url and "game-preview-" in source_url or (
+            source_url and "projected-lineups-" in source_url):
+        if not source_is_preview:
+            return False
+    if published==requested:
+        return True
+    if not source_is_preview or not 0 < (requested-published).days <= 2:
+        return False
+    away=NICKNAMES.get(game["away"],TEAM_SLUGS.get(game["away"],"").split("-")[-1])
+    home=NICKNAMES.get(game["home"],TEAM_SLUGS.get(game["home"],"").split("-")[-1])
+    direct=(r"\b"+re.escape(away)+r"\s+(?:at|vs\.?)\s+"+
+            re.escape(home)+r"\s+projected\s+lineups\b")
+    reverse=(r"\b"+re.escape(home)+r"\s+(?:at|vs\.?)\s+"+
+             re.escape(away)+r"\s+projected\s+lineups\b")
+    if not (re.search(direct,content,re.I) or re.search(reverse,content,re.I)):
+        return False
+    return all(re.search(r"\b"+re.escape(NICKNAMES.get(team,
+                      TEAM_SLUGS.get(team,"").split("-")[-1]))+
+                  r"\s+projected lineup\b",content,re.I)
+               for team in (game["away"],game["home"]))
+
+
+def parse_projected_goalies(html,game,date,source_url=None):
     if not isinstance(html,str) or "projected lineup" not in html.lower():
         return {}
     content=article_text(html)
-    day=datetime.strptime(date,"%Y-%m-%d")
-    published=f"{day.strftime('%B')} {day.day}, {day.year}"
-    if published.casefold() not in content.casefold():
+    if not _article_date_targets_game(html,game,date,source_url):
         return {}
     out={}
     for team in (game["away"],game["home"]):
@@ -86,7 +137,7 @@ def parse_projected_goalies(html,game,date):
                        "publishedGoalies":[x[2] for x in matched]}
     return out
 
-def parse_official_unavailable(html,game,date):
+def parse_official_unavailable(html,game,date,source_url=None):
     """Only explicitly listed injured/scratched skaters on a dated NHL page.
 
     Match full names to official current-roster IDs. Not being mentioned or
@@ -96,8 +147,7 @@ def parse_official_unavailable(html,game,date):
     if not isinstance(html,str) or "projected lineup" not in html.lower():
         return []
     body=article_text(html)
-    day=datetime.strptime(date,"%Y-%m-%d")
-    if f"{day.strftime('%B')} {day.day}, {day.year}".casefold() not in body.casefold():
+    if not _article_date_targets_game(html,game,date,source_url):
         return []
     out=[]
     for team in (game["away"],game["home"]):
@@ -132,7 +182,7 @@ def parse_official_unavailable(html,game,date):
             if len({x["status"] for x in v})==1]
 
 
-def parse_projected_deployment(html, game, date):
+def parse_projected_deployment(html, game, date, source_url=None):
     """Read explicit, identity-matched units in an NHL.com preview.
 
     Line combinations remain source-PROJECTED, never confirmed or dressed.
@@ -142,8 +192,7 @@ def parse_projected_deployment(html, game, date):
     if not isinstance(html, str) or "projected lineup" not in html.lower():
         return []
     body = article_text(html)
-    day = datetime.strptime(date, "%Y-%m-%d")
-    if f"{day.strftime('%B')} {day.day}, {day.year}".casefold() not in body.casefold():
+    if not _article_date_targets_game(html,game,date,source_url):
         return []
     output = []
     for team in (game["away"], game["home"]):
@@ -237,7 +286,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
             # A real, dated NHL.com "Injured:" or "Scratched:" list
             # disqualifies that exact skater from teammate rivalry checks.
             # Every source attribution is retained; missing names stay unknown.
-            for item in parse_official_unavailable(html,game,date):
+            for item in parse_official_unavailable(html,game,date,url):
                 observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
                 digest=hashlib.sha256(url.encode()).hexdigest()[:12]
                 ingest(con,{"evidence_id":f"nhl-projected-unavailable-{date}-{stage}-{game['id']}-{item['playerId']}-{item['status']}-{digest}",
@@ -264,7 +313,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                            start_dt > datetime.now(timezone.utc) and
                            game.get("gameState") in ("FUT","PRE"))
             if still_pregame and url in preview_urls(game,date):
-                for row in parse_projected_deployment(html,game,date):
+                for row in parse_projected_deployment(html,game,date,url):
                     observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
                     digest=hashlib.sha256(
                         f"{url}|{row['playerId']}|{row['EV']}".encode()
@@ -276,7 +325,7 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                         "source_url":url,"observed_at":observed,
                         "payload":row})
                     deployment_count+=1
-            for team,data in parse_projected_goalies(html,game,date).items():
+            for team,data in parse_projected_goalies(html,game,date,url).items():
                 key=(str(game["id"]),team)
                 if key in seen and seen[key]!=data["goalieId"]:
                     conflicts.append({"gameId":key[0],"team":team,
