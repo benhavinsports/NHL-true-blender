@@ -2,7 +2,7 @@
   "additionalStructuredDeploymentCoverage": {
     "deploymentRecords": 64,
     "noUndatedRolePromoted": true,
-    "skippedCount": 247,
+    "skippedCount": 237,
     "teamReports": {
       "ANA": {
         "conflictCount": 0,
@@ -107,7 +107,7 @@
       "BUF": {
         "conflictCount": 0,
         "error": null,
-        "lineEvidenceFound": true,
+        "lineEvidenceFound": false,
         "powerPlayEvidenceFound": true,
         "sources": [
           {
@@ -143,14 +143,16 @@
           },
           {
             "dateVerified": null,
-            "errors": [],
-            "provider": "General web search",
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
             "result": null,
             "sourceDate": null,
             "url": "https://html.duckduckgo.com/html/?q=%22buffalo%20sabres%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
           }
         ],
-        "status": "FOUND LINE + PP EVIDENCE"
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
       },
       "CAR": {
         "conflictCount": 0,
@@ -1574,7 +1576,7 @@
     ]
   },
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-21T12:09:45+00:00",
+    "asOf": "2026-11-21T12:30:06+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 13,
     "gamesWithOnlyOneMatchedGoalie": 1,
@@ -11938,5 +11940,5 @@
   ],
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-21T12:13:25+00:00"
+  "updatedUTC": "2026-11-21T12:33:45+00:00"
 }
