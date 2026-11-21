@@ -212,23 +212,46 @@ async def fetch_and_ingest_lineups(con,snapshot,date,stage):
                 "error":f"{type(exc).__name__}: {exc}"}
 
 
-def dated_deployment_row(row,date):
-    """Resolve only assignments independently dated to this NHL slate.
+def dated_deployment_row(row,date,game=None):
+    """Resolve only slate-dated EV/PP evidence observed before this game's puck drop.
 
-    A fetched season article or an unrelated provider's date cannot turn an
-    undated line/PP assignment into tonight's role. Resolve conflicts after
-    filtering dates, so stale disagreement cannot veto dated current proof.
+    Forward lines and defense pairs are distinct EV units. A same-day source
+    refreshed after puck drop cannot reopen the game's frozen deployment.
     """
-    result={**row,'conflicts':[],'line':None,'powerPlayUnit':None}
-    for field,key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
+    result={**row,'conflicts':[],'line':None,'defensePair':None,
+            'powerPlayUnit':None}
+    start_raw=(game or {}).get('startUTC') or (game or {}).get('startTimeUTC')
+    start_dt=None
+    if isinstance(start_raw,str):
+        try:
+            start_dt=datetime.fromisoformat(start_raw.replace('Z','+00:00'))
+        except ValueError:
+            start_dt=None
+    for field,key in (('line','lineEvidence'),
+                      ('defensePair','defensePairEvidence'),
+                      ('powerPlayUnit','powerPlayEvidence')):
         evidence=[]
         for item in row.get(key,[]):
             source_date=item.get('sourceDate')
             match=re.match(r'^(20\d\d-\d\d-\d\d)(?:$|[T ])',str(source_date or ''))
             url=item.get('sourceUrl')
-            if (match and match.group(1)==date and item.get('dateVerified') is not False
+            if not (match and match.group(1)==date
+                    and item.get('dateVerified') is not False
                     and isinstance(url,str) and url.startswith('https://')):
-                evidence.append(item)
+                continue
+            source_asof=item.get('sourceAsOf')
+            if item.get('source')=='Daily Faceoff page' and not source_asof:
+                continue
+            if source_asof:
+                try:
+                    observed=datetime.fromisoformat(str(source_asof).replace('Z','+00:00'))
+                except ValueError:
+                    continue
+                if observed.tzinfo is None:
+                    continue
+                if start_dt and start_dt.tzinfo and observed>=start_dt:
+                    continue
+            evidence.append(item)
         result[key]=evidence
         values={item.get('value') for item in evidence}
         if len(values)==1:
@@ -288,16 +311,43 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
             roster=(game.get('rosters',{}).get(team) or {}).get('data',{})
             players=roster.get('players') or []
             for row in rows:
-                row=dated_deployment_row(row,date)
-                if row.get('line') is None:
-                    skipped.append({'team':team,'name':row.get('playerName'),
-                                    'reason':'NO_UNAMBIGUOUS_SLATE_DATED_FORWARD_LINE'})
-                    continue
+                row=dated_deployment_row(row,date,game)
                 player=unique_official_player(row.get('playerName'),players)
                 if player is None:
                     unmatched.append({'team':team,'name':row.get('playerName')})
                     continue
-                urls={item.get('sourceUrl') for item in row.get('lineEvidence',[])
+                position=str(player.get('position') or player.get('positionCode') or '').upper()
+                is_defense=position in ('D','DEFENSEMAN','DEFENCE','DEFENSE')
+                if is_defense:
+                    unit=row.get('defensePair')
+                    ev_evidence=row.get('defensePairEvidence') or []
+                    if unit is None:
+                        skipped.append({'team':team,'name':row.get('playerName'),
+                                        'reason':'NO_UNAMBIGUOUS_SLATE_DATED_DEFENSE_PAIR'})
+                        continue
+                    try:
+                        unit=int(unit)
+                    except (ValueError,TypeError):
+                        continue
+                    if not 1<=unit<=3:
+                        continue
+                    ev='D'+str(unit)
+                else:
+                    unit=row.get('line')
+                    ev_evidence=row.get('lineEvidence') or []
+                    if unit is None:
+                        skipped.append({'team':team,'name':row.get('playerName'),
+                                        'reason':'NO_UNAMBIGUOUS_SLATE_DATED_FORWARD_LINE'})
+                        continue
+                    try:
+                        unit=int(unit)
+                    except (ValueError,TypeError):
+                        continue
+                    if not 1<=unit<=4:
+                        continue
+                    ev='F'+str(unit)
+                pp_evidence=row.get('powerPlayEvidence') or []
+                urls={item.get('sourceUrl') for item in (ev_evidence+pp_evidence)
                       if isinstance(item.get('sourceUrl'),str)
                       and item['sourceUrl'].startswith('https://')}
                 # Ambiguous attribution cannot be certified by arbitrary
@@ -305,27 +355,14 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                 url=sorted(urls)[0] if urls else None
                 if not isinstance(url,str) or not url.startswith('https://'):
                     continue
-                line=row['line']
-                try:
-                    line=int(line)
-                except (ValueError,TypeError):
-                    continue
-                if not 1<=line<=4:
-                    continue
-                # This parser describes forward lines, not defense pairs.
-                # Never manufacture a D1-D4 assignment from a forward line.
-                position=str(player.get('position') or player.get('positionCode') or '').upper()
-                if position in ('D','DEFENSEMAN','DEFENCE','DEFENSE'):
-                    skipped.append({'team':team,'name':row.get('playerName'),
-                                    'reason':'FORWARD_LINE_IS_NOT_DEFENSE_PAIR'})
-                    continue
-                # No confirmed claim: the sources are projected line reports.
-                payload={'EV':'F'+str(line),
+                # No confirmed claim: every generic web source remains projected.
+                payload={'EV':ev,
                          'status':'PROJECTED',
                          'sourceType':'MULTISOURCE_PROJECTED_LINEUP',
                          'lineEvidence':row.get('lineEvidence',[]),
+                         'defensePairEvidence':row.get('defensePairEvidence',[]),
                          'sourceUrls':sorted(urls),
-                         'powerPlayEvidence':row.get('powerPlayEvidence',[])}
+                         'powerPlayEvidence':pp_evidence}
                 if row.get('powerPlayUnit') is not None:
                     payload['PP']=row['powerPlayUnit']
                 ingest(con,{'evidence_id':f'multisource-{date}-{stage}-{game["id"]}-{player["id"]}-{observed}',

@@ -7,6 +7,7 @@ name matching or an official NHL search response. Missing data remains missing.
 """
 from __future__ import annotations
 import json, re, unicodedata
+from html.parser import HTMLParser
 from datetime import datetime, timezone
 from urllib.parse import quote
 import requests
@@ -291,23 +292,142 @@ def fetch_nhl_article(team, team_name=None, slate_date=None, opponent_slug=None)
         return [], {'source':None,'errors':[f'NHL.com article: {type(e).__name__}: {e}']}
 
 
-def fetch_dailyfaceoff(team, team_name=None):
-    """Last public-web fallback. If embedded schema cannot be parsed, report that honestly."""
+class _DailyFaceoffPageParser(HTMLParser):
+    """Read the page's visible, explicitly headed projected lineup sections."""
+    HEADING_TAGS={"h1","h2","h3","h4","h5","h6"}
+    SECTION_NAMES={
+        "forwards":"forwards",
+        "defensive pairings":"defense",
+        "1st powerplay unit":"pp1",
+        "2nd powerplay unit":"pp2",
+    }
+    STOP_NAMES={"goalies","injuries","cap summary","draft picks",
+                "1st penalty kill unit","2nd penalty kill unit"}
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.sections={"forwards":[],"defense":[],"pp1":[],"pp2":[]}
+        self.current=None
+        self.heading=False
+        self.heading_parts=[]
+        self.anchor=None
+        self.page_text=[]
+    def _section(self,value):
+        key=norm_name(value)
+        if key in self.SECTION_NAMES:
+            self.current=self.SECTION_NAMES[key]
+        elif key in self.STOP_NAMES:
+            self.current=None
+    def handle_starttag(self,tag,attrs):
+        if tag in self.HEADING_TAGS:
+            self.heading=True
+            self.heading_parts=[]
+        if tag=="a":
+            self.anchor={"href":dict(attrs).get("href",""),"parts":[]}
+    def handle_data(self,data):
+        self.page_text.append(data)
+        if self.heading:
+            self.heading_parts.append(data)
+        elif self.anchor is None:
+            self._section(data.strip())
+        if self.anchor is not None:
+            self.anchor["parts"].append(data)
+    def handle_endtag(self,tag):
+        if tag in self.HEADING_TAGS and self.heading:
+            self._section(" ".join(self.heading_parts))
+            self.heading=False
+            self.heading_parts=[]
+        if tag=="a" and self.anchor is not None:
+            href=str(self.anchor.get("href") or "")
+            name=" ".join(" ".join(self.anchor["parts"]).split())
+            if self.current and "/players/" in href.lower() and name:
+                self.sections[self.current].append(name)
+            self.anchor=None
+
+
+def fetch_dailyfaceoff(team, team_name=None, slate_date=None):
+    """Parse dated Daily Faceoff forward lines, D pairs and PP1/PP2.
+
+    The current page is visibly structured by named sections; the former
+    JSON-only regex missed that rendered page and returned zero deployment
+    rows even when a dated projected lineup was published. Every assignment
+    remains PROJECTED and must still pass exact NHL roster-ID matching.
+    """
     slug=(team_name or team).lower().replace(' ','-')
     url=DFO_URL.format(team=quote(slug))
     try:
         html=get(url).text
-        matches=re.findall(r'"(?:fullName|playerName|name)"\s*:\s*"([^"]+)"[^{}]{0,300}?(?:"(?:line|lineNumber|ppUnit|powerPlayUnit)"\s*:\s*"?([1-4])"?)',html,re.I)
+        parser=_DailyFaceoffPageParser()
+        parser.feed(html)
+        page_text=" ".join(parser.page_text)
+        stamp=re.search(
+            r"Last updated:\\s*(20\\d{2}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+            r"(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2}))",page_text,re.I)
+        source_asof=None
+        source_date=None
+        if stamp:
+            try:
+                parsed=datetime.fromisoformat(stamp.group(1).replace("Z","+00:00"))
+                if parsed.tzinfo is not None:
+                    source_asof=parsed.astimezone(timezone.utc).isoformat()
+                    source_date=parsed.date().isoformat()
+            except ValueError:
+                pass
+        date_verified=bool(
+            source_date and slate_date and source_date==slate_date and source_asof)
+        retrieved=datetime.now(timezone.utc).isoformat(timespec="seconds")
         rows=[]
-        for name,unit in matches:
-            near=html[max(0,html.find(name)-250):html.find(name)+350].lower()
-            is_pp=('pp' in near or 'powerplay' in near or 'power-play' in near)
-            is_line=('line' in near and not is_pp)
-            if not (is_pp or is_line): continue
-            rows.append({'playerName':name,'line':int(unit) if is_line else None,'powerPlayUnit':int(unit) if is_pp else None,'source':'Daily Faceoff page','sourcePath':'embedded page data','retrievedAt':datetime.now(timezone.utc).isoformat(),'sourceTeam':team.upper()})
-        return rows, {'source':'Daily Faceoff page' if rows else None,'url':url,'errors':[] if rows else ['page loaded but no reliable line/PP schema parsed']}
+        def add(name,**fields):
+            rows.append({
+                "playerName":name,"source":"Daily Faceoff page",
+                "sourcePath":url,"sourceDate":source_date,
+                "dateVerified":date_verified,"sourceAsOf":source_asof,
+                "retrievedAt":retrieved,"sourceTeam":team.upper(),**fields})
+        forwards=parser.sections["forwards"]
+        # DFO displays four forward trios in row order beneath LW/C/RW.
+        # Only complete trios are assigned; no partial or name-only inference.
+        for offset in range(0,min(len(forwards),12),3):
+            group=forwards[offset:offset+3]
+            if len(group)==3:
+                for name in group:
+                    add(name,line=offset//3+1,powerPlayUnit=None)
+        defense=parser.sections["defense"]
+        # Six names beneath Defensive Pairings are displayed in three
+        # consecutive pairs; a partial pair is never assigned.
+        for offset in range(0,min(len(defense),6),2):
+            pair=defense[offset:offset+2]
+            if len(pair)==2:
+                for name in pair:
+                    add(name,defensePair=offset//2+1,powerPlayUnit=None)
+        for unit,key in ((1,"pp1"),(2,"pp2")):
+            for name in parser.sections[key]:
+                add(name,powerPlayUnit=unit)
+        # Keep the legacy structured-data fallback for page revisions that
+        # expose JSON but not the visible section markup.
+        if not rows:
+            matches=re.findall(
+                r'"(?:fullName|playerName|name)"\\s*:\\s*"([^"]+)"[^{}]{0,300}?(?:'
+                r'"(?:line|lineNumber|ppUnit|powerPlayUnit)"\\s*:\\s*"?([1-4])"?)',
+                html,re.I)
+            for name,unit in matches:
+                near=html[max(0,html.find(name)-250):html.find(name)+350].lower()
+                is_pp=('pp' in near or 'powerplay' in near or 'power-play' in near)
+                is_line=('line' in near and not is_pp)
+                if is_pp or is_line:
+                    add(name,line=int(unit) if is_line else None,
+                        powerPlayUnit=int(unit) if is_pp else None)
+        return rows, {
+            "source":"Daily Faceoff page" if rows else None,
+            "url":url,"sourceDate":source_date,"dateVerified":date_verified,
+            "sourceAsOf":source_asof,"forwardNamesParsed":len(forwards),
+            "defensePairNamesParsed":len(defense),
+            "pp1NamesParsed":len(parser.sections["pp1"]),
+            "pp2NamesParsed":len(parser.sections["pp2"]),
+            "errors":[] if rows else [
+                "page loaded but no explicit dated forward, defense-pair or PP sections parsed"]
+        }
     except Exception as e:
-        return [], {'source':None,'url':url,'errors':[f'Daily Faceoff page: {type(e).__name__}: {e}']}
+        return [], {"source":None,"url":url,
+                    "errors":[f"Daily Faceoff page: {type(e).__name__}: {e}"]}
 
 
 def fetch_web_search(team, team_name=None, slate_date=None):
@@ -398,7 +518,7 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
     for fn in (fetch_hockeyinsights, fetch_nhl_article, fetch_dailyfaceoff):
         rows,meta=(fn(team) if fn is fetch_hockeyinsights else
                    fn(team,team_name,slate_date,opponent_slug) if fn is fetch_nhl_article
-                   else fn(team,team_name))
+                   else fn(team,team_name,slate_date))
         attempts.append(meta)
         collected.extend(rows)
 
@@ -414,12 +534,12 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         if not key:
             continue
         fields=by_identity.setdefault(key,set())
-        if row.get('line') is not None:
-            fields.add('line')
+        if row.get('line') is not None or row.get('defensePair') is not None:
+            fields.add('EV')
         if row.get('powerPlayUnit') is not None:
-            fields.add('powerPlayUnit')
+            fields.add('PP')
     missing_players=expected_keys-set(by_identity)
-    partial_players=any(fields!={'line','powerPlayUnit'}
+    partial_players=any(fields!={'EV','PP'}
                         for fields in by_identity.values())
     dated_source=any(
         str(meta.get('sourceDate') or '')[:10]==str(slate_date)
@@ -442,7 +562,8 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
             source_urls.setdefault(label,set()).add(url)
             source_dates[(label,url)] = {
                 'sourceDate':attempt.get('sourceDate'),
-                'dateVerified':attempt.get('dateVerified')}
+                'dateVerified':attempt.get('dateVerified'),
+                'sourceAsOf':attempt.get('sourceAsOf')}
     for row in collected:
         label=row.get('source')
         path=row.get('sourcePath')
@@ -463,13 +584,16 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         key=norm_name(row.get('playerName'))
         if not key: continue
         item=by_player.setdefault(key, {
-            'playerName':row.get('playerName'), 'line':None, 'powerPlayUnit':None,
-            'sources':[], 'lineEvidence':[], 'powerPlayEvidence':[], 'conflicts':[],
+            'playerName':row.get('playerName'), 'line':None, 'defensePair':None,
+            'powerPlayUnit':None, 'sources':[], 'lineEvidence':[],
+            'defensePairEvidence':[], 'powerPlayEvidence':[], 'conflicts':[],
             'retrievedAt':row.get('retrievedAt'), 'sourceTeam':team.upper()
         })
         src=row.get('source') or 'Unknown source'
         if src not in item['sources']: item['sources'].append(src)
-        for field, evidence_key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
+        for field, evidence_key in (('line','lineEvidence'),
+                                    ('defensePair','defensePairEvidence'),
+                                    ('powerPlayUnit','powerPlayEvidence')):
             value=row.get(field)
             if value is None: continue
             # Retrieval time is not the source's lineup/slate date. Preserve
@@ -479,12 +603,15 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
                 # Structured source date is tied to this exact discovered
                 # document, rather than the unrelated search index URL.
                 freshness={'sourceDate':row['sourceDate'],
-                           'dateVerified':row.get('dateVerified')}
+                           'dateVerified':row.get('dateVerified'),
+                           'sourceAsOf':row.get('sourceAsOf')}
             evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt'),'sourceUrl':row.get('sourceUrl'),**freshness}
             if evidence not in item[evidence_key]: item[evidence_key].append(evidence)
 
     for item in by_player.values():
-        for field,evidence_key in (('line','lineEvidence'),('powerPlayUnit','powerPlayEvidence')):
+        for field,evidence_key in (('line','lineEvidence'),
+                                   ('defensePair','defensePairEvidence'),
+                                   ('powerPlayUnit','powerPlayEvidence')):
             values=sorted({e['value'] for e in item[evidence_key]})
             if len(values)==1:
                 item[field]=values[0]
@@ -496,7 +623,9 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         item['evidenceStatus']='CONFLICT — DIMENSION LEFT UNRESOLVED' if item['conflicts'] else 'CONSISTENT SOURCE EVIDENCE'
 
     rows=list(by_player.values())
-    has_line=any(r.get('line') is not None for r in rows)
+    has_forward_line=any(r.get('line') is not None for r in rows)
+    has_defense_pair=any(r.get('defensePair') is not None for r in rows)
+    has_line=has_forward_line or has_defense_pair
     has_pp=any(r.get('powerPlayUnit') is not None for r in rows)
     conflicts=sum(len(r.get('conflicts',[])) for r in rows)
     if mode=='confirmed':
@@ -508,13 +637,14 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
     else:
         for row in rows: row['deploymentStatus']='PROJECTED'
         status=('CONFLICTS FOUND — REVIEW REQUIRED' if conflicts else
-                'FOUND LINE + PP EVIDENCE' if has_line and has_pp else
-                'PARTIAL — LINE + PP SOURCE SEARCH COMPLETED' if has_line or has_pp else
+                'FOUND EV + PP EVIDENCE' if has_line and has_pp else
+                'PARTIAL — EV + PP SOURCE SEARCH COMPLETED' if has_line or has_pp else
                 'NOT FOUND — ALL SOURCES SEARCHED')
     remaining_unmapped=sorted(expected_keys-set(by_player))
     incomplete_player_names=sorted(
         item['playerName'] for item in rows
-        if item.get('line') is None or item.get('powerPlayUnit') is None)
+        if (item.get('line') is None and item.get('defensePair') is None)
+        or item.get('powerPlayUnit') is None)
     dated_row=any(any(
         str(e.get('sourceDate') or '')[:10]==str(slate_date)
         and e.get('dateVerified') is True
@@ -536,5 +666,6 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         'attempts':attempts, 'lineEvidenceFound':has_line, 'powerPlayEvidenceFound':has_pp,
         'conflictCount':conflicts, 'modeRequested':mode,
         'confirmedDeploymentEstablished':False,
-        'sourceSearchComplete':not continuing
+        'sourceSearchComplete':not continuing,
+        'defensePairEvidenceFound':has_defense_pair
     }
