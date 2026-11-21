@@ -118,92 +118,52 @@ jobs:
           git add -A -- state/
           git diff --cached --quiet && exit 0
           git commit -m "Save audited authoritative NHL Blender run output"
-          # A newer authoritative state can arrive while this run fetches NHL
-          # sources. Instead of silently losing the receipt, rerun the SAME
-          # phase on the latest saved state. Never force-push or replace cards.
+          # Engine execution already finished on one tested source revision.
+          # Persistence must SAVE its exact output, not restart scouting and
+          # re-evaluate the slate just because someone committed code meanwhile.
+          # The NEXT scheduled engine cycle will test the newer revision.
+          #
+          # Use a separate worktree to publish this state-only commit atop
+          # the newest main. Keep the runner worktree on the exact engine SHA
+          # it executed so final certification uses the same source version.
+          # Cherry-pick must never silently replace a concurrently changed
+          # ledger; a state conflict remains visible for explicit recovery.
+          saved_state_commit="$(git rev-parse HEAD)"
+          executed_source_commit="$(git rev-parse HEAD^)"
+          echo "Preserving completed Blender execution from $executed_source_commit"
           for attempt in 1 2 3; do
-            # External GitHub connections can fail transiently AFTER
-            # the engine and full source evidence have finished. Do not
-            # lose the completed run on the first remote fetch timeout.
-            # Never force-push or silently mark an unpersisted Core green.
             if ! git fetch origin main; then
-              echo "::warning::GitHub fetch unavailable, attempting safe retry $attempt/3"
+              echo "::warning::GitHub fetch unavailable; retrying saved state $attempt/3"
               sleep $((attempt * 5))
               continue
             fi
-            # Compare against the parent of THIS local state commit, not
-            # the immutable original GITHUB_SHA from the beginning of the
-            # job. After a safe replay, HEAD^ is the newly fetched
-            # authoritative base. Re-using GITHUB_SHA made EVERY retry
-            # rediscover the SAME already-reconciled state change and
-            # repeatedly refetch live NHL sources unnecessarily.
-            state_base="$(git rev-parse HEAD^)"
-            # A selection produced by older code cannot be silently
-            # committed under a newer, untested scorer engine either.
-            # Changes to the current authoritative gate logic/data
-            # integration or the canonical state both require a full replay.
-            # Compare all actual production selection/collection/persistence
-            # dependencies. Tests-only commits are not changes to the
-            # executing rules: the old broad directory match unnecessarily
-            # re-downloaded live NHL evidence on every new test commit,
-            # risking a 28-minute timeout during crowded repair sessions.
-            if ! git diff --quiet "$state_base" origin/main -- \
-                 state/ run_true_blender.py \
-                 engine.py gate_executor.py core_publication.py nhl_data.py \
-                 deployment_sources.py postgame_grade.py postgame_audit.py \
-                 requirements.txt .github/workflows/nhl-true-blender.yml \
-                 nhl_true_blender_engine/ scripts/ \
-                 scripts/automatic_blender_cycle.py scripts/run_cycle.py \
-                 scripts/ledger_persistence.py scripts/retract_invalid_core.py \
-                 scripts/preserved_core_receipt.py scripts/refresh_selected_gate_exports.py \
-                 scripts/publish_site_state.py scripts/verify_published_core.py \
-                 scripts/public_survivor_snapshot.py scripts/download_moneypuck.py \
-                 ':(exclude)nhl_true_blender_engine/tests/**' \
-                 ':(exclude)scripts/tests/**'; then
-              echo "Authoritative state or execution logic changed since $state_base; replay exact phase"
-              git reset --hard origin/main
-              # Rebase onto the newest canonical database; do not replay
-              # with stale local state after another run saved a Core.
-              python scripts/ledger_persistence.py restore
-              # The fetched HEAD may contain newer gate code than the SHA
-              # tested earlier in this run. Verify THAT exact source before
-              # repeating the entire engine; no untested rule version may
-              # certify or persist a new Core.
-              # Replay on the newest dependencies, not stale libraries or a
-              # pytest-only subset from the old checkout.
-              python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
-              python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
-              python -m unittest discover -p 'test*.py' -v
-              python -m pytest -q nhl_true_blender_engine/tests
-              if [ -z "${BLENDER_EXECUTED_DATE:-}" ] || [ -z "${BLENDER_EXECUTED_MODE:-}" ]; then
-                echo "Original phase/date missing; preserving saved Core"
-                exit 1
-              fi
-              export MONEYPUCK_EXPORT_ASOF="$BLENDER_EXECUTED_DATE"
-              if [ "$BLENDER_EXECUTED_MODE" = "projected" ] || [ "$BLENDER_EXECUTED_MODE" = "confirmed" ]; then
-                python run_true_blender.py --date "$BLENDER_EXECUTED_DATE" --mode "$BLENDER_EXECUTED_MODE"
-              else
-                python -m scripts.run_cycle --date "$BLENDER_EXECUTED_DATE" --mode "$BLENDER_EXECUTED_MODE"
-              fi
-              python scripts/ledger_persistence.py prepare
-              git add -A -- state/
-              if git diff --cached --quiet; then
-                echo "Canonical state already reflects this phase"
-                exit 0
-              fi
-              git commit -m "Reconcile NHL Blender with freshest authoritative ledger"
-            else
-              git rebase origin/main
+            persist_dir="$RUNNER_TEMP/blender-persist"
+            if [ -d "$persist_dir" ]; then
+              git worktree remove --force "$persist_dir"
             fi
-            if git push origin HEAD:main; then
-              echo "published=true" >> "$GITHUB_OUTPUT"
-              echo "Published canonical state ($attempt); GitHub Pages is dispatched next"
+            git worktree add --detach "$persist_dir" origin/main
+            if ! git -C "$persist_dir" cherry-pick --no-commit "$saved_state_commit"; then
+              echo "::error::Concurrent canonical state conflicts with completed Blender execution"
+              git worktree remove --force "$persist_dir"
+              exit 1
+            fi
+            if git -C "$persist_dir" diff --cached --quiet; then
+              echo "Exact completed state is already present on main"
+              git worktree remove --force "$persist_dir"
               exit 0
             fi
-            echo "Concurrent update during save; rechecking state ($attempt)"
+            git -C "$persist_dir" commit -m "Save original Blender run from tested source $executed_source_commit"
+            if git -C "$persist_dir" push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              echo "Saved exact executed G0-G18 output ($attempt); no rerun inside persistence"
+              git worktree remove --force "$persist_dir"
+              exit 0
+            fi
+            echo "::warning::Concurrent remote update while saving; retrying state-only cherry-pick $attempt/3"
+            git worktree remove --force "$persist_dir"
             sleep 2
           done
-          echo "Cannot reconcile without risking locked Core; refusing overwrite"
+          echo "::error::Completed Blender state could not be saved without conflicting with newer state"
           exit 1
       # GitHub intentionally suppresses push-triggered workflows for commits
       # made by GITHUB_TOKEN. Explicit workflow_dispatch is the supported way
