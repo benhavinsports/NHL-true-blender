@@ -19,10 +19,10 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                           return_receipts=False):
     """Review real independent G17 inputs, including the actual G0 goalie source.
 
-    Before G0 the normal pass investigates both attack directions. When G0
-    independently decides an attacker, re-review that one documented
-    attack/goalie origin from the very same PBP/EDGE source used in skater G5.
-    Never replace a source conflict with a PASS or overwrite stored evidence.
+    This independent source review runs at the G17 turn in the engine,
+    after the earlier gate decisions have been recorded. G0's independently
+    selected attacking side only supplies opponent context; it never supplies
+    the contradiction verdict. Preserve incompatible sources as unresolved.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
     created=0;unresolved=0;examples=[]
