@@ -260,10 +260,19 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
     opponent_slug_by_team={
         team: TEAM_SLUGS.get(next(iter(opponents[team])))
         if len(opponents[team])==1 else None for team in teams}
+    # Pass the entire official roster to the source-discovery search.
+    # One published first line must not count as complete player coverage.
+    roster_names_by_team={
+        team:sorted({p['name'] for game in snapshot['games']
+                     for p in (((game.get('rosters') or {}).get(team) or {})
+                               .get('data') or {}).get('players',[])
+                     if isinstance(p.get('name'),str) and p['name']})
+        for team in teams}
     results=await asyncio.gather(*(asyncio.to_thread(
         fetch_deployment,team,TEAM_SLUGS.get(team),mode='confirmed'
         if stage=='CONFIRMED' else 'projected',slate_date=date,
-        opponent_slug=opponent_slug_by_team[team]) for team in teams),
+        opponent_slug=opponent_slug_by_team[team],
+        expected_player_names=roster_names_by_team[team]) for team in teams),
         return_exceptions=True)
     observed=datetime.now(timezone.utc).isoformat(timespec='seconds')
     inserted=0; unmatched=[]; reports={}; skipped=[]
