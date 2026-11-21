@@ -1,0 +1,313 @@
+{
+  "slateDate": "2026-11-21",
+  "stage": "PROJECTED",
+  "g0AcceptedSkaterMatrices": 255,
+  "g0RejectedResearchNeverCountsAsCandidate": true,
+  "allGatesExecutedButNotAllPassed": true,
+  "notScorerSelectionOrRanking": true,
+  "fullActualCandidateGateMatrixStoredSeparately": true,
+  "nonpassingGateCounts": {
+    "G4": 255,
+    "G5": 255,
+    "G6": 255,
+    "G7": 43,
+    "G9": 255,
+    "G10": 112,
+    "G10.5": 255,
+    "G11": 255,
+    "G12": 112,
+    "G14": 255,
+    "G15": 255,
+    "G16": 255,
+    "G17": 255,
+    "Step3": 255,
+    "Step4": 43,
+    "Step5": 255,
+    "Step6": 255,
+    "Step7": 255,
+    "Step9": 255,
+    "Step10": 255,
+    "Step10.5": 255,
+    "Step11": 255,
+    "Step12": 255,
+    "Step14": 255
+  },
+  "g18NonselectedNotMissingSource": 255,
+  "g18ActualMissingSourceCount": 133,
+  "g18FinalCoreAssemblyNotSourceCollection": true,
+  "exactFailedGateIntersections": [
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10.5",
+        "G11",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 141
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 71
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 41
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10.5",
+        "G11",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    }
+  ],
+  "oneObservedEvidenceExamplePerGate": {
+    "G4": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G5": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "zone": null,
+        "goalieWeakZones": [
+          "R Circle"
+        ]
+      }
+    },
+    "G6": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "deployment": null
+      }
+    },
+    "G7": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G9": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "zone": null,
+        "green": [
+          "Low Slot",
+          "High Slot",
+          "L Circle",
+          "R Circle"
+        ],
+        "red": [],
+        "method": "RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN",
+        "zoneConcession": null
+      }
+    },
+    "G10": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "recipient": null,
+        "ownedGoalsInActualAppearances": null,
+        "creditedGoalsVerified": null
+      }
+    },
+    "G10.5": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "comparisonCounts": {},
+        "firstDirectContradictions": []
+      }
+    },
+    "G11": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G12": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G14": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G15": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G16": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "G17": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": {
+        "outcome": null,
+        "unresolved": null,
+        "goalieStrengthReview": null,
+        "lineupDisagreementReview": null,
+        "strongestRivalReview": null
+      }
+    },
+    "Step3": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step4": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step5": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step6": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step7": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step9": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step10": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step10.5": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step11": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step12": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    },
+    "Step14": {
+      "gameId": "2026020361",
+      "playerId": "8473419",
+      "reason": null
+    }
+  }
+}
