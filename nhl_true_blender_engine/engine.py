@@ -3507,7 +3507,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             # Count G0-G17 game survivors independently of whether G18
             # can classify their final scoring path. Pathless survivors stay
             # visible but are not included in the Core finalist pool.
-            'uniqueGameSurvivors':sum(1 for x in game_pool if x.get('status')=='SURVIVOR'),
+            'uniqueGameSurvivors':sum(1 for x in game_pool.values() if x.get('status')=='SURVIVOR'),
             'g16FinalistCompetition':g16_receipt,
             'preCoreQualifiedSurvivors':all_survivor_receipts,
             'gameSurvivorPool':_finish_pool(games,game_pool,card,g16_receipt),
