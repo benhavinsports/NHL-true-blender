@@ -1592,6 +1592,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         source_receipt=g17_review(game,attack_team,player,eliminated_before)
         if source_receipt is not None:
             player['contradictions']=source_receipt
+        elif (evidence_data(player.get('contradictions')) or {}).get('sourceType') == 'DERIVED_CROSS_SOURCE_G17':
+            # Do not reuse a stale derived result from a previous G0 goalie
+            # branch when the current G17 review found no valid source route.
+            player.pop('contradictions',None)
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
