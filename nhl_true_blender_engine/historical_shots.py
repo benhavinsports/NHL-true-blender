@@ -200,7 +200,7 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             except Exception as exc:
                 return team,[],f"{type(exc).__name__}: {exc}"
     responses=await asyncio.gather(*(team_games(t) for t in league_teams))
-    target_ids={};coverage_ids={};game_meta={}
+    target_ids={};coverage_ids={};game_meta={};mechanism_target_ids=set()
     for team,games,err in responses:
         if err:
             schedule_errors.append({"team":team,"error":err})
@@ -214,6 +214,8 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 continue
             gid=str(g["id"])
             coverage_ids[gid]=str(g.get("gameDate"))
+            if team in target_teams:
+                mechanism_target_ids.add(gid)
             if gid in recent_target_ids:
                 target_ids[gid]=str(g.get("gameDate"))
             away=g.get("awayTeam") or {}
@@ -242,6 +244,14 @@ async def collect_history(client, con, snapshot, slate_date, stage,
     # at all. A failed source must not count as a reconciled zero appearance.
     pbp_verified_ids={str(gid) for gid,rows,err in results if err is None}
     target_events=[e for e in coverage_events if str(e["gameId"]) in target_ids]
+    # G4 archetype evidence uses the full already-retrieved official PBP
+    # window for today's clubs. Only action type is extended: G7/G10/G11,
+    # appearance zeros, recent own-route pressure and goal reconciliation
+    # retain their original recent-eight-game inputs without modification.
+    mechanisms_by_shooter={}
+    for event in coverage_events:
+        if str(event["gameId"]) in mechanism_target_ids:
+            mechanisms_by_shooter.setdefault(str(event["shooterId"]),[]).append(event)
     target_game_meta={gid:game_meta[gid] for gid in target_ids if gid in game_meta}
     # Only target-club games contribute to the candidate's actual appearances,
     # goal credits, pressure samples and historical defensive shift receipts.
@@ -280,7 +290,8 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 appearance_id_set=set(appearance_ids)
                 sample_events=[e for e in target_events
                                if str(e.get("gameId")) in appearance_id_set]
-                own_mechanisms=mechanism_events(sample_events,pid,slate_date)
+                own_mechanisms=mechanism_events(
+                    mechanisms_by_shooter.get(str(pid),[]),pid,slate_date)
                 if own_mechanisms:
                     mechanisms={"sourceType":MECHANISM_SOURCE,"playerId":str(pid),
                         "slateDate":slate_date,"events":own_mechanisms,
@@ -350,6 +361,8 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             "coveragePeerEvents":len(coverage_events),
             "G9IndependentPeerHistoryWindow":max(max_games,defense_research_games),
             "playerRecentHistoryWindowUnchanged":max_games,
+            "G4OfficialPbpMechanismSourceWindow":max(max_games,defense_research_games),
+            "G4MechanismEventsDoNotExtendRecentScoringPressure":True,
             # Ephemeral in-process handoff. The driver POPs this before
             # writing run JSON; no extra raw league-wide events are persisted.
             # This pre-slate official PBP pool is also suitable for a fair
