@@ -14,16 +14,21 @@ from .enrichment import ingest
 
 SCOPE="DERIVED_CROSS_SOURCE_G17"
 
-def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
+def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
+                          only_player_ids=None,eliminated_player_ids=None,
+                          return_receipts=False):
     """Review real independent G17 inputs, including the actual G0 goalie source.
 
-    Before G0 the normal pass investigates both attack directions. When G0
-    independently decides an attacker, re-review that one documented
-    attack/goalie origin from the very same PBP/EDGE source used in skater G5.
-    Never replace a source conflict with a PASS or overwrite stored evidence.
+    This independent source review runs at the G17 turn in the engine,
+    after the earlier gate decisions have been recorded. G0's independently
+    selected attacking side only supplies opponent context; it never supplies
+    the contradiction verdict. Preserve incompatible sources as unresolved.
     """
     now=datetime.now(timezone.utc).isoformat(timespec="seconds")
     created=0;unresolved=0;examples=[]
+    returned_receipts={}
+    wanted={str(x) for x in only_player_ids} if only_player_ids is not None else None
+    eliminated_ids={str(x) for x in (eliminated_player_ids or ())}
     for game in snapshot.get("games",[]):
         decision=(selected_directions or {}).get(str(game["id"]))
         if selected_directions is not None and not decision:
@@ -41,12 +46,15 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                 branches=[g0_source_coherent_scorer_goalie(game,decision,b)
                           for b in branches]
             for p in teammates:
+                if wanted is not None and str(p['id']) not in wanted:
+                    continue
                 # A separately sourced, already verified independent G17
                 # review is authoritative. Do not overwrite it just because
                 # another player in this game needs a selected-G0 refresh.
                 prior_review=p.get("contradictions")
                 if (decision and receipt(prior_review) and
                     (evidence_data(prior_review) or {}).get("sourceType") != SCOPE):
+                    returned_receipts[str(p['id'])]=prior_review
                     continue
                 # G17 reviews the SAME own-shot route and the SAME goalie+G9
                 # exposure as G5/G10.5 for EVERY independently sourced starter
@@ -67,7 +75,8 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                 dep=evidence_data(p.get("deployment"))
                 rivals=[x for x in teammates
                         if str(x["id"])!=str(p["id"]) and
-                        x.get("availability") not in ("OUT","SCRATCHED","INJURED")]
+                        x.get("availability") not in ("OUT","SCRATCHED","INJURED")
+                        and str(x["id"]) not in eliminated_ids]
                 opposing=[]
                 branch_reviews=[]
                 rows=[]
@@ -179,12 +188,16 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                 # overwrite of a previous source-linked audit.
                 digest=hashlib.sha256(json.dumps(
                     payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()[:16]
+                evidence_id=f"nhl-contradictions-{date}-{stage}-{game['id']}-{p['id']}-{digest}"
                 ingest(con,{
-                    "evidence_id":f"nhl-contradictions-{date}-{stage}-{game['id']}-{p['id']}-{digest}",
+                    "evidence_id":evidence_id,
                     "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                     "player_id":str(p["id"]),"kind":"PLAYER_CONTRADICTIONS",
                     "source_url":p["release"]["sourceUrl"],
                     "observed_at":now,"payload":payload})
+                returned_receipts[str(p['id'])]={
+                    "sourceUrl":p["release"]["sourceUrl"],"observedAt":now,
+                    "evidenceId":evidence_id,"data":payload}
                 created+=1
                 if source_unresolved:
                     unresolved+=1
@@ -192,7 +205,10 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                         examples.append({"gameId":str(game["id"]),"playerId":str(p["id"]),
                             "goalieOriginMatches":len(usable),
                             "lineupAvailable":lineup_available,"rivalRouteDefeated":rival_ok})
-    return {"reviewedSkaters":created,"unresolved":unresolved,
+    result={"reviewedSkaters":created,"unresolved":unresolved,
             "resolvedFromSourceEvidence":created-unresolved,
             "unresolvedExamples":examples,"independentSourceCrossChecks":True,
             "anatomicalWeaknessCertified":False}
+    if return_receipts:
+        result["receipts"]=returned_receipts
+    return result
