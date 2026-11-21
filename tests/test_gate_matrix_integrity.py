@@ -52,8 +52,16 @@ def test_single_card_immutable_without_replacement_audit(tmp_path):
                 "coreOutput": {"core": [
                     {**player(pid, gid), "gameId": gid} for gid, pid in enumerate(ids, 1)
                 ], "status": "VERIFIED"}}
-    assert publish_verified_core(report([11, 22, 33]), str(tmp_path))["published"]
+    # Legacy publication has no independent authority, even for PASS-shaped
+    # inputs. Preserve existing archived files rather than writing another.
+    assert not publish_verified_core(report([11, 22, 33]), str(tmp_path))["published"]
+    assert not list(tmp_path.iterdir())
+    path=tmp_path / "authoritative_core_2026-11-15.json"
+    original=json.dumps({"core":report([11,22,33])["coreOutput"]["core"]})
+    path.write_text(original)
     assert not publish_verified_core(report([11, 22, 33]), str(tmp_path))["published"]
     assert not publish_verified_core(report([11, 44, 33]), str(tmp_path))["published"]
-    saved = json.loads((tmp_path / "authoritative_core_2026-11-15.json").read_text())
+    assert path.read_text()==original
+    saved = json.loads(path.read_text())
     assert [x["playerId"] for x in saved["core"]] == [11, 22, 33]
+

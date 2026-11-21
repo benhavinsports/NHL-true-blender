@@ -359,12 +359,10 @@ def _candidate_lock_reasons(player, report):
 
 
 def run_slate(bundles, mode, history_limit=8):
-    """Run the full pregame slate, evaluate G18 candidates, then derive Core output.
+    """Read-only legacy slate analysis; the integrated engine owns every Core.
 
-    No candidate is locked just for having a path. A game produces a lock only when
-    exactly one candidate satisfies the explicit deployment, confirmed-starter lane,
-    finisher-protection, and source-integrity checks. Multiple eligible candidates
-    remain unresolved; the engine never picks one by name, odds, or numeric score.
+    This compatibility entrypoint retains player/source diagnostics for the
+    local analysis app, but cannot select, certify, persist or replace scorers.
     """
     pregame_states = {'FUT', 'PRE', 'SCHEDULED', 'PREGAME', 'FUTURE'}
     analyzed, excluded = [], []
@@ -382,91 +380,15 @@ def run_slate(bundles, mode, history_limit=8):
         analyzed.append(bundle)
 
     games = [analyze(bundle, mode, history_limit) for bundle in analyzed]
-    locked = []
-    unresolved_candidates = []
-    for report in games:
-        game = report.get('game') or {}
-        game_id = game.get('gameId')
-        players = report.get('players', [])
-        eligible = []
-        for player in players:
-            reasons = _candidate_lock_reasons(player, report)
-            if not reasons:
-                eligible.append(player)
-            else:
-                unresolved_candidates.append({
-                    'gameId': game_id, 'playerId': player.get('playerId'),
-                    'player': player.get('player'), 'reasons': reasons
-                })
-        # Never turn unresolved final gate traces into a lock.
-        if len(eligible) == 1:
-            player = eligible[0]
-            trace = player.get('gateTrace') or []
-            required_final_gates = {'G6', 'G15', 'G16', 'G17', 'G18'}
-            trace_by_id = {str(g.get('gate')): g for g in trace}
-            def _is_explicit_pass(g):
-                s = str(g.get('status', '')).upper()
-                return ('PASS' in s or 'LOCKED' in s) and not any(
-                    token in s for token in ('UNRESOLVED', 'NOT VALIDATED', 'REVIEW REQUIRED', 'PENDING')
-                )
-            unresolved_final_gates = sorted(
-                gid for gid in required_final_gates
-                if gid not in trace_by_id or not _is_explicit_pass(trace_by_id[gid])
-            )
-            if unresolved_final_gates:
-                report.setdefault('finalSlateAudit', {})['status'] = 'NO G18 LOCK — REQUIRED FINAL GATES UNRESOLVED'
-                report['finalSlateAudit']['unresolvedFinalGates'] = unresolved_final_gates
-                report['finalSlateAudit']['reason'] = 'Unresolved gate traces cannot be overwritten with a lock.'
-                continue
-            if trace and trace[-1].get('gate') == 'G18':
-                trace[-1]['status'] = 'LOCKED — G18 FINAL AUDIT PASSED'
-                trace[-1]['evidence'] = list(trace[-1].get('evidence') or []) + [
-                    'Unique eligible candidate in this game after deployment, starter-lane, finisher-protection, and source-integrity checks.'
-                ]
-                trace[-1]['limitation'] = 'Lock is conditional on the retrieved pregame sources; it is not a guarantee of a goal.'
-            player['pathDisposition'] = 'LOCKED — G18 FINAL AUDIT PASSED'
-            locked.append({
-                'gameId': game_id,
-                'matchup': f"{game.get('awayAbbrev', 'AWAY')} @ {game.get('homeAbbrev', 'HOME')}",
-                'playerId': player.get('playerId'), 'player': player.get('player'),
-                'team': player.get('team'), 'opponent': player.get('opponent'),
-                'pathDisposition': player['pathDisposition'], 'gateTrace': trace,
-            })
-        elif len(eligible) > 1:
-            report.setdefault('finalSlateAudit', {})['status'] = 'UNRESOLVED — MULTIPLE CANDIDATES PASSED INDIVIDUAL CHECKS'
-            report['finalSlateAudit']['eligiblePlayerIds'] = [p.get('playerId') for p in eligible]
-            report['finalSlateAudit']['reason'] = 'No arbitrary tie-breaker or numeric score is allowed.'
-        else:
-            report.setdefault('finalSlateAudit', {})['status'] = 'NO G18 LOCK — NO CANDIDATE PASSED ALL REQUIRED CHECKS'
-
-    # Core output uses only actual G18 locks, one per distinct game. If more than
-    # three games qualify, preserve all locks and mark Core selection unresolved
-    # rather than silently selecting by source order or inventing a ranking.
-    by_game = defaultdict(list)
-    for player in locked:
-        by_game[player.get('gameId')].append(player)
-    unique_locks = [v[0] for v in by_game.values() if len(v) == 1]
-    ambiguous_game_ids = [gid for gid, v in by_game.items() if len(v) != 1]
-    if len(unique_locks) == 3 and not ambiguous_game_ids:
-        core = unique_locks
-        core_status = 'CORE 3 — THREE DISTINCT G18-LOCKED GAMES'
-    elif len(unique_locks) == 2 and len(bundles) == 2 and not ambiguous_game_ids:
-        core = unique_locks
-        core_status = 'CORE 2 — TWO-GAME SLATE WITH DISTINCT G18 LOCKS'
-    elif len(unique_locks) == 2:
-        core = []
-        core_status = 'NO VALID CORE — THREE-PLUS-GAME SLATE REQUIRES THREE DISTINCT G18 LOCKS'
-    elif len(unique_locks) > 3:
-        core = []
-        core_status = 'CORE SELECTION UNRESOLVED — MORE THAN THREE VALID GAME LOCKS; NO ARBITRARY TRUNCATION'
-    elif len(unique_locks) == 1:
-        core = []
-        core_status = 'NO VALID CORE — ONLY ONE G18-LOCKED SURVIVOR'
-    else:
-        core = unique_locks
-        core_status = 'NO VALID CORE — ZERO G18-LOCKED SURVIVORS'
-
-    certified = ((len(core) == 3 and len(games) >= 3) or (len(core) == 2 and len(bundles) == 2)) and not ambiguous_game_ids
+    # This legacy Streamlit analysis surface is read-only. Only
+    # nhl_true_blender_engine.engine.execute may construct a canonical Core.
+    # Even a supplied PASS-shaped legacy report cannot start another selector.
+    locked=[]
+    core=[]
+    ambiguous_game_ids=[]
+    unresolved_candidates=[]
+    core_status='READ_ONLY_ANALYSIS — CORE OWNED BY INTEGRATED TRUE BLENDER'
+    certified=False
     unresolved = sum(1 for r in games for p in r.get('players', [])
                      if not str(p.get('pathDisposition', '')).upper().startswith('LOCKED'))
     return {
@@ -476,7 +398,7 @@ def run_slate(bundles, mode, history_limit=8):
             'status': core_status, 'core': core,
             'lockedSurvivorCount': len(locked), 'ambiguousGameIds': ambiguous_game_ids,
             'unresolvedCandidates': unresolved_candidates,
-            'rule': 'Only explicit G18 locks qualify; at most one player per distinct game; no forced slots, numeric ranking, or arbitrary truncation.'
+            'rule': 'Read-only legacy analysis; canonical SQLite-backed integrated G18 is the sole selection authority.'
         },
         'validationSummary': {
             'status': 'VALIDATED — EXPLICIT G18 LOCKS ONLY' if certified else (
@@ -494,5 +416,8 @@ def run_slate(bundles, mode, history_limit=8):
                 'unambiguous game-level candidate and Core selection'],
             'finalPlayerPathsCertified': certified,
         },
-        'statement': 'Full-slate pregame hockey event-path audit. Live/completed games are excluded. Core is derived only from explicit G18 locks; no unsupported player, evidence, or numeric score is invented.'
+        'selectionAuthority': 'nhl_true_blender_engine.engine.execute',
+        'legacySelectionDisabled': True,
+        'statement': 'Read-only full-slate hockey event audit. This legacy analysis cannot select, certify or publish a Core.'
     }
+

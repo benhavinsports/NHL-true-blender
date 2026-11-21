@@ -1,4 +1,4 @@
-"""Conservative single-card publication. Never turns an audit into a pick."""
+"""Retired legacy publisher; only canonical integrated G18 may write a Core."""
 from __future__ import annotations
 import json
 from pathlib import Path
@@ -37,18 +37,10 @@ def publish_verified_core(report, directory="runs"):
                 if gate_id == "G13" and "QUALITATIVE REVIEW" in state:
                     continue
                 raise ValueError(f"Core player has unpassed gate {gate_id}: {state}")
-    out = Path(directory)
-    out.mkdir(parents=True, exist_ok=True)
-    target = out / f"authoritative_core_{slate_date}.json"
-    ids = [(str(p["gameId"]), str(p["playerId"])) for p in core]
-    if target.exists():
-        existing = json.loads(target.read_text(encoding="utf-8"))
-        old = [(str(p["gameId"]), str(p["playerId"])) for p in existing.get("core", [])]
-        if ids != old:
-            return {"published": False, "reason": "Different existing Core; gate-changing replacement audit required", "path": str(target)}
-        return {"published": False, "reason": "Identical authoritative Core already saved; no replacement", "path": str(target)}
-    payload = {"slateDate": slate_date, "mode": report.get("mode"),
-               "runId": report.get("runId"), "core": core,
-               "status": core_output.get("status"), "validated": True}
-    target.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    return {"published": True, "path": str(target)}
+    # Supplied legacy flags and PASS-shaped rows cannot create a second
+    # authority outside the canonical SQLite card/replacement transaction.
+    # Leave historical JSON files intact; only the integrated publisher can
+    # export a card already saved by the original G18 process.
+    return {"published":False,
+            "reason":"Legacy Core publication retired; use canonical integrated G18 state",
+            "selectionAuthority":"nhl_true_blender_engine.engine.execute"}

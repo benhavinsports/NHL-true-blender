@@ -38,19 +38,24 @@ class PublicationTests(unittest.TestCase):
             self.assertFalse(publish_verified_core(self.report(certified=False), d)["published"])
             self.assertEqual(list(Path(d).glob("authoritative*")), [])
 
-    def test_first_card_and_identical_repeat(self):
+    def test_pass_shaped_legacy_report_cannot_create_an_independent_card(self):
         with tempfile.TemporaryDirectory() as d:
             r = self.report()
-            self.assertTrue(publish_verified_core(r, d)["published"])
             self.assertFalse(publish_verified_core(r, d)["published"])
+            self.assertFalse(publish_verified_core(r, d)["published"])
+            self.assertEqual(list(Path(d).iterdir()), [])
 
     def test_conflicting_card_cannot_replace(self):
         with tempfile.TemporaryDirectory() as d:
-            self.assertTrue(publish_verified_core(self.report(), d)["published"])
+            path=Path(d, "authoritative_core_2026-11-15.json")
+            original=json.dumps({"core":self.report()["coreOutput"]["core"]})
+            path.write_text(original)
             rejected = publish_verified_core(self.report((101, 202, 404)), d)
             self.assertFalse(rejected["published"])
-            card = json.loads(Path(d, "authoritative_core_2026-11-15.json").read_text())
+            self.assertEqual(path.read_text(),original)
+            card = json.loads(path.read_text())
             self.assertEqual([p["gameId"] for p in card["core"]], [101, 202, 303])
 
 if __name__ == "__main__":
     unittest.main()
+

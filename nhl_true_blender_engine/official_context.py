@@ -30,7 +30,14 @@ async def collect_context(client,con,snapshot,slate_date,stage):
                 rest=(date.fromisoformat(slate_date)-date.fromisoformat(previous)).days-1 if previous else None
                 if rest is not None and rest<0:
                     raise ValueError("Negative resting days from returned official schedule")
+                upcoming=[r for r in rows if r.get('gameState') in ('FUT','PRE')
+                          and r.get('startTimeUTC') and
+                          datetime.fromisoformat(r['startTimeUTC'].replace('Z','+00:00'))>
+                              datetime.now(timezone.utc)]
+                upcoming.sort(key=lambda r:r['startTimeUTC'])
+                next_game=upcoming[0] if upcoming else None
                 return team,{"lastOfficialGameDate":previous,
+                             "nextScheduledGameId":str(next_game['id']) if next_game else None,
                              "restDaysSinceLastFinal":rest,
                              "knownPreviousGameId":str(latest["id"]) if latest else None,
                              "lastGameStartUTC":latest.get("startTimeUTC") if latest else None,
@@ -69,6 +76,9 @@ async def collect_context(client,con,snapshot,slate_date,stage):
             "homePreviousGameId":home["knownPreviousGameId"],
             "awayLastGameDate":away["lastOfficialGameDate"],
             "homeLastGameDate":home["lastOfficialGameDate"],
+            "nextScheduledGameIds":{
+                game['away']:away['nextScheduledGameId'],
+                game['home']:home['nextScheduledGameId']},
             "awayBackToBack":away["restDaysSinceLastFinal"]==0 if away["restDaysSinceLastFinal"] is not None else None,
             "homeBackToBack":home["restDaysSinceLastFinal"]==0 if home["restDaysSinceLastFinal"] is not None else None,
             "teamScheduleSequences":{

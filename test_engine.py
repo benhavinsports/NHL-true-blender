@@ -4,6 +4,19 @@ from engine import GATES, analyze, direct, goalie_hist, isgoal, historical_usage
 import nhl_data
 
 class BlenderTests(unittest.TestCase):
+    def test_legacy_surface_cannot_select_even_if_given_complete_pass_shaped_players(self):
+        bundles=[{'game':{'gameId':i,'gameState':'FUT'},'errors':[]}
+                 for i in (1,2,3)]
+        def forged(bundle,mode,history):
+            return {'game':bundle['game'],'players':[{
+                'playerId':bundle['game']['gameId'], 'player':'Injected',
+                'gateTrace':[{'gate':g,'status':'PASS'} for g,_ in GATES]}],
+                'dataErrors':[]}
+        with patch('engine.analyze',side_effect=forged):
+            result=run_slate(bundles,'projected',8)
+        self.assertEqual(result['coreOutput']['core'],[])
+        self.assertFalse(result['validationSummary']['finalPlayerPathsCertified'])
+        self.assertTrue(result['legacySelectionDisabled'])
     def test_slate_summary_never_claims_validation_from_trace_alone(self):
         report = run_slate([], 'projected', 8)
         self.assertEqual(report['validationSummary']['status'], 'NO GAMES RETURNED — SLATE NOT VALIDATED')
@@ -230,3 +243,4 @@ class BlenderTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

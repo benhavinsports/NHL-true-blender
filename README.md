@@ -47,6 +47,10 @@ newly executed G0–G18 run.
 
 ## Local development app (optional)
 
+The legacy local app provides read-only source analysis. It cannot construct
+or publish an independent Core; the integrated engine and saved canonical
+state remain the sole selection and publication authority.
+
 - **Windows:** double-click `start_windows.bat`
 - **macOS/Linux:** run `./start_unix.sh`
 

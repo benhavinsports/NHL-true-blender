@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import asyncio
 import re
+import json
 from datetime import date as Date, datetime, timezone
+from zoneinfo import ZoneInfo
 from html import unescape
 from urllib.parse import quote
 import httpx
@@ -29,12 +31,13 @@ MONTHS = {
 }
 
 
-def source_asof(html, slate_date):
-    """Require an explicitly updated source for THIS local slate day.
+def source_asof(html, slate_date, next_game_evidence=None):
+    """Require an explicitly dated projection applicable to THIS game.
 
     Do not reuse yesterday's cached webpage merely because it was fetched
     today. Last-game input may be several days old, but the next-game projection
-    itself must have been published for the requested date.
+    itself must be dated for the requested day, or officially reconciled as
+    the same NEXT game with no intervening completed game since the update.
     """
     soup = BeautifulSoup(html, "html.parser")
     # The page has an extensive navigation menu before the actual article.
@@ -58,13 +61,34 @@ def source_asof(html, slate_date):
     if month is None:
         return None
     requested = Date.fromisoformat(slate_date)
-    if (month, int(match.group(2))) != (requested.month, requested.day):
-        return None
     if "Projected for the next game" not in sample:
         return None
-    return {"sourceUpdateDay": slate_date,
+    year=requested.year-(month>requested.month)
+    try:
+        updated=Date(year,month,int(match.group(2)))
+    except ValueError:
+        return None
+    future_match=False
+    if updated!=requested:
+        proof=next_game_evidence or {}
+        # A dated NEXT-GAME projection may be published before game day.
+        # Official schedule identity and no intervening completed game must
+        # establish that it still targets THIS game, not yesterday's lineup.
+        future_match=bool(updated<requested and
+            updated<=datetime.now(ZoneInfo('America/New_York')).date() and
+            str(proof.get('nextGameId') or '')==str(proof.get('targetGameId') or '') and
+            bool(proof.get('targetGameId')) and proof.get('observedAt') and
+            str(proof.get('lastFinalDate') or '')<updated.isoformat() and
+            bool(proof.get('lastFinalDate')) and
+            str(proof.get('sourceUrl') or '').startswith(
+                'https://api-web.nhle.com/v1/club-schedule-season/'))
+        if not future_match:
+            return None
+    return {"sourceUpdateDay": updated.isoformat(),
             "sourceUpdateTimeET": match.group(0),
-            "sourceDescribesNextGameProjection": True}
+            "sourceDescribesNextGameProjection": True,
+            "officialNextGameIdentityVerified":future_match,
+            "nextGameEvidence":next_game_evidence if future_match else None}
 
 
 def roster_identity(name, jersey, roster):
@@ -190,7 +214,21 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
                 diagnostics.append({"gameId":str(game["id"]), "team":team,
                                     "status":"SOURCE_UNAVAILABLE", "reason":error})
                 continue
-            freshness = source_asof(html, slate_date)
+            context=con.execute('SELECT payload,observed_at FROM evidence '
+                'WHERE slate_date=? AND stage=? AND game_id=? AND kind=? '
+                'ORDER BY observed_at DESC,rowid DESC LIMIT 1',
+                (slate_date,stage,str(game['id']),'MATCH_CONTEXT')).fetchone()
+            facts=json.loads(context['payload']) if context else {}
+            schedule_urls=[u for u in facts.get('sources',[]) if isinstance(u,str)
+                and u.startswith('https://api-web.nhle.com/v1/club-schedule-season/'+team+'/')]
+            prior_key='awayLastGameDate' if team==game['away'] else 'homeLastGameDate'
+            next_game_proof={
+                'targetGameId':str(game['id']),
+                'nextGameId':(facts.get('nextScheduledGameIds') or {}).get(team),
+                'lastFinalDate':facts.get(prior_key),
+                'sourceUrl':schedule_urls[0] if schedule_urls else None,
+                'observedAt':context['observed_at'] if context else None}
+            freshness = source_asof(html, slate_date,next_game_proof)
             if not freshness:
                 diagnostics.append({"gameId":str(game["id"]), "team":team,
                                     "status":"SOURCE_NOT_UPDATED_FOR_SLATE",
@@ -220,3 +258,4 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
     return {"status":"G6_PROJECTED_RESEARCH_COMPLETE",
             "deploymentRecords":inserted,
             "neverConfirmed":True,"teams":diagnostics}
+

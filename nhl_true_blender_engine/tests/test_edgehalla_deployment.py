@@ -33,6 +33,16 @@ HTML = """<html><body>
 
 
 class EdgehallaG6Tests(unittest.TestCase):
+    def test_earlier_published_next_game_projection_requires_official_game_identity(self):
+        proof={'nextGameId':'100','targetGameId':'100','lastFinalDate':'2026-11-18',
+            'sourceUrl':'https://api-web.nhle.com/v1/club-schedule-season/LAK/20262027',
+            'observedAt':'2026-11-20T12:00:00Z'}
+        result=source_asof(HTML,'2026-11-21',proof)
+        self.assertTrue(result['officialNextGameIdentityVerified'])
+        self.assertEqual(result['sourceUpdateDay'],'2026-11-19')
+        self.assertIsNone(source_asof(HTML,'2026-11-21'))
+        self.assertIsNone(source_asof(HTML,'2026-11-21',{**proof,'nextGameId':'different-game'}))
+        self.assertIsNone(source_asof(HTML,'2026-11-21',{**proof,'lastFinalDate':'2026-11-20'}))
     def test_current_dated_projection(self):
         self.assertEqual(source_asof(HTML,"2026-11-19")["sourceUpdateDay"],
                          "2026-11-19")
@@ -59,3 +69,4 @@ class EdgehallaG6Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

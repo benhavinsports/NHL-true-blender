@@ -29,6 +29,8 @@ collector and original scorer pipeline.
 | G1 / Step2 schedule and travel research | Only last date, rest count and home designation were retained; actual venue and the recent venue sequence were dropped. | Official venue, game time, previous start, recent completed-game sequence, back-to-back status and scheduled venue transition are preserved in G1 and Step2. A scheduled transition is not called an observed flight, distance, travel duration or fatigue. |
 | Source-failure recovery | A source-incomplete candidate could cause every unrelated game's collectors to run again. | Retry collection is scoped to still-incomplete pregame games. Valid evidence from unaffected games is retained. Actual original-gate eliminations are not reopened. The full original selection still executes against the refreshed whole slate; a shared league comparison cohort is still collected where needed. |
 | Upcoming-slate official statistics | `collect_edge` and `collect_season_goal_history` rejected every date other than today, so tomorrow's live pregame collection was incorrectly classified as historical. | Past slates still reject current statistics. An upcoming slate can use currently observed, source-timestamped statistics. EDGE additionally prevents mixing the current season with an unobserved future season. Target-day results remain excluded from dated goal history. |
+| One selection and publication authority | The production CLI delegated to the integrated engine, but the optional local app's root `engine.run_slate` retained a dormant independent selector, and `core_publication.publish_verified_core` could write `authoritative_core_DATE.json` from supplied PASS-shaped legacy rows. | The legacy analysis surface is explicitly read-only and always returns no selected Core. The legacy publisher validates malformed inputs but cannot write another card, even for a supplied complete PASS matrix. Past legacy files are preserved. Canonical G18 and its SQLite transaction remain the sole selection authority. |
+| Dated next-game deployment | A report explicitly projecting the next game could be rejected solely because it was published before the target calendar day. | Earlier-published next-game projections require the official club schedule to identify the exact target game as next and establish that no completed game intervened after the source update. The report's original date and PROJECTED status remain unchanged. A generic stale page or wrong next-game ID cannot qualify. |
 | Live validation dispatch | Ordinary code pushes intentionally run tests only; the current connector does not expose workflow dispatch. | An explicit date/phase-only `.github/nhl-live-validation.json` change triggers the existing serialized production workflow. There is no new selector, parallel Core writer, player input or gate override. Ordinary code pushes keep their existing behavior. |
 
 ## Master gate coverage
@@ -147,3 +149,13 @@ The saved diagnostics are `state/site_runs/2026-11-21.json`. Their row counts
 are execution coverage, not source-backed gate passes. No candidate names in
 those diagnostics are promoted to manual picks. The follow-up uses request ID
 `master-repair-future-slate-source-guard-2` through the same canonical writer.
+
+The second production run `44853942216`, using commit
+`86641859a73b79a8792d36c95cf04882bf5a1efc`, confirmed that correction in actual
+collection: 699 roster identities checked, 634 skater profiles and 64 goalie
+profiles collected, one source failure. No qualified Core was issued. First
+nonpassing candidate counts included G4=105, G5=18 and G6=126; 27/28 goalie
+directions had complete profiles. These are actual remaining evidence gaps,
+not a completed scorer cycle. The next-game deployment reconciliation and
+legacy-authority retirement are followed by request
+`master-repair-next-game-deployment-single-authority-3`.
