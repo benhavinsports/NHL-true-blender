@@ -797,34 +797,40 @@ def _same_lane_bounded_shot_opportunity(candidate, rival, candidate_route,
 
 def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None,
                      opponent_coverage=None):
-    """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
+    """Compare every viable candidate and rival route after G0, G5 and G9.
 
-    NHL EDGE independently measures each skater's shots on goal and own goals
-    in each area. Requiring every competitor's separate prior-game goal log
-    would discard a real same-lane threat merely because that player hasn't
-    scored in the sampled last-eight games; the rival's observed season zone
-    data remains valid challenger evidence.
-
-    Old goals and release shots establish the skater's historical shooting
-    mechanism but cannot defeat a competing current recipient. G10.5 only
-    resolves distinct viable player lanes if tonight's goalie + defense
-    exposure independently separates EVERY rival viable route. Same-lane
-    teammates without direct matchup separation remain pending.
+    Candidate routes are the G9-filtered set when supplied. Rival routes are
+    independently filtered against the same G0 goalie weakness and G9 defense.
+    One candidate route must defeat every viable route of a rival; a rival
+    dominates only when one rival route defeats every candidate route.
     """
     base=player_releases(candidate)
-    rows=[]; all_defeated=True
     if not base:
         return None,[]
+    goalie_areas=set(goalie_weak_zones or {})
+    defensive_areas=(set(defense_weak_zones)
+                     if defense_weak_zones is not None else None)
+
+    def viable_routes(release, candidate_side=False):
+        if candidate_side and isinstance(release.get('g9ViableRoutes'),list):
+            raw=release['g9ViableRoutes']
+        elif candidate_side and isinstance(release.get('g0MatchedOwnOriginRoutes'),list):
+            raw=release['g0MatchedOwnOriginRoutes']
+        else:
+            raw=release.get('allRoutes') or []
+        rows=_source_route_rows({'allRoutes':raw},release.get('sourceUrl'))
+        return [x for x in rows if x['zone'] in goalie_areas and
+                (defensive_areas is None or x['zone'] in defensive_areas)]
+
+    candidate_routes=viable_routes(base,True)
+    if not candidate_routes:
+        return None,[]
+    rows=[];all_defeated=True
     for rival in challengers:
         if str(rival['id'])==str(candidate['id']):
             continue
         wrapper=rival.get('release')
         release=player_releases(rival)
-        if not release and receipt(wrapper) and isinstance(wrapper['data'].get('allRoutes'),list):
-            # A tied season top area is still a valid measured SAME-LANE
-            # challenger. Use the observed route in candidate's exact zone
-            # instead of erasing the competing player.
-            release=wrapper['data']
         if not release:
             zero=rival.get('zeroShotOriginProof')
             zdata=evidence_data(zero)
@@ -835,11 +841,6 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                 zdata.get('verifiedNoSameLaneOnNetRoute') is True and
                 zdata.get('observedOnNetShotsAcrossAllReportedOrigins')==0 and
                 zdata.get('ownedGoalsAcrossAllReportedOrigins')==0):
-                # All roster teammates were scanned. This official EDGE
-                # season-zero player has NO evidenced direct scoring
-                # shots in the candidate's specific rink lane, not a
-                # phantom comparison rival. Do not claim he cannot score
-                # for the first time tonight or fabricate a G4 route.
                 rows.append({'challengerId':str(rival['id']),
                              'status':'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE',
                              'sourceUrls':[zero['sourceUrl']],
@@ -858,112 +859,122 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
                          'status':'RELEASE_PROVENANCE_MISSING'})
             all_defeated=False
             continue
-        # A rival does not become a defeated goal recipient merely because
-        # its best scoring route differs from this candidate's route. G0 can
-        # identify MULTIPLE independently weak areas for the same goalie.
-        # G10.5 must compare the rival's strongest actually recorded OWN
-        # finishing route through ANY jointly viable G0+G9 area.
-        # Earlier code ignored goalie_weak_zones entirely and compared only
-        # the candidate's lane, falsely defeating other direct recipients.
         all_routes=release.get('allRoutes') or []
-        if not all_routes and release.get('zone'):
-            all_routes=[{'zone':release['zone'],'sog':release.get('attempts'),
-                         'ownedGoals':release.get('ownedGoals')}]
-        goalie_areas=set(goalie_weak_zones or {})
-        defensive_areas=(set(defense_weak_zones)
-                         if defense_weak_zones is not None else None)
-        viable=[x for x in all_routes if
-                x.get('zone') in goalie_areas and
-                (defensive_areas is None or x['zone'] in defensive_areas) and
-                type(x.get('sog',x.get('attempts'))) is int and
-                type(x.get('ownedGoals')) is int and
-                x.get('sog',x.get('attempts'))>=x.get('ownedGoals')>=0]
+        viable=viable_routes(release,False)
         if not viable:
             rows.append({'challengerId':str(rival['id']),
                          'status':'DIFFERENT_TARGET_LANE',
-                         'candidateZone':base['zone'],
+                         'candidateZones':sorted({x['zone'] for x in candidate_routes}),
                          'rivalKnownAreas':[x.get('zone') for x in all_routes],
                          'G0GoalieWeakZones':sorted(goalie_areas),
-                         'G9DefensiveWeakZones':sorted(defensive_areas) if defensive_areas is not None else None,
+                         'G9DefensiveWeakZones':sorted(defensive_areas)
+                             if defensive_areas is not None else None,
                          'noneOfKnownRivalOriginsJointlyMatchG0G9':True,
                          'notEvidenceRivalCannotScoreTonight':True,
                          'sourceUrls':[wrapper['sourceUrl']]})
             continue
-        # Compare ALL of the rival's separately verified viable routes
-        # against tonight's opposing goalie AND defense. Historic goals
-        # cannot pick the rival's route, defeat the rival, or break a tie.
-        # A different-lane rival wins if ANY own route is more exposed;
-        # the candidate defeats the rival only if EVERY route is less
-        # exposed. Identical lanes or conflicting evidence remain unresolved.
-        route_comparisons=[
-            (x,((_same_lane_tonight_shot_opportunity(
-                candidate,rival,base,x,goalie_weak_zones,defensive_areas)
-               or _same_lane_bounded_shot_opportunity(
-                candidate,rival,base,x,goalie_weak_zones,defensive_areas))
-                if x['zone']==base['zone'] else
-                _tonight_route_comparison(
-                    base['zone'],x['zone'],goalie_weak_zones,opponent_coverage)))
-            for x in viable]
-        rival_dominating=[
-            (x,proof) for x,proof in route_comparisons
-            if proof is not None and proof['result']=='RIVAL']
-        candidate_dominates=bool(route_comparisons) and all(
-            proof is not None and proof['result']=='CANDIDATE'
-            for _,proof in route_comparisons)
-        defeated_by=bool(rival_dominating)
-        dominates=candidate_dominates and not defeated_by
-        # Pick a witness for reporting, NEVER a history-ranked route.
-        target=(rival_dominating[0][0] if rival_dominating else
-                sorted(viable,key=lambda x:x['zone'])[0])
-        matchup=(
-            rival_dominating[0][1] if rival_dominating else
-            route_comparisons[0][1] if len(route_comparisons)==1 else None)
-        opponent_shots=target.get('sog',target.get('attempts'))
-        opponent_goals=target.get('ownedGoals')
-        tied_zones=sorted(x['zone'] for x in viable)
-        if (type(opponent_shots) is not int or type(opponent_goals) is not int
-                or opponent_goals<0 or opponent_shots<opponent_goals):
-            rows.append({'challengerId':str(rival['id']),
-                         'status':'INCOMPLETE_OWN_FINISH_DATA',
-                         'sourceUrl':wrapper['sourceUrl']})
+
+        route_comparisons=[]
+        for candidate_route in candidate_routes:
+            for rival_route in viable:
+                if candidate_route['zone']==rival_route['zone']:
+                    matchup=(_same_lane_tonight_shot_opportunity(
+                        candidate,rival,candidate_route,rival_route,
+                        goalie_weak_zones,defensive_areas) or
+                        _same_lane_bounded_shot_opportunity(
+                        candidate,rival,candidate_route,rival_route,
+                        goalie_weak_zones,defensive_areas))
+                else:
+                    matchup=_tonight_route_comparison(
+                        candidate_route['zone'],rival_route['zone'],
+                        goalie_weak_zones,opponent_coverage)
+                route_comparisons.append((candidate_route,rival_route,matchup))
+
+        winning_candidate_routes=[]
+        for candidate_route in candidate_routes:
+            defeats_every_rival_route=all(
+                any(c['zone']==candidate_route['zone'] and
+                    r['zone']==rival_route['zone'] and proof is not None and
+                    proof.get('result')=='CANDIDATE'
+                    for c,r,proof in route_comparisons)
+                for rival_route in viable)
+            if defeats_every_rival_route:
+                winning_candidate_routes.append(candidate_route)
+
+        dominating_rival_routes=[]
+        for rival_route in viable:
+            defeats_every_candidate_route=all(
+                any(c['zone']==candidate_route['zone'] and
+                    r['zone']==rival_route['zone'] and proof is not None and
+                    proof.get('result')=='RIVAL'
+                    for c,r,proof in route_comparisons)
+                for candidate_route in candidate_routes)
+            if defeats_every_candidate_route:
+                dominating_rival_routes.append(rival_route)
+
+        dominates=bool(winning_candidate_routes) and not bool(dominating_rival_routes)
+        defeated_by=bool(dominating_rival_routes) and not bool(winning_candidate_routes)
+        status=('DEFEATED' if dominates else
+                'RIVAL_DOMINATES' if defeated_by else
+                'NO_DECISIVE_ROUTE_SEPARATION')
+        if status!='DEFEATED':
             all_defeated=False
-            continue
-        same_lane_proofs=[proof for x,proof in route_comparisons
-                          if x['zone']==base['zone'] and proof is not None]
-        recent_tie_proof=(same_lane_proofs[0] if len(same_lane_proofs)==1 else
-                          same_lane_proofs if same_lane_proofs else None)
+        candidate_report=(winning_candidate_routes[0] if len(winning_candidate_routes)==1
+                          else candidate_routes[0])
+        rival_report=(dominating_rival_routes[0] if len(dominating_rival_routes)==1
+                      else viable[0])
+        witness=next((proof for c,r,proof in route_comparisons
+                      if c['zone']==candidate_report['zone'] and
+                         r['zone']==rival_report['zone'] and proof is not None),None)
+        same_lane=any(c['zone']==r['zone'] for c,r,_ in route_comparisons)
+        recent_proofs=[proof for c,r,proof in route_comparisons
+                       if c['zone']==r['zone'] and proof is not None]
         decision_basis=(
             'TONIGHT_G0_G9_MATCHUP_PLUS_DATED_SAME_LANE_SHOT_RATE'
-            if (dominates or defeated_by) and same_lane_proofs else
-            'TONIGHT_OPPONENT_GOALIE_AND_DEFENSE_ALL_RIVAL_ROUTES'
+            if (dominates or defeated_by) and recent_proofs else
+            'TONIGHT_OPPONENT_GOALIE_AND_DEFENSE_ALL_CANDIDATE_AND_RIVAL_ROUTES'
             if dominates or defeated_by else
             'UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK')
-        if not dominates:
-            all_defeated=False
+        sources={candidate['release']['sourceUrl'],wrapper['sourceUrl']}
+        for _,_,proof in route_comparisons:
+            if proof:
+                sources.update(proof.get('sourceUrls',[]))
+        candidate_routes_report=[
+            {'zone':x['zone'],'shotsOnGoal':x['attempts'],
+             'ownedGoals':x['ownedGoals']} for x in candidate_routes]
+        rival_routes_report=[
+            {'zone':x['zone'],'shotsOnGoal':x['attempts'],
+             'ownedGoals':x['ownedGoals']} for x in viable]
         rows.append({
-            'challengerId':str(rival['id']),
-            'status':'DEFEATED' if dominates else
-                     'RIVAL_DOMINATES' if defeated_by else
-                     'NO_DECISIVE_ROUTE_SEPARATION',
-            'candidate':{'zone':base['zone'],'shotsOnGoal':base['attempts'],
-                         'ownedGoals':base['ownedGoals']},
-            'challenger':{'zone':target['zone'],'shotsOnGoal':opponent_shots,
-                          'ownedGoals':opponent_goals},
-            'sourceUrls':sorted(set(
-                [candidate['release']['sourceUrl'],wrapper['sourceUrl']] +
-                [url for _,proof in route_comparisons if proof
-                 for url in proof.get('sourceUrls',[])])),
-            'independentRecentTieReview':recent_tie_proof,
-            'tonightMatchupComparison':matchup,
+            'challengerId':str(rival['id']),'status':status,
+            'candidate':{'zone':candidate_report['zone'],
+                         'shotsOnGoal':candidate_report['attempts'],
+                         'ownedGoals':candidate_report['ownedGoals']},
+            'challenger':{'zone':rival_report['zone'],
+                          'shotsOnGoal':rival_report['attempts'],
+                          'ownedGoals':rival_report['ownedGoals']},
+            'candidateRoutes':candidate_routes_report,
+            'challengerRoutes':rival_routes_report,
+            'candidateWinningRoutes':[
+                {'zone':x['zone'],'shotsOnGoal':x['attempts'],
+                 'ownedGoals':x['ownedGoals']} for x in winning_candidate_routes],
+            'rivalDominatingRoutes':[
+                {'zone':x['zone'],'shotsOnGoal':x['attempts'],
+                 'ownedGoals':x['ownedGoals']} for x in dominating_rival_routes],
+            'sourceUrls':sorted(set(u for u in sources if isinstance(u,str) and u.startswith('https://'))),
+            'independentRecentTieReview':recent_proofs or None,
+            'tonightMatchupComparison':witness,
             'allViableRivalRouteComparisons':[
-                {'zone':x['zone'],'matchup':proof} for x,proof in route_comparisons],
+                {'candidateZone':c['zone'],'zone':r['zone'],'matchup':proof}
+                for c,r,proof in route_comparisons],
             'decisionBasis':decision_basis,
             'historicalTotalsCannotSetRecipient':True,
             'historicalTotalsNeverOverrideMeasuredTonightMatchup':True,
-            'sameLane':target['zone']==base['zone'],
-            'rivalAlternateGoalieWeakLane':target['zone']!=base['zone'],
+            'sameLane':same_lane,
+            'rivalAlternateGoalieWeakLane':any(
+                c['zone']!=r['zone'] for c,r,_ in route_comparisons),
+            'allViableCandidateZones':sorted({x['zone'] for x in candidate_routes}),
             'allRivalJointlyViableZones':sorted({x['zone'] for x in viable}),
-            'jointlyViableRouteTiedZones':tied_zones,
             'goalieWeaknessAndDefenseBothRequired':defensive_areas is not None,
             'rivalEVRole':evidence_data(rival.get('deployment')),
             'roleReviewIncomplete':not receipt(rival.get('deployment')),
@@ -971,12 +982,13 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
             'comparisonPriority':[
                 'G0 goalie peer vulnerability in tonight opponent lane',
                 'G9 tonight opponent defensive on-net exposure',
-                'Every viable rival scoring lane compared, not just historical best'],
+                'Every viable candidate and rival scoring lane compared, not just historical best'],
             'noFameOddsOrPPShortcut':True,
             'sameLaneSeasonCumulativeCountsNotUsed':True,
-            'rule':'only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback',
+            'rule':'one source-backed candidate route must defeat every viable direct rival route; no season cumulative fallback',
         })
     return all_defeated,rows
+
 
 def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage,
                             dispositions, challenger_rows, who_supported):
