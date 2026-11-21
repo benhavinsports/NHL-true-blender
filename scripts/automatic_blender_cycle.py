@@ -220,6 +220,15 @@ def main():
     now = datetime.now(ET)
     manual_date = os.getenv("REQUESTED_DATE", "").strip()
     manual_mode = os.getenv("REQUESTED_MODE", "").strip().lower()
+    if os.getenv('TRIGGER_EVENT')=='push' and not manual_date and not manual_mode:
+        # Only a change to this exact request file triggers the existing
+        # production workflow. It supplies date/phase, never player names,
+        # gate outcomes, replacements, scores, or another Core generator.
+        request=json.loads(Path('.github/nhl-live-validation.json').read_text())
+        if (set(request)!={'date','mode'} or request['mode']!='projected'):
+            raise SystemExit('Live validation request must contain only date and projected mode')
+        manual_date=Date.fromisoformat(request['date']).isoformat()
+        manual_mode=request['mode']
     if manual_mode and manual_mode not in VALID_MODES:
         raise SystemExit("Unsupported Blender phase: " + manual_mode)
     if manual_date:
@@ -246,3 +255,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

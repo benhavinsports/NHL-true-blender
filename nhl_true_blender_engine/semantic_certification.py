@@ -11,7 +11,24 @@ PROVENANCE_REQUIRED = frozenset((
     'G0','G1','G2','G3','G4','G5','G6','G7','G9','G10',
     'G10.5','G11','G12','G15','G16','G17'))
 
-def audit_gate(gate, evidence, source_ids, stage):
+def nonblocking_overlay_review(step, evidence, status):
+    """Only original optional observations may remain explicitly unobserved.
+
+    A missing historical shift sample is uncertainty, never a fabricated PASS
+    or a new veto on an independently established scoring route. A negative
+    or contradictory observation is never excused by a nonblocking flag.
+    """
+    e=evidence if isinstance(evidence,dict) else {}
+    if status != 'NOT_EXECUTED' or e.get('nonblocking') is not True:
+        return False
+    if not (e.get('independentOverlayEvaluation') is True and
+            e.get('checkedBeforeG18') is True and
+            e.get('masterGateVerdictCopied') is False):
+        return False
+    return (step=='Step13' or (step=='Step8' and
+            e.get('actualShiftByShiftObserved') is False))
+
+def audit_gate(gate, evidence, source_ids, stage, *, preserve_historical_contract=False):
     """Return independent reasons the alleged PASS is not certified."""
     e=evidence if isinstance(evidence,dict) else {}
     sources=[x for x in (source_ids or []) if isinstance(x,str) and x.startswith('https://')]
@@ -51,6 +68,15 @@ def audit_gate(gate, evidence, source_ids, stage):
     elif gate=='G4':
         own=e.get('ownRelease') or {}
         need(bool(e.get('archetype')) and bool(own.get('zone')),'G4_OWN_RELEASE_MISSING')
+        mechanism=e.get('individualMechanismReview') or {}
+        # A past frozen card retains its recorded contract and outcome. This
+        # option is used only by the past-card reader, never live selection,
+        # certification or a new publication. Do not rewrite old decisions.
+        if not (preserve_historical_contract and 'individualMechanismReview' not in e):
+            need(mechanism.get('supported') is True and
+                 bool(mechanism.get('archetype')) and
+                 bool(mechanism.get('sourceIds')),
+                 'G4_SHOT_ORIGIN_IS_NOT_FINISHING_MECHANISM')
     elif gate=='G5':
         need(bool(e.get('shooterZone')) and
              e.get('shooterZone') in (e.get('weakZones') or {}),
@@ -126,6 +152,10 @@ def audit_gate(gate, evidence, source_ids, stage):
              type(evidence_review.get('positiveShotAppearances')) is int and
              evidence_review['positiveShotAppearances']>=2,
              'G11_OWN_SHOT_PRESSURE_DID_NOT_CONTINUE_ACROSS_APPEARANCES')
+        if not (preserve_historical_contract and 'currentShotPressureInSelectedRoute' not in e):
+            need(e.get('currentShotPressureInSelectedRoute') is True and
+                 bool(e.get('selectedRouteRecentOrigin')),
+                 'G11_CURRENT_PRESSURE_NOT_IN_SELECTED_ROUTE')
     elif gate=='G12':
         own=e.get('ownership') or {}
         need(e.get('officialGoalsReconciled') is True and
@@ -250,7 +280,8 @@ def audit_gate(gate, evidence, source_ids, stage):
                   e.get('datedOwnShotRecurrence') is True),
                  'STEP4_DATED_RECURRENCE_NOT_DEMONSTRATED')
         elif gate=='Step5': need(e.get('ownedArchetype') and
-                                 e.get('creditedGoalsByOrigin') is not None,
+                                 e.get('creditedGoalsByOrigin') is not None and
+                                 (e.get('individualMechanismReview') or {}).get('supported') is True,
                                  'STEP5_SHOOTER_MECHANISM_NOT_PROVED')
         elif gate=='Step6':
             need(bool(e.get('EV')) and e.get('sourceStatus') in ('PROJECTED','CONFIRMED'),
@@ -258,7 +289,9 @@ def audit_gate(gate, evidence, source_ids, stage):
             if stage=='CONFIRMED':
                 need(e.get('confirmationSeparatelyLabeled') is True,
                      'STEP6_CONFIRMATION_STATUS_NOT_LABELED')
-        elif gate=='Step7': need(bool(e.get('directOwnShotOrigin')),
+        elif gate=='Step7': need(bool(e.get('directOwnShotOrigin')) and
+                                 bool(e.get('archetype')) and
+                                 (e.get('individualMechanismReview') or {}).get('supported') is True,
                                  'STEP7_SHOOTER_ARCHETYPE_NOT_TAGGED')
         elif gate=='Step8': need(e.get('actualShiftByShiftObserved') is True and
                                  (e.get('officialShiftChartSourceCount') or 0)>0,
@@ -270,6 +303,9 @@ def audit_gate(gate, evidence, source_ids, stage):
                  type(observed.get('positiveShotAppearances')) is int and
                  observed['positiveShotAppearances']>=2,
                  'STEP9_RECENT_OWN_SHOT_CONTINUATION_NOT_PROVED')
+            need(e.get('currentShotPressureInSelectedRoute') is True and
+                 bool(e.get('selectedRouteRecentOrigin')),
+                 'STEP9_CURRENT_PRESSURE_NOT_IN_SELECTED_ROUTE')
         elif gate=='Step10': need(bool(e.get('targetGoalieId')) and
                                   bool(e.get('ownRouteArea')),
                                   'STEP10_GOALIE_ROUTE_NOT_PROVED')
@@ -290,3 +326,4 @@ def audit_gate(gate, evidence, source_ids, stage):
                                   e.get('reviewedRivals') is True,
                                   'STEP14_CONTRADICTION_REVIEW_NOT_PROVED')
     return gaps
+

@@ -20,12 +20,24 @@ The active scorer sequence is one G0–G18 pipeline:
 
 `G0 → G1 → G2 → G3 → G4 → G5 → G6 → G7 → G8 → G9 → G10 → G10.5 → G11 → G12 → G13 → G14 → G15 → G16 → G17 → G18`
 
-The historical Phase-1 `Step` names are descriptions of original functions
-**inside their owning gate**, not 16 additional gate positions or a second
-selection pass. Their independent source observations are preserved under each
+The historical Phase-1 overlay retains **16 distinct operations**, each with
+its own evaluated evidence and verdict at the owning gate. Attaching a Step
+to a gate is not proof that its logic ran. Its independent observations are preserved under each
 gate's `originalFunctionEvidence` field. The canonical database trace contains
 one gate row per original position. The dashboard shows one gate deck and
 expands these internal functions in the relevant gate detail.
+
+G4/Step7 must identify an actual player-owned finishing action. A rink-origin
+label by itself is not a shooter archetype. Official dated PBP shot types and
+documented release mechanisms are retained separately from location samples.
+G11/Step9 check current activity in the selected lane, not merely shots from
+other locations. A lane change alone does not establish a TRANSFER recipient.
+Unobserved optional Step8 shift detail stays explicitly unobserved, without
+becoming a PASS or a new veto over independently evidenced G5/G9 routes.
+
+An explicit change to `.github/nhl-live-validation.json` requests a projected
+date through the existing serialized production workflow. Ordinary code
+pushes still run tests only. The request contains no players or gate verdicts.
 
 A complete recorded trace is **not** proof of scorer qualification. The
 corresponding source-backed decisions must pass the actual original rules;
@@ -93,3 +105,4 @@ The engine deliberately does **not** certify a G18 survivor merely because a can
 ### Pre-Core survivor receipt
 
 New engine and published-run JSON use `preCoreQualifiedSurvivors` for the complete source-backed game survivor pool, including valid game survivors excluded by cross-game G16 competition. `gameSurvivorPool` preserves each game's survivor and G16 outcome; a G16-excluded survivor is not a G18 PASS. Only final Core recipients receive G18 PASS. Immutable historical `state/` records may still contain the old field; read-only consumers accept it as a fallback, but new output never emits it.
+

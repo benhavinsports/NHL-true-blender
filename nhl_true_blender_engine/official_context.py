@@ -33,6 +33,18 @@ async def collect_context(client,con,snapshot,slate_date,stage):
                 return team,{"lastOfficialGameDate":previous,
                              "restDaysSinceLastFinal":rest,
                              "knownPreviousGameId":str(latest["id"]) if latest else None,
+                             "lastGameStartUTC":latest.get("startTimeUTC") if latest else None,
+                             "lastGameVenue":latest.get("venue") if latest else None,
+                             "lastGameHomeTeam":(latest.get("homeTeam") or {}).get("abbrev") if latest else None,
+                             "recentScheduleSequence":[{
+                                 "gameId":str(row["id"]),"date":row.get("gameDate"),
+                                 "startUTC":row.get("startTimeUTC"),
+                                 "homeTeam":(row.get("homeTeam") or {}).get("abbrev"),
+                                 "awayTeam":(row.get("awayTeam") or {}).get("abbrev"),
+                                 "venue":row.get("venue"),
+                                 "sourceUrl":response["url"],
+                                 "observedAt":response["observedAt"]}
+                                 for row in past[-3:]],
                              "sourceUrl":response["url"],"sourceObservedAt":response["observedAt"]},None
             except Exception as exc:
                 return team,None,f"{type(exc).__name__}: {exc}"
@@ -50,12 +62,28 @@ async def collect_context(client,con,snapshot,slate_date,stage):
         payload={
             "gameId":str(game["id"]),"slateDate":slate_date,
             "venueHome":game["home"],"venueAway":game["away"],
+            "venue":game.get("venue"),"startUTC":game.get("startUTC"),
             "awayRestDays":away["restDaysSinceLastFinal"],
             "homeRestDays":home["restDaysSinceLastFinal"],
             "awayPreviousGameId":away["knownPreviousGameId"],
             "homePreviousGameId":home["knownPreviousGameId"],
             "awayLastGameDate":away["lastOfficialGameDate"],
             "homeLastGameDate":home["lastOfficialGameDate"],
+            "awayBackToBack":away["restDaysSinceLastFinal"]==0 if away["restDaysSinceLastFinal"] is not None else None,
+            "homeBackToBack":home["restDaysSinceLastFinal"]==0 if home["restDaysSinceLastFinal"] is not None else None,
+            "teamScheduleSequences":{
+                game["away"]:away["recentScheduleSequence"],
+                game["home"]:home["recentScheduleSequence"]},
+            "scheduledVenueTransitions":{
+                game["away"]:{"previousVenue":away["lastGameVenue"],
+                    "previousHomeTeam":away["lastGameHomeTeam"],
+                    "previousStartUTC":away["lastGameStartUTC"],
+                    "currentVenue":game.get("venue"),"currentHomeTeam":game["home"]},
+                game["home"]:{"previousVenue":home["lastGameVenue"],
+                    "previousHomeTeam":home["lastGameHomeTeam"],
+                    "previousStartUTC":home["lastGameStartUTC"],
+                    "currentVenue":game.get("venue"),"currentHomeTeam":game["home"]}},
+            "scheduleSequenceIsNotObservedFlightOrFatigue":True,
             "travelMiles":None,
             "travelDistanceNotInSource":True,
             "restIsCalendarDaysBetweenMinusOne":True,
@@ -74,3 +102,4 @@ async def collect_context(client,con,snapshot,slate_date,stage):
     return {"contextGames":count,"expectedGames":len(snapshot.get("games",[])),
             "teamScheduleSources":len(collected),"errors":errors,
             "noInventedTravel":True}
+

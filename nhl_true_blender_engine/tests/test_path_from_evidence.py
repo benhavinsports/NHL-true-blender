@@ -60,16 +60,17 @@ def test_competing_source_proven_who_and_transfer_paths_are_not_arbitrarily_labe
     assert proof["independentTransferDerivedFromG0AndG10_5"] is True
     assert proof["pathQuotaApplied"] is False
 
-def test_off_usual_lane_route_owned_against_every_teammate_is_a_transfer():
-    # Owner rule (2026-11-17): moved off his usual lane into the goalie's
-    # weak lane, owns goals there and beat every same-lane teammate.
-    # No displaced usual owner of that lane is required.
+def test_lane_change_without_defeated_competing_recipient_remains_direct_primary():
+    # Complete master definition: a lane change alone is not TRANSFER.
+    # The other player's Point route never competes for this slot recipient.
     p=skater(2001,"slot",25,4)
     p["release"]["data"]["originalPrimaryOrigin"]="High Slot"
     rival=skater(2002,"Point",12,2)
     path,proof=_decision(player=p,rivals=[rival])
-    assert path=="TRANSFER"
-    assert proof["offUsualLaneTransferIntoGoalieWeakLane"] is True
+    assert path=="PRIMARY"
+    assert proof["laneChangedAfterGoalieFirstG0"] is True
+    assert proof["offUsualLaneTransferIntoGoalieWeakLane"] is False
+    assert proof["laneChangeAloneDoesNotProveRecipientTransfer"] is True
     assert proof["independentTransferDerivedFromG0AndG10_5"] is False
     assert proof["fallbackToPrimary"] is False
 
@@ -109,3 +110,4 @@ def test_no_label_quota_three_independently_direct_players_stay_three_primaries(
                           player_id='1010'""").fetchone()
     assert '"fallbackToPrimary": false' in source["details"] or '"fallbackToPrimary":false' in source["details"]
     con.close()
+

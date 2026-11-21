@@ -11,6 +11,7 @@ from .official_boxscore_history import collect_sampled_boxes
 from .official_defense_coverage import make_coverage,conservative_zone,detailed_shot_origin_zone
 from .shift_coverage import collect_shift_coverage
 from .secondary_sources import TEAM_SLUGS
+from .shooter_mechanism import mechanism_events, SOURCE_TYPE as MECHANISM_SOURCE
 
 def _versioned_receipt_id(base,payload):
     """Append immutable source-data revisions; identical reruns stay idempotent."""
@@ -46,6 +47,7 @@ def extract_events(raw, game_id, played_date):
             "type": typ, "shotType": details.get("shotType"),
             "period":(event.get("periodDescriptor") or {}).get("number"),
             "timeInPeriod":event.get("timeInPeriod"),
+            "situationCode":event.get("situationCode"),
             "x": details.get("xCoord"), "y": details.get("yCoord"),
             "zone": details.get("zoneCode"),
             "ownerTeamId": str(details["eventOwnerTeamId"])
@@ -278,6 +280,20 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 appearance_id_set=set(appearance_ids)
                 sample_events=[e for e in target_events
                                if str(e.get("gameId")) in appearance_id_set]
+                own_mechanisms=mechanism_events(sample_events,pid,slate_date)
+                if own_mechanisms:
+                    mechanisms={"sourceType":MECHANISM_SOURCE,"playerId":str(pid),
+                        "slateDate":slate_date,"events":own_mechanisms,
+                        "shotOriginIsNotArchetype":True,
+                        "setupDependenceNotInferred":True}
+                    ingest(con,{"evidence_id":_versioned_receipt_id(
+                            f"nhl-pbp-mechanism-{slate_date}-{stage}-{game['id']}-{pid}",
+                            mechanisms),
+                        "slate_date":slate_date,"stage":stage,"game_id":game["id"],
+                        "player_id":pid,"kind":"PLAYER_SHOT_MECHANISM",
+                        "source_url":own_mechanisms[0]['sourceUrl'],
+                        "observed_at":datetime.now(timezone.utc).isoformat(),
+                        "payload":mechanisms})
                 source_urls_by_game={
                     gid:sorted({e["sourceUrl"] for e in sample_events
                                 if str(e.get("gameId"))==gid and e.get("sourceUrl")})
@@ -349,3 +365,4 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 k:v for k,v in shift_receipts.items() if k!='byDefendingTeamId'},
             "G9PeerSampleIsLeagueWide":True,
             "candidateRecentLogsExcludeNonTargetPeerGames":True}
+

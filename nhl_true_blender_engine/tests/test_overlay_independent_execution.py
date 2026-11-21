@@ -17,7 +17,10 @@ def _rows(con,player_id):
 def test_original_functions_are_observed_inside_gates_before_g18(tmp_path):
     con=open_db(str(tmp_path/"unified.sqlite"))
     result=execute(con,snapshot_without_shifts(),DATE,"CONFIRMED")
-    assert result["card"] is None
+    # A genuinely attempted but unavailable historical shift sample remains
+    # visible uncertainty, not an extra veto over the independently proved
+    # G5/G9 route. All other original operations still have to pass.
+    assert result["card"] is not None
     for player_id in ("1010","1020","1030"):
         rows=_rows(con,player_id)
         assert len(rows)==len(MASTER)
@@ -77,3 +80,4 @@ def test_single_original_gate_order_retains_named_functions():
     assert len(MASTER)==20
     assert len(OVERLAY)==16
     assert EXECUTION_ORDER[-1]=="G18"
+

@@ -14,8 +14,10 @@ from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint, game_started, stamp
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .rival_scope import g17_resolved_without_eliminated_rivals
-from .semantic_certification import audit_gate
+from .semantic_certification import audit_gate, nonblocking_overlay_review
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
+from .shooter_mechanism import shooter_mechanism
+from .recent_origin import independently_dated_origin_route
 
 # The user's 18 numbered scorer gates remain individually named and ordered.
 # G10.5 is the mandatory half-step between G10 and G11. G0 is the
@@ -339,7 +341,9 @@ def player_releases(p):
     if not (data.get('archetype') and data.get('zone') and isinstance(data.get('attempts'), int)
             and isinstance(data.get('ownedGoals'),int)):
         return None
-    return data
+    mechanism=shooter_mechanism(p,data)
+    return {**data,'mechanismReview':mechanism,
+            **({'archetype':mechanism['archetype']} if mechanism['supported'] else {})}
 
 
 
@@ -454,129 +458,6 @@ def reconcile_logs(p):
             'officialGoals':td['goals'],'eventCount':len(goals),
             'lastAppearances':ld['appearances'][:10]}
 
-
-def independently_dated_origin_route(player,zone):
-    """Return a complete, dated recent PBP lane sample for one actual appearance.
-
-    A missing lane is a measured zero ONLY when every actual appearance has
-    complete official PBP coverage and every on-net event was mappable. Season
-    EDGE totals and goal totals never substitute for this sample.
-    """
-    wrapper=player.get("recentOrigin")
-    pressure=player.get("pressure")
-    if not receipt(wrapper) or not receipt(pressure):
-        return None
-    data=wrapper.get("data") or {}
-    pressure_data=evidence_data(pressure) or {}
-    if (data.get("sourceType")!="OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN"
-        or data.get("scope")!="RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY"
-        or data.get("rinkBinsApproximateNotNhlEdgePolygons") is not True
-        or data.get("historicalOwnGoalCreditOnly") is not True
-        or data.get("sampleCoverageComplete") is not True
-        or data.get("sampleIncludesActualZeroShotAppearances") is not True
-        or data.get("unclassifiedOnNetShots")!=0
-        or data.get("pbpBoxscoreSogReconciled") is not True):
-        return None
-    as_of=data.get("sampleAsOfSlateDate")
-    sample_ids=data.get("sampleGameIds")
-    appearances=pressure_data.get("appearances")
-    sample_sources=data.get("sampleSourcesByGame")
-    if (not isinstance(as_of,str) or len(as_of)<10
-        or not isinstance(sample_ids,list) or not sample_ids
-        or type(data.get("sampleAppearanceCount")) is not int
-        or data["sampleAppearanceCount"]!=len(sample_ids)
-        or not isinstance(appearances,list) or len(appearances)!=len(sample_ids)
-        or not isinstance(sample_sources,dict)
-        or len({str(x) for x in sample_ids})!=len(sample_ids)):
-        return None
-    appearance_dates={}
-    appearance_shots={}
-    appearance_ids=[]
-    for item in appearances:
-        if not isinstance(item,dict):
-            return None
-        gid=str(item.get("gameId") or "")
-        day=item.get("date")
-        shots=item.get("shotsOnGoal")
-        if (not gid or not isinstance(day,str) or len(day)<10 or day[:10]>=as_of
-            or gid in appearance_dates or type(shots) is not int or shots<0):
-            return None
-        appearance_ids.append(gid)
-        appearance_dates[gid]=day[:10]
-        appearance_shots[gid]=shots
-    normalized_ids=[str(x) for x in sample_ids]
-    if appearance_ids!=normalized_ids:
-        return None
-    pbp_sog=data.get("pbpOnNetShotsByGame")
-    boxscore_sog=data.get("boxscoreShotsOnGoalByGame")
-    if (not isinstance(pbp_sog,dict) or not isinstance(boxscore_sog,dict)
-        or set(pbp_sog)!=set(normalized_ids)
-        or set(boxscore_sog)!=set(normalized_ids)
-        or any(type(pbp_sog.get(gid)) is not int or pbp_sog[gid]<0
-               or type(boxscore_sog.get(gid)) is not int or boxscore_sog[gid]<0
-               or pbp_sog[gid]!=boxscore_sog[gid]
-               or boxscore_sog[gid]!=appearance_shots[gid]
-               for gid in normalized_ids)):
-        return None
-    for gid in normalized_ids:
-        urls=sample_sources.get(gid)
-        if (not isinstance(urls,list) or not urls
-            or any(not isinstance(u,str) or not u.startswith("https://") for u in urls)):
-            return None
-    zone_counts=data.get("zoneCounts")
-    if not isinstance(zone_counts,dict):
-        return None
-    area=zone_counts.get(zone)
-    by_game={}
-    if area is not None:
-        if (not isinstance(area,dict) or not isinstance(area.get("byGame"),list)
-            or not isinstance(area.get("sourceUrls"),list) or not area["sourceUrls"]):
-            return None
-        for item in area["byGame"]:
-            if not isinstance(item,dict):
-                return None
-            gid=str(item.get("gameId") or "")
-            day=item.get("date")
-            shots=item.get("shotsOnGoal")
-            goals=item.get("ownedGoals")
-            urls=item.get("sourceUrls")
-            if (gid not in appearance_dates or gid in by_game
-                or day!=appearance_dates[gid]
-                or type(shots) is not int or shots<0
-                or type(goals) is not int or goals<0 or goals>shots
-                or not isinstance(urls,list) or not urls
-                or any(u not in sample_sources[gid] for u in urls)):
-                return None
-            by_game[gid]={"shotsOnGoal":shots,"ownedGoals":goals}
-        total_shots=area.get("shotsOnGoal")
-        total_goals=area.get("ownedGoals")
-        if (type(total_shots) is not int or type(total_goals) is not int
-            or total_shots!=sum(x["shotsOnGoal"] for x in by_game.values())
-            or total_goals!=sum(x["ownedGoals"] for x in by_game.values())):
-            return None
-    # An absent zone is a source-verified zero only because sampleCoverageComplete
-    # and unclassifiedOnNetShots==0 were checked above.
-    rows=[{"gameId":gid,"date":appearance_dates[gid],
-           "shotsOnGoal":by_game.get(gid,{}).get("shotsOnGoal",0),
-           "ownedGoals":by_game.get(gid,{}).get("ownedGoals",0)}
-          for gid in normalized_ids]
-    source_urls=sorted({u for gid in normalized_ids for u in sample_sources[gid]})
-    return {"zone":zone,
-            "ownedGoals":sum(x["ownedGoals"] for x in rows),
-            "shotsOnGoal":sum(x["shotsOnGoal"] for x in rows),
-            "appearanceCount":len(rows),
-            "positiveShotAppearances":sum(x["shotsOnGoal"]>0 for x in rows),
-            "shotsByAppearance":rows,
-            "sampleGameIds":normalized_ids,
-            "sampleDates":[appearance_dates[x] for x in normalized_ids],
-            "sourceUrls":source_urls,
-            "pbpBoxscoreSogReconciled":True,
-            "pbpOnNetShotsByGame":{gid:pbp_sog[gid] for gid in normalized_ids},
-            "boxscoreShotsOnGoalByGame":{gid:boxscore_sog[gid] for gid in normalized_ids},
-            "scope":"SOURCE_DATED_PBP_APPROXIMATE_RINK_ORIGIN",
-            "notAnNhlEdgeAreaPolygon":True,
-            "seasonTotalsNotUsed":True,
-            "notProofOfFutureGoal":True}
 
 
 def _tonight_route_comparison(candidate_zone, rival_zone, goalie_zones, coverage):
@@ -1003,7 +884,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     # silently rejecting the game's survivor at G18. Incomplete or
     # contradictory paths still have route_direct=False and cannot pass.
     # No new ranking, player preference, historical goal or shot is inferred.
-    primary_source_lane=bool(not changed_lane and route_direct)
+    primary_source_lane=bool(route_direct)
     approved_rivals=[]
     defeated={str(x.get('challengerId')):x for x in challenger_rows
               if x.get('status')=='DEFEATED' and x.get('sameLane')}
@@ -1048,12 +929,11 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         any(x['displacedDirectPrimaryPlayerId']==supplied_displaced
             for x in approved_rivals))
     derived_displacement=bool(changed_lane and approved_rivals)
-    # Owner rule (2026-11-17): a player whose goalie-first G0 route moved
-    # him OFF his usual lane into the goalie's weak lane, where he owns
-    # goals and beat every same-lane teammate at G10.5/G16, is a TRANSFER.
-    # No displaced usual owner of that lane is required. It still needs
-    # every direct gate (route_direct), so nothing is relaxed elsewhere.
-    off_lane_transfer=bool(changed_lane and route_direct)
+    # The supplied complete master definition requires a defeated competing
+    # recipient for TRANSFER. Moving between a player's own areas alone is
+    # route adaptation, not evidence of recipient transfer. Keep the lane
+    # change visible without inventing a competing player or a label quota.
+    off_lane_transfer=False
     who=player.get('whoAnomaly')
     who_data=evidence_data(who) or {}
     physical_anomaly=bool(who_supported and receipt(who) and
@@ -1075,11 +955,6 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     elif route_direct and (confirmed_displacement or derived_displacement):
         path='TRANSFER'
         rationale='Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5'
-    elif off_lane_transfer:
-        path='TRANSFER'
-        rationale=('Goalie-first G0 moved this independent historical goal recipient into a '
-                   'sourced weak shooting lane with own on-net attempts and verified '
-                   'G10.5/G16 separation; no historical goal in that lane is inferred')
     elif route_direct and primary_source_lane and not tdata.get('directRouteDisplaced'):
         path='PRIMARY'
         rationale='Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger'
@@ -1115,6 +990,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'explicitDisplacementSourceValidated':bool(confirmed_displacement),
         'independentTransferDerivedFromG0AndG10_5':derived_displacement,
         'offUsualLaneTransferIntoGoalieWeakLane':off_lane_transfer,
+        'laneChangeAloneDoesNotProveRecipientTransfer':True,
         'G14IndependentWhoAnomalyVerified':physical_anomaly,
         'competingWHOandTRANSFERPathsUnseparated':path_contradiction,
         'whoPhysicalMechanism':who_data.get('mechanism') if physical_anomaly else None,
@@ -1316,8 +1192,12 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'opposingGoalieBranchReviewed':direction_ok},
          source_ids=list(filter(None,[goalie_profile['sourceUrl'],
              goalie_profile['data'].get('goalieProfileSourceUrl')])))
-    emit('G4',bool(release), {'archetype':release.get('archetype') if release else None,
-         'ownRelease':release},source_ids=[player.get('release',{}).get('sourceUrl','')])
+    mechanism=shooter_mechanism(player,release,game.get('date'))
+    emit('G4',bool(release and mechanism.get('supported')),
+         {'archetype':mechanism.get('archetype'),
+          'ownRelease':release,'individualMechanismReview':mechanism},
+         source_ids=sorted(set([player.get('release',{}).get('sourceUrl','')]+
+                              mechanism.get('sourceIds',[]))))
     overlap=bool(release and release['zone'] in weak)
     emit('G5',bool(weak and release) and overlap and
          not (release or {}).get('tonightRouteUnresolved',False),
@@ -1458,19 +1338,27 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
              if url} | ({player['release']['sourceUrl']} if receipt(player.get('release')) else set())))
     shots=player.get('pressure')
     recent_shots=evidence_data(shots,'recentAppearanceShots')
+    route_pressure=independently_dated_origin_route(player,(release or {}).get('zone'))
+    current_route_reviewed=bool(route_pressure and
+        evidence_data(player.get('recentOrigin')).get('sampleAsOfSlateDate')==game.get('date'))
+    current_route_active=bool(current_route_reviewed and route_pressure['shotsOnGoal']>0)
     # G11: observed own-shot pressure in separate actual appearances.
     # [0,0,3] is one isolated active game, not recurring pressure.
     emit('G11',bool(receipt(shots) and shot_review['valid']
-                    and shot_review['repeatedOwnShotPressure']),
+                    and shot_review['repeatedOwnShotPressure'] and current_route_active),
          {'recentOwnAttempts':recent_shots,
           'shotContinuation':shot_review,
+          'selectedRouteRecentOrigin':route_pressure,
+          'currentShotPressureInSelectedRoute':current_route_active,
           'noOneOffPressureCalledContinuation':True},
          # Missing appearance dates are an evidence gap, not proof that
          # the player failed to repeat his own shot pressure.
          eliminate=bool(receipt(shots) and shot_review['valid']
                         and shot_review['datedAppearanceAlignmentVerified']
-                        and not shot_review['repeatedOwnShotPressure']),
-         source_ids=[shots['sourceUrl']] if receipt(shots) else [])
+                        and (not shot_review['repeatedOwnShotPressure'] or
+                             (current_route_reviewed and not current_route_active))),
+         source_ids=sorted(set(([shots['sourceUrl']] if receipt(shots) else [])+
+             ([player['recentOrigin']['sourceUrl']] if receipt(player.get('recentOrigin')) else []))))
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)},
          source_ids=sorted(set(x['sourceUrl'] for x in (
@@ -1629,13 +1517,12 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # original verdict or masquerade as a completed source check.
     master_passed=all(d[gate]['disposition']=='PASS'
                       for gate in MASTER[:-1])
-    # Step13 is the original qualitative, nonblocking numerology review.
-    # Its evidence and verdict remain visible, but a missing optional
-    # observation must not eliminate an otherwise source-qualified scorer.
+    # Preserve original optional reviews without turning an unobserved shift
+    # sample or qualitative fact into either a PASS or an extra scorer veto.
     overlay_passed=all(
         row['disposition']=='PASS' or
-        (row['gate']=='Step13' and
-         row.get('details',{}).get('evidence',{}).get('nonblocking') is True)
+        nonblocking_overlay_review(row['gate'],
+            row.get('details',{}).get('evidence',{}),row['disposition'])
         for row in overlay)
     previous_gates_passed=master_passed and overlay_passed
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
@@ -3307,3 +3194,4 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     log_job(con,f'{date}-{stage}',date,stage,'COMPLETE' if card else 'INPUT_INCOMPLETE',
             {k:v for k,v in result.items() if k not in ('card','scan')},now=now)
     return result
+

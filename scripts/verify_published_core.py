@@ -9,7 +9,7 @@ This is read-only. It never selects, relabels, replaces, or grades a skater.
 from __future__ import annotations
 from nhl_true_blender_engine.core_identity import expected_core_ids, pre_core_survivors
 from nhl_true_blender_engine.engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
-from nhl_true_blender_engine.semantic_certification import audit_gate
+from nhl_true_blender_engine.semantic_certification import audit_gate, nonblocking_overlay_review
 
 import argparse
 from datetime import datetime, timezone
@@ -228,7 +228,7 @@ def verify_published_core(root: Path, date: str):
                 name=sub.get("step")
                 info=sub.get("evidence") or {}
                 status=sub.get("disposition")
-                neutral=(name=="Step13" and info.get("nonblocking") is True)
+                neutral=nonblocking_overlay_review(name,info,status)
                 _require(status=="PASS" or neutral,
                          who + " " + gate + " source function " + str(name) +
                          " has a nonpassing result")
@@ -274,3 +274,4 @@ if __name__ == "__main__":
     parser.add_argument("--root", default="state")
     args = parser.parse_args()
     print(json.dumps(verify_published_core(Path(args.root), args.date),indent=2))
+

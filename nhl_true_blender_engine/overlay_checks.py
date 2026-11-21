@@ -10,6 +10,8 @@ from __future__ import annotations
 from .semantic_certification import audit_gate
 from .rival_scope import g17_resolved_without_eliminated_rivals
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
+from .shooter_mechanism import shooter_mechanism
+from .recent_origin import independently_dated_origin_route
 
 STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
@@ -84,6 +86,13 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'homeRestDays':ctx.get('homeRestDays'),
           'awayRestDays':ctx.get('awayRestDays'),
           'travelMiles':ctx.get('travelMiles'),
+          'actualVenue':ctx.get('venue'),
+          'startUTC':ctx.get('startUTC'),
+          'teamScheduleSequences':ctx.get('teamScheduleSequences'),
+          'scheduledVenueTransitions':ctx.get('scheduledVenueTransitions'),
+          'homeBackToBack':ctx.get('homeBackToBack'),
+          'awayBackToBack':ctx.get('awayBackToBack'),
+          'scheduleSequenceIsNotObservedFlightOrFatigue':True,
           'travelDistanceNotInvented':ctx.get('travelMiles') is None,
           'restSourceReviewed':has_rest,
           'contextSourcePresent':receipt(context)},src(context))
@@ -107,16 +116,19 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
          contradiction=bool(recurrence and observed_shots['valid']
                             and observed_shots['datedAppearanceAlignmentVerified']
                             and not dated_recurrence['datedScoringOrShotRecurrence']))
-    own_mechanism=bool(receipt(raw_release) and release and release.get('archetype')
+    mechanism=shooter_mechanism(player,release,game.get('date'))
+    own_mechanism=bool(receipt(raw_release) and release and mechanism['supported']
                       and isinstance(release.get('ownedGoals'),int)
                       and isinstance(release.get('attempts'),int)
                       and release['attempts']>=release['ownedGoals']>=0)
     emit('Step5',own_mechanism,
-         {'ownedArchetype':release.get('archetype') if release else None,
+         {'ownedArchetype':mechanism.get('archetype'),
+          'individualMechanismReview':mechanism,
           'sourcedOwnShotsOnNet':release.get('attempts') if release else None,
           'creditedGoalsByOrigin':release.get('ownedGoals') if release else None,
           'exactShotVelocityNotAvailable':True,
-          'attemptsAreNotAllShotAttempts':True},src(raw_release))
+          'attemptsAreNotAllShotAttempts':True},
+         sorted(set(src(raw_release)+mechanism['sourceIds'])))
     valid_role=bool(receipt(dep) and deploy.get('EV') and
                     deploy.get('status') in ('PROJECTED','CONFIRMED'))
     emit('Step6',valid_role,
@@ -126,11 +138,12 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'unverifiedSpecialTeamsNotPromoted':deploy.get('PP') is None or deploy.get('PK') is None},
          src(dep))
     # Mandatory archetype tagging occurs before G18's path decision.
-    tag={'playerId':str(player.get('id')),'archetype':release.get('archetype') if release else None,
+    tag={'playerId':str(player.get('id')),'archetype':mechanism.get('archetype'),
+         'individualMechanismReview':mechanism,
          'directOwnShotOrigin':zone,'goalieVulnerableAreas':sorted(weak),
          'sourceTaggedBeforeFinalPick':True}
     emit('Step7',bool(own_mechanism and zone_match),tag,
-         src(raw_release,goalie))
+         sorted(set(src(raw_release,goalie)+mechanism['sourceIds'])))
     shifts=cov.get('shiftByShift') or cov.get('defensiveShiftEvents')
     # Step 8's original scope is independent TEAM defensive shift coverage.
     # G5 and G9, not Step 8, adjudicate exact scorer-to-goalie zone matches.
@@ -184,19 +197,27 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     recent=pres.get('recentAppearanceShots')
     # Step9: check the actual per-appearance pressure observation, not the
     # presence of a nonnegative list or any previously recorded G11 PASS.
+    route_pressure=independently_dated_origin_route(player,zone)
+    route_reviewed=bool(route_pressure and
+        (evidence_data(player.get('recentOrigin')) or {}).get('sampleAsOfSlateDate')==game.get('date'))
+    route_current=bool(route_reviewed and route_pressure['shotsOnGoal']>0)
     measured=bool(receipt(pressure) and observed_shots['valid'] and
-                  observed_shots['repeatedOwnShotPressure'])
+                  observed_shots['repeatedOwnShotPressure'] and route_current)
     emit('Step9',measured,
          {'dateSampleShotsOnNet':recent,
           'recentRouteContinuationMeasured':measured,
           'ownShotContinuationEvidence':observed_shots,
-          'notWeightedOrMarketSelected':True},src(pressure),
+          'selectedRouteRecentOrigin':route_pressure,
+          'currentShotPressureInSelectedRoute':route_current,
+          'notWeightedOrMarketSelected':True},src(pressure,player.get('recentOrigin')),
          # An undated count list is unresolved, not a dated one-off loss.
          contradiction=bool(receipt(pressure) and observed_shots['valid']
                             and observed_shots['datedAppearanceAlignmentVerified']
-                            and not observed_shots['repeatedOwnShotPressure']))
+                            and (not observed_shots['repeatedOwnShotPressure'] or
+                                 (route_reviewed and not route_current))))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
          {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,
+          'observedOwnMechanism':mechanism,
           'weaknessAreaSummary':weak.get(zone) if zone else None,
           'shotOriginVsGoalMouthKeptSeparate':True},
          src(raw_release,goalie))
@@ -267,3 +288,4 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     if actual!=expected:
         raise ValueError('Requested gate-time source observations missing or reordered')
     return records
+

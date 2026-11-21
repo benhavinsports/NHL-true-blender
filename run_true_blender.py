@@ -37,6 +37,7 @@ import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
+from nhl_true_blender_engine.source_recovery import recovery_snapshot
 
 async def run(date, stage, state_dir="state", output_dir="runs"):
     state = Path(state_dir)
@@ -129,39 +130,42 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # source-refresh trigger even when no skater can yet be evaluated.
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
-        if unresolved or g0_missing:
+        retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
+        if (unresolved or g0_missing) and retry_snapshot['games']:
             feedback.append({
                 'pass':1,'unresolvedFirstGateCandidates':unresolved,
                 'g0SourceGapTriggeredRefresh':g0_missing,
+                'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
+                'unaffectedMatchupsNotRefetched':True,
                 'g0CompleteDirectionsBeforeRefresh':result.get('g0Complete',0),
                 'g0ScheduledDirections':2*len(snapshot.get('games',[])),
                 'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
             async with _Client() as client:
-                refreshed_history=await collect_history(client,con,snapshot,date,stage)
+                refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
                 refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
-                await collect_context(client,con,snapshot,date,stage)
-                await collect_edge(client,con,snapshot,date,stage)
-                await collect_season_goal_history(client,con,snapshot,date,stage)
-            await collect_secondary(con,snapshot,date,stage)
-            await fetch_and_ingest_lineups(con,snapshot,date,stage)
+                await collect_context(client,con,retry_snapshot,date,stage)
+                await collect_edge(client,con,retry_snapshot,date,stage)
+                await collect_season_goal_history(client,con,retry_snapshot,date,stage)
+            await collect_secondary(con,retry_snapshot,date,stage)
+            await fetch_and_ingest_lineups(con,retry_snapshot,date,stage)
             # Late source fixes must refresh BOTH deployment collectors before
             # rerunning all original gates. The first pass already uses both.
-            await fetch_and_ingest_additional_deployment(con,snapshot,date,stage)
-            await collect_edgehalla_deployment(con,snapshot,date,stage)
+            await fetch_and_ingest_additional_deployment(con,retry_snapshot,date,stage)
+            await collect_edgehalla_deployment(con,retry_snapshot,date,stage)
             # Refresh independent official projected starter identities too;
             # otherwise the second pass compares new goalie history against
             # stale starter identities and can regress the G0 attack branch.
-            await collect_nhl_projected_goalies(con,snapshot,date,stage)
-            await collect_dated_goalie_projections(con,snapshot,date,stage)
-            await collect_dfo_goalies(con,snapshot,date,stage)
+            await collect_nhl_projected_goalies(con,retry_snapshot,date,stage)
+            await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
+            await collect_dfo_goalies(con,retry_snapshot,date,stage)
             async with _Client() as client:
-                await collect_official_dressed(client,con,snapshot,date,stage)
+                await collect_official_dressed(client,con,retry_snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             async with _Client() as client:
                 await collect_goalie_pbp_fallback(
-                    client,con,snapshot,date,stage,
+                    client,con,retry_snapshot,date,stage,
                     league_peer_events=refreshed_peer_events)
             attach(con,snapshot,date,stage)
             # G0 source-origin review is an input to the selection engine,
@@ -328,3 +332,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

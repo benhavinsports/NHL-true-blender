@@ -10,6 +10,7 @@ from pathlib import Path
 from nhl_true_blender_engine.engine import MASTER, OVERLAY, STEPS_BY_GATE
 from nhl_true_blender_engine.storage import fingerprint
 from nhl_true_blender_engine.core_identity import expected_core_ids
+from nhl_true_blender_engine.semantic_certification import nonblocking_overlay_review
 
 class PublicationConflict(RuntimeError):
     pass
@@ -440,8 +441,8 @@ def export_run(con, slate_date, stage, result, root='state'):
                 continue
             for check in nested:
                 evidence=check.get('evidence') or {}
-                neutral=(check.get('step')=='Step13'
-                         and evidence.get('nonblocking') is True)
+                neutral=nonblocking_overlay_review(check.get('step'),evidence,
+                                                  check.get('disposition'))
                 if (check.get('disposition')!='PASS' and not neutral
                     or evidence.get('independentOverlayEvaluation') is not True
                     or evidence.get('checkedBeforeG18') is not True
@@ -608,3 +609,4 @@ def export_run(con, slate_date, stage, result, root='state'):
         os.environ.get('GITHUB_RUN_ID'))
     _write(status_path,status)
     return status
+

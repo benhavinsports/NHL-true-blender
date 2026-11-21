@@ -8,9 +8,10 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from nhl_true_blender_engine.engine import EXECUTION_ORDER, STEPS_BY_GATE, OVERLAY
-from nhl_true_blender_engine.semantic_certification import audit_gate
+from nhl_true_blender_engine.semantic_certification import audit_gate, nonblocking_overlay_review
 
 OPTIONAL_SOURCE_GATES = frozenset(("G8", "G13"))
 
@@ -108,7 +109,7 @@ def verified_original_receipt(root, slate_date, card):
                 return None
             for sub in nested:
                 info=sub.get("evidence") or {}
-                neutral=sub.get("step")=="Step13" and info.get("nonblocking") is True
+                neutral=nonblocking_overlay_review(sub.get("step"),info,sub.get("disposition"))
                 if ((sub.get("disposition")!="PASS" and not neutral) or
                     info.get("independentOverlayEvaluation") is not True or
                     info.get("checkedBeforeG18") is not True or
@@ -116,6 +117,9 @@ def verified_original_receipt(root, slate_date, card):
                     return None
             # Defends against a synthetic PASS with a URL but missing the
             # original physical-route facts required by its gate.
-            if audit_gate(row["gate"],ev,urls,matrix["stage"]):
+            historical=slate_date < datetime.now(ZoneInfo('America/New_York')).date().isoformat()
+            if audit_gate(row["gate"],ev,urls,matrix["stage"],
+                          preserve_historical_contract=historical):
                 return None
     return matrix
+

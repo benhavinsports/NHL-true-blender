@@ -9,7 +9,7 @@ import json
 from collections import Counter,defaultdict
 from .engine import MASTER,OVERLAY,SCORER_GATE_ORDER,EXECUTION_ORDER,STEPS_BY_GATE
 from .storage import get_card
-from .semantic_certification import audit_gate
+from .semantic_certification import audit_gate, nonblocking_overlay_review
 
 PROVENANCE_REQUIRED={
     "G0","G1","G2","G3","G4","G5","G6","G7","G9","G10",
@@ -164,9 +164,9 @@ def certify_gates(con,date,stage,expected_game_count=None):
                          for step in OVERLAY
                          if (step not in functions or (
                              functions[step].get("disposition")!="PASS"
-                             and not (step=="Step13" and
-                                (functions[step].get("evidence") or {})
-                                .get("nonblocking") is True)))]
+                             and not nonblocking_overlay_review(step,
+                                functions[step].get("evidence"),
+                                functions[step].get("disposition"))))]
             own_source_gaps=[gate for gate in EXECUTION_ORDER
                 if gate in PROVENANCE_REQUIRED and gate in matrix
                 and matrix[gate]["disposition"]=="PASS"
@@ -363,3 +363,4 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "neverTreatsGateRecordAsAutomaticPass":True,
         "doesNotSelectChangeOrRegradeCard":True,
     }
+

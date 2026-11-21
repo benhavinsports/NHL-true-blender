@@ -23,7 +23,9 @@ def separate_finisher_scene():
     # but he has seven OWN on-net shots from the independently goaler-weak slot.
     # Historical exact-lane goals are ZERO, never overwritten or inferred.
     p["release"]=evidence({
-        "archetype":"OBSERVED_OWN_SHOT_ORIGIN",
+        # Independent mechanism evidence is required by G4/Step7 even when
+        # this test is isolating zero-goal-lane reconciliation at G15.
+        "archetype":"own wrist/snap release",
         "zone":"slot","attempts":7,"ownedGoals":0,
         "sourceType":"NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
         "allRoutes":[{"zone":"slot","sog":7,"ownedGoals":0},
@@ -142,3 +144,4 @@ def test_g18_does_not_reject_a_full_g15_verified_goal_recipient_for_zero_exact_l
         assert route["positiveDirectGateEvidence"]["historicallyCreditedIndependentGoalRecipient"] is True
     finally:
         con.close()
+

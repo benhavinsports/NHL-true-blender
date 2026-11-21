@@ -68,6 +68,7 @@ def normalize_games(payload, date):
             raise SourceUnavailable('NHL official game missing ID/teams/start time')
         out.append({'id':str(g['id']),'date':date,'away':away,'home':home,
                     'startUTC':t,'gameState':g.get('gameState') or 'UNKNOWN',
+                    'venue':g.get('venue'),
                     'officialSourceUrl':payload['url'],'officialObservedAt':payload['observedAt'],
                     'goalies':{},'rosters':{},'context':{},'coverage':{}})
     return out

@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from .engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
 from .storage import get_card
+from .semantic_certification import nonblocking_overlay_review
 
 def _datetime(value):
     if not value:
@@ -112,18 +113,15 @@ def _functions_complete(rows):
         if [x.get("step") for x in actual]!=STEPS_BY_GATE[gate]:
             return False
         for item in actual:
-            if item.get("disposition")!="PASS" and not (
-                item.get("step")=="Step13" and
-                (item.get("evidence") or {}).get("nonblocking") is True
-            ):
+            if item.get("disposition")!="PASS" and not nonblocking_overlay_review(
+                item.get("step"),item.get("evidence"),item.get("disposition")):
                 return False
     return True
 
 def _functions_passed(rows):
     return sum(
-        item.get("disposition")=="PASS" or (
-            item.get("step")=="Step13" and
-            (item.get("evidence") or {}).get("nonblocking") is True)
+        item.get("disposition")=="PASS" or nonblocking_overlay_review(
+            item.get("step"),item.get("evidence"),item.get("disposition"))
         for values in _function_receipts(rows).values()
         for item in values)
 
@@ -306,15 +304,13 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
                 "masterPassed":sum(r["gate"] in MASTER and r["status"]=="PASS"
                                    for r in ordered),
                 "originalFunctionsPassed":sum(
-                    fn.get("disposition")=="PASS" or (
-                        fn.get("step")=="Step13" and
-                        (fn.get("evidence") or {}).get("nonblocking") is True)
+                    fn.get("disposition")=="PASS" or nonblocking_overlay_review(
+                        fn.get("step"),fn.get("evidence"),fn.get("disposition"))
                     for r in ordered
                     for fn in (r.get("evidence") or {}).get("originalFunctionEvidence",[])),
                 "overlayPassed":sum(
-                    fn.get("disposition")=="PASS" or (
-                        fn.get("step")=="Step13" and
-                        (fn.get("evidence") or {}).get("nonblocking") is True)
+                    fn.get("disposition")=="PASS" or nonblocking_overlay_review(
+                        fn.get("step"),fn.get("evidence"),fn.get("disposition"))
                     for r in ordered
                     for fn in (r.get("evidence") or {}).get("originalFunctionEvidence",[])),
                 "totalMaster":len(MASTER),
@@ -367,3 +363,4 @@ def export_dashboard(con,date,stage,snapshot,root="state"):
         "cardId":payload["cardId"],"selectedLegCount":len(payload["legs"]),
         "selectedGateRecordCount":sum(leg["sourceVerifiedPregameGateCount"]
            for leg in payload["legs"])}
+

@@ -66,7 +66,10 @@ def test_three_certified_survivors_can_publish_while_other_players_fail(tmp_path
 
 def test_missing_selected_gate_is_real_failure_not_overridden_by_other_losses(tmp_path):
     con=open_db(str(tmp_path/"missing.sqlite"))
-    slate=snapshot_without_shifts() # deliberately no source-backed shift events
+    # A required own-mechanism gap blocks new certification. Optional missing
+    # shift metrics alone must not become an artificial scorer veto.
+    from nhl_true_blender_engine.tests.test_live_gate_certification import missing_required_mechanism
+    slate=missing_required_mechanism()
     result=execute(con,slate,DATE,"CONFIRMED")
     assert result["card"] is None
     audit=certify_gates(con,DATE,"CONFIRMED",len(slate["games"]))
@@ -136,3 +139,4 @@ def test_source_verified_core_remains_published_without_falsely_certifying_unres
     validated=verify_published_core(root,DATE)
     assert validated["status"]=="ORIGINAL_G0_G18_CORE_VERIFIED"
     con.close()
+
