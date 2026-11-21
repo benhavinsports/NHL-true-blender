@@ -1395,10 +1395,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         if observed!=expected:
             raise ValueError(f'Pre-G10.5 phase order mismatch: {observed}')
         return {'player':player,'dispositions':d},proof
-    # G10.5/G16 compare against MEANINGFUL challengers only. A teammate
-    # already ELIMINATED before G10.5 cannot own a route (G18 never reopens
-    # eliminated candidates). An unresolved teammate is still compared but
-    # cannot eliminate; it can only keep the decision NOT_EXECUTED.
+    # Eligibility for competing for THIS recipient is decided by the earlier
+    # G0-G10 pass. Another player's incomplete earlier evidence is not proof
+    # of a competing route and cannot veto an independently qualified player.
+    # Unqualified teammates keep their entire gate audit and source recovery.
+    pending_rival_ids=sorted(unresolved_before-{str(player['id'])})
+    live_teammates=[x for x in live_teammates
+                    if str(x['id'])==str(player['id']) or
+                    str(x['id']) not in unresolved_before]
     rivals=[x for x in live_teammates if str(x['id'])!=str(player['id']) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
     # Use the actual G9 coverage finding and G4 shooter release, only now.
@@ -1423,7 +1427,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'challengersStoppedBeforeG10_5':{k:v for k,v in sorted(stopped.items())
                                            if k!=str(player['id'])} or None,
           'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
-          'unresolvedChallengersCannotEliminate':unresolved_dominators or None,
+          'unresolvedChallengersCannotEliminate':pending_rival_ids or unresolved_dominators or None,
           'routeOwnedByStrongerRival':route_owned_by or None},
          eliminate=bool(route_owned_by),
          source_ids=sorted({url for row in rows for url in row.get('sourceUrls',[])
@@ -1591,7 +1595,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'globalG16AppliedBeforeG17':True,
           'challengersStoppedBeforeG10_5':stopped or None,
           'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
-          'unresolvedChallengersCannotEliminate':unresolved_dominators or None},
+          'unresolvedChallengersCannotEliminate':pending_rival_ids or unresolved_dominators or None},
          eliminate=bool(route_owned_by) or globally_excluded,
          # The candidate side of every comparison is its own official release
          # record, so it is cited even when no live challenger remains.
@@ -2981,6 +2985,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             selected_directions={gid:decision} if decision else None,
             only_player_ids={str(person['id'])},
             eliminated_player_ids=eliminated_before,
+            qualified_rival_ids=match.get('_preG10QualifiedPlayerIds'),
             return_receipts=True)
         for key in ('reviewedSkaters','unresolved','resolvedFromSourceEvidence'):
             g17_review_summary[key]+=report.get(key,0)
@@ -3137,6 +3142,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 evaluate_skater(scoped_game,team,x,players,branch,stage,
                                  stop_at_g10=True)[0]
                 for x in scoped_players])
+            scoped_game['_preG10QualifiedPlayerIds']=[
+                str(x['id']) for x in scoped_players
+                if str(x['id']) not in stopped]
             for scoped in scoped_players:
                 # Bind the G0 direction receipt to every skater checked after
                 # goalie-first selection; never infer direction from a PASS.
