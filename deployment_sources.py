@@ -163,7 +163,10 @@ def _nhl_article_game_day_verified(text, slate_date, team_slug, opponent_slug):
                 match.group(2).split()[-1].lower()}
         if pair != wanted:
             continue
-        headings = list(re.finditer(r'\b('+days+r')\b', text[:match.start()], re.I))
+        # The flattened HTML can attach SATURDAY directly to the away team
+        # in the regex match. Include that captured prefix when validating
+        # the most recent weekday heading for this exact matchup.
+        headings = list(re.finditer(r'\b('+days+r')\b', text[:match.start()]+' '+match.group(1), re.I))
         if headings and headings[-1].group(1).lower() == target.strftime('%A').lower():
             return True
     return False
