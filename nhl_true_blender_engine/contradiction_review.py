@@ -48,50 +48,88 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                 if (decision and receipt(prior_review) and
                     (evidence_data(prior_review) or {}).get("sourceType") != SCOPE):
                     continue
-                # G17 must review the SAME player-owned route that G5 will
-                # evaluate after the goalie-first G0 decision.
-                scoped=release_matched_to_g0_target(p,branches[0],game.get('coverage',{}).get(attacker)) if len(branches)==1 else p
+                # G17 reviews the SAME own-shot route and the SAME goalie+G9
+                # exposure as G5/G10.5 for EVERY independently sourced starter
+                # branch. Multiple projected starters are not an automatic
+                # contradiction if every branch supports one identical route.
+                # Never resolve conflicting branches by arbitrarily picking
+                # the first reported goalie.
+                defense_wrapper=game.get("coverage",{}).get(attacker)
+                defending=(defense_wrapper or {}).get("data") or {}
+                g9_green=defending.get("greenWeakZones")
+                variants=[
+                    release_matched_to_g0_target(p,b,defense_wrapper)
+                    for b in branches]
+                scoped=variants[0] if variants else p
                 own=player_releases(scoped)
                 if not own or not receipt(scoped.get("release")):
                     continue
                 dep=evidence_data(p.get("deployment"))
+                rivals=[x for x in teammates
+                        if str(x["id"])!=str(p["id"]) and
+                        x.get("availability") not in ("OUT","SCRATCHED","INJURED")]
                 opposing=[]
-                for b in branches:
-                    data=b["data"];weak=data.get("weakZones") or {}
+                branch_reviews=[]
+                rows=[]
+                for b,variant in zip(branches,variants):
+                    data=b["data"]
+                    weak=data.get("weakZones") or {}
                     strong=data.get("strengthZones") or {}
+                    route=player_releases(variant)
+                    zone=route.get("zone") if route and receipt(variant.get("release")) else None
+                    if zone:
+                        branch_ok,branch_rows=challenger_proof(
+                            variant,rivals,weak,g9_green,
+                            opponent_coverage=defending)
+                    else:
+                        branch_ok,branch_rows=False,[]
+                    branch_reviews.append({
+                        "goalieId":data.get("goalieId"),
+                        "shooterZone":zone,
+                        "everyRivalReviewed":len(branch_rows)==len(rivals),
+                        "everyDirectRivalDefeated":branch_ok is True,
+                        "rivalResults":branch_rows})
+                    # Preserve the complete branch-specific challenger evidence.
+                    # A different goalie can contradict a rival defeat; never
+                    # hide those rows behind the first goalie's comparison.
+                    rows.extend([{**item,"opposingGoalieId":data.get("goalieId")}
+                                 for item in branch_rows])
                     opposing.append({
                         "goalieId":data.get("goalieId"),
                         "starterStatus":data.get("status"),
                         "starterSourceUrl":b["sourceUrl"],
                         "goalieWeakProfileUrl":data.get("goalieProfileSourceUrl"),
                         "sourceKind":data.get("sourceType"),
-                        "physicalOriginMatch":own["zone"] in weak,
-                        "observedStrongerArea":own["zone"] in strong,
+                        "ownScoringOrigin":zone,
+                        "physicalOriginMatch":bool(zone and zone in weak),
+                        "observedStrongerArea":bool(zone and zone in strong),
                         "anatomicalPlacementVerified":bool(
                             data.get("anatomicalWeaknessCertified",False)),
                         "observedWeakAreaNames":sorted(weak),
                         "observedStrengthAreaNames":sorted(strong),
                     })
                 usable=[b for b in opposing if b["physicalOriginMatch"]]
-                # G17 MUST audit the exact same goalie+defense-supported
-                # direct-recipient lanes that G10.5 adjudicates. It used to
-                # omit the G9 defensive coverage argument, producing
-                # contradictory outcomes for the same rival on the same slate.
-                defending=(game.get("coverage",{}).get(attacker) or {}).get("data") or {}
-                g9_green=defending.get("greenWeakZones")
-                rival_ok,rows=challenger_proof(scoped,
-                    [x for x in teammates if str(x["id"])!=str(p["id"]) and
-                     x.get("availability") not in ("OUT","SCRATCHED","INJURED")],
-                    branches[0]["data"].get("weakZones",{}) if len(branches)==1 else {},
-                    g9_green, opponent_coverage=defending)
+                # An unresolved or missing goalie branch is still a genuine
+                # source gap. Agreement requires matching own origins in ALL
+                # branches as well as successful teammate separation in ALL.
+                same_origin=bool(branch_reviews and all(
+                    item["shooterZone"]==own["zone"] for item in branch_reviews))
+                every_branch_matches=bool(
+                    branches and len(usable)==len(branches) and same_origin)
+                every_rival_reviewed=bool(
+                    branches and len(rows)==len(branches)*len(rivals))
+                rival_ok=bool(branch_reviews and all(
+                    item["everyDirectRivalDefeated"] and item["everyRivalReviewed"]
+                    for item in branch_reviews))
                 lineup_available=bool(dep and dep.get("EV") and
                         dep.get("status") in ("PROJECTED","CONFIRMED"))
                 known_contradiction=any(b["observedStrongerArea"]
-                                        for b in usable)
-                source_unresolved=(len(branches)!=1 if decision else not branches) or (
-                    not usable or not lineup_available or rival_ok is not True or
-                    known_contradiction)
+                                        for b in opposing)
+                source_unresolved=not (
+                    every_branch_matches and every_rival_reviewed and
+                    lineup_available and rival_ok and not known_contradiction)
                 status="UNRESOLVED_CONTRADICTION" if source_unresolved else "CROSS_SOURCE_REVIEW_SATISFIED"
+
                 contradiction={
                     "sourceType":SCOPE,
                     "goalieStrengthReview":{
@@ -100,6 +138,8 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                         "opposingBranchesReviewed":len(opposing),
                         "strongerAreaContradiction":known_contradiction,
                         "matchedWeakAreas":len(usable),
+                        "everyStarterBranchMatched":every_branch_matches,
+                        "sameOwnOriginAcrossStarterBranches":same_origin,
                     },
                     "lineupDisagreementReview":{
                         "availability":p.get("availability","UNVERIFIED"),
@@ -109,12 +149,11 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None):
                         "isTrulyConfirmed":bool(dep and dep.get("status")=="CONFIRMED"),
                     },
                     "strongestRivalReview":{
-                        "everyRivalReviewed":len(rows)==len(teammates)-1-
-                            sum(x.get("availability") in ("OUT","SCRATCHED","INJURED")
-                                for x in teammates if str(x["id"])!=str(p["id"])),
+                        "everyRivalReviewed":every_rival_reviewed,
                         "rivalCompared":len(rows),
-                        "eachSameLaneDefeated":rival_ok is True,
+                        "eachSameLaneDefeated":rival_ok,
                         "rivalResults":rows,
+                        "perGoalieBranchReviews":branch_reviews,
                         "G9OpponentDefenseWeakZonesUsed":list(g9_green) if isinstance(g9_green,list) else None,
                         "matchesG10_5GoalieAndDefenseRouteScope":g9_green is not None,
                     },
