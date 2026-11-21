@@ -1,40 +1,40 @@
 {
   "slateDate": "2026-11-21",
   "stage": "CONFIRMED",
-  "g0AcceptedSkaterMatrices": 204,
+  "g0AcceptedSkaterMatrices": 225,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G10": 53,
-    "G10.5": 158,
-    "G11": 87,
-    "G12": 53,
-    "G15": 54,
-    "G16": 158,
-    "G17": 176,
-    "Step9": 87,
-    "Step10.5": 158,
-    "Step12": 158,
-    "Step14": 176,
-    "G4": 62,
-    "G5": 59,
+    "G10": 57,
+    "G10.5": 179,
+    "G11": 91,
+    "G12": 57,
+    "G15": 58,
+    "G16": 179,
+    "G17": 197,
+    "Step9": 91,
+    "Step10.5": 179,
+    "Step12": 179,
+    "Step14": 197,
+    "G4": 64,
+    "G5": 61,
     "G9": 76,
     "G14": 11,
-    "Step3": 38,
-    "Step5": 42,
-    "Step7": 62,
-    "Step10": 38,
-    "G6": 55,
-    "Step6": 33,
-    "G2": 22,
-    "G7": 23,
-    "Step4": 23,
+    "Step3": 40,
+    "Step5": 43,
+    "Step7": 64,
+    "Step10": 40,
+    "G6": 58,
+    "Step6": 36,
+    "G2": 25,
+    "G7": 24,
+    "Step4": 24,
     "Step11": 3
   },
-  "g18NonselectedNotMissingSource": 204,
-  "g18ActualMissingSourceCount": 65,
+  "g18NonselectedNotMissingSource": 225,
+  "g18ActualMissingSourceCount": 0,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
@@ -49,7 +49,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 44
+      "playerCount": 59
     },
     {
       "masterGates": [
@@ -103,6 +103,25 @@
     },
     {
       "masterGates": [
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
         "G4",
         "G10.5",
         "G11",
@@ -185,7 +204,6 @@
       "masterGates": [
         "G10",
         "G10.5",
-        "G11",
         "G12",
         "G15",
         "G16",
@@ -193,7 +211,6 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
@@ -202,15 +219,15 @@
     },
     {
       "masterGates": [
-        "G10",
+        "G2",
+        "G6",
         "G10.5",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
+        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
@@ -565,6 +582,33 @@
         "G5",
         "G6",
         "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10",
         "G12",
         "G15",
         "G17",
@@ -729,23 +773,6 @@
       "overlaySteps": [
         "Step6",
         "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
@@ -1102,6 +1129,33 @@
       ],
       "overlaySteps": [
         "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
         "Step5",
         "Step7",
         "Step9",
@@ -2211,8 +2265,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-2635e3cfecc833af-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-2635e3cfecc833af-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -2225,8 +2279,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1c6b59a781145fc8-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1c6b59a781145fc8-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -2234,7 +2288,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642479+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959810+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -2244,7 +2298,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -2256,7 +2310,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3174,8 +3228,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-129859a444ceb46a-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-129859a444ceb46a-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -3188,8 +3242,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d005ee97230571d9-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d005ee97230571d9-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -3197,7 +3251,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642492+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959819+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -3207,7 +3261,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3219,7 +3273,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3541,8 +3595,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-7b1719d7901937f3-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-7b1719d7901937f3-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -3555,8 +3609,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-026b66ad00a80fc4-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-026b66ad00a80fc4-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -3564,7 +3618,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642518+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959838+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -3574,7 +3628,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3586,7 +3640,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3908,8 +3962,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1136d26c687f7549-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1136d26c687f7549-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -3922,8 +3976,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-ecba1888d8ebfc34-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-ecba1888d8ebfc34-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -3931,7 +3985,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642504+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959828+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -3941,7 +3995,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -3953,7 +4007,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -4275,8 +4329,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-34ce9ee4a4f6fb05-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-34ce9ee4a4f6fb05-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -4289,8 +4343,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d218b90556872bf0-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d218b90556872bf0-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -4298,7 +4352,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642495+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959822+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -4308,7 +4362,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -4320,7 +4374,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -4642,8 +4696,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-49c061b813db9714-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-49c061b813db9714-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -4656,8 +4710,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-14030de4d4693de7-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-14030de4d4693de7-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -4665,7 +4719,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642508+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959831+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -4675,7 +4729,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -4687,7 +4741,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -5292,8 +5346,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-23977363a8d722d0-2026-11-21T23:33:59+00:00",
-                        "observedAt": "2026-11-21T23:33:59+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-23977363a8d722d0-2026-11-21T23:39:01+00:00",
+                        "observedAt": "2026-11-21T23:39:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       },
                       {
@@ -5306,8 +5360,8 @@
                           "status": "PROJECTED",
                           "team": "BOS"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-912d491d9bbf7d13-2026-11-21T23:34:03+00:00",
-                        "observedAt": "2026-11-21T23:34:03+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-912d491d9bbf7d13-2026-11-21T23:39:04+00:00",
+                        "observedAt": "2026-11-21T23:39:04+00:00",
                         "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                       }
                     ],
@@ -5315,7 +5369,7 @@
                     "lineEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:47.642506+00:00",
+                        "retrievedAt": "2026-11-21T23:38:52.959830+00:00",
                         "source": "NHL.com projected lineup article",
                         "sourceAsOf": null,
                         "sourceDate": "2026-11-21",
@@ -5325,7 +5379,7 @@
                       },
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -5337,7 +5391,7 @@
                     "powerPlayEvidence": [
                       {
                         "dateVerified": true,
-                        "retrievedAt": "2026-11-21T23:33:48+00:00",
+                        "retrievedAt": "2026-11-21T23:38:53+00:00",
                         "source": "Daily Faceoff page",
                         "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                         "sourceDate": "2026-11-21",
@@ -6311,8 +6365,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-2635e3cfecc833af-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-2635e3cfecc833af-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -6325,8 +6379,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1c6b59a781145fc8-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1c6b59a781145fc8-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -6334,7 +6388,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642479+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959810+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -6344,7 +6398,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -6356,7 +6410,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -7277,8 +7331,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-129859a444ceb46a-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-129859a444ceb46a-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -7291,8 +7345,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d005ee97230571d9-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d005ee97230571d9-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -7300,7 +7354,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642492+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959819+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -7310,7 +7364,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -7322,7 +7376,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -7645,8 +7699,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-7b1719d7901937f3-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-7b1719d7901937f3-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -7659,8 +7713,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-026b66ad00a80fc4-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-026b66ad00a80fc4-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -7668,7 +7722,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642518+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959838+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -7678,7 +7732,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -7690,7 +7744,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8013,8 +8067,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1136d26c687f7549-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-1136d26c687f7549-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -8027,8 +8081,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-ecba1888d8ebfc34-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-ecba1888d8ebfc34-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -8036,7 +8090,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642504+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959828+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -8046,7 +8100,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8058,7 +8112,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8381,8 +8435,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-34ce9ee4a4f6fb05-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-34ce9ee4a4f6fb05-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -8395,8 +8449,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d218b90556872bf0-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-d218b90556872bf0-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -8404,7 +8458,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642495+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959822+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -8414,7 +8468,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8426,7 +8480,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8749,8 +8803,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-49c061b813db9714-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-49c061b813db9714-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -8763,8 +8817,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-14030de4d4693de7-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-14030de4d4693de7-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -8772,7 +8826,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642508+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959831+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -8782,7 +8836,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -8794,7 +8848,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -9401,8 +9455,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-23977363a8d722d0-2026-11-21T23:33:59+00:00",
-                    "observedAt": "2026-11-21T23:33:59+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-23977363a8d722d0-2026-11-21T23:39:01+00:00",
+                    "observedAt": "2026-11-21T23:39:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   },
                   {
@@ -9415,8 +9469,8 @@
                       "status": "PROJECTED",
                       "team": "BOS"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-912d491d9bbf7d13-2026-11-21T23:34:03+00:00",
-                    "observedAt": "2026-11-21T23:34:03+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-CONFIRMED-2026020363-912d491d9bbf7d13-2026-11-21T23:39:04+00:00",
+                    "observedAt": "2026-11-21T23:39:04+00:00",
                     "sourceUrl": "https://www.nhl.com/news/washington-capitals-boston-bruins-game-preview-november-21-2026"
                   }
                 ],
@@ -9424,7 +9478,7 @@
                 "lineEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:47.642506+00:00",
+                    "retrievedAt": "2026-11-21T23:38:52.959830+00:00",
                     "source": "NHL.com projected lineup article",
                     "sourceAsOf": null,
                     "sourceDate": "2026-11-21",
@@ -9434,7 +9488,7 @@
                   },
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
@@ -9446,7 +9500,7 @@
                 "powerPlayEvidence": [
                   {
                     "dateVerified": true,
-                    "retrievedAt": "2026-11-21T23:33:48+00:00",
+                    "retrievedAt": "2026-11-21T23:38:53+00:00",
                     "source": "Daily Faceoff page",
                     "sourceAsOf": "2026-11-21T04:07:18.900000+00:00",
                     "sourceDate": "2026-11-21",
