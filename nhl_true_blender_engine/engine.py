@@ -3238,7 +3238,12 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                      'isAnatomicalWeaknessClaim':False}
                 for gid,d in selected_directions.items()},
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
-            'eligibleSkaterRows':pool_size,'gateRows':len(records),'missingByGate':dict(gaps),
+            'eligibleSkaterRows':pool_size,'gateRows':len(records),
+            # Audit counts are a summary, never the gate schedule.  Preserve
+            # the original chronological order even when the first missing
+            # receipt appears late in an arbitrary roster/branch iteration.
+            'gateExecutionOrder':EXECUTION_ORDER[:],
+            'missingByGate':{gate:gaps[gate] for gate in EXECUTION_ORDER if gaps[gate]},
             'g18IntentionallyNotSelectedNotMissingSource':g18_intentionally_not_selected,
             'unresolvedG0ResearchBranchCount':len(unresolved_branch_analyses),
             'unresolvedG0PlayerSourceChecks':sum(x['masterAndOverlayChecks']
