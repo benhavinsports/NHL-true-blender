@@ -151,7 +151,7 @@ def record_evidence(con, item):
     return True
 
 
-def save_gates(con, date, stage, records, now=None):
+def save_gates(con, date, stage, records, now=None, preserve_frozen_g0_game_ids=None):
     """Replace the CURRENT execution matrix; archive prior receipts first.
 
     The previous UPSERT accumulated player traces from earlier G0 attack
@@ -170,6 +170,10 @@ def save_gates(con, date, stage, records, now=None):
             """SELECT slate_date,stage,game_id,player_id,gate,disposition,
                       details,evaluated_at FROM gates
                WHERE slate_date=? AND stage=?""",(date,stage)).fetchall()
+        frozen_ids={str(x) for x in (preserve_frozen_g0_game_ids or [])}
+        frozen_directions=[row for row in previous
+            if str(row['game_id']) in frozen_ids and row['gate']=='G0'
+            and str(row['player_id']).startswith('GOALIE_DIRECTION:')]
         for row in previous:
             payload=[row[k] for k in (
                 'slate_date','stage','game_id','player_id',
@@ -185,11 +189,24 @@ def save_gates(con, date, stage, records, now=None):
         # archived rather than silently erased or allowed to count as live.
         con.execute("DELETE FROM gates WHERE slate_date=? AND stage=?",
                     (date,stage))
+        inserted_keys=set()
         for x in records:
+            key=(str(x['gameId']),str(x.get('playerId','GOALIE_ATTACK')),x['gate'])
+            inserted_keys.add(key)
             con.execute('''INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)''',
                 (date,stage,x['gameId'],str(x.get('playerId','GOALIE_ATTACK')),
                  x['gate'],x['disposition'],encode(x.get('details',{})),
                  batch_timestamp))
+        # Keep the original G0 direction receipts for games that have frozen.
+        # These are immutable pre-puck records, not a new source refresh. All
+        # skater gates for started games remain archived and are never reopened.
+        for row in frozen_directions:
+            key=(str(row['game_id']),str(row['player_id']),row['gate'])
+            if key in inserted_keys:
+                continue
+            con.execute('''INSERT INTO gates VALUES (?,?,?,?,?,?,?,?)''',
+                (date,stage,row['game_id'],row['player_id'],row['gate'],
+                 row['disposition'],row['details'],row['evaluated_at']))
 
 
 

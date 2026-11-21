@@ -3433,7 +3433,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         records.append(gate_record(match,key[1],'G18',disposition,proof,urls))
     # Exactly one authoritative row for every original gate per skater.
     # Only the true final Core recipients are allowed a G18 PASS.
-    save_gates(con,date,stage,records,now=now)
+    frozen_g0_game_ids={str(g['id']) for g in games if _is_game_started(g,now)}
+    save_gates(con,date,stage,records,now=now,
+               preserve_frozen_g0_game_ids=frozen_g0_game_ids)
     selection_errors += verify_complete_matrix(games,records,scan,now,selected_directions)
     # A game that has already started cannot be newly picked. Such a game is
     # excluded from the candidate pool above, but does not veto later games.
