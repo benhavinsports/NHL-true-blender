@@ -116,7 +116,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
         contradiction_research = result.get('g17ReviewSummary')
-        # Evidence feedback: re-research the actual source-incomplete gate
+        # Evidence feedback: re-research the actual source-search-required gate
         # candidates, refresh the attached snapshot, and execute the entire
         # original gate order again. Never promote NOT_EXECUTED to PASS.
         feedback=[]
@@ -127,7 +127,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # In the exact live failure observed Nov 17, all 11 scheduled games
         # lacked a dated STARTER identity.  That generated ZERO skater rows,
         # hence "unresolved == 0" incorrectly disabled this entire second
-        # evidence-research pass.  G0 incompleteness is independently a
+        # evidence-research pass.  G0 missing G0 source research is independently a
         # source-refresh trigger even when no skater can yet be evaluated.
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
@@ -212,7 +212,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             contradiction_research=result.get('g17ReviewSummary')
             after=_census(con,date,stage,result.get('games'))
             next_unresolved=after.get('firstFailureClassificationCounts',{}).get(
-                'EVIDENCE_INCOMPLETE',0)
+                'SOURCE_SEARCH_REQUIRED',0)
             feedback.append({'pass':recovery_round,
                 'unresolvedFirstGateCandidates':next_unresolved,
                 'resolvedCandidateCount':max(0,unresolved-next_unresolved),
