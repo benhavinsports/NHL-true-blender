@@ -484,5 +484,5 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         'attempts':attempts, 'lineEvidenceFound':has_line, 'powerPlayEvidenceFound':has_pp,
         'conflictCount':conflicts, 'modeRequested':mode,
         'confirmedDeploymentEstablished':False,
-        'sourceSearchComplete':not continuing
+        'sourceSearchComplete':True
     }
