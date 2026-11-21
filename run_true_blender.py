@@ -145,7 +145,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
             await collect_dfo_goalies(con,retry_snapshot,date,stage)
             async with _Client() as client:
-                await collect_official_dressed(client,retry_snapshot,date,stage)
+                await collect_official_dressed(client,con,retry_snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
