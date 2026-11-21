@@ -36,21 +36,27 @@ def recover(rows, games=None, selected=None):
          else {"7": {"attacker": "NYI"}}}, now=NOW)
 
 
-def test_eliminated_player_does_not_cancel_other_unresolved_gate_research():
-    # Player 42 was genuinely eliminated at G2. Their later G6 NOT_EXECUTED
-    # is expected and must not trigger collection. Player 43 passed G0-G5
-    # and has a real unresolved G6, so the matchup still needs source search.
-    rows = [gate("7", "42", name, "ELIMINATED" if name == "G2"
-                 else "NOT_EXECUTED" if MASTER.index(name) > MASTER.index("G2")
-                 else "PASS")
+def test_later_unresolved_gates_after_earlier_elimination_still_trigger_research():
+    # G2 is a genuine, permanent elimination. It must not suppress independent
+    # source recovery for later G6 and G11 rows that remain NOT_EXECUTED.
+    rows = [gate("7", "42", name,
+                 "ELIMINATED" if name == "G2" else
+                 "NOT_EXECUTED" if name in ("G6", "G11") else "PASS")
             for name in MASTER[:-1]]
-    rows += [gate("7", "43", name,
-                  "NOT_EXECUTED" if name == "G6" else "PASS")
-             for name in MASTER[:-1]]
+    assert [x["id"] for x in recover(rows)["games"]] == ["7"]
+
+
+def test_missing_later_gate_after_earlier_elimination_still_triggers_research():
+    # Missing a downstream gate row is incomplete execution, not proof that
+    # the gate was considered. Recovery must revisit the still-pregame game.
+    rows = [gate("7", "42", name,
+                 "ELIMINATED" if name == "G2" else "PASS")
+            for name in MASTER[:-1] if name != "G7"]
     assert [x["id"] for x in recover(rows)["games"]] == ["7"]
 
 
 def test_genuine_elimination_is_not_reopened_when_all_evidence_is_accounted_for():
+    # A complete, source-accounted elimination does not reopen the player.
     rows = [gate("7", "42", name, "ELIMINATED" if name == "G2" else "PASS")
             for name in MASTER[:-1]]
     assert recover(rows)["games"] == []

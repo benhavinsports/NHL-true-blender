@@ -34,14 +34,17 @@ def recovery_snapshot(con, snapshot, date, stage, result, now=None):
         if pid.startswith(('GOALIE_DIRECTION:', 'G0_RESEARCH:')):
             continue
         researched_games.add(gid)
-        # Follow the ORIGINAL gate order and recover only the FIRST
-        # nonpassing decision for this player. A gate after an ELIMINATED
-        # earlier gate is correctly NOT_EXECUTED; it is not a missing source
-        # and must never send the whole matchup back through collection.
-        # Other players in this same game are still checked independently.
-        first = next((gate for gate in MASTER[:-1]
-                      if rows.get(gate) != 'PASS'), None)
-        if first is not None and rows.get(first) in (None, 'NOT_EXECUTED'):
+        # Inspect EVERY original source gate independently. An ELIMINATED
+        # verdict is permanent for selection, but it does not make later
+        # NOT_EXECUTED or absent gate rows "accounted for". Those later gates
+        # still need their own source research before this matchup is frozen.
+        # G18 is deliberately excluded: it is final Core assembly, not a
+        # source-acquisition gate, and an unselected G18 is not a source gap.
+        unresolved = [
+            gate for gate in MASTER[:-1]
+            if rows.get(gate) not in ('PASS', 'ELIMINATED')
+        ]
+        if unresolved:
             still_need_sources.add(gid)
 
     for game in snapshot.get('games', []):
