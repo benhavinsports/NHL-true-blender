@@ -1622,37 +1622,47 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          eliminate=bool(route_owned_by),
          source_ids=sorted({url for row in rows for url in row.get('sourceUrls',[])
              if url} | ({player['release']['sourceUrl']} if receipt(player.get('release')) else set())))
-    shots=player.get('pressure')
-    recent_shots=evidence_data(shots,'recentAppearanceShots')
-    route_pressure=independently_dated_origin_route(player,(release or {}).get('zone'))
-    bounded_route=(independently_bounded_origin_route(
-        player,(release or {}).get('zone')) if route_pressure is None else None)
-    observed_route=route_pressure or bounded_route
-    current_route_reviewed=bool(observed_route and
-        evidence_data(player.get('recentOrigin')).get('sampleAsOfSlateDate')==game.get('date'))
-    current_route_active=bool(current_route_reviewed and
-        ((route_pressure and route_pressure['shotsOnGoal']>0) or
-         (bounded_route and bounded_route['shotsOnGoalLowerBound']>0)))
-    # G11: observed own-shot pressure in separate actual appearances.
-    # [0,0,3] is one isolated active game, not recurring pressure.
-    source_steps(['Step9'],[])
-    emit('G11',bool(receipt(shots) and shot_review['valid']
-                    and shot_review['repeatedOwnShotPressure'] and current_route_active),
-         {'recentOwnAttempts':recent_shots,
-          'shotContinuation':shot_review,
-          'selectedRouteRecentOrigin':observed_route,
-          'conservativeUnknownLocationBounds':bounded_route,
-          'currentShotPressureInSelectedRoute':current_route_active,
-          'noOneOffPressureCalledContinuation':True},
-         # Missing appearance dates are an evidence gap, not proof that
-         # the player failed to repeat his own shot pressure.
-         eliminate=bool(receipt(shots) and shot_review['valid']
-                        and shot_review['datedAppearanceAlignmentVerified']
-                        and (not shot_review['repeatedOwnShotPressure'] or
-                             (route_pressure is not None and current_route_reviewed and
-                              not current_route_active))),
-         source_ids=sorted(set(([shots['sourceUrl']] if receipt(shots) else [])+
-             ([player['recentOrigin']['sourceUrl']] if receipt(player.get('recentOrigin')) else []))))
+     shots=player.get('pressure')
+     recent_shots=evidence_data(shots,'recentAppearanceShots')
+     g9_routes=(release or {}).get('g9ViableRoutes') or []
+     route_pressure_rows=[]
+     for route in g9_routes:
+         zone=route.get('zone')
+         exact=independently_dated_origin_route(player,zone)
+         bounded=(independently_bounded_origin_route(player,zone)
+                  if exact is None else None)
+         observed=exact or bounded
+         reviewed=bool(observed and
+             evidence_data(player.get('recentOrigin')).get('sampleAsOfSlateDate')==game.get('date'))
+         active=bool(reviewed and (
+             (exact and exact['shotsOnGoal']>0) or
+             (bounded and bounded['shotsOnGoalLowerBound']>0)))
+         route_pressure_rows.append({'zone':zone,'exact':exact,'bounded':bounded,
+                                     'reviewed':reviewed,'active':active})
+     current_route_active=any(x['active'] for x in route_pressure_rows)
+     current_route_reviewed=bool(route_pressure_rows) and all(
+         x['reviewed'] for x in route_pressure_rows)
+     observed_route=[{'zone':x['zone'],'evidence':x['exact'] or x['bounded'],
+                      'active':x['active']} for x in route_pressure_rows]
+     bounded_routes=[x['bounded'] for x in route_pressure_rows if x['bounded']]
+     # G11: observed own-shot pressure in separate actual appearances.
+     # [0,0,3] is one isolated active game, not recurring pressure.
+     source_steps(['Step9'],[])
+     emit('G11',bool(receipt(shots) and shot_review['valid']
+                     and shot_review['repeatedOwnShotPressure'] and current_route_active),
+          {'recentOwnAttempts':recent_shots,
+           'shotContinuation':shot_review,
+           'selectedRouteRecentOrigin':observed_route,
+           'conservativeUnknownLocationBounds':bounded_routes,
+           'currentShotPressureInSelectedRoute':current_route_active,
+           'noOneOffPressureCalledContinuation':True},
+          eliminate=bool(receipt(shots) and shot_review['valid']
+                         and shot_review['datedAppearanceAlignmentVerified']
+                         and (not shot_review['repeatedOwnShotPressure'] or
+                              (current_route_reviewed and not current_route_active))),
+          source_ids=sorted(set(([shots['sourceUrl']] if receipt(shots) else [])+
+              ([player['recentOrigin']['sourceUrl']] if receipt(player.get('recentOrigin')) else []))))
+
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),
          {'ownership':own,'officialGoalsReconciled':bool(rec)},
          source_ids=sorted(set(x['sourceUrl'] for x in (
@@ -1696,78 +1706,71 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
              receipt(player.get('release')) else []) | set(
              [who['sourceUrl']] if receipt(who) else []) | set(
              [goalie_profile['sourceUrl']] if receipt(goalie_profile) else [])))
-    # G15: own GOAL FINISHER (not the assist provider), independently
-    # corroborated by the official dated season goal log and the skater's
-    # separate NHL EDGE own shot-origin record. G5 already proved which
-    # observed own shooting lane attacks the G0 goalie weakness.
-    #
-    # A player may have actual shots but no historically credited goal in
-    # that SPECIFIC weak lane while independently owning historical goals in
-    # other lanes. Requiring a SAME-LANE goal here wrongly duplicates the
-    # physical-lane G5 check and labels a real historical scorer NOT_EXECUTED
-    # despite independent positive goal credits from both sources.
-    # DO NOT claim any historical goal in the matched lane when there is zero.
-    season_release_consistent=bool(
-        verified_season_goals and release and
-        type(release.get('ownedGoals')) is int and
-        release['ownedGoals']<=season_data['officialPastSeasonGoals'])
-    edge_routes=(release.get('allRoutes') or []) if release else []
-    edge_full_own_goal_reconciliation=bool(
-        verified_season_goals and receipt(player.get('release')) and
-        isinstance(release,dict) and
-        release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
-        isinstance(edge_routes,list) and len(edge_routes)>0 and
-        all(isinstance(row,dict) and bool(row.get('zone')) and
-            type(row.get('sog')) is int and row['sog']>=0 and
-            type(row.get('ownedGoals')) is int and
-            0<=row['ownedGoals']<=row['sog'] for row in edge_routes) and
-        len({row.get('zone') for row in edge_routes})==len(edge_routes) and
-        sum(row['ownedGoals'] for row in edge_routes)==
-            season_data['officialPastSeasonGoals'] and
-        release.get('attempts',0)>0 and
-        (season_history or {}).get('sourceUrl') !=
-            player['release']['sourceUrl'] and
-        season_data['officialPastSeasonGoals']>0)
-    # One direct finishing proof already in THIS chosen lane remains the
-    # strongest form of historical route attribution. The independent
-    # full-season cross-origin option is NOT a claim he scored from this
-    # lane; it verifies a goal recipient who shoots from the targeted lane.
-    exact_matched_lane_goal=bool(release and
-        type(release.get('ownedGoals')) is int and
-        release['ownedGoals']>0)
-    finish_corrob=bool(
-        own and own.get('recipient') is True and
-        receipt(ownership) and rec and
-        (sample_goals or season_release_consistent) and
-        receipt(player.get('release')) and release and
-        type(release.get('ownedGoals')) is int and
-        (exact_matched_lane_goal or edge_full_own_goal_reconciliation))
-    emit('G15',finish_corrob,
-         {'independentHistoricalGoalFinishingEvidence':finish_corrob,
-          'goalSourceReconciledToDatedAppearances':bool(rec),
-          'separateOfficialShotOriginSource':bool(receipt(player.get('release'))),
-          'officialOwnedGoalsInMatchedOrigin':release.get('ownedGoals') if release else None,
-          'matchedOriginOwnOnNetShots':release.get('attempts') if release else None,
-          'matchedOriginHasHistoricalGoal':exact_matched_lane_goal,
-          'officialDatedSeasonGoals':season_data.get('officialPastSeasonGoals') if verified_season_goals else None,
-          'totalOwnedGoalsFromEveryNhlEdgeOrigin':sum(
-              row.get('ownedGoals',0) for row in edge_routes
-              if isinstance(row,dict) and type(row.get('ownedGoals')) is int)
-              if edge_routes else None,
-          'fullSeasonGoalCreditsReconciledAgainstEdgeOrigins':edge_full_own_goal_reconciliation,
-          'directFinisherEvidenceMethod':(
-              'POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE' if exact_matched_lane_goal else
-              'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS'
-              if edge_full_own_goal_reconciliation else None),
-          'sameLaneGoalsNotInferredFromScoringElsewhere':True,
-          'seasonAndReleaseGoalCreditsConsistent':season_release_consistent if verified_season_goals else None,
-          'independentSeasonLogSource':season_history.get('sourceUrl') if verified_season_goals else None,
-          'futureGoalVersusAssistRoleNotProven':True,
-          'notASecondCopyOfG10RecipientBoolean':True},
-         source_ids=sorted(set(x['sourceUrl'] for x in (
-             ownership,player.get('release'),player.get('mappedGoals'),
-             season_history if verified_season_goals else None)
-             if receipt(x))))
+     # G15 proves independent OWN finishing across the G9-viable route set.
+     # Multiple exact goalie+defense lanes remain visible; no historical or
+     # arbitrary tie-break chooses a single route before the final Core review.
+     g9_routes=(release or {}).get('g9ViableRoutes') or []
+     matched_owned_goals=sum(x.get('ownedGoals',0) for x in g9_routes
+                             if type(x.get('ownedGoals')) is int)
+     matched_onnet_shots=sum(x.get('attempts',x.get('sog',0)) for x in g9_routes
+                             if type(x.get('attempts',x.get('sog'))) is int)
+     season_release_consistent=bool(
+         verified_season_goals and release and
+         sum(x.get('ownedGoals',0) for x in (release.get('allRoutes') or [])
+             if type(x.get('ownedGoals')) is int)<=season_data['officialPastSeasonGoals'])
+     edge_routes=(release.get('allRoutes') or []) if release else []
+     edge_total_owned_goals=sum(
+         row.get('ownedGoals',0) for row in edge_routes
+         if isinstance(row,dict) and type(row.get('ownedGoals')) is int)
+     edge_total_sog=sum(
+         row.get('sog',row.get('attempts',0)) for row in edge_routes
+         if isinstance(row,dict) and type(row.get('sog',row.get('attempts'))) is int)
+     edge_full_own_goal_reconciliation=bool(
+         verified_season_goals and receipt(player.get('release')) and
+         isinstance(release,dict) and
+         release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
+         isinstance(edge_routes,list) and len(edge_routes)>0 and
+         all(isinstance(row,dict) and bool(row.get('zone')) and
+             type(row.get('sog')) is int and row['sog']>=0 and
+             type(row.get('ownedGoals')) is int and
+             0<=row['ownedGoals']<=row['sog'] for row in edge_routes) and
+         len({row.get('zone') for row in edge_routes})==len(edge_routes) and
+         edge_total_owned_goals==season_data['officialPastSeasonGoals'] and
+         edge_total_sog>0 and
+         (season_history or {}).get('sourceUrl') != player['release']['sourceUrl'] and
+         season_data['officialPastSeasonGoals']>0)
+     exact_matched_lane_goal=matched_owned_goals>0
+     finish_corrob=bool(
+         own and own.get('recipient') is True and
+         receipt(ownership) and rec and
+         (sample_goals or season_release_consistent) and
+         receipt(player.get('release')) and release and
+         (exact_matched_lane_goal or edge_full_own_goal_reconciliation))
+     emit('G15',finish_corrob,
+          {'independentHistoricalGoalFinishingEvidence':finish_corrob,
+           'goalSourceReconciledToDatedAppearances':bool(rec),
+           'separateOfficialShotOriginSource':bool(receipt(player.get('release'))),
+           'officialOwnedGoalsInMatchedOrigin':matched_owned_goals,
+           'matchedOriginOwnOnNetShots':matched_onnet_shots,
+           'matchedOriginHasHistoricalGoal':exact_matched_lane_goal,
+           'matchedOriginRouteZones':sorted({x['zone'] for x in g9_routes}),
+           'officialDatedSeasonGoals':season_data.get('officialPastSeasonGoals') if verified_season_goals else None,
+           'totalOwnedGoalsFromEveryNhlEdgeOrigin':edge_total_owned_goals if edge_routes else None,
+           'fullSeasonGoalCreditsReconciledAgainstEdgeOrigins':edge_full_own_goal_reconciliation,
+           'directFinisherEvidenceMethod':(
+               'POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE_SET' if exact_matched_lane_goal else
+               'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS'
+               if edge_full_own_goal_reconciliation else None),
+           'sameLaneGoalsNotInferredFromScoringElsewhere':True,
+           'seasonAndReleaseGoalCreditsConsistent':season_release_consistent if verified_season_goals else None,
+           'independentSeasonLogSource':season_history.get('sourceUrl') if verified_season_goals else None,
+           'futureGoalVersusAssistRoleNotProven':True,
+           'notASecondCopyOfG10RecipientBoolean':True},
+          source_ids=sorted(set(x['sourceUrl'] for x in (
+              ownership,player.get('release'),player.get('mappedGoals'),
+              season_history if verified_season_goals else None)
+              if receipt(x))))
+
     # Global G16 has already compared all G0-G16-qualified game candidates.
     # Apply the resulting evidence now, BEFORE G17, not after it has passed.
     global_row=cross_game_g16 or {}
@@ -3233,8 +3236,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             branches=all_goalie_branches(match,stage).get(defender,[])
             for branch in branches:
                 goalie_id=str(branch['data'].get('goalieId') or 'UNKNOWN')
-                scoped_players=[release_matched_to_g0_target(
-                    player,branch,match.get('coverage',{}).get(attacker)) for player in players]
+                scoped_players=[release_matched_to_g0_target(player,branch) for player in players]
                 stopped=stopped_before_g10_5([
                     evaluate_skater(match,attacker,x,players,branch,stage,
                                      stop_at_g10=True)[0]
@@ -3296,8 +3298,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             goalie=g0_source_coherent_scorer_goalie(
                 preliminary_game,direction,original)
             scoped={**preliminary_game,'_g0SelectedDirection':direction}
-            scoped_players=[release_matched_to_g0_target(
-                person,goalie,preliminary_game.get('coverage',{}).get(attack))
+            scoped_players=[release_matched_to_g0_target(person,goalie)
                 for person in team_players]
             stopped=stopped_before_g10_5([
                 evaluate_skater(scoped,attack,person,team_players,goalie,stage,
@@ -3356,7 +3357,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         for original_branch in branches:
             branch=g0_source_coherent_scorer_goalie(match,direction,original_branch)
             scoped_game={**match,'_g0SelectedDirection':direction}
-            scoped_players=[release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
+            scoped_players=[release_matched_to_g0_target(player,branch)
                             for player in players]
             # Pass 1 actually executes only G0-G10 (teammate-independent).
             # No G10.5/G16/G17 decisions are computed before the rivals are scoped.
