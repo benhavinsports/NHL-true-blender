@@ -3035,6 +3035,55 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         game_pool[str(match['id'])]={'gameId':str(match['id']),
             'matchup':match['away']+'@'+match['home'],
             'gameStartUTC':match.get('startUTC'),'status':status,**extra}
+    # Phase A: evaluate every G0-selected candidate through G16 without
+    # running G17 or saving provisional scorer-gate rows.
+    required_core=2 if len(games)==2 else 3
+    pre_g17_qualified=[]
+    for preliminary_game in games:
+        gid=str(preliminary_game['id'])
+        started=(preliminary_game.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or
+                 (preliminary_game.get('startUTC') and datetime.fromisoformat(
+                     preliminary_game['startUTC'].replace('Z','+00:00'))<=now))
+        direction=selected_directions.get(gid)
+        if started or direction is None:
+            continue
+        attack=direction['attacker']
+        team_players=complete_roster(preliminary_game,attack)
+        if not team_players:
+            continue
+        for original in all_goalie_branches(
+                preliminary_game,stage).get(direction['defender'],[]):
+            goalie=g0_source_coherent_scorer_goalie(
+                preliminary_game,direction,original)
+            scoped={**preliminary_game,'_g0SelectedDirection':direction}
+            scoped_players=[release_matched_to_g0_target(
+                person,goalie,preliminary_game.get('coverage',{}).get(attack))
+                for person in team_players]
+            stopped=stopped_before_g10_5([
+                evaluate_skater(scoped,attack,person,team_players,goalie,stage,
+                                stop_at_g10=True)[0]
+                for person in scoped_players])
+            for person in scoped_players:
+                early,_=evaluate_skater(
+                    scoped,attack,person,team_players,goalie,stage,
+                    stopped_before_g10_5=stopped,
+                    stop_at_g16=True,defer_g18=True)
+                if early['preG17Qualified']:
+                    pre_g17_qualified.append({
+                        'game':preliminary_game,'attackTeam':attack,
+                        'targetGoalie':goalie,'candidate':early})
+    # Original G16 source comparison now occurs before any G17 review.
+    g16_receipt=None
+    g16_decisions={}
+    if (len(pre_g17_qualified)>required_core and
+        len({str(x['game']['id']) for x in pre_g17_qualified})==
+            len(pre_g17_qualified)):
+        _,g16_receipt=g16_cross_game_finalists(pre_g17_qualified,required_core)
+        _,g16_receipt=revalidate_authoritative_finalists(
+            con,date,pre_g17_qualified,g16_receipt,required_core)
+        g16_decisions={(str(x['gameId']),str(x['playerId'])):x
+                       for x in g16_receipt['finalists']}
+    # Phase B records the one authoritative G0-G18 trace for each skater.
     for match in games:
         is_started=match.get('gameState') in ('LIVE','CRIT','OFF','FINAL') or (
             match.get('startUTC') and datetime.fromisoformat(match['startUTC'].replace('Z','+00:00')) <= now)
@@ -3079,7 +3128,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 # goalie-first selection; never infer direction from a PASS.
                 result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage,
                                               stopped_before_g10_5=stopped,defer_g18=True,
-                                               g17_review=review_at_g17)
+                                               g17_review=review_at_g17,
+                                               cross_game_g16=g16_decisions.get(
+                                                   (str(match['id']),str(scoped['id']))))
                 records+=traces
                 deferred_g18.append((match,result))
                 stop=next((g for g in MASTER[:-1] if
@@ -3156,20 +3207,13 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 f"{match['id']} PRE_CORE_REVIEW: {len(all_per_game)} qualified same-game "
                 "recipients remain after G10.5/G17; no arbitrary final pick")
     pool_size+=unresolved_unique_pool
-    required_core=2 if len(games)==2 else 3
-    g16_receipt=None
+    # G16 already ran before G17; never decide these gates in reverse.
     finalists=qualified
-    if len(qualified)>required_core and len(
-            {str(x['game']['id']) for x in qualified})==len(qualified):
-        finalists,g16_receipt=g16_cross_game_finalists(qualified,required_core)
-        finalists,g16_receipt=revalidate_authoritative_finalists(
-            con,date,finalists,g16_receipt,required_core)
     chosen,selection_errors=cross_game_winners(finalists,len(games))
-    if g16_receipt and not g16_receipt['separated']:
+    if g16_receipt and not g16_receipt['separated'] and len(finalists)>required_core:
         selection_errors.insert(0,
-            f"G16 cross-game finalist competition left {len(finalists)} "
-            f"unseparated finalists for a Core {required_core}: "
-            f"{', '.join(g16_receipt['retainedPlayerIds'])}; no ranking or tie-break applied")
+            f"G16 retained {len(finalists)} G17-surviving finalists for "
+            f"Core {required_core}; original full-slate sources did not separate them")
     # A started canonical leg is closed, not a vacancy for another game.
     # Keep researching the unstarted recipients without issuing a second Core.
     if frozen_games:
@@ -3185,20 +3229,13 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         key=(str(match['id']),str(candidate['player']['id']))
         finalist=decisions.get(key)
         if finalist:
-            # The per-game G16 check was provisional: its global verdict now
-            # becomes the one source-backed G16 gate decision.
-            for row in records:
-                if (row['gameId'],row['playerId'],row['gate'])==(key[0],key[1],'G16'):
-                    evidence=row['details']['evidence']
-                    evidence['crossGameFinalistCompetition']={
-                        'decision':finalist['g16Decision'],
-                        'dominatedBy':finalist['dominatedBy'],
-                        'comparedAgainstAllGames':True,
-                        'requiredCoreSize':required_core}
-                    if finalist['g16Decision'].startswith('EXCLUDED_'):
-                        row['disposition']='ELIMINATED'
-                        candidate['dispositions']['G16']['disposition']='ELIMINATED'
-                    break
+            # Inspect the pre-G17 G16 verdict; never mutate it afterward.
+            g16=candidate['dispositions']['G16']
+            if (finalist['g16Decision'].startswith('EXCLUDED_') and
+                    g16['disposition']!='ELIMINATED'):
+                raise ValueError('Full-slate G16 exclusion not applied before G17')
+            if g16['details'].get('globalG16AppliedBeforeG17') is not True:
+                raise ValueError('Pre-G17 G16 full-slate decision absent')
         # Only the actual G16-selected recipient may be G18 certified;
         # per-game G0-G17 qualification is NOT conditional on a G18 label.
         # Missing final path evidence fails G18 with explicit audit gaps,
