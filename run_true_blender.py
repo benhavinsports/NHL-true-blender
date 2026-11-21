@@ -47,8 +47,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
     try:
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
-            print(f\"BLENDER official slate loaded: {date}; games={len(snapshot.get('games', []))}\", flush=True)
-            print(\"BLENDER collecting official history and goalie peer evidence\", flush=True)
+            print(f"BLENDER official slate loaded: {date}; games={len(snapshot.get('games', []))}", flush=True)
+            print("BLENDER collecting official history and goalie peer evidence", flush=True)
             historical = await collect_history(client, con, snapshot, date, stage)
             # This event payload is an in-memory input to the later goalie
             # fallback, not a JSON report or persistent duplicate database.
@@ -59,7 +59,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
-        print(\"BLENDER collecting secondary sources, lineups, deployment and projected starters\", flush=True)
+        print("BLENDER collecting secondary sources, lineups, deployment and projected starters", flush=True)
         source_research = await collect_secondary(con, snapshot, date, stage)
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
             con,snapshot,date,stage)
@@ -92,7 +92,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
         # Starters and projected lines are attached before independently
         # measured EDGE comparisons; a skater is never picked before full G0.
-        print(\"BLENDER attaching collected evidence and deriving source-supported attack routes\", flush=True)
+        print("BLENDER attaching collected evidence and deriving source-supported attack routes", flush=True)
         attach(con, snapshot, date, stage)
         derived_routes = derive_nhl_edge_attacks(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
@@ -117,9 +117,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         # Independent contradiction evidence is reviewed at G17, not after G0.
         attach(con, snapshot, date, stage)
-        print(\"BLENDER executing original G0-G18 and overlay\", flush=True)
+        print("BLENDER executing original G0-G18 and overlay", flush=True)
         result = execute(con, snapshot, date, stage)
-        print(f\"BLENDER first gate execution complete; Core present={bool(result.get('card'))}\", flush=True)
+        print(f"BLENDER first gate execution complete; Core present={bool(result.get('card'))}", flush=True)
         contradiction_research = result.get('g17ReviewSummary')
         # Keep searching every still-pre-puck game at its first
         # nonpassing original gate. A source returning no usable observation
@@ -294,7 +294,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # Source-verified Core JSON is produced independently by the engine.
         # GitHub Actions commits it under state/; GitHub Pages publishes
         # the authoritative card and run receipt via site/data/latest.json.
-        print(\"BLENDER writing this cycle's evidence, card receipt and dashboard checkpoint\", flush=True)
+        print("BLENDER writing this cycle's evidence, card receipt and dashboard checkpoint", flush=True)
         from scripts.publish_site_state import export_run
         site_export = export_run(con, date, stage, result, state_dir)
         summary = {k: v for k, v in result.items() if k != "scan"}
