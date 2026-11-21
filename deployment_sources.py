@@ -348,7 +348,7 @@ def fetch_web_search(team, team_name=None):
                   'errors':[] if rows else ['Multiple web indexes searched; no explicit structured line/PP assignments found']}
 
 
-def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, opponent_slug=None):
+def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, opponent_slug=None, expected_player_names=None):
     """Search all configured web sources; never silently choose between conflicts.
 
     In confirmed mode, projected-only sources are still searched for context but are
@@ -363,12 +363,31 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         attempts.append(meta)
         collected.extend(rows)
 
-    # Broaden to a general web search only when the known sources have not
-    # supplied both dimensions. The search result is discovery; only explicit
-    # structured assignments on opened pages can become evidence rows.
-    known_line=any(r.get('line') is not None for r in collected)
-    known_pp=any(r.get('powerPlayUnit') is not None for r in collected)
-    if not (known_line and known_pp):
+    # Keep broadening sources for the entire official player pool, not merely
+    # until ONE player's line and ONE unrelated player's PP unit have been
+    # found. Finding these isolated facts previously stopped web discovery
+    # while dozens of G6 identities remained unresearched.
+    expected_keys={norm_name(name) for name in (expected_player_names or [])
+                   if norm_name(name)}
+    by_identity={}
+    for row in collected:
+        key=norm_name(row.get('playerName'))
+        if not key:
+            continue
+        fields=by_identity.setdefault(key,set())
+        if row.get('line') is not None:
+            fields.add('line')
+        if row.get('powerPlayUnit') is not None:
+            fields.add('powerPlayUnit')
+    missing_players=expected_keys-set(by_identity)
+    partial_players=any(fields!={'line','powerPlayUnit'}
+                        for fields in by_identity.values())
+    dated_source=any(
+        str(meta.get('sourceDate') or '')[:10]==str(slate_date)
+        and meta.get('dateVerified') is not False for meta in attempts)
+    # Web search is discovery ONLY. The normal dated official-ID matching
+    # still controls which evidence can pass G6; no undated source is promoted.
+    if (not by_identity or missing_players or partial_players or not dated_source):
         rows,meta=fetch_web_search(team,team_name)
         attempts.append(meta)
         collected.extend(rows)
@@ -446,12 +465,24 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
                 'FOUND LINE + PP EVIDENCE' if has_line and has_pp else
                 'PARTIAL — LINE + PP SOURCE SEARCH COMPLETED' if has_line or has_pp else
                 'NOT FOUND — ALL SOURCES SEARCHED')
+    remaining_unmapped=sorted(expected_keys-set(by_player))
+    incomplete_player_names=sorted(
+        item['playerName'] for item in rows
+        if item.get('line') is None or item.get('powerPlayUnit') is None)
+    continuing=bool(remaining_unmapped or incomplete_player_names or
+                    not any(str(a.get('sourceDate') or '')[:10]==str(slate_date)
+                            and a.get('dateVerified') is not False
+                            for a in attempts))
     return rows, {
         'status':status,
+        'remainingOfficialRosterIdentityCount':len(remaining_unmapped),
+        'partiallySourcedIdentityCount':len(incomplete_player_names),
+        'researchContinuationRequired':continuing,
+        'allConfiguredSourcesAttempted':True,
         'selectedSource':' + '.join(dict.fromkeys(s for r in rows for s in r.get('sources',[]))) or None,
         'sourceDate':next((x.get('sourceDate') for x in attempts if x.get('sourceDate')),None),
         'attempts':attempts, 'lineEvidenceFound':has_line, 'powerPlayEvidenceFound':has_pp,
         'conflictCount':conflicts, 'modeRequested':mode,
         'confirmedDeploymentEstablished':False,
-        'sourceSearchComplete':True
+        'sourceSearchComplete':not continuing
     }
