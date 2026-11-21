@@ -361,6 +361,8 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                         "goalieName":data["name"],"status":"EXPECTED",
                         "projectedPreferred":True,
                         "starterSourceStatus":"NHL_OFFICIAL_PROJECTED_LINEUP",
+                        "sourceType":"OFFICIAL_NHL_GAME_SPECIFIC_PROJECTED_LINEUP",
+                        "publishedAsOfSlateDate":date,
                         "publishedGoalies":data["publishedGoalies"],
                         "projectedNotConfirmed":True,"identityMatched":True}})
                 found+=1
