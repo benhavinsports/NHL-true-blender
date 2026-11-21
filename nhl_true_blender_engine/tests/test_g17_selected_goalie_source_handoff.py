@@ -81,3 +81,50 @@ def test_source_coherent_g17_reviews_actual_pbp_goalie_id_and_own_origin(tmp_pat
         assert SRC in last["sourceUrls"]
     finally:
         con.close()
+
+def test_g17_does_not_reopen_g10_5_defeated_roster_candidates(monkeypatch,tmp_path):
+    """G17 audits remaining contradictions; it must not rerun a defeated
+    G10.5 teammate as though that earlier recipient decision never happened.
+    """
+    from nhl_true_blender_engine import contradiction_review
+    snap=snapshot()
+    con=open_db(str(tmp_path/"g17-live-rivals.sqlite"))
+    original=contradiction_review.review_all_candidates
+    calls=[]
+    def capture(*args,**kwargs):
+        calls.append((
+            set(str(x) for x in (kwargs.get("only_player_ids") or ())),
+            set(str(x) for x in (kwargs.get("eliminated_player_ids") or ())),
+        ))
+        return original(*args,**kwargs)
+    monkeypatch.setattr(contradiction_review,"review_all_candidates",capture)
+    try:
+        result=execute(con,snap,DATE,"CONFIRMED")
+        assert result["uniqueGameSurvivors"]==3
+        checked=0
+        for row in con.execute(
+            "SELECT player_id,details FROM gates WHERE slate_date=? "
+            "AND stage='CONFIRMED' AND gate='G10.5' AND disposition='PASS'",
+            (DATE,),
+        ):
+            player_id=str(row["player_id"])
+            evidence=json.loads(row["details"])["evidence"]
+            resolved={
+                str(item["challengerId"])
+                for item in evidence.get("comparisonRows",[])
+                if item.get("status") in (
+                    "DEFEATED","SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE",
+                    "DIFFERENT_TARGET_LANE")
+            }
+            if not resolved:
+                continue
+            matching=[excluded for only,excluded in calls if only=={player_id}]
+            assert matching, f"G17 review was not observed for {player_id}"
+            assert resolved <= matching[-1], (
+                f"G17 reopened G10.5-resolved rivals for {player_id}: "
+                f"{sorted(resolved-matching[-1])}"
+            )
+            checked+=1
+        assert checked>0
+    finally:
+        con.close()

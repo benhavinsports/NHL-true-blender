@@ -37,6 +37,11 @@ STEP_OWNER = {'Step0':'G0','Step1':'G2','Step2':'G1','Step3':'G5',
               'Step13':'G13','Step14':'G17'}
 STEPS_BY_GATE = {gate:[step for step in OVERLAY if STEP_OWNER[step]==gate]
                  for gate in MASTER}
+# Overlay operations run when their owning master gate reaches its original
+# logical position. This is intentionally NOT the numeric Step label order:
+# Step1 belongs to G2 while Step2 belongs to G1, and Step7 archetype tagging
+# belongs to G4 before later recurrence/challenger/final-review operations.
+OVERLAY_EXECUTION_ORDER = [step for gate in MASTER for step in STEPS_BY_GATE[gate]]
 EXECUTION_ORDER = MASTER[:]
 if EXECUTION_ORDER != ['G0'] + SCORER_GATE_ORDER or EXECUTION_ORDER[-1] != 'G18':
     raise RuntimeError('Authoritative NHL gate order was altered')
@@ -1134,21 +1139,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     def observation_record(_game,_player,step,status,evidence,ids):
         return {'gate':step,'disposition':status,
                 'details':{'evidence':evidence,'sourceIds':list(ids)}}
-    def source_steps(step_names, challenger_rows):
+    def source_steps(step_names, challenger_rows, eliminated_rivals=None):
         observations=independent_overlay(
             game,attack_team,player,live_teammates,goalie_profile,release,rec,
             challenger_rows,stage,receipt,evidence_data,observation_record,
-            only_steps=set(step_names),eliminated_rivals=eliminated_before)
+            only_steps=set(step_names),
+            eliminated_rivals=(eliminated_before if eliminated_rivals is None
+                               else eliminated_rivals))
         for item in observations:
             step=item['gate']
             if step in overlay_at_gate:
                 raise ValueError(f'Original overlay step ran twice: {step}')
             overlay_at_gate[step]=item
             overlay_execution.append(step)
-    # Before rival decisions, source-check Step0 through Step10 exactly
-    # once in their historical order. Step10.5..14 require the actual
-    # challenger comparisons that occur later at G10.5.
-    source_steps(OVERLAY[:OVERLAY.index('Step10.5')],[])
+    # Overlay checks are invoked just-in-time by their original owner gate.
+    # No later overlay operation is precomputed before an earlier master
+    # decision, and every independent step is executed exactly once.
     def emit(g, ok, detail, eliminate=False, source_ids=()):
         nonlocal eliminated,first_elimination_gate
         # Every candidate gets an ACTUAL G0-G18 source check. A previous
@@ -1217,6 +1223,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         and any(str(b.get('goalieId'))==goalie_id
                 for b in selected_direction.get('targetGoalies',[]))
         and selected_direction.get('goalieProfileEvidenced') is True)
+    source_steps(['Step0'],[])
     emit('G0',bool(direction_ok and weak and goalie_profile['data'].get('sample')
                    and goalie_profile['data'].get('counterevidence') is not None),
          {'targetGoalie':goalie_id,'attacker':attack_team,
@@ -1231,6 +1238,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     has_rest=(isinstance(context.get('homeRestDays'),int)
               and isinstance(context.get('awayRestDays'),int)) or bool(context.get('rest'))
     context_ok=bool(receipt(game.get('context')) and has_venue and has_rest)
+    source_steps(['Step2'],[])
     emit('G1',context_ok,
          {'venueRestTravel':context if context else None,
           'venueReviewed':has_venue,'bothTeamRestReviewed':has_rest,
@@ -1247,6 +1255,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         for p in (roster['data'].get('players') or [])))
     roster_eligible=(roster_member and eligibility in
         ('DRESSED','CONFIRMED','PROJECTED_ACTIVE','UNVERIFIED'))
+    source_steps(['Step1'],[])
     emit('G2',bool(roster_eligible),
          {'candidateOnOfficialRoster':roster_member,
           'fullPoolSize':len(teammates),'availability':eligibility,
@@ -1272,12 +1281,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          source_ids=list(filter(None,[goalie_profile['sourceUrl'],
              goalie_profile['data'].get('goalieProfileSourceUrl')])))
     mechanism=shooter_mechanism(player,release,game.get('date'))
+    source_steps(['Step5','Step7'],[])
     emit('G4',bool(release and mechanism.get('supported')),
          {'archetype':mechanism.get('archetype'),
           'ownRelease':release,'individualMechanismReview':mechanism},
          source_ids=sorted(set([player.get('release',{}).get('sourceUrl','')]+
                               mechanism.get('sourceIds',[]))))
     overlap=bool(release and release['zone'] in weak)
+    source_steps(['Step3','Step10'],[])
     emit('G5',bool(weak and release) and overlap and
          not (release or {}).get('tonightRouteUnresolved',False),
          {'shooterZone':release['zone'] if release else None,'weakZones':weak,
@@ -1293,12 +1304,14 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED') and not player.get('deploymentConflict'))
     # Keep a sourced projected unit only as projected evidence until the team
     # actually confirms it; complete runs with mixed evidence remain MIXED.
+    source_steps(['Step6'],[])
     emit('G6',dep_ok,{'deployment':dep_data,'notAllPP1':True,
           'projectedNotPromoted':bool(dep_data and dep_data.get('status')=='PROJECTED'),
           'deploymentConflict':bool(player.get('deploymentConflict'))},
          source_ids=[dep.get('sourceUrl','') if dep else ''])
     # G7: two observed dates are the minimal meaning of recurrence. Compare
     # credited goals OR dated shooter-owned attempts, not mere log existence.
+    source_steps(['Step4'],[])
     emit('G7',dated_recurrence['datedScoringOrShotRecurrence'],
          {'eventLogReconciled':rec,'multiGoalDateOnce':True,
           'missedGamesExcluded':True,**dated_recurrence},
@@ -1322,6 +1335,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         ([coverage['sourceUrl']] if receipt(coverage) else [])+
         [u for u in ((coverage_data or {}).get('sourceUrls') or [])
          if isinstance(u,str) and u.startswith('https://')]))
+    source_steps(['Step8'],[])
     emit('G9',match,{'shooterZone':release['zone'] if release else None,
                    'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,
                    'redAvoid':coverage_data.get('redStrongZones',[]) if coverage_data else None,
@@ -1394,7 +1408,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         observed=[row['gate'] for row in proof]
         if observed!=expected:
             raise ValueError(f'Pre-G10.5 phase order mismatch: {observed}')
-        return {'player':player,'dispositions':d},proof
+        return {'player':player,'dispositions':d,'overlayExecutionOrder':overlay_execution},proof
     # G10.5/G16 compare against MEANINGFUL challengers only. A teammate
     # already ELIMINATED before G10.5 cannot own a route (G18 never reopens
     # eliminated candidates). An unresolved teammate is still compared but
@@ -1416,7 +1430,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
                           if r.get('status')=='RIVAL_DOMINATES'
                           and str(r['challengerId']) in unresolved_before)
     # Keep Step14 until after cross-game G16 has been finalized.
-    source_steps(OVERLAY[OVERLAY.index('Step10.5'):OVERLAY.index('Step14')],rows)
+    source_steps(['Step10.5'],rows)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True,
@@ -1441,6 +1455,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          (bounded_route and bounded_route['shotsOnGoalLowerBound']>0)))
     # G11: observed own-shot pressure in separate actual appearances.
     # [0,0,3] is one isolated active game, not recurring pressure.
+    source_steps(['Step9'],[])
     emit('G11',bool(receipt(shots) and shot_review['valid']
                     and shot_review['repeatedOwnShotPressure'] and current_route_active),
          {'recentOwnAttempts':recent_shots,
@@ -1479,6 +1494,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          'birthDateAvailable':bool(birth),
          'qualitativeNameDateReview':bool(name and date_value),
          'formula':'none; qualitative only','nonblockingNoInventedWeights':True}
+    source_steps(['Step13'],rows)
     emit('G13',bool(name and date_value),g13,
          source_ids=[milestone['sourceUrl']] if receipt(milestone) else [])
     who=player.get('whoAnomaly');who_ok=bool(receipt(who) and
@@ -1488,6 +1504,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     who_reviewed=bool(receipt(player.get('release')) and release and
                       goalie_profile.get('sourceUrl') and weak)
     unsupported_who=bool(receipt(who) and not who_ok)
+    source_steps(['Step11'],rows)
     emit('G14',who_reviewed and not unsupported_who,
          {'whoRouteReviewed':who_reviewed,
           'whoAnomalyPhysicallySupported':who_ok,
@@ -1578,6 +1595,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # A source-proven game scorer remains a game survivor even if G16
     # excludes that route from the final cross-game Core competition.
     globally_excluded=str(global_row.get('g16Decision') or '').startswith('EXCLUDED_')
+    source_steps(['Step12'],rows)
     emit('G16',wins is True and len(rows)==len(rivals) and not globally_excluded,
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True,
@@ -1605,19 +1623,31 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         if [row['gate'] for row in execution_trace]!=expected:
             raise ValueError('Original G0-G16 scouting gate order mismatch')
         return {'player':player,'dispositions':d,'release':release,
+                'overlayExecutionOrder':overlay_execution,
                 'preG17Qualified':all(d[g]['disposition']=='PASS'
                                       for g in MASTER[:MASTER.index('G17')])},execution_trace
+    # G17 is a contradiction audit, not a second G10.5 elimination round.
+    # A challenger already defeated (or independently shown to have no route
+    # into any jointly viable G0/G9 area) by this candidate's G10.5 comparison
+    # is no longer a live rival for G17. Preserve actual dominators and
+    # unresolved comparisons; do not let a defeated roster member reopen the
+    # contradiction review after its original comparison has been decided.
+    g10_5_resolved_rivals={str(row['challengerId']) for row in rows
+        if row.get('status') in (
+            'DEFEATED','SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE',
+            'DIFFERENT_TARGET_LANE') and row.get('challengerId') is not None}
+    g17_excluded_rivals=eliminated_before | g10_5_resolved_rivals
     # G17 source retrieval must precede Step14's independent source
     # evaluation, but neither may run until the full-slate G16 decision.
     if g17_review is not None:
-        source_receipt=g17_review(game,attack_team,player,eliminated_before)
+        source_receipt=g17_review(game,attack_team,player,g17_excluded_rivals)
         if source_receipt is not None:
             player['contradictions']=source_receipt
         elif (evidence_data(player.get('contradictions')) or {}).get('sourceType') == 'DERIVED_CROSS_SOURCE_G17':
             # Do not reuse a stale derived result from a previous G0 goalie
             # branch when the current G17 review found no valid source route.
             player.pop('contradictions',None)
-    source_steps(['Step14'],rows)
+    source_steps(['Step14'],rows,g17_excluded_rivals)
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
@@ -1633,7 +1663,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # meaningful rival and cannot keep this candidate's G17 unresolved. Every
     # other stored review condition (goalie branch, weak-area match, stronger
     # area contradiction, lineup role, unresolved live rivals) still applies.
-    g17_live=g17_resolved_without_eliminated_rivals(cdata,eliminated_before)
+    g17_live=g17_resolved_without_eliminated_rivals(cdata,g17_excluded_rivals)
     if not cross_source_resolved and g17_live['resolved']:
         cross_source_resolved=True
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
@@ -1643,12 +1673,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved,
-          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None},
+          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None,
+          'G10_5ResolvedRivalsExcludedFromG17':sorted(g10_5_resolved_rivals) or None},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # Both independent tracks must pass. Neither may overwrite the other's
     # original verdict or masquerade as a completed source check.
-    if overlay_execution!=OVERLAY:
-        raise ValueError(f'Original overlay ran out of order: {overlay_execution}')
+    if overlay_execution!=OVERLAY_EXECUTION_ORDER:
+        raise ValueError(f'Original overlay owner-gate execution order mismatch: {overlay_execution}')
     overlay.sort(key=lambda item:OVERLAY.index(item['gate']))
     master_passed=all(d[gate]['disposition']=='PASS'
                       for gate in MASTER[:-1])
@@ -1701,6 +1732,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
             'preCoreQualified':pre_core_qualified,'pathClassificationCertified':route is not None,
             'g18Deferred':defer_g18,
             'deficientGates':deficient,'route':route,'pathEvidence':path_proof,
+            'overlayExecutionOrder':overlay_execution,
             'pressure':evidence_data(shots),
             'release':release,'challengers':rows},execution_trace
 
