@@ -43,6 +43,25 @@ def test_stop_map_distinguishes_eliminated_and_unresolved():
     assert out=={'a':'G2:ELIMINATED','b':'G1:NOT_EXECUTED'}
 
 
+def test_later_pre_g10_5_elimination_overrides_earlier_unresolved_for_challenger_scope():
+    def res(pid, **gates):
+        return {'player':{'id':pid},
+                'dispositions':{g:{'disposition':d} for g,d in gates.items()}}
+    before_g10_5=('G0','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10')
+    out=stopped_before_g10_5([
+        res('eliminated-after-unresolved',G0='PASS',G1='PASS',
+            G4='NOT_EXECUTED',G5='ELIMINATED'),
+        res('still-unresolved',G0='PASS',G1='PASS',
+            G4='NOT_EXECUTED',G5='PASS'),
+        res('later-gate-does-not-rewrite',**{
+            **{g:'PASS' for g in before_g10_5},'G11':'ELIMINATED'}),
+    ])
+    assert out=={
+        'eliminated-after-unresolved':'G5:ELIMINATED',
+        'still-unresolved':'G4:NOT_EXECUTED',
+    }
+
+
 def test_unresolved_rival_cannot_eliminate(tmp_path, monkeypatch):
     from nhl_true_blender_engine import engine
     # Every teammate is treated as unresolved before G10.5 and as a
