@@ -1,40 +1,40 @@
 {
   "slateDate": "2026-11-21",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 313,
+  "g0AcceptedSkaterMatrices": 290,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G4": 109,
-    "G5": 97,
-    "G10": 76,
-    "G10.5": 272,
-    "G12": 76,
-    "G15": 79,
-    "G16": 272,
-    "G17": 285,
-    "Step3": 77,
-    "Step7": 109,
-    "Step10": 77,
-    "Step10.5": 272,
-    "Step12": 272,
-    "Step14": 285,
-    "G2": 10,
-    "G6": 72,
-    "Step6": 61,
-    "G9": 102,
-    "G11": 130,
-    "Step5": 65,
-    "Step9": 130,
-    "G7": 39,
-    "Step4": 39,
+    "G4": 117,
+    "G5": 112,
+    "G10": 68,
+    "G10.5": 228,
+    "G12": 68,
+    "G15": 72,
+    "G16": 228,
+    "G17": 260,
+    "Step3": 90,
+    "Step7": 117,
+    "Step10": 90,
+    "Step10.5": 228,
+    "Step12": 228,
+    "Step14": 260,
+    "G2": 15,
+    "G6": 67,
+    "Step6": 56,
+    "G9": 115,
+    "G11": 119,
+    "Step5": 63,
+    "Step9": 119,
+    "G7": 32,
+    "Step4": 32,
     "G14": 18,
-    "Step11": 6
+    "Step11": 7
   },
-  "g18NonselectedNotMissingSource": 313,
-  "g18ActualMissingSourceCount": 0,
+  "g18NonselectedNotMissingSource": 290,
+  "g18ActualMissingSourceCount": 67,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
@@ -49,7 +49,15 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 82
+      "playerCount": 63
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 19
     },
     {
       "masterGates": [
@@ -65,15 +73,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 20
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G18"
-      ],
-      "overlaySteps": [],
-      "playerCount": 19
+      "playerCount": 14
     },
     {
       "masterGates": [
@@ -92,7 +92,23 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 15
+      "playerCount": 14
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 9
     },
     {
       "masterGates": [
@@ -153,33 +169,15 @@
     },
     {
       "masterGates": [
-        "G6",
-        "G10.5",
-        "G16",
+        "G4",
+        "G5",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 7
-    },
-    {
-      "masterGates": [
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
+        "Step3",
+        "Step7",
+        "Step10",
         "Step14"
       ],
       "playerCount": 6
@@ -197,8 +195,62 @@
     },
     {
       "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 5
+    },
+    {
+      "masterGates": [
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
         "G17",
         "G18"
       ],
@@ -206,9 +258,11 @@
         "Step3",
         "Step7",
         "Step10",
+        "Step10.5",
+        "Step12",
         "Step14"
       ],
-      "playerCount": 5
+      "playerCount": 4
     },
     {
       "masterGates": [
@@ -228,13 +282,62 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 5
+      "playerCount": 4
     },
     {
       "masterGates": [
-        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
         "G6",
-        "G7",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
         "G10",
         "G10.5",
         "G11",
@@ -245,50 +348,45 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
         "Step9",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 5
+      "playerCount": 3
     },
     {
       "masterGates": [
+        "G2",
+        "G4",
+        "G5",
         "G6",
+        "G7",
+        "G9",
         "G10",
         "G10.5",
+        "G11",
         "G12",
+        "G14",
         "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
         "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
         "Step10.5",
+        "Step11",
         "Step12",
         "Step14"
       ],
-      "playerCount": 5
-    },
-    {
-      "masterGates": [
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 5
+      "playerCount": 3
     },
     {
       "masterGates": [
@@ -315,122 +413,6 @@
         "Step7",
         "Step9",
         "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G9",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G5",
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G7",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
@@ -469,6 +451,57 @@
     },
     {
       "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G11",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
         "G6",
         "G10.5",
         "G11",
@@ -518,6 +551,686 @@
     {
       "masterGates": [
         "G2",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G6",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
         "G6",
@@ -546,46 +1259,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
@@ -593,6 +1267,7 @@
         "G5",
         "G6",
         "G7",
+        "G9",
         "G10",
         "G10.5",
         "G11",
@@ -605,6 +1280,7 @@
       "overlaySteps": [
         "Step3",
         "Step4",
+        "Step5",
         "Step6",
         "Step7",
         "Step9",
@@ -613,7 +1289,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
@@ -637,615 +1313,6 @@
         "Step6",
         "Step7",
         "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10.5",
-        "G11",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G9",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G6",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G7",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G5",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G7",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G2",
-        "G6",
-        "G9",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step5",
-        "Step7",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10",
-        "G11",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G14",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step11",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G7",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
         "Step10",
         "Step10.5",
         "Step12",
@@ -1698,6 +1765,50 @@
     },
     {
       "masterGates": [
+        "G5",
+        "G9",
+        "G11",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G5",
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
         "G6",
         "G7",
         "G10.5",
@@ -1751,6 +1862,27 @@
         "Step4",
         "Step6",
         "Step9",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step9",
+        "Step10.5",
+        "Step12",
         "Step14"
       ],
       "playerCount": 1
@@ -1836,12 +1968,11 @@
       "playerId": "8473533",
       "reason": {
         "comparisonCounts": {
-          "NO_DECISIVE_ROUTE_SEPARATION": 16,
-          "DIFFERENT_TARGET_LANE": 1
+          "NO_DECISIVE_ROUTE_SEPARATION": 3
         },
         "firstDirectContradictions": [
           {
-            "challengerId": "8478427",
+            "challengerId": "8482093",
             "status": "NO_DECISIVE_ROUTE_SEPARATION",
             "candidate": {
               "ownedGoals": 0,
@@ -1849,13 +1980,27 @@
               "zone": "Low Slot"
             },
             "challenger": {
+              "ownedGoals": 1,
+              "shotsOnGoal": 4,
+              "zone": "L Circle"
+            }
+          },
+          {
+            "challengerId": "8476921",
+            "status": "NO_DECISIVE_ROUTE_SEPARATION",
+            "candidate": {
               "ownedGoals": 0,
+              "shotsOnGoal": 4,
+              "zone": "Low Slot"
+            },
+            "challenger": {
+              "ownedGoals": 1,
               "shotsOnGoal": 6,
               "zone": "L Circle"
             }
           },
           {
-            "challengerId": "8482809",
+            "challengerId": "8480817",
             "status": "NO_DECISIVE_ROUTE_SEPARATION",
             "candidate": {
               "ownedGoals": 0,
@@ -1863,22 +2008,8 @@
               "zone": "Low Slot"
             },
             "challenger": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 2,
-              "zone": "L Circle"
-            }
-          },
-          {
-            "challengerId": "8477478",
-            "status": "NO_DECISIVE_ROUTE_SEPARATION",
-            "candidate": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 4,
-              "zone": "Low Slot"
-            },
-            "challenger": {
-              "ownedGoals": 0,
-              "shotsOnGoal": 2,
+              "ownedGoals": 1,
+              "shotsOnGoal": 6,
               "zone": "L Circle"
             }
           }
@@ -1976,529 +2107,6 @@
                   "allViableRivalRouteComparisons": [
                     {
                       "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 6,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8478427",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F1",
-                    "PP": 1,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8478427",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-348f53e55909f7f2-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8478427",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-fcbd7ecb6b946d37-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 1,
-                    "powerPlayUnit": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478427/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 2,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8482809",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F2",
-                    "PP": 1,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8482809",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-f1d8da2d84d482f8-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8482809",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-fa11ecffd0d6f6df-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 2,
-                    "powerPlayUnit": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482809/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 2,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8477478",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F1",
-                    "doesNotEstablishDressedOrPP": true,
-                    "playerId": "8477478",
-                    "projectedNotConfirmed": true,
-                    "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                    "status": "PROJECTED",
-                    "team": "CAR"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477478/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 5,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8477940",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F2",
-                    "PP": 1,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8477940",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-97b31412ce8c01bd-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8477940",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-c18535ce12dd6778-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 2,
-                    "powerPlayUnit": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477940/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 3,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8475791",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F4",
-                    "PP": 2,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F4",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8475791",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-90f34a3a302b39c3-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F4",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8475791",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-5782fa22c9477034-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 4,
-                    "powerPlayUnit": 2,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475791/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 1,
-                    "shotsOnGoal": 5,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8476873",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F4",
-                    "PP": 2,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F4",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8476873",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-ab991a4272981e29-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F4",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8476873",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-42716a4fceb17543-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 4,
-                    "powerPlayUnit": 2,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476873/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
                       "zone": "L Circle"
                     },
                     {
@@ -2548,8 +2156,8 @@
                           "status": "PROJECTED",
                           "team": "CAR"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d05aa716d800e0f3-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d05aa716d800e0f3-2026-11-21T16:54:01+00:00",
+                        "observedAt": "2026-11-21T16:54:01+00:00",
                         "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
                       },
                       {
@@ -2562,8 +2170,8 @@
                           "status": "PROJECTED",
                           "team": "CAR"
                         },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d403a2c2fac49fd4-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
+                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d403a2c2fac49fd4-2026-11-21T16:54:02+00:00",
+                        "observedAt": "2026-11-21T16:54:02+00:00",
                         "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                       }
                     ],
@@ -2648,406 +2256,6 @@
                 },
                 {
                   "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 3,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8480762",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F4",
-                    "doesNotEstablishDressedOrPP": true,
-                    "playerId": "8480762",
-                    "projectedNotConfirmed": true,
-                    "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                    "status": "PROJECTED",
-                    "team": "CAR"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480762/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 1,
-                    "shotsOnGoal": 4,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8482702",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F2",
-                    "PP": 2,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8482702",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-423dfe52b8a7db14-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F2",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8482702",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-23e360318c1afc26-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 2,
-                    "powerPlayUnit": 2,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482702/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 1,
-                    "shotsOnGoal": 6,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8480830",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "F1",
-                    "PP": 1,
-                    "corroboratingProjectedEVSources": [
-                      {
-                        "data": {
-                          "EV": "F1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8480830",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-cf84d76443915faf-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "F1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8480830",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-4a99a6848e6bcabf-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "line": 1,
-                    "powerPlayUnit": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480830/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 1,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8478970",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "D1",
-                    "PP": null,
-                    "defensePair": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478970/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8476906",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "D3",
-                    "PP": 1,
-                    "conflictingProjectedAssignments": [
-                      {
-                        "data": {
-                          "EV": "D1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8476906",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-cb5ca4a6b896edf0-2026-11-21T13:09:41+00:00",
-                        "observedAt": "2026-11-21T13:09:41+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                      },
-                      {
-                        "data": {
-                          "EV": "D1",
-                          "doesNotEstablishDressedOrPP": true,
-                          "playerId": "8476906",
-                          "projectedNotConfirmed": true,
-                          "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                          "status": "PROJECTED",
-                          "team": "CAR"
-                        },
-                        "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-1953f551abac22ca-2026-11-21T13:09:42+00:00",
-                        "observedAt": "2026-11-21T13:09:42+00:00",
-                        "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                      }
-                    ],
-                    "defensePair": 3,
-                    "powerPlayUnit": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476906/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
                     "L Circle"
                   ],
                   "allViableRivalRouteComparisons": [
@@ -3100,664 +2308,13 @@
                   ],
                   "status": "NO_DECISIVE_ROUTE_SEPARATION",
                   "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 3,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8476958",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "D1",
-                    "PP": null,
-                    "defensePair": 1,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476958/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
-                },
-                {
-                  "allRivalJointlyViableZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "allViableRivalRouteComparisons": [
-                    {
-                      "matchup": null,
-                      "zone": "L Circle"
-                    },
-                    {
-                      "matchup": null,
-                      "zone": "R Circle"
-                    }
-                  ],
-                  "candidate": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 4,
-                    "zone": "Low Slot"
-                  },
-                  "challenger": {
-                    "ownedGoals": 0,
-                    "shotsOnGoal": 3,
-                    "zone": "L Circle"
-                  },
-                  "challengerId": "8480336",
-                  "comparisonPriority": [
-                    "G0 goalie peer vulnerability in tonight opponent lane",
-                    "G9 tonight opponent defensive on-net exposure",
-                    "Every viable rival scoring lane compared, not just historical best"
-                  ],
-                  "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-                  "goalieWeaknessAndDefenseBothRequired": true,
-                  "historicalTotalsCannotSetRecipient": true,
-                  "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-                  "independentRecentTieReview": null,
-                  "jointlyViableRouteTiedZones": [
-                    "L Circle",
-                    "R Circle"
-                  ],
-                  "noFameOddsOrPPShortcut": true,
-                  "noSeasonTotalInvented": true,
-                  "rivalAlternateGoalieWeakLane": true,
-                  "rivalEVRole": {
-                    "EV": "D2",
-                    "PP": null,
-                    "defensePair": 2,
-                    "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                    "status": "PROJECTED"
-                  },
-                  "roleReviewIncomplete": false,
-                  "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-                  "sameLane": false,
-                  "sameLaneSeasonCumulativeCountsNotUsed": true,
-                  "sourceUrls": [
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                    "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480336/now"
-                  ],
-                  "status": "NO_DECISIVE_ROUTE_SEPARATION",
-                  "tonightMatchupComparison": null
                 }
               ],
               "shooterZone": "Low Slot"
             }
           ],
-          "rivalCompared": 16,
+          "rivalCompared": 3,
           "rivalResults": [
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 6,
-                "zone": "L Circle"
-              },
-              "challengerId": "8478427",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F1",
-                "PP": 1,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8478427",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-348f53e55909f7f2-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8478427",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-fcbd7ecb6b946d37-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 1,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478427/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 2,
-                "zone": "L Circle"
-              },
-              "challengerId": "8482809",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F2",
-                "PP": 1,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8482809",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-f1d8da2d84d482f8-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8482809",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-fa11ecffd0d6f6df-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 2,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482809/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 2,
-                "zone": "L Circle"
-              },
-              "challengerId": "8477478",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F1",
-                "doesNotEstablishDressedOrPP": true,
-                "playerId": "8477478",
-                "projectedNotConfirmed": true,
-                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                "status": "PROJECTED",
-                "team": "CAR"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477478/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 5,
-                "zone": "L Circle"
-              },
-              "challengerId": "8477940",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F2",
-                "PP": 1,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8477940",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-97b31412ce8c01bd-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8477940",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-c18535ce12dd6778-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 2,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8477940/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "L Circle"
-              },
-              "challengerId": "8475791",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F4",
-                "PP": 2,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F4",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8475791",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-90f34a3a302b39c3-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F4",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8475791",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-5782fa22c9477034-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 4,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8475791/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 5,
-                "zone": "L Circle"
-              },
-              "challengerId": "8476873",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F4",
-                "PP": 2,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F4",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8476873",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-ab991a4272981e29-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F4",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8476873",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-42716a4fceb17543-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 4,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476873/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
             {
               "allRivalJointlyViableZones": [
                 "L Circle",
@@ -3816,8 +2373,8 @@
                       "status": "PROJECTED",
                       "team": "CAR"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d05aa716d800e0f3-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d05aa716d800e0f3-2026-11-21T16:54:01+00:00",
+                    "observedAt": "2026-11-21T16:54:01+00:00",
                     "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
                   },
                   {
@@ -3830,8 +2387,8 @@
                       "status": "PROJECTED",
                       "team": "CAR"
                     },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d403a2c2fac49fd4-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
+                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-d403a2c2fac49fd4-2026-11-21T16:54:02+00:00",
+                    "observedAt": "2026-11-21T16:54:02+00:00",
                     "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
                   }
                 ],
@@ -3917,411 +2474,6 @@
             },
             {
               "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "L Circle"
-              },
-              "challengerId": "8480762",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F4",
-                "doesNotEstablishDressedOrPP": true,
-                "playerId": "8480762",
-                "projectedNotConfirmed": true,
-                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                "status": "PROJECTED",
-                "team": "CAR"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480762/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 4,
-                "zone": "L Circle"
-              },
-              "challengerId": "8482702",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F2",
-                "PP": 2,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8482702",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-423dfe52b8a7db14-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F2",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8482702",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-23e360318c1afc26-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 2,
-                "powerPlayUnit": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482702/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 1,
-                "shotsOnGoal": 6,
-                "zone": "L Circle"
-              },
-              "challengerId": "8480830",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "F1",
-                "PP": 1,
-                "corroboratingProjectedEVSources": [
-                  {
-                    "data": {
-                      "EV": "F1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8480830",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-cf84d76443915faf-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "F1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8480830",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-4a99a6848e6bcabf-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "line": 1,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480830/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 1,
-                "zone": "L Circle"
-              },
-              "challengerId": "8478970",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "D1",
-                "PP": null,
-                "defensePair": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478970/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "L Circle"
-              },
-              "challengerId": "8476906",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "D3",
-                "PP": 1,
-                "conflictingProjectedAssignments": [
-                  {
-                    "data": {
-                      "EV": "D1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8476906",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-cb5ca4a6b896edf0-2026-11-21T13:09:41+00:00",
-                    "observedAt": "2026-11-21T13:09:41+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
-                  },
-                  {
-                    "data": {
-                      "EV": "D1",
-                      "doesNotEstablishDressedOrPP": true,
-                      "playerId": "8476906",
-                      "projectedNotConfirmed": true,
-                      "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
-                      "status": "PROJECTED",
-                      "team": "CAR"
-                    },
-                    "evidenceId": "nhl-official-projected-line-2026-11-21-PROJECTED-2026020359-1953f551abac22ca-2026-11-21T13:09:42+00:00",
-                    "observedAt": "2026-11-21T13:09:42+00:00",
-                    "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
-                  }
-                ],
-                "defensePair": 3,
-                "powerPlayUnit": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476906/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
                 "L Circle"
               ],
               "allViableRivalRouteComparisons": [
@@ -4372,130 +2524,6 @@
               "sourceUrls": [
                 "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
                 "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480817/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "L Circle"
-              },
-              "challengerId": "8476958",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "D1",
-                "PP": null,
-                "defensePair": 1,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8476958/now"
-              ],
-              "status": "NO_DECISIVE_ROUTE_SEPARATION",
-              "tonightMatchupComparison": null
-            },
-            {
-              "allRivalJointlyViableZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "allViableRivalRouteComparisons": [
-                {
-                  "matchup": null,
-                  "zone": "L Circle"
-                },
-                {
-                  "matchup": null,
-                  "zone": "R Circle"
-                }
-              ],
-              "candidate": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 4,
-                "zone": "Low Slot"
-              },
-              "challenger": {
-                "ownedGoals": 0,
-                "shotsOnGoal": 3,
-                "zone": "L Circle"
-              },
-              "challengerId": "8480336",
-              "comparisonPriority": [
-                "G0 goalie peer vulnerability in tonight opponent lane",
-                "G9 tonight opponent defensive on-net exposure",
-                "Every viable rival scoring lane compared, not just historical best"
-              ],
-              "decisionBasis": "UNRESOLVED_TONIGHT_RECIPIENT_MATCHUP_NO_HISTORICAL_FALLBACK",
-              "goalieWeaknessAndDefenseBothRequired": true,
-              "historicalTotalsCannotSetRecipient": true,
-              "historicalTotalsNeverOverrideMeasuredTonightMatchup": true,
-              "independentRecentTieReview": null,
-              "jointlyViableRouteTiedZones": [
-                "L Circle",
-                "R Circle"
-              ],
-              "noFameOddsOrPPShortcut": true,
-              "noSeasonTotalInvented": true,
-              "opposingGoalieId": "8477465",
-              "rivalAlternateGoalieWeakLane": true,
-              "rivalEVRole": {
-                "EV": "D2",
-                "PP": null,
-                "defensePair": 2,
-                "sourceType": "SECONDARY_PROJECTED_LINEUP",
-                "status": "PROJECTED"
-              },
-              "roleReviewIncomplete": false,
-              "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
-              "sameLane": false,
-              "sameLaneSeasonCumulativeCountsNotUsed": true,
-              "sourceUrls": [
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473533/now",
-                "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8480336/now"
               ],
               "status": "NO_DECISIVE_ROUTE_SEPARATION",
               "tonightMatchupComparison": null
