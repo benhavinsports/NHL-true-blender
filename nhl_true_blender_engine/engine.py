@@ -1148,18 +1148,28 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
 
 
 def stopped_before_g10_5(results):
-    """Map playerId -> first non-PASS gate before G10.5 from a first pass.
+    """Map each player to their pre-G10.5 challenger status.
 
-    G0-G10 are individual checks that never consult teammates, so their
-    dispositions are identical in both passes; only G10.5/G16 change.
+    Any source-verified ELIMINATED verdict in G0-G10 removes that player
+    from later recipient comparisons, even if an earlier gate was
+    NOT_EXECUTED. Otherwise preserve the first unresolved gate so missing
+    evidence keeps the comparison open. All these decisions occur before
+    G10.5; no later gate can rewrite an earlier verdict.
     """
     before=MASTER[:MASTER.index('G10.5')]
     out={}
     for result in results:
         d=result['dispositions']
-        stop=next((g for g in before if (d.get(g) or {}).get('disposition')!='PASS'),None)
-        if stop is not None:
-            out[str(result['player']['id'])]=f"{stop}:{d[stop]['disposition']}"
+        eliminated=next((g for g in before
+                         if (d.get(g) or {}).get('disposition')=='ELIMINATED'),None)
+        if eliminated is not None:
+            out[str(result['player']['id'])]=f"{eliminated}:ELIMINATED"
+            continue
+        unresolved=next((g for g in before
+                         if (d.get(g) or {}).get('disposition')!='PASS'),None)
+        if unresolved is not None:
+            out[str(result['player']['id'])]=(
+                f"{unresolved}:{d[unresolved]['disposition']}")
     return out
 
 
