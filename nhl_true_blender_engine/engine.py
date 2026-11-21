@@ -1099,7 +1099,8 @@ def _finish_pool(games,game_pool,card,g16_receipt):
 
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
-                    stopped_before_g10_5=None, defer_g18=False, stop_at_g10=False):
+                    stopped_before_g10_5=None, defer_g18=False, stop_at_g10=False,
+                    g17_review=None):
     d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
     # Teammates who passed G0-G10 (see stopped_before_g10_5). Only these are
     # meaningful G10.5/G16 challengers, for the master gate and its overlay.
@@ -1586,6 +1587,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          source_ids=sorted(set([url for row in rows for url in row.get('sourceUrls',[])
              if isinstance(url,str) and url.startswith('https://')]+
              ([player['release']['sourceUrl']] if receipt(player.get('release')) else []))))
+    # G17 independent contradictions are reviewed only at G17, after G16.
+    if g17_review is not None:
+        source_receipt=g17_review(game,attack_team,player,eliminated_before)
+        if source_receipt is not None:
+            player['contradictions']=source_receipt
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
@@ -2927,31 +2933,23 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route")
             continue
         errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
-    # Always refresh G17 AFTER G0 identifies the attack side and exact goalie.
-    # A pre-G0 review may be source-backed yet tied to another goalie branch
-    # or an unscoped rival cohort. The old conditional only retried when the
-    # receipt was absent, silently reusing an outdated contradictory review.
-    # The reviewer records a NEW immutable source receipt; it never copies a
-    # PASS from G0, and unresolved contradictions still fail G17.
-    eligible_g17_directions={
-        str(g['id']):selected_directions[str(g['id'])]
-        for g in games if str(g['id']) in selected_directions and
-        g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
-        (not g.get('startUTC') or
-         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now) and
-        any(not receipt(p.get('contradictions')) or
-            (evidence_data(p.get('contradictions')) or {}).get('sourceType') ==
-                'DERIVED_CROSS_SOURCE_G17'
-            for p in complete_roster(g,selected_directions[str(g['id'])]['attacker']))
-    }
-    if eligible_g17_directions:
+    # G0 supplies the opponent context. G17 source verification happens
+    # only at the independent G17 gate, never immediately following G0.
+    g17_review_summary={'reviewedSkaters':0,'unresolved':0,
+                        'resolvedFromSourceEvidence':0,'computedAtGate':'G17'}
+    def review_at_g17(match,attack_team,person,eliminated_before):
         from .contradiction_review import review_all_candidates
-        from .enrichment import attach
-        review_all_candidates(con,snapshot,date,stage,
-                              selected_directions=eligible_g17_directions)
-        # Re-attach the latest independent G17 source to the G0-selected
-        # official player IDs before any scorer gate is evaluated.
-        attach(con,snapshot,date,stage)
+        gid=str(match['id'])
+        decision=selected_directions.get(gid)
+        report=review_all_candidates(
+            con,{'games':[match]},date,stage,
+            selected_directions={gid:decision} if decision else None,
+            only_player_ids={str(person['id'])},
+            eliminated_player_ids=eliminated_before,
+            return_receipts=True)
+        for key in ('reviewedSkaters','unresolved','resolvedFromSourceEvidence'):
+            g17_review_summary[key]+=report.get(key,0)
+        return report['receipts'].get(str(person['id']))
     # A G0 failure MUST NOT silently short-circuit all 36 source checks.
     # Investigate each available goalie branch against each official skater
     # on BOTH sides, while retaining a FAILED G0 and forbidding selection.
@@ -2985,7 +2983,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                     # source branch, but G0 and G18 must remain nonpassing.
                     candidate,trace=evaluate_skater(
                         match,attacker,scoped,players,branch,stage,
-                        stopped_before_g10_5=stopped)
+                        stopped_before_g10_5=stopped,
+                         g17_review=review_at_g17)
                     if candidate['dispositions']['G0']['disposition']=='PASS' or candidate['complete']:
                         raise ValueError('G0 research cannot become a certified scorer')
                     research_id=f'G0_RESEARCH:{attacker}:{goalie_id}:{player["id"]}'
@@ -3057,7 +3056,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 # Bind the G0 direction receipt to every skater checked after
                 # goalie-first selection; never infer direction from a PASS.
                 result,traces=evaluate_skater(scoped_game,team,scoped,players,branch,stage,
-                                              stopped_before_g10_5=stopped,defer_g18=True)
+                                              stopped_before_g10_5=stopped,defer_g18=True,
+                                               g17_review=review_at_g17)
                 records+=traces
                 deferred_g18.append((match,result))
                 stop=next((g for g in MASTER[:-1] if
@@ -3277,6 +3277,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 for gid,d in selected_directions.items()},
             'g0Directions':len(scan),'g0Complete':sum(bool(x['goalieProfileEvidenced']) for x in scan),
             'eligibleSkaterRows':pool_size,'gateRows':len(records),
+            'g17ReviewSummary':g17_review_summary,
             # Audit counts are a summary, never the gate schedule.  Preserve
             # the original chronological order even when the first missing
             # receipt appears late in an arbitrary roster/branch iteration.
