@@ -14,7 +14,7 @@ permissions:
   actions: write
 concurrency:
   group: nhl-blender-watchdog
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   guard:
     if: >-
