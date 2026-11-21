@@ -6,9 +6,10 @@ line combinations. Names are only joined to official NHL IDs after exact normali
 name matching or an official NHL search response. Missing data remains missing.
 """
 from __future__ import annotations
-import json, re, unicodedata
+import json, re, unicodedata, threading, time
 from html.parser import HTMLParser
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from urllib.parse import quote
 import requests
 from nhl_true_blender_engine.secondary_sources import TEAM_SLUGS
@@ -344,6 +345,45 @@ class _DailyFaceoffPageParser(HTMLParser):
             self.anchor=None
 
 
+_DFO_SEMAPHORE=threading.Semaphore(2)
+
+
+def _get_dailyfaceoff(url):
+    """Bound provider concurrency and retry transient rate/server responses."""
+    for attempt in range(3):
+        try:
+            with _DFO_SEMAPHORE:
+                response=requests.get(url,headers=HEADERS,timeout=TIMEOUT)
+        except requests.RequestException:
+            if attempt==2:
+                raise
+            time.sleep(min(8,2**attempt))
+            continue
+        if response.status_code in (429,500,502,503,504):
+            retry_after=response.headers.get("Retry-After")
+            delay=None
+            if retry_after:
+                try:
+                    delay=float(retry_after)
+                except (TypeError,ValueError):
+                    try:
+                        parsed=parsedate_to_datetime(retry_after)
+                        if parsed.tzinfo is not None:
+                            delay=(parsed.astimezone(timezone.utc)-
+                                   datetime.now(timezone.utc)).total_seconds()
+                    except (TypeError,ValueError,OverflowError):
+                        delay=None
+            if delay is None:
+                delay=2**attempt
+            if attempt==2:
+                response.raise_for_status()
+            time.sleep(min(10,max(0,delay)))
+            continue
+        response.raise_for_status()
+        return response
+    raise RuntimeError("Daily Faceoff source exhausted its bounded refresh attempts")
+
+
 def fetch_dailyfaceoff(team, team_name=None, slate_date=None):
     """Parse dated Daily Faceoff forward lines, D pairs and PP1/PP2.
 
@@ -355,7 +395,7 @@ def fetch_dailyfaceoff(team, team_name=None, slate_date=None):
     slug=(team_name or team).lower().replace(' ','-')
     url=DFO_URL.format(team=quote(slug))
     try:
-        html=get(url).text
+        html=_get_dailyfaceoff(url).text
         parser=_DailyFaceoffPageParser()
         parser.feed(html)
         page_text=" ".join(parser.page_text)

@@ -139,3 +139,31 @@ async def test_same_player_distinct_deployment_receipts_do_not_collide(monkeypat
         assert len({x["evidence_id"] for x in stored})==2
     finally:
         con.close()
+
+
+def test_dailyfaceoff_retries_rate_limit_with_retry_after(monkeypatch):
+    calls=[]
+    sleeps=[]
+    class Response:
+        def __init__(self,status,text="",headers=None):
+            self.status_code=status
+            self.text=text
+            self.headers=headers or {}
+        def raise_for_status(self):
+            if self.status_code>=400:
+                import requests
+                raise requests.HTTPError(str(self.status_code))
+    responses=[
+        Response(429,headers={"Retry-After":"0"}),
+        Response(200,text=_page()),
+    ]
+    def fake_get(url,**kwargs):
+        calls.append(url)
+        return responses.pop(0)
+    monkeypatch.setattr(providers.requests,"get",fake_get)
+    monkeypatch.setattr(providers.time,"sleep",lambda delay:sleeps.append(delay))
+    rows,meta=providers.fetch_dailyfaceoff("SJS","San Jose Sharks",DATE)
+    assert len(calls)==2
+    assert sleeps==[0]
+    assert meta["dateVerified"] is True
+    assert any(x.get("defensePair")==1 for x in rows)
