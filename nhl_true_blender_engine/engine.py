@@ -130,15 +130,36 @@ def all_goalie_branches(game, stage):
         # two alleged starters in PROJECTED, despite an independently
         # confirmed name, and G0 then failed before evaluating skaters.
         confirmed=[b for b in branches if b['data'].get('status')=='CONFIRMED']
+        resolved_ids=set()
+        conflict_rows=[]
+        def keep_authoritative(selected,reason):
+            nonlocal branches
+            selected_ids={str(b['data'].get('goalieId')) for b in selected}
+            excluded=[b for b in branches if str(b['data'].get('goalieId')) not in selected_ids]
+            conflict_rows.extend({
+                'goalieId':str(b['data'].get('goalieId') or ''),
+                'status':b['data'].get('status'),
+                'sourceUrl':b.get('sourceUrl'),
+                'sourceType':b['data'].get('starterSourceStatus') or b['data'].get('sourceType'),
+                'sourceReportedConfidence':b['data'].get('sourceConfidenceLabel'),
+                'reason':reason,
+                'preservedAsCounterevidence':True,
+            } for b in excluded)
+            branches=selected
+            for selected_branch in branches:
+                selected_branch['data']['projectedBranchConflicts']=list(conflict_rows)
+                selected_branch['data']['projectionAuthorityDecision']=reason
         if confirmed:
-            branches=confirmed
+            confirmed_ids={str(b['data'].get('goalieId')) for b in confirmed}
+            if len(confirmed_ids)==1:
+                keep_authoritative(confirmed,'EXPLICIT_CONFIRMED_STARTER_SUPERSEDES_PROJECTIONS')
+            else:
+                branches=confirmed
         else:
             # A dated first-hand morning-skate FIRST-GOALIE-OFF report is
-            # direct rink observation, stronger evidence than an independent
-            # algorithmic probability prediction or a generic roster-first
-            # ordering. Never call this CONFIRMED or use a secondhand
-            # report from another slate date. If eyewitness observations
-            # conflict with each other, preserve every branch.
+            # direct rink observation, stronger evidence than an algorithmic
+            # probability prediction or generic roster-first ordering.
+            # Never call it CONFIRMED or use a secondhand/stale report.
             first_off=[b for b in branches if
                 b['data'].get('status')=='EXPECTED' and
                 b['data'].get('datedEyewitnessMorningSkateFirstOff') is True and
@@ -146,18 +167,48 @@ def all_goalie_branches(game, stage):
                 bool(b['data'].get('morningSkateSourceUrls'))]
             first_off_ids={str(b['data'].get('goalieId')) for b in first_off}
             if len(first_off_ids)==1:
-                # The same goalie ID may carry multiple dated independent
-                # reports; no manual selection of a source or goalie.
                 reported=next(iter(first_off_ids))
-                branches=[b for b in branches if str(b['data'].get('goalieId'))==reported]
+                keep_authoritative(first_off,'DATED_FIRST_HAND_MORNING_SKATE_FIRST_OFF')
+            elif len(first_off_ids)>1:
+                branches=first_off
             else:
-                # Without independent FIRST-OFF evidence, the original
-                # conservative rule is unchanged: disagreeing projected
-                # sources leave ALL eligible starter branches intact.
-                preferred=[b for b in branches if
-                           b['data'].get('projectedPreferred') is True]
-                if len({str(b['data'].get('goalieId')) for b in preferred})==1:
-                    branches=preferred
+                # For the projected-starter fact, a dated, matchup-specific
+                # NHL.com projected-lineup receipt outranks a secondary
+                # algorithmic probability estimate. Keep every conflicting
+                # lower-tier identity in the selected branch's provenance;
+                # if official NHL.com sources themselves disagree, retain
+                # every official branch rather than inventing a tiebreak.
+                official_projected=[b for b in branches
+                    if b['data'].get('starterSourceStatus')==
+                       'NHL_OFFICIAL_PROJECTED_LINEUP'
+                    and b['data'].get('projectedPreferred') is True
+                    and (not b['data'].get('publishedAsOfSlateDate')
+                         or b['data'].get('publishedAsOfSlateDate')==game.get('date'))]
+                official_ids={str(b['data'].get('goalieId')) for b in official_projected}
+                if len(official_ids)==1:
+                    keep_authoritative(official_projected,
+                        'DATED_OFFICIAL_NHL_PROJECTED_LINEUP_OUTRANKS_SECONDARY_PROJECTION')
+                elif len(official_ids)>1:
+                    lower=[b for b in branches if b not in official_projected]
+                    conflict_rows.extend({
+                        'goalieId':str(b['data'].get('goalieId') or ''),
+                        'status':b['data'].get('status'),
+                        'sourceUrl':b.get('sourceUrl'),
+                        'sourceType':b['data'].get('starterSourceStatus') or b['data'].get('sourceType'),
+                        'reason':'LOWER_AUTHORITY_PROJECTION_CONFLICT',
+                        'preservedAsCounterevidence':True,
+                    } for b in lower)
+                    branches=official_projected
+                    for selected_branch in branches:
+                        selected_branch['data']['projectedBranchConflicts']=list(conflict_rows)
+                        selected_branch['data']['projectionAuthorityDecision']='OFFICIAL_PROJECTED_SOURCES_CONFLICT_KEEP_ALL'
+                else:
+                    # With no official dated projection, do not silently
+                    # choose between conflicting third-party branches.
+                    preferred=[b for b in branches if
+                               b['data'].get('projectedPreferred') is True]
+                    if len({str(b['data'].get('goalieId')) for b in preferred})==1:
+                        keep_authoritative(preferred,'UNIQUE_DATED_PROJECTED_PREFERENCE')
         superseded={str(b['data']['supersedesGoalieId']) for b in branches
                     if b['data'].get('status')=='CONFIRMED' and b['data'].get('supersedesGoalieId')}
         branches=[b for b in branches
