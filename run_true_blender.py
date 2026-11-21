@@ -130,15 +130,13 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # source-refresh trigger even when no skater can yet be evaluated.
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
-        # Continue targeted source discovery for every still-pregame game
-        # with unresolved original-gate evidence. A repeated evidence signature
-        # is diagnostic information, NOT a reason to stop searching: the
-        # independent lineup, deployment, goalie and event collectors are
-        # queried again and may expose newly published or recovered sources.
-        # The loop ends only when every affected game has started or no
-        # original required gate remains source-incomplete. GitHub's workflow
-        # timeout is the outer execution limit; the next scheduled cycle
-        # resumes any still-pregame research from the persisted evidence.
+        # Continue targeted source discovery while it changes the original
+        # gate evidence. There is no fixed retry count: repeat full independent
+        # source collection whenever the preceding pass changes G0 coverage,
+        # eligible skater coverage, or the unresolved-gate signature. If a
+        # complete source refresh produces no gate-evidence progress, finish
+        # this cycle so the actual result can be saved; the next scheduled
+        # pregame cycle repeats source discovery. Started games are excluded.
         previous_recovery_signature = None
         recovery_round = 0
         while True:
@@ -153,7 +151,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             )
             same_as_prior_signature = recovery_signature == previous_recovery_signature
             previous_recovery_signature = recovery_signature
-            if not retry_snapshot['games']:
+            if not retry_snapshot['games'] or same_as_prior_signature:
                 break
             feedback.append({
                     'pass':recovery_round,'unresolvedFirstGateCandidates':unresolved,
