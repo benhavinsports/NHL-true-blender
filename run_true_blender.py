@@ -131,7 +131,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
         retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
-        if (unresolved or g0_missing) and retry_snapshot['games']:
+        if retry_snapshot['games']:
             feedback.append({
                 'pass':1,'unresolvedFirstGateCandidates':unresolved,
                 'g0SourceGapTriggeredRefresh':g0_missing,
