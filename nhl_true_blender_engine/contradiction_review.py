@@ -72,7 +72,7 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                 own=player_releases(scoped)
                 if not own or not receipt(scoped.get("release")):
                     continue
-                own_zones=sorted({x.get("zone') for x in (own.get("g0MatchedOwnOriginRoutes") or [])
+                own_zones=sorted({x.get("zone") for x in (own.get("g0MatchedOwnOriginRoutes") or [])
                                   if x.get("zone")})
                 dep=evidence_data(p.get("deployment"))
                 rivals=[x for x in teammates
