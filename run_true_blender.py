@@ -34,6 +34,7 @@ from nhl_true_blender_engine.goal_tracking import collect_goal_sprites
 from nhl_true_blender_engine.season_goal_history import collect_season_goal_history
 import httpx
 from datetime import timezone
+from time import monotonic
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
 from nhl_true_blender_engine.source_recovery import recovery_snapshot
@@ -130,12 +131,19 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # source-refresh trigger even when no skater can yet be evaluated.
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
-        # Retry the ORIGINAL full gate pipeline after each targeted source refresh.
-        # This is a source-research budget, never a new gate or scorer veto.
-        # The scheduled workflow has a 28-minute limit; do not loop forever
-        # on a source that repeats the same incomplete response.
+        # Re-run the ORIGINAL full ordered gate pipeline after each targeted
+        # source refresh. The absence of change in gate counts is NOT proof
+        # that independent sources have been exhausted: provider updates may
+        # arrive later, and new evidence can correct any original gate.
+        # Limit elapsed research time (not the number of attempts) so the
+        # 28-minute GitHub job retains time to SAVE its exact audited output.
+        recovery_window = max(0, int(os.environ.get(
+            'BLENDER_RECOVERY_WINDOW_SECONDS', '660')))
+        recovery_deadline = monotonic() + recovery_window
         previous_recovery_signature = None
-        for recovery_round in range(1, 4):
+        recovery_round = 0
+        while monotonic() < recovery_deadline:
+            recovery_round += 1
             retry_snapshot = recovery_snapshot(con,snapshot,date,stage,result)
             recovery_signature = (
                 tuple(sorted(str(g['id']) for g in retry_snapshot['games'])),
@@ -144,12 +152,14 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 tuple(sorted((str(k),str(v)) for k,v in
                     (result.get('missingByGate') or {}).items())),
             )
-            if not retry_snapshot['games'] or recovery_signature == previous_recovery_signature:
+            if not retry_snapshot['games']:
                 break
+            same_as_prior = recovery_signature == previous_recovery_signature
             previous_recovery_signature = recovery_signature
             if retry_snapshot['games']:
                 feedback.append({
                     'pass':recovery_round,'unresolvedFirstGateCandidates':unresolved,
+                    'sameGateCountsAsPriorPassButResearchContinued':same_as_prior,
                     'g0SourceGapTriggeredRefresh':g0_missing,
                     'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
                     'unaffectedMatchupsNotRefetched':True,
@@ -196,6 +206,12 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                     'resolvedCandidateCount':max(0,unresolved-after.get(
                         'firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0)),
                     'noAutomaticPasses':True})
+                initial_census = after
+                unresolved = after.get('firstFailureClassificationCounts',{}).get(
+                    'EVIDENCE_INCOMPLETE',0)
+                g0_missing = (result.get('g0Directions',0) !=
+                    2*len(snapshot.get('games',[])) or
+                    result.get('g0Complete',0) < result.get('g0Directions',0))
         result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
