@@ -36,8 +36,7 @@ import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.source_recovery import (
-    recovery_snapshot, RECOVERY_REFRESHES_PER_WORKFLOW_CYCLE)
+from nhl_true_blender_engine.source_recovery import recovery_snapshot
 
 async def run(date, stage, state_dir="state", output_dir="runs"):
     state = Path(state_dir)
@@ -122,14 +121,21 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # The only per-game end condition is the original puck-drop freeze.
         feedback=[]
         from nhl_true_blender_engine.gate_census import certify_gates as _census
-        # One full recovery refresh is a workflow-cycle checkpoint, not a
-        # gate/source-search limit. The completed SQLite ledger is persisted
-        # below; the next 30-minute scheduled cycle reloads it, recollects all
-        # sources and re-executes the original gates for every still-pregame game.
-        for recovery_round in range(1, RECOVERY_REFRESHES_PER_WORKFLOW_CYCLE + 1):
+        # Continuous pregame source recovery: keep collecting and re-running
+        # the original gates while any matchup remains before its own puck drop.
+        # A short pause prevents hammering providers when a source has not yet
+        # published a new observation. There is deliberately no retry-count cap.
+        recovery_round=0
+        while True:
             retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
             if not retry_snapshot['games']:
                 break
+            recovery_round += 1
+            if recovery_round > 1:
+                await asyncio.sleep(60)
+                retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
+                if not retry_snapshot['games']:
+                    break
             affected_game_ids=[str(g['id']) for g in retry_snapshot['games']]
             async with _Client() as client:
                 refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
