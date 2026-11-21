@@ -96,28 +96,22 @@ class AutomaticBlenderCycleTests(unittest.TestCase):
             self.assertEqual(pending_recent_grades(dirname, "2026-11-18"),
                              ["2026-09-29", "2026-10-07"])
 
-    def test_grade_failure_preserves_new_live_research_for_persistence(self):
-        from subprocess import CompletedProcess
-        import json
+    def test_live_research_defers_historical_grade_backlog_until_grade_phase(self):
         with tempfile.TemporaryDirectory() as root:
             con=sqlite3.connect(str(Path(root)/"true_blender.sqlite"))
             con.execute("CREATE TABLE cards(slate_date TEXT, grade TEXT)")
             con.execute("INSERT INTO cards VALUES ('2026-11-18',NULL)")
             con.commit();con.close()
-            # Isolate GITHUB_ENV from the real Actions job running pytest.
-            with patch.dict("os.environ",
-                            {"GITHUB_ENV": str(Path(root) / "github_env")}):
-                with patch("scripts.automatic_blender_cycle.subprocess.run",
-                           side_effect=[CompletedProcess([],0),
-                                        CompletedProcess([],1)]) as run:
-                    # Does not raise after the successful G0-G18 pipeline.
-                    execute_commands("2026-11-19","projected",root=root)
-                    self.assertEqual(run.call_count,2)
-            self.assertIn("BLENDER_GRADE_RETRY_FAILURES=2026-11-18:1",
-                          (Path(root)/"github_env").read_text())
-            journal=json.loads((Path(root)/"grade_retry_journal.json").read_text())
-            self.assertEqual(journal["attempts"]["2026-11-18"],1)
-            self.assertEqual(journal["lastResults"]["2026-11-18"]["returnCode"],1)
+            # A live projected cycle runs the original Blender once and returns
+            # for canonical persistence. Historical grade retries belong to the
+            # separate grade phase and cannot delay this slate's saved evidence.
+            with patch("scripts.automatic_blender_cycle.subprocess.run") as run:
+                execute_commands("2026-11-19","projected",root=root)
+                self.assertEqual(run.call_count,1)
+                self.assertEqual(run.call_args.args[0],
+                    ["python","run_true_blender.py","--date","2026-11-19",
+                     "--mode","projected"])
+            self.assertFalse((Path(root)/"grade_retry_journal.json").exists())
 
     def test_grade_retry_round_robin_after_failed_old_receipts(self):
         with tempfile.TemporaryDirectory() as root:
