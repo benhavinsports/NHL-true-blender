@@ -1471,27 +1471,62 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # G8 explicitly neutral when unavailable; never invent market or eliminate a skater.
     emit('G8',True,{'market':evidence_data(market) if receipt(market) else None,
                   'neutralWhenAbsent':not receipt(market),'neverRankingShortcut':True})
-    coverage=game.get('coverage',{}).get(attack_team)
-    coverage_data=evidence_data(coverage)
-    match=bool(coverage_data and release and release['zone'] in coverage_data.get('greenWeakZones',[]))
-    zone_concession=(coverage_data.get('zoneConcessions') or {}).get(
-        release['zone']) if coverage_data and release else None
-    g9_sources=sorted(set(
-        ([coverage['sourceUrl']] if receipt(coverage) else [])+
-        [u for u in ((coverage_data or {}).get('sourceUrls') or [])
-         if isinstance(u,str) and u.startswith('https://')]))
-    source_steps(['Step8'],[])
-    emit('G9',match,{'shooterZone':release['zone'] if release else None,
-                   'greenTarget':coverage_data.get('greenWeakZones',[]) if coverage_data else None,
-                   'redAvoid':coverage_data.get('redStrongZones',[]) if coverage_data else None,
-                   'coverageSourceType':coverage_data.get('sourceType') if coverage_data else None,
-                   'coverageComparison':coverage_data.get('comparison') if coverage_data else None,
-                   'zoneConcessionEvidence':zone_concession,
-                   'lowShotVolumeNotStrengthEvidence':bool(
-                       coverage_data and coverage_data.get(
-                           'lowShotVolumeIsNotEvidenceOfDefensiveStrength') is True)},
-         eliminate=bool(coverage_data and release and release['zone'] in coverage_data.get('redStrongZones',[])),
-         source_ids=g9_sources)
+     coverage=game.get('coverage',{}).get(attack_team)
+     coverage_data=evidence_data(coverage)
+     green=set((coverage_data or {}).get('greenWeakZones') or [])
+     red=set((coverage_data or {}).get('redStrongZones') or [])
+     g9_routes=[x for x in g5_supported_routes
+                if x.get('zone') in green and x.get('zone') not in red]
+     zone_concessions=(coverage_data or {}).get('zoneConcessions') or {}
+     zone_concession_evidence_by_route={
+         x['zone']:zone_concessions.get(x['zone']) for x in g9_routes}
+     g9_sources=sorted(set(
+         ([coverage['sourceUrl']] if receipt(coverage) else [])+
+         [u for u in ((coverage_data or {}).get('sourceUrls') or [])
+          if isinstance(u,str) and u.startswith('https://')]))
+     source_steps(['Step8'],[])
+     if release is not None:
+         release['g9ViableRoutes']=g9_routes
+         release['g9ReviewedRoutes']=[
+             {'zone':x['zone'],'green':x['zone'] in green,
+              'red':x['zone'] in red,
+              'zoneConcessionEvidence':zone_concession_evidence_by_route.get(x['zone'])}
+             for x in g5_supported_routes]
+         if receipt(player.get('release')):
+             stored=dict(player['release']['data'])
+             stored['g9ViableRoutes']=[
+                 {'zone':x['zone'],'sog':x['attempts'],'ownedGoals':x['ownedGoals'],
+                  'sourceUrl':x.get('sourceUrl') or player['release']['sourceUrl']}
+                 for x in g9_routes]
+             stored['g9ReviewedRoutes']=release['g9ReviewedRoutes']
+             stored['g9RouteSelectionDeferred']=False
+             unique=g9_routes[0] if len(g9_routes)==1 else None
+             stored.update({'zone':unique['zone'] if unique else None,
+                            'attempts':unique['attempts'] if unique else None,
+                            'ownedGoals':unique['ownedGoals'] if unique else None})
+             player['release']={**player['release'],'data':stored}
+         unique=g9_routes[0] if len(g9_routes)==1 else None
+         release.update({'zone':unique['zone'] if unique else None,
+                         'attempts':unique['attempts'] if unique else None,
+                         'ownedGoals':unique['ownedGoals'] if unique else None})
+     match=bool(g9_routes)
+     emit('G9',match,
+          {'shooterZone':g9_routes[0]['zone'] if len(g9_routes)==1 else None,
+           'matchedRoutes':[{'zone':x['zone'],'shotsOnGoal':x['attempts'],
+                             'ownedGoals':x['ownedGoals']}
+                            for x in g9_routes],
+           'greenTarget':sorted(green),'redAvoid':sorted(red),
+           'coverageSourceType':(coverage_data or {}).get('sourceType'),
+           'coverageComparison':(coverage_data or {}).get('comparison'),
+           'zoneConcessionEvidenceByRoute':zone_concession_evidence_by_route,
+           'lowShotVolumeNotStrengthEvidence':bool(
+               coverage_data and coverage_data.get(
+                   'lowShotVolumeIsNotEvidenceOfDefensiveStrength') is True),
+           'G9RunsAfterG5AndDoesNotRewriteG5':True},
+          eliminate=bool(g5_supported_routes and
+                         all(x['zone'] in red for x in g5_supported_routes)),
+          source_ids=g9_sources)
+
     ownership=player.get('finishOwnership');own=evidence_data(ownership)
     # G10 proves historical OWN goal credit. It cannot certify that this
     # skater will be the recipient rather than an assist provider TONIGHT.
