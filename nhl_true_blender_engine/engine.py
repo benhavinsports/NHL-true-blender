@@ -1125,6 +1125,29 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     wins=None
     overlay=[]
     execution_trace=[]
+    # Source observations use their OWN original sequence, Step0..Step14.
+    # Their facts are consumed only when the corresponding G0..G17 gate
+    # executes, never used to change an earlier gate's decision.
+    overlay_at_gate={}
+    overlay_execution=[]
+    def observation_record(_game,_player,step,status,evidence,ids):
+        return {'gate':step,'disposition':status,
+                'details':{'evidence':evidence,'sourceIds':list(ids)}}
+    def source_steps(step_names, challenger_rows):
+        observations=independent_overlay(
+            game,attack_team,player,live_teammates,goalie_profile,release,rec,
+            challenger_rows,stage,receipt,evidence_data,observation_record,
+            only_steps=set(step_names),eliminated_rivals=eliminated_before)
+        for item in observations:
+            step=item['gate']
+            if step in overlay_at_gate:
+                raise ValueError(f'Original overlay step ran twice: {step}')
+            overlay_at_gate[step]=item
+            overlay_execution.append(step)
+    # Before rival decisions, source-check Step0 through Step10 exactly
+    # once in their historical order. Step10.5..14 require the actual
+    # challenger comparisons that occur later at G10.5.
+    source_steps(OVERLAY[:OVERLAY.index('Step10.5')],[])
     def emit(g, ok, detail, eliminate=False, source_ids=()):
         nonlocal eliminated,first_elimination_gate
         # Every candidate gets an ACTUAL G0-G18 source check. A previous
@@ -1145,19 +1168,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
             if first_elimination_gate is None:first_elimination_gate=g
         elif disp=='NOT_EXECUTED':
             deficient.append(g)
-        # Evaluate only the source observations owned by this gate, now,
-        # before recording its authoritative disposition.
-        # Step-named functions run as source checks inside their owning gate.
-        # They do NOT write independent gate rows or create a 36-gate pipeline.
-        # An observation is an intermediate value, not a stored gate receipt.
-        def observation_record(_game,_player,step,status,evidence,ids):
-            return {'gate':step,'disposition':status,
-                    'details':{'evidence':evidence,'sourceIds':list(ids)}}
-        observations=(independent_overlay(
-            game,attack_team,player,live_teammates,goalie_profile,release,rec,
-            rows,stage,receipt,evidence_data,observation_record,
-            only_steps=set(STEPS_BY_GATE[g]),
-            eliminated_rivals=eliminated_before) if STEPS_BY_GATE[g] else [])
+        # Consume ONLY this gate's previously independently observed source
+        # facts. Source functions are checked in Step0..Step14 order, while
+        # the master gate decisions remain G0..G18 in their own order.
+        expected=STEPS_BY_GATE[g]
+        if any(step not in overlay_at_gate for step in expected):
+            raise ValueError(f'Overlay source step not ready for {g}: {expected}')
+        observations=[overlay_at_gate[step] for step in expected]
         overlay.extend(observations)
         if observations:
             function_evidence=[{
@@ -1397,6 +1414,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     unresolved_dominators=sorted(str(r['challengerId']) for r in rows
                           if r.get('status')=='RIVAL_DOMINATES'
                           and str(r['challengerId']) in unresolved_before)
+    # G10.5 challenger evidence now exists. Continue the ORIGINAL overlay
+    # sequence Step10.5, Step11, Step12, Step13, Step14 before the
+    # corresponding later master-gate verdicts consume these facts.
+    source_steps(OVERLAY[OVERLAY.index('Step10.5'):],rows)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True,
@@ -1594,6 +1615,9 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # Both independent tracks must pass. Neither may overwrite the other's
     # original verdict or masquerade as a completed source check.
+    if overlay_execution!=OVERLAY:
+        raise ValueError(f'Original overlay ran out of order: {overlay_execution}')
+    overlay.sort(key=lambda item:OVERLAY.index(item['gate']))
     master_passed=all(d[gate]['disposition']=='PASS'
                       for gate in MASTER[:-1])
     # Preserve original optional reviews without turning an unobserved shift
@@ -1626,8 +1650,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     expected_master=MASTER[:-1] if defer_g18 else MASTER
     if master_trace!=expected_master:
         raise ValueError(f'Master scorer-gate execution order mismatch: {master_trace}')
-    if set(overlay_trace)!=set(OVERLAY) or len(overlay_trace)!=len(OVERLAY):
-        raise ValueError(f'Gate-time source observation coverage mismatch: {overlay_trace}')
+    if overlay_trace!=OVERLAY:
+        raise ValueError(f'Original overlay source observation order mismatch: {overlay_trace}')
     expected_execution=EXECUTION_ORDER[:-1] if defer_g18 else EXECUTION_ORDER
     if [row['gate'] for row in execution_trace]!=expected_execution:
         raise ValueError('Single original gate trace does not match G0–G18')
