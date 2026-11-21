@@ -294,6 +294,21 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             'teams':edge_deployment.get('teams',[]),
             'neverConfirmed':edge_deployment.get('neverConfirmed',True),
         }
+        official_nhl_lineups=source_research.get('officialNhlProjectedGoalies') or {}
+        result['officialNhlProjectedLineupCoverage']={
+            'status':official_nhl_lineups.get('status'),
+            'officialProjectedEVReceipts':official_nhl_lineups.get(
+                'officialProjectedEVReceipts',0),
+            'projectedGoalieReceipts':official_nhl_lineups.get(
+                'projectedGoalieReceipts',0),
+            'officialLineupNeverPromotedToConfirmed':official_nhl_lineups.get(
+                'officialLineupNeverPromotedToConfirmed',True),
+            'sourceAttempts':[{
+                'url':item.get('url'),
+                'status':item.get('status'),
+                'error':item.get('error'),
+            } for item in (official_nhl_lineups.get('sourceAttempts') or [])],
+        }
         result['datedGoalieSourceCoverage']=source_research.get(
             'datedGoalieProjections',{})
         # Persist parser/source diagnostics so G0 cannot silently remain
