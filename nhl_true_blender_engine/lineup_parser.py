@@ -245,9 +245,19 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
     from .secondary_sources import TEAM_SLUGS
     teams=sorted({team for game in snapshot['games']
                   for team in (game['home'],game['away'])})
+    opponents={}
+    for game in snapshot['games']:
+        opponents.setdefault(game['home'], set()).add(game['away'])
+        opponents.setdefault(game['away'], set()).add(game['home'])
+    # An exact one-to-one matchup is required for NHL.com's dated daily
+    # article. If a club has two games, neither can borrow the other's date.
+    opponent_slug_by_team={
+        team: TEAM_SLUGS.get(next(iter(opponents[team])))
+        if len(opponents[team])==1 else None for team in teams}
     results=await asyncio.gather(*(asyncio.to_thread(
         fetch_deployment,team,TEAM_SLUGS.get(team),mode='confirmed'
-        if stage=='CONFIRMED' else 'projected') for team in teams),
+        if stage=='CONFIRMED' else 'projected',slate_date=date,
+        opponent_slug=opponent_slug_by_team[team]) for team in teams),
         return_exceptions=True)
     observed=datetime.now(timezone.utc).isoformat(timespec='seconds')
     inserted=0; unmatched=[]; reports={}; skipped=[]
