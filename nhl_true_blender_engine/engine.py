@@ -1139,11 +1139,13 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     def observation_record(_game,_player,step,status,evidence,ids):
         return {'gate':step,'disposition':status,
                 'details':{'evidence':evidence,'sourceIds':list(ids)}}
-    def source_steps(step_names, challenger_rows):
+    def source_steps(step_names, challenger_rows, eliminated_rivals=None):
         observations=independent_overlay(
             game,attack_team,player,live_teammates,goalie_profile,release,rec,
             challenger_rows,stage,receipt,evidence_data,observation_record,
-            only_steps=set(step_names),eliminated_rivals=eliminated_before)
+            only_steps=set(step_names),
+            eliminated_rivals=(eliminated_before if eliminated_rivals is None
+                               else eliminated_rivals))
         for item in observations:
             step=item['gate']
             if step in overlay_at_gate:
@@ -1624,17 +1626,28 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
                 'overlayExecutionOrder':overlay_execution,
                 'preG17Qualified':all(d[g]['disposition']=='PASS'
                                       for g in MASTER[:MASTER.index('G17')])},execution_trace
+    # G17 is a contradiction audit, not a second G10.5 elimination round.
+    # A challenger already defeated (or independently shown to have no route
+    # into any jointly viable G0/G9 area) by this candidate's G10.5 comparison
+    # is no longer a live rival for G17. Preserve actual dominators and
+    # unresolved comparisons; do not let a defeated roster member reopen the
+    # contradiction review after its original comparison has been decided.
+    g10_5_resolved_rivals={str(row['challengerId']) for row in rows
+        if row.get('status') in (
+            'DEFEATED','SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE',
+            'DIFFERENT_TARGET_LANE') and row.get('challengerId') is not None}
+    g17_excluded_rivals=eliminated_before | g10_5_resolved_rivals
     # G17 source retrieval must precede Step14's independent source
     # evaluation, but neither may run until the full-slate G16 decision.
     if g17_review is not None:
-        source_receipt=g17_review(game,attack_team,player,eliminated_before)
+        source_receipt=g17_review(game,attack_team,player,g17_excluded_rivals)
         if source_receipt is not None:
             player['contradictions']=source_receipt
         elif (evidence_data(player.get('contradictions')) or {}).get('sourceType') == 'DERIVED_CROSS_SOURCE_G17':
             # Do not reuse a stale derived result from a previous G0 goalie
             # branch when the current G17 review found no valid source route.
             player.pop('contradictions',None)
-    source_steps(['Step14'],rows)
+    source_steps(['Step14'],rows,g17_excluded_rivals)
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
@@ -1650,7 +1663,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # meaningful rival and cannot keep this candidate's G17 unresolved. Every
     # other stored review condition (goalie branch, weak-area match, stronger
     # area contradiction, lineup role, unresolved live rivals) still applies.
-    g17_live=g17_resolved_without_eliminated_rivals(cdata,eliminated_before)
+    g17_live=g17_resolved_without_eliminated_rivals(cdata,g17_excluded_rivals)
     if not cross_source_resolved and g17_live['resolved']:
         cross_source_resolved=True
     emit('G17',bool(cdata and cdata.get('goalieStrengthReview') is not None and
@@ -1660,7 +1673,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          {'goalieBranch':goalie_profile['data'].get('goalieId'),
           'counterevidence':cdata,'retainsConflictingSources':True,
           'sourceDerivedReviewResolved':cross_source_resolved,
-          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None},
+          'eliminatedRivalsIgnoredInRivalReview':g17_live['ignoredEliminatedRivals'] or None,
+          'G10_5ResolvedRivalsExcludedFromG17':sorted(g10_5_resolved_rivals) or None},
          source_ids=[contradiction['sourceUrl']] if receipt(contradiction) else [])
     # Both independent tracks must pass. Neither may overwrite the other's
     # original verdict or masquerade as a completed source check.
