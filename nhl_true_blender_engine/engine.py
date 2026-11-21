@@ -279,9 +279,12 @@ def all_goalie_branches(game, stage):
     return by_team
 
 
-def g0_full_slate(games, stage):
+def g0_full_slate(games, stage, now=None):
+    now=now or datetime.now(timezone.utc)
     scan=[]; error=[]
     for game in games:
+        if game_started(game,now):
+            continue  # Per-game puck-drop freeze: no new G0 research or audit.
         for attacker,defender in ((game['away'],game['home']), (game['home'],game['away'])):
             branches=all_goalie_branches(game,stage).get(defender,[])
             proofs=[]
@@ -3033,7 +3036,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     prior_card=get_card(con,date)
     frozen_games=sorted(str(l['gameId']) for l in (prior_card or {}).get('current_legs',[])
                         if game_started(l,now))
-    scan,g0_direction_notes=g0_full_slate(games,stage)
+    scan,g0_direction_notes=g0_full_slate(games,stage,now=now)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
     errors=[]
     # Postgame learning is audit-only: original gate verdicts alone select scorers.

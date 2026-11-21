@@ -36,7 +36,7 @@ import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.source_recovery import recovery_snapshot
+from nhl_true_blender_engine.source_recovery import recovery_snapshot, pregame_only_snapshot
 
 async def run(date, stage, state_dir="state", output_dir="runs"):
     state = Path(state_dir)
@@ -47,54 +47,60 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
     try:
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
-            print(f"BLENDER official slate loaded: {date}; games={len(snapshot.get('games', []))}", flush=True)
+            cycle_now=datetime.now(timezone.utc)
+            pregame_snapshot=pregame_only_snapshot(snapshot,cycle_now)
+            print(
+                f"BLENDER official slate loaded: {date}; "
+                f"games={len(snapshot.get('games', []))}; "
+                f"still_pregame={len(pregame_snapshot.get('games', []))}",
+                flush=True)
             print("BLENDER collecting official history and goalie peer evidence", flush=True)
-            historical = await collect_history(client, con, snapshot, date, stage)
+            historical = await collect_history(client, con, pregame_snapshot, date, stage)
             # This event payload is an in-memory input to the later goalie
             # fallback, not a JSON report or persistent duplicate database.
             league_goalie_peer_events=historical.pop("_goaliePeerPbpEvents",[])
-            context_research = await collect_context(client, con, snapshot, date, stage)
-            edge_research = await collect_edge(client, con, snapshot, date, stage)
-            season_goal_research = await collect_season_goal_history(client, con, snapshot, date, stage)
+            context_research = await collect_context(client, con, pregame_snapshot, date, stage)
+            edge_research = await collect_edge(client, con, pregame_snapshot, date, stage)
+            season_goal_research = await collect_season_goal_history(client, con, pregame_snapshot, date, stage)
             goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
-                goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
+                goal_tracking = await collect_goal_sprites(client, pregame_snapshot, date, max_goals=12)
         print("BLENDER collecting secondary sources, lineups, deployment and projected starters", flush=True)
-        source_research = await collect_secondary(con, snapshot, date, stage)
+        source_research = await collect_secondary(con, pregame_snapshot, date, stage)
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         source_research['additionalStructuredDeployment']=await fetch_and_ingest_additional_deployment(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         source_research['datedEdgehallaProjection']=await collect_edgehalla_deployment(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         # Independent dated NHL.com projected goalie listings are researched
         # rather than treating ambiguous generic EXPECTED branches as final.
         # These do not claim team confirmation or overwrite confirmed goalies.
         from nhl_true_blender_engine.nhl_projected_goalies import collect_nhl_projected_goalies
         source_research['officialNhlProjectedGoalies']=await collect_nhl_projected_goalies(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         # The primary third-party markdown sometimes still contains YESTERDAY's
         # header at sunrise; do not stop G0 for all 11 current-day games.
         # Collect dated, matchup-scoped projected goalie IDs from an additional
         # public source. Preserve EXPECTED/PROJECTED vs CONFIRMED and require
         # exact official NHL roster ID matching before using any branch.
         source_research['datedGoalieProjections']=await collect_dated_goalie_projections(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         source_research['datedIndependentStartingGoalies']=await collect_dfo_goalies(
-            con,snapshot,date,stage)
+            con,pregame_snapshot,date,stage)
         async with _Client() as client:
             source_research['officialPregameDressed']=await collect_official_dressed(
-                client,con,snapshot,date,stage)
+                client,con,pregame_snapshot,date,stage)
         csv_dir = os.environ.get('MONEYPUCK_CSV_DIR')
         if csv_dir and Path(csv_dir, 'skaters.csv').exists():
             source_research['moneypuck'] = import_moneypuck(
-                con, snapshot, date, stage, csv_dir,
+                con, pregame_snapshot, date, stage, csv_dir,
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
         # Starters and projected lines are attached before independently
         # measured EDGE comparisons; a skater is never picked before full G0.
         print("BLENDER attaching collected evidence and deriving source-supported attack routes", flush=True)
         attach(con, snapshot, date, stage)
-        derived_routes = derive_nhl_edge_attacks(con, snapshot, date, stage)
+        derived_routes = derive_nhl_edge_attacks(con, pregame_snapshot, date, stage)
         attach(con, snapshot, date, stage)
         # Goalie-first fallback requires the exact independently sourced
         # expected/confirmed starter identity from the parsed lineup report.
@@ -104,21 +110,21 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # of the opponent's profile.
         async with _Client() as client:
             goalie_pbp_fallback = await collect_goalie_pbp_fallback(
-                client,con,snapshot,date,stage,
+                client,con,pregame_snapshot,date,stage,
                 league_peer_events=league_goalie_peer_events)
         source_research['independentGoaliePbpFallback']=goalie_pbp_fallback
         attach(con, snapshot, date, stage)
         scouting_path = os.environ.get('GOALIE_SCOUTING_JSON')
         if scouting_path:
             source_research['goalieScouting'] = ingest_scouting(
-                con, snapshot, date, stage, scouting_path)
+                con, pregame_snapshot, date, stage, scouting_path)
             attach(con, snapshot, date, stage)
-        initial_watch = await collect_watch(None, con, date, snapshot)
-        edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
+        initial_watch = await collect_watch(None, con, date, pregame_snapshot)
+        edge_g0_review = review_g0_goalie_origins(con, pregame_snapshot, date, stage)
         # Independent contradiction evidence is reviewed at G17, not after G0.
         attach(con, snapshot, date, stage)
         print("BLENDER executing original G0-G18 and overlay", flush=True)
-        result = execute(con, snapshot, date, stage)
+        result = execute(con, snapshot, date, stage, now=cycle_now)
         print(f"BLENDER first gate execution complete; Core present={bool(result.get('card'))}", flush=True)
         contradiction_research = result.get('g17ReviewSummary')
         # Keep searching every still-pre-puck game at its first
@@ -132,12 +138,12 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # There is no total retry limit: every scheduled cycle continues researching
         # unresolved games until recovery_snapshot applies each game's puck-drop freeze.
         feedback=[]
-        remaining_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
+        remaining_snapshot=recovery_snapshot(con,snapshot,date,stage,result,now=cycle_now)
         remaining_ids=[str(g['id']) for g in remaining_snapshot['games']]
         if remaining_ids:
             feedback.append({
                 'cycleCheckpoint':True,
-                'researchedGameIds':[str(g['id']) for g in snapshot.get('games',[])],
+                'researchedGameIds':[str(g['id']) for g in pregame_snapshot.get('games',[])],
                 'remainingPregameGameIdsAfterRefresh':remaining_ids,
                 'nextScheduledCycleContinuesSourceRecovery':True,
                 'noAutomaticPasses':True

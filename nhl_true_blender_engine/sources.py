@@ -8,10 +8,11 @@ import asyncio
 import hashlib
 import json
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from urllib.parse import quote
 from typing import Optional
 import httpx
-from .storage import record_evidence
+from .storage import record_evidence, game_started
 
 NHL = 'https://api-web.nhle.com/v1'
 
@@ -92,11 +93,20 @@ def roster_as_evidence(payload, team):
 
 
 async def official_slate(client, date, con=None):
-    """Collect actual scheduled games and all 32(?) game-team rosters, not goalie guesses.
-    Every matchup gets two attack directions from the selector afterwards."""
+    """Collect the official slate and rosters only for games still pre-puck.
+
+    Historical replay bundles carry their own point-in-time rosters. On the
+    live Eastern slate, an already-started game's roster is not refreshed or
+    reopened for selection; the full schedule row remains in the snapshot.
+    """
     raw=await client.score(date)
     games=normalize_games(raw,date)
-    teams=sorted({team for g in games for team in (g['away'],g['home'])})
+    now=datetime.now(timezone.utc)
+    today_et=now.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+    roster_games=(games if date!=today_et else
+                  [g for g in games if not game_started(g,now)])
+    roster_game_ids={str(g['id']) for g in roster_games}
+    teams=sorted({team for g in roster_games for team in (g['away'],g['home'])})
     sem=asyncio.Semaphore(5)
     async def one(team):
         async with sem:
@@ -106,7 +116,8 @@ async def official_slate(client, date, con=None):
     refs={t:v for t,v,_ in responses if v}
     errs=[{'team':t,'error':e} for t,_,e in responses if e]
     for g in games:
-        g['rosters']={t:refs.get(t) for t in (g['away'],g['home'])}
+        g['rosters']=({t:refs.get(t) for t in (g['away'],g['home'])}
+                      if str(g['id']) in roster_game_ids else {})
     if con:
         record_evidence(con,{'evidence_id':f'official-schedule-{date}-'+hashlib.sha256(json.dumps(raw['data'],sort_keys=True).encode()).hexdigest()[:16],
             'slate_date':date,'stage':'OFFICIAL','kind':'GAME_SCHEDULE','source_url':raw['url'],
