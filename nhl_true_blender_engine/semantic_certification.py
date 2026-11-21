@@ -66,21 +66,33 @@ def audit_gate(gate, evidence, source_ids, stage, *, preserve_historical_contrac
         need(bool(e.get('goalieSample')) and bool(e.get('goalieWeakZones')) and
              bool(e.get('counterevidence')),'G3_WEAKNESS_AND_COUNTEREVIDENCE_INCOMPLETE')
     elif gate=='G4':
+        own_routes=e.get('ownReleaseRoutes') or []
         own=e.get('ownRelease') or {}
-        need(bool(e.get('archetype')) and bool(own.get('zone')),'G4_OWN_RELEASE_MISSING')
+        if isinstance(own_routes,list) and own_routes:
+            need(any(bool(x.get('zone')) and
+                     x.get('mechanismSupported') is True
+                     for x in own_routes),'G4_OWN_RELEASE_MISSING')
+        else:
+            need(bool(e.get('archetype')) and bool(own.get('zone')),
+                 'G4_OWN_RELEASE_MISSING')
         mechanism=e.get('individualMechanismReview') or {}
-        # A past frozen card retains its recorded contract and outcome. This
-        # option is used only by the past-card reader, never live selection,
-        # certification or a new publication. Do not rewrite old decisions.
         if not (preserve_historical_contract and 'individualMechanismReview' not in e):
             need(mechanism.get('supported') is True and
                  bool(mechanism.get('archetype')) and
                  bool(mechanism.get('sourceIds')),
                  'G4_SHOT_ORIGIN_IS_NOT_FINISHING_MECHANISM')
     elif gate=='G5':
-        need(bool(e.get('shooterZone')) and
-             e.get('shooterZone') in (e.get('weakZones') or {}),
-             'G5_OWN_RELEASE_NOT_IN_GOALIE_WEAK_AREA')
+        matched=e.get('matchedRoutes')
+        if isinstance(matched,list):
+            need(any(bool(x.get('zone')) and
+                     x.get('zone') in (e.get('weakZones') or {}) and
+                     x.get('mechanismSupported') is True for x in matched),
+                 'G5_OWN_RELEASE_NOT_IN_GOALIE_WEAK_AREA')
+        else:
+            need(bool(e.get('shooterZone')) and
+                 e.get('shooterZone') in (e.get('weakZones') or {}),
+                 'G5_OWN_RELEASE_NOT_IN_GOALIE_WEAK_AREA')
+
     elif gate=='G6':
         d=e.get('deployment') or {}
         need(bool(d.get('EV')) and d.get('status') in ('PROJECTED','CONFIRMED'),
@@ -101,39 +113,52 @@ def audit_gate(gate, evidence, source_ids, stage, *, preserve_historical_contrac
         need(e.get('neverRankingShortcut') is True and
              ('neutralWhenAbsent' in e),'G8_NEUTRAL_REVIEW_NOT_RECORDED')
     elif gate=='G9':
-        need(bool(e.get('shooterZone')) and
-             e.get('shooterZone') in (e.get('greenTarget') or []) and
-             e.get('shooterZone') not in (e.get('redAvoid') or []),
-             'G9_OPPONENT_DEFENSE_ROUTE_NOT_PROVED')
+        matched=e.get('matchedRoutes')
+        green=e.get('greenTarget') or []
+        red=e.get('redAvoid') or []
+        if isinstance(matched,list):
+            valid_routes=[x for x in matched if x.get('zone') in green and
+                          x.get('zone') not in red]
+            need(bool(valid_routes),'G9_OPPONENT_DEFENSE_ROUTE_NOT_PROVED')
+        else:
+            need(bool(e.get('shooterZone')) and
+                 e.get('shooterZone') in green and
+                 e.get('shooterZone') not in red,
+                 'G9_OPPONENT_DEFENSE_ROUTE_NOT_PROVED')
         need(e.get('coverageSourceType')=='OFFICIAL_HISTORICAL_NHL_PLAY_BY_PLAY' and
              e.get('coverageComparison')==
              'RECENT_OPPONENT_SHOT_ATTEMPT_ORIGIN_RATE_PER_GAME_VS_OTHER_TEAM_MEDIAN',
              'G9_LEGACY_OR_UNVERIFIED_COVERAGE_METHOD')
-        z=e.get('zoneConcessionEvidence') or {}
-        # Independent real shot-attempt concession OR independently
-        # observed on-net concession can prove the SAME opponent-defense
-        # weakness. Neither a goalie weakness nor absence of shots passes G9.
-        scoped=(type(z.get('gameCount')) is int and z['gameCount']>=6 and
-                type(z.get('peerTeamsCompared')) is int and
-                z['peerTeamsCompared']>=6)
-        attempts=(type(z.get('attemptsAgainst')) is int and
-                  z['attemptsAgainst']>=16 and
-                  type(z.get('attemptsPerGame')) in (int,float) and
-                  type(z.get('peerMedianAttemptsPerGame')) in (int,float) and
-                  z['attemptsPerGame']>z['peerMedianAttemptsPerGame'] and
-                  'ATTEMPTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or
-                                            ['ATTEMPTS_AGAINST_PEER']))
-        on_net=(type(z.get('onNetShotsAgainst')) is int and
-                z['onNetShotsAgainst']>=12 and
-                type(z.get('onNetShotsPerGame')) in (int,float) and
-                type(z.get('peerMedianOnNetShotsPerGame')) in (int,float) and
-                z['onNetShotsPerGame']>z['peerMedianOnNetShotsPerGame'] and
-                z.get('independentOnNetConcessionReview') is True and
-                'ON_NET_SHOTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or []))
-        need(scoped and (attempts or on_net),
-             'G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING')
+        def positive_zone_concession(z):
+            scoped=(type(z.get('gameCount')) is int and z['gameCount']>=6 and
+                    type(z.get('peerTeamsCompared')) is int and z['peerTeamsCompared']>=6)
+            attempts=(type(z.get('attemptsAgainst')) is int and
+                      z['attemptsAgainst']>=16 and
+                      type(z.get('attemptsPerGame')) in (int,float) and
+                      type(z.get('peerMedianAttemptsPerGame')) in (int,float) and
+                      z['attemptsPerGame']>z['peerMedianAttemptsPerGame'] and
+                      'ATTEMPTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or
+                                                ['ATTEMPTS_AGAINST_PEER']))
+            on_net=(type(z.get('onNetShotsAgainst')) is int and
+                    z['onNetShotsAgainst']>=12 and
+                    type(z.get('onNetShotsPerGame')) in (int,float) and
+                    type(z.get('peerMedianOnNetShotsPerGame')) in (int,float) and
+                    z['onNetShotsPerGame']>z['peerMedianOnNetShotsPerGame'] and
+                    z.get('independentOnNetConcessionReview') is True and
+                    'ON_NET_SHOTS_AGAINST_PEER' in (z.get('positiveConcessionBases') or []))
+            return scoped and (attempts or on_net)
+        if isinstance(matched,list):
+            evidence_by_route=e.get('zoneConcessionEvidenceByRoute') or {}
+            need(any(positive_zone_concession(evidence_by_route.get(x.get('zone')) or {})
+                     for x in valid_routes),
+                 'G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING')
+        else:
+            z=e.get('zoneConcessionEvidence') or {}
+            need(positive_zone_concession(z),
+                 'G9_POSITIVE_PER_GAME_CONCESSION_PROOF_MISSING')
         need(e.get('lowShotVolumeNotStrengthEvidence') is True,
              'G9_LOW_VOLUME_MUST_NOT_BE_CALLED_DEFENSIVE_STRENGTH')
+
     elif gate=='G10':
         need(e.get('historicalDirectGoalRecipientVerified') is True and
              e.get('futureNotAssistOrFeederProven') is False,
