@@ -1406,25 +1406,44 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'opposingGoalieBranchReviewed':direction_ok},
          source_ids=list(filter(None,[goalie_profile['sourceUrl'],
              goalie_profile['data'].get('goalieProfileSourceUrl')])))
-    mechanism=shooter_mechanism(player,release,game.get('date'))
-    source_steps(['Step5','Step7'],[])
-    emit('G4',bool(release and mechanism.get('supported')),
-         {'archetype':mechanism.get('archetype'),
-          'ownRelease':release,'individualMechanismReview':mechanism},
-         source_ids=sorted(set([player.get('release',{}).get('sourceUrl','')]+
-                              mechanism.get('sourceIds',[]))))
-    overlap=bool(release and release['zone'] in weak)
-    source_steps(['Step3','Step10'],[])
-    emit('G5',bool(weak and release) and overlap and
-         not (release or {}).get('tonightRouteUnresolved',False),
-         {'shooterZone':release['zone'] if release else None,'weakZones':weak,
-          'goalieStrengthZones':strong,
-          'tonightRouteSelectionBasis':(release or {}).get('tonightRouteSelectionBasis'),
-          'historicalTotalsCannotResolveTonightRoute':True,
-          'tonightRouteUnresolved':(release or {}).get('tonightRouteUnresolved',False)},
-         eliminate=bool(weak and release and not overlap),
-         source_ids=list(filter(None,[player.get('release',{}).get('sourceUrl'),
-             goalie_profile['data'].get('goalieProfileSourceUrl'),goalie_profile['sourceUrl']])))
+     route_reviews=(release or {}).get('routeReviews') or []
+     g0_routes=(release or {}).get('g0MatchedOwnOriginRoutes') or []
+     if release and not release.get('g0RouteSelectionApplied'):
+         g0_routes=[x for x in route_reviews if x.get('zone') in weak]
+     g0_zones={x.get('zone') for x in g0_routes}
+     g0_route_reviews=[x for x in route_reviews if x.get('zone') in g0_zones]
+     g4_supported_routes=[x for x in route_reviews if x.get('mechanismSupported') is True]
+     g5_supported_routes=[x for x in g0_route_reviews if x.get('mechanismSupported') is True]
+     mechanism=(release or {}).get('mechanismReview') or {
+         'supported':False,'archetype':None,'observedShotTypes':[],'sourceIds':[]}
+     source_steps(['Step5','Step7'],[])
+     emit('G4',bool(g4_supported_routes),
+          {'archetype':mechanism.get('archetype'),
+           'ownRelease':release,'ownReleaseRoutes':route_reviews,
+           'individualMechanismReview':mechanism},
+          source_ids=sorted(set(
+              ([player.get('release',{}).get('sourceUrl','')]
+               if receipt(player.get('release')) else [])+
+              mechanism.get('sourceIds',[]))))
+     overlap=bool(g5_supported_routes)
+     g5_no_source_matched_route=bool(
+         release and release.get('g0RouteEvidenceComplete') is True and not g0_routes)
+     source_steps(['Step3','Step10'],[])
+     emit('G5',overlap,
+          {'shooterZone':g5_supported_routes[0]['zone']
+               if len(g5_supported_routes)==1 else None,
+           'matchedRoutes':[{'zone':x['zone'],'shotsOnGoal':x['attempts'],
+                             'ownedGoals':x['ownedGoals'],
+                             'mechanismSupported':True}
+                            for x in g5_supported_routes],
+           'weakZones':weak,'goalieStrengthZones':strong,
+           'tonightRouteSelectionBasis':'G0_ONLY_GOALIE_WEAKNESS_ROUTE_SET',
+           'tonightRouteUnresolved':False,
+           'routeSelectionNotInfluencedByG9':True},
+          eliminate=g5_no_source_matched_route,
+          source_ids=list(filter(None,[player.get('release',{}).get('sourceUrl'),
+              goalie_profile['data'].get('goalieProfileSourceUrl'),goalie_profile['sourceUrl']])))
+
     dep=player.get('deployment')
     dep_data=evidence_data(dep)
     dep_ok=bool(dep_data and dep_data.get('EV') and dep_data.get('status') in ('PROJECTED','CONFIRMED') and not player.get('deploymentConflict'))
