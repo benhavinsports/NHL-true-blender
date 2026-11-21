@@ -186,7 +186,13 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
         return {"status": "NOT_PREGAME_STAGE", "deploymentRecords": 0}
     teams = sorted({t for g in snapshot.get("games", [])
                     for t in (g["away"], g["home"])})
-    sem = asyncio.Semaphore(5)
+    # Stop the entire source batch promptly if the provider says 429.
+    # The prior five-at-once collection sent 28 unsuccessful requests on
+    # every pass, and repeated them during the same G0 evidence refresh.
+    # Rate limiting is source UNAVAILABILITY, never a G6 pass or permission
+    # to borrow last game's units. Leave legitimate source dates untouched.
+    sem = asyncio.Semaphore(2)
+    rate_limited = {"blocked": False}
     async with httpx.AsyncClient(timeout=15, follow_redirects=True,
                                  headers={"User-Agent": "Mozilla/5.0",
                                           "Accept": "text/html"}) as client:
@@ -196,8 +202,13 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
                 return team, None, None, "UNKNOWN_TEAM"
             url = SOURCE_BASE + quote(slug)
             async with sem:
+                if rate_limited["blocked"]:
+                    return team, url, None, "SOURCE_RATE_LIMITED_429_NO_RETRY"
                 try:
                     response = await client.get(url)
+                    if response.status_code == 429:
+                        rate_limited["blocked"] = True
+                        return team, url, None, "SOURCE_RATE_LIMITED_429_NO_RETRY"
                     response.raise_for_status()
                     return team, url, response.text, None
                 except (httpx.HTTPError, ValueError) as exc:
