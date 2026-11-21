@@ -2,6 +2,7 @@
 from __future__ import annotations
 import asyncio
 import hashlib
+import json
 from datetime import datetime,timezone
 from html.parser import HTMLParser
 import re
@@ -11,6 +12,19 @@ from .enrichment import ingest
 from .secondary_sources import TEAM_SLUGS
 
 NICKNAMES={"CBJ":"blue jackets","VGK":"golden knights"}
+
+def _versioned_receipt_id(prefix, source_url, payload):
+    """Give every distinct immutable source observation its own receipt ID.
+
+    Source pages can be revised in place during pregame research. Hash the
+    complete payload AND source URL so a later goalie/status observation is
+    appended as a new receipt instead of colliding with an older payload.
+    Identical rereads remain idempotent.
+    """
+    body=json.dumps({"sourceUrl":source_url,"payload":payload},
+                    sort_keys=True,separators=(",",":"),ensure_ascii=False)
+    digest=hashlib.sha256(body.encode("utf-8")).hexdigest()[:20]
+    return f"{prefix}-{digest}"
 class Text(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -299,15 +313,18 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
             # Every source attribution is retained; missing names stay unknown.
             for item in parse_official_unavailable(html,game,date,url):
                 observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
-                digest=hashlib.sha256(url.encode()).hexdigest()[:12]
-                ingest(con,{"evidence_id":f"nhl-projected-unavailable-{date}-{stage}-{game['id']}-{item['playerId']}-{item['status']}-{digest}",
+                payload={
+                    "status":item["status"],
+                    "sourceType":"NHL_OFFICIAL_PROJECTED_LINEUP_UNAVAILABLE",
+                    "officialRosterIdMatched":True,
+                    "publishedAsOfSlateDate":date,
+                    "notAbsenceBased":True}
+                ingest(con,{"evidence_id":_versioned_receipt_id(
+                        f"nhl-projected-unavailable-{date}-{stage}-{game['id']}-{item['playerId']}-{item['status']}",
+                        url,payload),
                     "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                     "player_id":item["playerId"],"kind":"PLAYER_STATUS",
-                    "source_url":url,"observed_at":observed,"payload":{
-                        "status":item["status"],"sourceType":"NHL_OFFICIAL_PROJECTED_LINEUP_UNAVAILABLE",
-                        "officialRosterIdMatched":True,
-                        "publishedAsOfSlateDate":date,
-                        "notAbsenceBased":True}})
+                    "source_url":url,"observed_at":observed,"payload":payload})
                 unavailable.append({"gameId":str(game["id"]),
                                     "playerId":item["playerId"],
                                     "status":item["status"],"sourceUrl":url})
@@ -352,19 +369,21 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                                       "newGoalieId":data["goalieId"],"sourceUrl":url})
                 seen[key]=data["goalieId"]
                 observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
-                digest=hashlib.sha256(url.encode()).hexdigest()[:12]
-                ingest(con,{"evidence_id":f"nhl-projected-goalie-{date}-{stage}-{game['id']}-{team}-{data['goalieId']}-{digest}",
+                payload={
+                    "team":team,"goalieId":data["goalieId"],
+                    "goalieName":data["name"],"status":"EXPECTED",
+                    "projectedPreferred":True,
+                    "starterSourceStatus":"NHL_OFFICIAL_PROJECTED_LINEUP",
+                    "sourceType":"OFFICIAL_NHL_GAME_SPECIFIC_PROJECTED_LINEUP",
+                    "publishedAsOfSlateDate":date,
+                    "publishedGoalies":data["publishedGoalies"],
+                    "projectedNotConfirmed":True,"identityMatched":True}
+                ingest(con,{"evidence_id":_versioned_receipt_id(
+                        f"nhl-projected-goalie-{date}-{stage}-{game['id']}-{team}",
+                        url,payload),
                     "slate_date":date,"stage":stage,"game_id":str(game["id"]),
                     "kind":"GOALIE_STARTER","source_url":url,
-                    "observed_at":observed,"payload":{
-                        "team":team,"goalieId":data["goalieId"],
-                        "goalieName":data["name"],"status":"EXPECTED",
-                        "projectedPreferred":True,
-                        "starterSourceStatus":"NHL_OFFICIAL_PROJECTED_LINEUP",
-                        "sourceType":"OFFICIAL_NHL_GAME_SPECIFIC_PROJECTED_LINEUP",
-                        "publishedAsOfSlateDate":date,
-                        "publishedGoalies":data["publishedGoalies"],
-                        "projectedNotConfirmed":True,"identityMatched":True}})
+                    "observed_at":observed,"payload":payload})
                 found+=1
     return {"status":"SOURCE_RESEARCH_COMPLETED",
             "sourceType":"NHL_OFFICIAL_PUBLISHED_PROJECTED_LINEUP",

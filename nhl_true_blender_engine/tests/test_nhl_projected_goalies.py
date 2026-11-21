@@ -1,5 +1,5 @@
 """NHL official projected goalie is evidence; never a fake confirmation."""
-from nhl_true_blender_engine.nhl_projected_goalies import parse_projected_goalies,preview_urls,parse_official_unavailable
+from nhl_true_blender_engine.nhl_projected_goalies import parse_projected_goalies,preview_urls,parse_official_unavailable,_versioned_receipt_id
 from nhl_true_blender_engine.enrichment import ingest,attach
 from nhl_true_blender_engine.engine import all_goalie_branches
 from nhl_true_blender_engine.storage import open_db
@@ -105,3 +105,16 @@ def test_explicit_nhl_injured_scratch_names_resolve_to_official_skater_ids_only(
         ("201","INJURED"),("202","INJURED")}
     assert all(x["playerId"] not in ("1","2","3","4") for x in rows)
     assert parse_official_unavailable(markup,g,"2026-11-15")==[]
+
+
+def test_projected_goalie_receipt_id_versions_full_payload_and_source():
+    prefix="nhl-projected-goalie-2026-11-21-PROJECTED-2026020359-CAR"
+    url="https://www.nhl.com/news/edmonton-oilers-carolina-hurricanes-game-preview-november-21-2026"
+    first={"team":"CAR","goalieId":"8483548","goalieName":"Brandon Bussi",
+           "publishedGoalies":["8483548","8481611"],"status":"EXPECTED"}
+    changed_goalie={**first,"goalieId":"8481611","goalieName":"Pyotr Kochetkov"}
+    changed_page={**first,"publishedGoalies":["8483548","8481611","8481000"]}
+    assert _versioned_receipt_id(prefix,url,first)==_versioned_receipt_id(prefix,url,first)
+    assert _versioned_receipt_id(prefix,url,first)!=_versioned_receipt_id(prefix,url,changed_goalie)
+    assert _versioned_receipt_id(prefix,url,first)!=_versioned_receipt_id(prefix,url,changed_page)
+    assert _versioned_receipt_id(prefix,url,first)!=_versioned_receipt_id(prefix+"/other",url,first)
