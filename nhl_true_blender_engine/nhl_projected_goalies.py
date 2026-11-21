@@ -80,6 +80,16 @@ def _article_date_targets_game(html,game,date,source_url=None):
         published=datetime.strptime(match.group(0),"%B %d, %Y").date()
     except ValueError:
         return False
+    # Daily NHL.com page may legitimately be published the evening before a
+    # real game. Unlike a generic roster feed, its own day header AND exact
+    # official opponent pair are independently verifiable in the article.
+    season=requested.year if requested.month>=9 else requested.year-1
+    season_url=(f"https://www.nhl.com/news/nhl-lineup-projections-"
+                f"{season}-{str(season+1)[-2:]}-season")
+    if source_url==season_url:
+        from deployment_sources import _nhl_article_game_day_verified
+        return _nhl_article_game_day_verified(
+            html,date,TEAM_SLUGS.get(game["away"]),TEAM_SLUGS.get(game["home"]))
     source_is_preview=(isinstance(source_url,str) and
                        source_url in preview_urls(game,date))
     # An explicitly requested official preview may be published one or two
@@ -261,7 +271,8 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
     """Review all known source variants; unmatched URLs never establish a starter."""
     games=snapshot.get("games",[])
     year=int(date[:4]) if int(date[5:7])>=9 else int(date[:4])-1
-    urls={f"https://www.nhl.com/news/nhl-lineup-projections-{year}-{str(year+1)[-2:]}-season"}
+    season_url=f"https://www.nhl.com/news/nhl-lineup-projections-{year}-{str(year+1)[-2:]}-season"
+    urls={season_url}
     for game in games:
         urls.update(preview_urls(game,date))
     async with httpx.AsyncClient(timeout=18,follow_redirects=True,
@@ -312,7 +323,15 @@ async def collect_nhl_projected_goalies(con,snapshot,date,stage):
                            start_dt.tzinfo is not None and
                            start_dt > datetime.now(timezone.utc) and
                            game.get("gameState") in ("FUT","PRE"))
-            if still_pregame and url in preview_urls(game,date):
+            # The season news article is allowed ONLY for the game's own
+            # published day heading + exact scheduled opponent. Other team
+            # sections, yesterday's game and future result knowledge remain
+            # barred, and these roles stay PROJECTED until independently
+            # confirmed by a separate source.
+            article_matches=(url==season_url and
+                             _article_date_targets_game(html,game,date,url))
+            if still_pregame and (url in preview_urls(game,date) or
+                                  article_matches):
                 for row in parse_projected_deployment(html,game,date,url):
                     observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
                     digest=hashlib.sha256(
