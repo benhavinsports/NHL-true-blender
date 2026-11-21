@@ -2927,10 +2927,10 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             errors.append(f"{match['id']} G0 source consensus exists but multiple potential opposing goalies remain; cannot bind unique scorer-to-goalie route")
             continue
         errors.append(f"{match['id']} G0 neither a shared official goalie-peer comparison nor unanimous projected-starter evidence distinguished the attacking direction")
-    # Always refresh G17 AFTER G0 identifies the attack side and exact goalie.
-    # A pre-G0 review may be source-backed yet tied to another goalie branch
-    # or an unscoped rival cohort. The old conditional only retried when the
-    # receipt was absent, silently reusing an outdated contradictory review.
+    # Request selected-direction G17 for EVERY upcoming G0-selected game.
+    # The reviewer preserves authoritative independent receipts while
+    # recalculating derived goalie/rival reviews against the actual G0 branch.
+    # Pre-G0 source observations must not govern post-G0 contradiction checks.
     # The reviewer records a NEW immutable source receipt; it never copies a
     # PASS from G0, and unresolved contradictions still fail G17.
     eligible_g17_directions={
@@ -2938,11 +2938,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         for g in games if str(g['id']) in selected_directions and
         g.get('gameState') not in ('LIVE','CRIT','OFF','FINAL') and
         (not g.get('startUTC') or
-         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now) and
-        any(not receipt(p.get('contradictions')) or
-            (evidence_data(p.get('contradictions')) or {}).get('sourceType') ==
-                'DERIVED_CROSS_SOURCE_G17'
-            for p in complete_roster(g,selected_directions[str(g['id'])]['attacker']))
+         datetime.fromisoformat(g['startUTC'].replace('Z','+00:00'))>now)
     }
     if eligible_g17_directions:
         from .contradiction_review import review_all_candidates
