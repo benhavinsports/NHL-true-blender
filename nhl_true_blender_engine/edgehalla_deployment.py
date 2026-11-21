@@ -11,6 +11,7 @@ Missing/ambiguous metadata stays unverified, never a synthetic assignment.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import re
 import json
 from datetime import date as Date, datetime, timezone
@@ -249,17 +250,25 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
             roster = wrapper.get("data", {}).get("players") or []
             assignments = parsed_assignments(html, roster)
             for pid, values in assignments.items():
+                payload={**values, "status": "PROJECTED",
+                         "sourceType": "EDGEHALLA_NEXT_GAME_PROJECTION",
+                         "sourceGameState": "PRIOR_FINAL_SHIFT_BASED",
+                         "projectionUpdate": freshness,
+                         "confirmedLineOrPP": False}
+                # The page is refreshed in place. Hash the complete source
+                # observation so changed EV/PP assignments append a new
+                # immutable receipt rather than reusing the previous ID.
+                digest=hashlib.sha256(json.dumps(
+                    {"sourceUrl":url,"payload":payload},
+                    sort_keys=True,separators=(",",":")).encode("utf-8")
+                    ).hexdigest()[:20]
                 ingest(con, {
-                    "evidence_id": f"edgehalla-{slate_date}-{stage}-{game['id']}-{pid}",
+                    "evidence_id": f"edgehalla-{slate_date}-{stage}-{game['id']}-{pid}-{digest}",
                     "slate_date": slate_date, "stage": stage,
                     "game_id": str(game["id"]), "player_id": pid,
                     "kind": "PLAYER_DEPLOYMENT", "source_url": url,
                     "observed_at": observed,
-                    "payload": {**values, "status": "PROJECTED",
-                                "sourceType": "EDGEHALLA_NEXT_GAME_PROJECTION",
-                                "sourceGameState": "PRIOR_FINAL_SHIFT_BASED",
-                                "projectionUpdate": freshness,
-                                "confirmedLineOrPP": False}
+                    "payload": payload
                 })
                 inserted += 1
             diagnostics.append({"gameId":str(game["id"]), "team":team,
