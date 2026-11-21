@@ -1,9 +1,10 @@
 """Opponent defensive shot-origin concessions from actual NHL play-by-play.
 
-Uses 8 pre-slate historical team games, actual shot ownership and official rink
-coordinates. Zones are conservative PROXY bins, not the NHL EDGE exact zone
-polygons or goal-mouth placement. A goalie's low save% cannot masquerade as
-independent TEAM COVERAGE; this adapter uses distinct defensive-game receipts.
+Uses the complete available pre-slate current-season team-game pool, actual
+shot ownership and official rink coordinates. Zones are conservative PROXY
+bins, not NHL EDGE exact polygons or goal-mouth placement. A goalie's low save%
+cannot masquerade as independent TEAM COVERAGE; this adapter uses distinct
+defensive-game receipts and per-game peer comparisons.
 """
 from __future__ import annotations
 from collections import defaultdict
