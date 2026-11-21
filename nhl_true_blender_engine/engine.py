@@ -202,8 +202,9 @@ def all_goalie_branches(game, stage):
                 # if official NHL.com sources themselves disagree, retain
                 # every official branch rather than inventing a tiebreak.
                 official_projected=[b for b in branches
-                    if b['data'].get('starterSourceStatus')==
-                       'NHL_OFFICIAL_PROJECTED_LINEUP'
+                    if (b['data'].get('starterSourceStatus')==
+                        'NHL_OFFICIAL_PROJECTED_LINEUP'
+                        or bool(b['data'].get('officialProjectedLineupSourceUrls')))
                     and b['data'].get('projectedPreferred') is True
                     and (not b['data'].get('publishedAsOfSlateDate')
                          or b['data'].get('publishedAsOfSlateDate')==game.get('date'))]
@@ -310,6 +311,7 @@ def g0_full_slate(games, stage):
                        'goalieTeam':defender,
                        'sameGoalieIdentitySourceUrls':x.get('sameGoalieIdentitySourceUrls',[]),
                        'projectedBranchConflicts':x.get('projectedBranchConflicts',[]),
+                       'officialProjectedLineupSourceUrls':x.get('officialProjectedLineupSourceUrls',[]),
                        'projectionAuthorityDecision':x.get('projectionAuthorityDecision')}
                 proofs.append(proof)
             complete=bool(proofs) and all(p['profileReviewed'] and bool(p['sample'])
