@@ -15,11 +15,18 @@ from .storage import game_started
 # rebuilds the pregame research set from the persisted gate ledger and performs
 # another full collection; scheduled cycles continue until each game's original
 # puck-drop freeze. Every cycle can persist and publish its checkpoint.
+def _game_started_if_timed(game,now):
+    if game.get('gameState') in ('LIVE','CRIT','OFF','FINAL','GAME_OVER'):
+        return True
+    start=game.get('startUTC') or game.get('startTimeUTC')
+    return bool(start and game_started({**game,'startUTC':start},now))
+
+
 def pregame_only_snapshot(snapshot, now=None):
     """Keep all later live collectors on games that have not reached puck drop."""
     now=now or datetime.now(timezone.utc)
     return {**snapshot,'games':[game for game in snapshot.get('games',[])
-                               if not game_started(game,now)]}
+                               if not _game_started_if_timed(game,now)]}
 
 
 def recovery_snapshot(con, snapshot, date, stage, result, now=None):
@@ -60,5 +67,5 @@ def recovery_snapshot(con, snapshot, date, stage, result, now=None):
 
     games = [game for game in snapshot.get('games', [])
              if str(game['id']) in still_need_sources and
-             not game_started(game, now)]
+             not _game_started_if_timed(game, now)]
     return {**snapshot, 'games': games}

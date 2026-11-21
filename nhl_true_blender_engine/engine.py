@@ -12,6 +12,18 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint, game_started, stamp
+
+_STARTED_STATES={'LIVE','CRIT','OFF','FINAL','GAME_OVER'}
+def _is_game_started(game,now):
+    if game.get('gameState') in _STARTED_STATES:
+        return True
+    start=game.get('startUTC') or game.get('startTimeUTC')
+    if not start:
+        # Legacy/historical snapshots without a scheduled timestamp are not
+        # proof that a game started; live NHL schedule rows always have one.
+        return False
+    return game_started({**game,'startUTC':start},now)
+
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .rival_scope import g17_resolved_without_eliminated_rivals
 from .semantic_certification import nonblocking_overlay_review
@@ -283,7 +295,7 @@ def g0_full_slate(games, stage, now=None):
     now=now or datetime.now(timezone.utc)
     scan=[]; error=[]
     for game in games:
-        if game_started(game,now):
+        if _is_game_started(game,now):
             continue  # Per-game puck-drop freeze: no new G0 research or audit.
         for attacker,defender in ((game['away'],game['home']), (game['home'],game['away'])):
             branches=all_goalie_branches(game,stage).get(defender,[])
@@ -3035,7 +3047,7 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 'gameSurvivorPool':[]}
     prior_card=get_card(con,date)
     frozen_games=sorted(str(l['gameId']) for l in (prior_card or {}).get('current_legs',[])
-                        if game_started(l,now))
+                        if _is_game_started(l,now))
     scan,g0_direction_notes=g0_full_slate(games,stage,now=now)
     # Unselected opposing directions are audited, not fatal to the G0-selected side.
     errors=[]
@@ -3056,6 +3068,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     # market, arbitrary weights, or alphabetic tiebreaks.
     selected_directions={}
     for match in games:
+        if _is_game_started(match,now):
+            continue
         options=[x for x in scan if x['gameId']==str(match['id'])]
         # HARD G0 DEPENDENCY: both source-backed starter profiles must be
         # observed, even when one is independently measured as stronger/no

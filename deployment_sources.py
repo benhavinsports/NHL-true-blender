@@ -360,8 +360,8 @@ def fetch_dailyfaceoff(team, team_name=None, slate_date=None):
         parser.feed(html)
         page_text=" ".join(parser.page_text)
         stamp=re.search(
-            r"Last updated:\\s*(20\\d{2}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
-            r"(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2}))",page_text,re.I)
+            r"Last updated:\s*(20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
+            r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))",page_text,re.I)
         source_asof=None
         source_date=None
         if stamp:
@@ -405,8 +405,8 @@ def fetch_dailyfaceoff(team, team_name=None, slate_date=None):
         # expose JSON but not the visible section markup.
         if not rows:
             matches=re.findall(
-                r'"(?:fullName|playerName|name)"\\s*:\\s*"([^"]+)"[^{}]{0,300}?(?:'
-                r'"(?:line|lineNumber|ppUnit|powerPlayUnit)"\\s*:\\s*"?([1-4])"?)',
+                r'"(?:fullName|playerName|name)"\s*:\s*"([^"]+)"[^{}]{0,300}?(?:'
+                r'"(?:line|lineNumber|ppUnit|powerPlayUnit)"\s*:\s*"?([1-4])"?)',
                 html,re.I)
             for name,unit in matches:
                 near=html[max(0,html.find(name)-250):html.find(name)+350].lower()
