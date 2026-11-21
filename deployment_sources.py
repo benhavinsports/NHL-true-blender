@@ -125,49 +125,77 @@ def _date_in(obj):
 
 
 def _nhl_article_game_day_verified(text, slate_date, team_slug, opponent_slug):
-    """Verify the NHL article's exact scheduled matchup and intended day.
+    """Certify daily NHL.com publication and exact game under the game-day header.
 
-    A publication date alone is NOT the game date. The official daily article
-    must contain the exact opponent pair below the matching weekday header,
-    and its publication must be no more than two days before that date.
-    This remains a PROJECTED lineup, never a confirmed dressed roster.
+    The real NHL article has a *publication* date and often publishes tomorrow's
+    lineup today. Authenticate the official scheduled matchup AND its heading
+    weekday before mapping these line assignments to the upcoming game.
     """
     if not (slate_date and team_slug and opponent_slug):
         return False
     from datetime import date as Date, datetime as Datetime
+    from bs4 import BeautifulSoup
     try:
-        target = Date.fromisoformat(slate_date)
+        target=Date.fromisoformat(slate_date)
     except (TypeError, ValueError):
         return False
-    published = re.search(
-        r'\b(January|February|March|April|May|June|July|August|September|'
-        r'October|November|December)\s+(\d{1,2}),\s+(20\d{2})\b', text, re.I)
+    source=str(text or '')
+    soup=BeautifulSoup(source,'html.parser')
+    full=soup.get_text(' ',strip=True) if '<' in source else source
+    date_expr=(r'\b(January|February|March|April|May|June|July|August|September|'
+               r'October|November|December)\s+(\d{1,2}),\s*(20\d{2})\b')
+    # Pull the NHL.com byline first, not the last updated/newsroom date from a
+    # recommendation widget. If no byline is available, the first visible date
+    # is accepted only with independent exact day+matchup corroboration.
+    byline=re.search(r'\bBy\s+NHL\.com\b',full,re.I)
+    date_window=full[byline.end():byline.end()+350] if byline else full
+    published=re.search(date_expr,date_window,re.I)
     if published is None:
         return False
     try:
-        publication = Datetime.strptime(published.group(0), '%B %d, %Y').date()
+        publication=Datetime.strptime(published.group(0),'%B %d, %Y').date()
     except ValueError:
         return False
-    if not 0 <= (target - publication).days <= 2:
+    if not 0 <= (target-publication).days <= 2:
         return False
-    nickname = lambda slug: str(slug).replace('-', ' ').split()[-1].lower()
-    wanted = {nickname(team_slug), nickname(opponent_slug)}
-    days = r'MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY'
-    # Opponent identities must be stated in the actual projected matchup
-    # heading. A cross-game or yesterday's projection cannot supply G6.
-    matchup = re.finditer(
-        r'\b([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)\s+(?:at|vs\.?)\s+'
-        r'([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)', text, re.I)
-    for match in matchup:
-        pair = {match.group(1).split()[-1].lower(),
-                match.group(2).split()[-1].lower()}
-        if pair != wanted:
+    nickname=lambda slug: str(slug).replace('-',' ').split()[-1].lower()
+    wanted={nickname(team_slug),nickname(opponent_slug)}
+    days=r'MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY'
+    matchup_pattern=(r'\b([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)\s+'
+                    r'(?:at|vs\.?)\s+([A-Z][A-Z ]+?)\s*\(\d+-\d+-\d+\)')
+    target_weekday=target.strftime('%A').lower()
+
+    # Prefer actual HTML day and matchup HEADING boundaries. This prevents a
+    # headline or status paragraph from being mistaken for the game's lineup.
+    headings=soup.find_all(['h2','h3']) if '<' in source else []
+    most_recent_day=None
+    matchup_headings=0
+    for header in headings:
+        heading=header.get_text(' ',strip=True)
+        day_hit=re.fullmatch(r'\s*('+days+r')\s*',heading,re.I)
+        if day_hit:
+            most_recent_day=day_hit.group(1).lower()
             continue
-        # The flattened HTML can attach SATURDAY directly to the away team
-        # in the regex match. Include that captured prefix when validating
-        # the most recent weekday heading for this exact matchup.
-        headings = list(re.finditer(r'\b('+days+r')\b', text[:match.start()]+' '+match.group(1), re.I))
-        if headings and headings[-1].group(1).lower() == target.strftime('%A').lower():
+        for match in re.finditer(matchup_pattern,heading,re.I):
+            pair={match.group(1).split()[-1].lower(),
+                  match.group(2).split()[-1].lower()}
+            matchup_headings+=1
+            if pair==wanted:
+                return most_recent_day==target_weekday
+    if matchup_headings:
+        # Other games exist on the site, but not this verified day/fixture.
+        return False
+
+    # Strict fallback for plain-text fixtures: keep the original weekday,
+    # opposing-club, standings-record and source-publication requirements.
+    for match in re.finditer(matchup_pattern,full,re.I):
+        pair={match.group(1).split()[-1].lower(),
+              match.group(2).split()[-1].lower()}
+        if pair!=wanted:
+            continue
+        near=full[:match.start()]+' '+match.group(1)
+        weekdays=list(re.finditer(r'\b('+days+r')\b',near,re.I))
+        if weekdays and weekdays[-1].group(1).lower()==target_weekday:
             return True
     return False
 
@@ -224,7 +252,7 @@ def fetch_nhl_article(team, team_name=None, slate_date=None, opponent_slug=None)
                              'sourceTeam':team.upper()})
         if not rows:
             return [], {'source':None,'errors':['NHL.com team section found but no reliable forward-line rows parsed']}
-        date_ok=_nhl_article_game_day_verified(flat,slate_date,team_name,opponent_slug)
+        date_ok=_nhl_article_game_day_verified(html,slate_date,team_name,opponent_slug)
         return rows, {
             'source':'NHL.com projected lineup article',
             'url':NHL_LINEUP_URL,
