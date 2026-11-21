@@ -269,6 +269,7 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
     Conflicting line assignments remain unresolved and cannot pass G6.
     """
     import asyncio
+    import hashlib, json
     from datetime import datetime,timezone
     from deployment_sources import fetch_deployment
     from .enrichment import ingest
@@ -366,7 +367,9 @@ async def fetch_and_ingest_additional_deployment(con,snapshot,date,stage):
                          'powerPlayEvidence':pp_evidence}
                 if row.get('powerPlayUnit') is not None:
                     payload['PP']=row['powerPlayUnit']
-                ingest(con,{'evidence_id':f'multisource-{date}-{stage}-{game["id"]}-{player["id"]}-{observed}',
+                payload_json=json.dumps(payload,sort_keys=True,separators=(',',':'),default=str)
+                payload_digest=hashlib.sha256(payload_json.encode('utf-8')).hexdigest()[:16]
+                ingest(con,{'evidence_id':f'multisource-structured-{date}-{stage}-{game["id"]}-{player["id"]}-{observed}-{payload_digest}',
                     'slate_date':date,'stage':stage,'game_id':game['id'],
                     'player_id':player['id'],'kind':'PLAYER_DEPLOYMENT',
                     'source_url':url,'observed_at':observed,'payload':payload})

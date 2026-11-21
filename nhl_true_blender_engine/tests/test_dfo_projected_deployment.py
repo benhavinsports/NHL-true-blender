@@ -105,3 +105,37 @@ async def test_current_dfo_defense_pair_is_ingested_as_d_not_f(monkeypatch):
         assert payload["status"]=="PROJECTED"
     finally:
         con.close()
+
+
+@pytest.mark.asyncio
+async def test_same_player_distinct_deployment_receipts_do_not_collide(monkeypatch):
+    evidence_url="https://www.dailyfaceoff.com/teams/sjs/line-combinations"
+    def row(pair):
+        return {
+            "playerName":"Test Defense","line":None,"defensePair":pair,
+            "powerPlayUnit":None,"lineEvidence":[],
+            "defensePairEvidence":[{
+                "value":pair,"source":"Daily Faceoff page","sourceDate":DATE,
+                "dateVerified":True,"sourceAsOf":ASOF,"sourceUrl":evidence_url}],
+            "powerPlayEvidence":[],"conflicts":[]}
+    def fetch(team,*args,**kwargs):
+        return ([row(1),row(2)] if team=="SJS" else [],{"source":"Daily Faceoff page"})
+    monkeypatch.setattr(providers,"fetch_deployment",fetch)
+    snapshot={"games":[{
+        "id":"2026020372","away":"SJS","home":"SEA","startUTC":START,
+        "rosters":{
+            "SJS":{"data":{"players":[{"id":"123","name":"Test Defense","position":"D"}]}},
+            "SEA":{"data":{"players":[]}}
+        }
+    }]}
+    con=open_db(":memory:")
+    try:
+        report=await fetch_and_ingest_additional_deployment(con,snapshot,DATE,"PROJECTED")
+        stored=con.execute(
+            "SELECT evidence_id,payload FROM evidence WHERE kind='PLAYER_DEPLOYMENT'").fetchall()
+        assert report["deploymentRecords"]==2
+        assert len(stored)==2
+        assert {json.loads(x["payload"])["EV"] for x in stored}=={"D1","D2"}
+        assert len({x["evidence_id"] for x in stored})==2
+    finally:
+        con.close()
