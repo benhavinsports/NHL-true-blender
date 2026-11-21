@@ -130,56 +130,72 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # source-refresh trigger even when no skater can yet be evaluated.
         g0_missing=(result.get('g0Directions',0) != 2*len(snapshot.get('games',[]))
                     or result.get('g0Complete',0) < result.get('g0Directions',0))
-        retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
-        if retry_snapshot['games']:
-            feedback.append({
-                'pass':1,'unresolvedFirstGateCandidates':unresolved,
-                'g0SourceGapTriggeredRefresh':g0_missing,
-                'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
-                'unaffectedMatchupsNotRefetched':True,
-                'g0CompleteDirectionsBeforeRefresh':result.get('g0Complete',0),
-                'g0ScheduledDirections':2*len(snapshot.get('games',[])),
-                'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
-            async with _Client() as client:
-                refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
-                refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
-                await collect_context(client,con,retry_snapshot,date,stage)
-                await collect_edge(client,con,retry_snapshot,date,stage)
-                await collect_season_goal_history(client,con,retry_snapshot,date,stage)
-            await collect_secondary(con,retry_snapshot,date,stage)
-            await fetch_and_ingest_lineups(con,retry_snapshot,date,stage)
-            # Late source fixes must refresh BOTH deployment collectors before
-            # rerunning all original gates. The first pass already uses both.
-            await fetch_and_ingest_additional_deployment(con,retry_snapshot,date,stage)
-            await collect_edgehalla_deployment(con,retry_snapshot,date,stage)
-            # Refresh independent official projected starter identities too;
-            # otherwise the second pass compares new goalie history against
-            # stale starter identities and can regress the G0 attack branch.
-            await collect_nhl_projected_goalies(con,retry_snapshot,date,stage)
-            await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
-            await collect_dfo_goalies(con,retry_snapshot,date,stage)
-            async with _Client() as client:
-                await collect_official_dressed(client,con,retry_snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            derive_nhl_edge_attacks(con,snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            async with _Client() as client:
-                await collect_goalie_pbp_fallback(
-                    client,con,retry_snapshot,date,stage,
-                    league_peer_events=refreshed_peer_events)
-            attach(con,snapshot,date,stage)
-            # G0 source-origin review is an input to the selection engine,
-            # not merely a report. Recompute it after changing goalie evidence.
-            review_g0_goalie_origins(con,snapshot,date,stage)
-            review_all_candidates(con,snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            result=execute(con,snapshot,date,stage)
-            after=_census(con,date,stage,result.get('games'))
-            feedback.append({'pass':2,'unresolvedFirstGateCandidates':
-                after.get('firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0),
-                'resolvedCandidateCount':max(0,unresolved-after.get(
-                    'firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0)),
-                'noAutomaticPasses':True})
+        # Retry the ORIGINAL full gate pipeline after each targeted source refresh.
+        # This is a source-research budget, never a new gate or scorer veto.
+        # The scheduled workflow has a 28-minute limit; do not loop forever
+        # on a source that repeats the same incomplete response.
+        previous_recovery_signature = None
+        for recovery_round in range(1, 4):
+            retry_snapshot = recovery_snapshot(con,snapshot,date,stage,result)
+            recovery_signature = (
+                tuple(sorted(str(g['id']) for g in retry_snapshot['games'])),
+                result.get('g0Complete'),
+                result.get('eligibleSkaterRows'),
+                tuple(sorted((str(k),str(v)) for k,v in
+                    (result.get('missingByGate') or {}).items())),
+            )
+            if not retry_snapshot['games'] or recovery_signature == previous_recovery_signature:
+                break
+            previous_recovery_signature = recovery_signature
+            if retry_snapshot['games']:
+                feedback.append({
+                    'pass':recovery_round,'unresolvedFirstGateCandidates':unresolved,
+                    'g0SourceGapTriggeredRefresh':g0_missing,
+                    'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
+                    'unaffectedMatchupsNotRefetched':True,
+                    'g0CompleteDirectionsBeforeRefresh':result.get('g0Complete',0),
+                    'g0ScheduledDirections':2*len(snapshot.get('games',[])),
+                    'firstFailureExamples':initial_census.get('firstFailureExamples',[])})
+                async with _Client() as client:
+                    refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
+                    refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
+                    await collect_context(client,con,retry_snapshot,date,stage)
+                    await collect_edge(client,con,retry_snapshot,date,stage)
+                    await collect_season_goal_history(client,con,retry_snapshot,date,stage)
+                await collect_secondary(con,retry_snapshot,date,stage)
+                await fetch_and_ingest_lineups(con,retry_snapshot,date,stage)
+                # Late source fixes must refresh BOTH deployment collectors before
+                # rerunning all original gates. The first pass already uses both.
+                await fetch_and_ingest_additional_deployment(con,retry_snapshot,date,stage)
+                await collect_edgehalla_deployment(con,retry_snapshot,date,stage)
+                # Refresh independent official projected starter identities too;
+                # otherwise the second pass compares new goalie history against
+                # stale starter identities and can regress the G0 attack branch.
+                await collect_nhl_projected_goalies(con,retry_snapshot,date,stage)
+                await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
+                await collect_dfo_goalies(con,retry_snapshot,date,stage)
+                async with _Client() as client:
+                    await collect_official_dressed(client,con,retry_snapshot,date,stage)
+                attach(con,snapshot,date,stage)
+                derive_nhl_edge_attacks(con,snapshot,date,stage)
+                attach(con,snapshot,date,stage)
+                async with _Client() as client:
+                    await collect_goalie_pbp_fallback(
+                        client,con,retry_snapshot,date,stage,
+                        league_peer_events=refreshed_peer_events)
+                attach(con,snapshot,date,stage)
+                # G0 source-origin review is an input to the selection engine,
+                # not merely a report. Recompute it after changing goalie evidence.
+                review_g0_goalie_origins(con,snapshot,date,stage)
+                review_all_candidates(con,snapshot,date,stage)
+                attach(con,snapshot,date,stage)
+                result=execute(con,snapshot,date,stage)
+                after=_census(con,date,stage,result.get('games'))
+                feedback.append({'pass':recovery_round,'unresolvedFirstGateCandidates':
+                    after.get('firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0),
+                    'resolvedCandidateCount':max(0,unresolved-after.get(
+                        'firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0)),
+                    'noAutomaticPasses':True})
         result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
