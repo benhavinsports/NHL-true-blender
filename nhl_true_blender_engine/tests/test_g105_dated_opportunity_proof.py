@@ -120,3 +120,26 @@ def test_missing_recent_pbp_or_equal_rates_remain_unresolved():
     _set_recent_lane(challenger,[2,2],[0,0])
     proof=_run(candidate,challenger)
     assert proof["result"]=="UNSEPARATED"
+
+
+def test_complete_observed_zero_sample_does_not_protect_a_cold_rival():
+    candidate, challenger = _comparison()
+    _set_recent_lane(candidate, [3, 2])
+    _set_recent_lane(challenger, [0, 0])
+    proof = _run(candidate, challenger)
+    assert proof['result'] == 'CANDIDATE'
+    assert proof['bothHaveRecurringOwnShotPressure'] is False
+    assert proof['recurringOwnShotPressure'] == {'candidate': True, 'rival': False}
+    assert proof['selectedRecipientStillRequiresIndependentG11'] is True
+    # The comparison is symmetric; a cold candidate cannot gain a winner.
+    assert _run(challenger, candidate)['result'] == 'RIVAL'
+    # Missing coverage is not an observed zero and still cannot be compared.
+    challenger['recentOrigin']['data']['sampleCoverageComplete'] = False
+    assert _run(candidate, challenger) is None
+
+
+def test_zero_against_zero_is_not_a_recipient_separator():
+    candidate, challenger = _comparison()
+    _set_recent_lane(candidate, [0, 0])
+    _set_recent_lane(challenger, [0, 0])
+    assert _run(candidate, challenger)['result'] == 'UNSEPARATED'

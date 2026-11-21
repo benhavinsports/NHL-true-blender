@@ -682,6 +682,7 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
         return None
     sources=[]
     recent_routes=[]
+    recurring_pressure=[]
     for player in (candidate,rival):
         deployment=player.get('deployment')
         pressure=player.get('pressure')
@@ -691,13 +692,17 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
         if not (receipt(player.get('release')) and receipt(deployment) and
                 receipt(pressure) and isinstance(d.get('EV'),str) and d['EV']
                 and d.get('status') in ('CONFIRMED','PROJECTED') and
-                shot_review.get('datedAppearanceAlignmentVerified') is True and
-                shot_review.get('repeatedOwnShotPressure') is True):
+                shot_review.get('datedAppearanceAlignmentVerified') is True):
             return None
         route=independently_dated_origin_route(player,zone)
         if route is None or route.get('appearanceCount',0)<2:
             return None
         recent_routes.append(route)
+        # A complete observed zero/one-off sample is still comparison
+        # evidence. Requiring BOTH players to demonstrate recurring pressure
+        # made a cold rival protect itself from an otherwise sourced defeat.
+        # G11 independently requires recurrence for any eventual selection.
+        recurring_pressure.append(shot_review.get('repeatedOwnShotPressure') is True)
         sources.extend([deployment['sourceUrl'],pressure['sourceUrl'],
                         player['recentOrigin']['sourceUrl']])
     candidate_recent,rival_recent=recent_routes
@@ -733,7 +738,10 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
     return {'result':result,
             'sourceScope':'TONIGHT_G0_G9_SAME_LANE_PLUS_RECENT_DATED_PBP',
             'sameLaneRecentShotComparison':comparison,
-            'bothHaveRecurringOwnShotPressure':True,
+            'bothHaveRecurringOwnShotPressure':all(recurring_pressure),
+            'recurringOwnShotPressure':{
+                'candidate':recurring_pressure[0],'rival':recurring_pressure[1]},
+            'selectedRecipientStillRequiresIndependentG11':True,
             'bothHaveSourcedTonightEVDeployment':True,
             'seasonEdgeCumulativeShotsNotUsed':True,
             'seasonOrRecentOwnedGoalsNeverCompared':True,
