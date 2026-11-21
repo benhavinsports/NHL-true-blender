@@ -95,7 +95,7 @@ def certified_zero_on_net_route(season):
 
 async def collect_season_goal_history(client,con,snapshot,date,stage,concurrency=6):
     """Research every roster skater, not only favorite scorers or G0 survivors."""
-    if date!=datetime.now(ET).date().isoformat():
+    if date<datetime.now(ET).date().isoformat():
         return {"status":"NOT_LIVE_AS_OF_SLATE_DATE","sourcedSkaters":0,
                 "avoidsFutureStatLeakage":True}
     start=int(date[:4]) if int(date[5:7])>=9 else int(date[:4])-1
@@ -146,3 +146,4 @@ async def collect_season_goal_history(client,con,snapshot,date,stage,concurrency
             "unavailable":len(errors),"examples":errors[:20],
             "season":season,"scope":SOURCE_TYPE,
             "avoidsFutureStatLeakage":True,"noGoalEventsInvented":True}
+

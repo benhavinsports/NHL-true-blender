@@ -67,12 +67,17 @@ def parse_edge(payload,kind,pid):
 async def collect_edge(client,con,snapshot,date,stage,concurrency=6):
     """Analyze ALL current roster identities, including depth and D; never pick stars first.
 
-    For historical replay, only fetch if the slate date is TODAY in Eastern time.
-    NHL EDGE current-season stats would otherwise leak games after the backtest.
+    Current observations may support today or a future pregame slate in this
+    season. Only a past slate would leak later games into a backtest.
     """
     today=datetime.now(ET).date().isoformat()
-    if date!=today:
+    if date<today:
         return {"status":"NO_HISTORICAL_EDGE_SNAPSHOT_AS_OF","slateDate":date,
+                "scope":FAMILY,"anatomicalClaimCertified":False}
+    def season_start(day):
+        return int(day[:4])-(int(day[5:7])<9)
+    if season_start(date)!=season_start(today):
+        return {"status":"NO_EDGE_SNAPSHOT_FOR_REQUESTED_SEASON","slateDate":date,
                 "scope":FAMILY,"anatomicalClaimCertified":False}
     jobs={}
     for g in snapshot.get("games",[]):
@@ -90,6 +95,8 @@ async def collect_edge(client,con,snapshot,date,stage,concurrency=6):
             try:
                 payload=await client.get(f"edge/{kind}-shot-location-detail/{pid}/now")
                 proof=parse_edge(payload,kind,pid)
+                proof.update({"slateDate":date,"statisticsObservedDateET":today,
+                              "futureSlateUsesOnlyCurrentlyObservedStatistics":date>today})
                 return (kind,pid,payload,proof,None)
             except Exception as exc:
                 return (kind,pid,None,None,f"{type(exc).__name__}: {exc}")
@@ -170,3 +177,4 @@ def review_g0_goalie_origins(con,snapshot,date,stage):
                        "directions":directions,"anatomicalWeaknessCertified":False,
                        "status":"RINK_SHOT_ORIGIN_RESEARCH_ONLY"})
     return output
+

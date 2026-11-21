@@ -1,9 +1,44 @@
 """Independent official full-season goal evidence; synthetic test inputs only."""
 import json
+from datetime import datetime,timedelta
+from zoneinfo import ZoneInfo
+import pytest
 from nhl_true_blender_engine.season_goal_history import decode_dated_goals,certified_zero_on_net_route
 from nhl_true_blender_engine.tests.test_engine import snapshot,DATE,evidence
 from nhl_true_blender_engine.engine import execute
 from nhl_true_blender_engine.storage import open_db
+from nhl_true_blender_engine.season_goal_history import collect_season_goal_history
+
+@pytest.mark.asyncio
+async def test_future_slate_collects_current_observed_dated_goals_without_target_day_leakage(tmp_path):
+    today=datetime.now(ZoneInfo('America/New_York')).date()
+    tomorrow=(today+timedelta(days=1)).isoformat()
+    class Stub:
+        calls=[]
+        async def game_log(self,pid,season):
+            self.calls.append((pid,season))
+            return {'url':f'https://api-web.nhle.com/v1/player/{pid}/game-log/{season}/2',
+                'observedAt':datetime.now(ZoneInfo('UTC')).isoformat(),
+                'data':{'gameLog':[
+                    {'gameId':'1','gameDate':today.isoformat(),'goals':1,'shots':2},
+                    {'gameId':'2','gameDate':tomorrow,'goals':9,'shots':9}]}}
+    con=open_db(str(tmp_path/'future.sqlite'))
+    try:
+        s={'games':[{'id':'3','away':'ANA','home':'CGY','rosters':{
+            'ANA':{'data':{'players':[{'id':'99'}]}},'CGY':{'data':{'players':[]}}}}]}
+        stub=Stub()
+        result=await collect_season_goal_history(stub,con,s,tomorrow,'PROJECTED')
+        assert result['sourcedSkaters']==1
+        proof=json.loads(con.execute("SELECT payload FROM evidence WHERE kind='PLAYER_SEASON_HISTORY'").fetchone()['payload'])
+        assert proof['officialPastSeasonGoals']==1
+        assert [g['gameId'] for g in proof['datedGames']]==['1']
+        assert len(stub.calls)==1
+        previous=(today-timedelta(days=1)).isoformat()
+        blocked=await collect_season_goal_history(stub,con,s,previous,'PROJECTED')
+        assert blocked['sourcedSkaters']==0
+        assert len(stub.calls)==1
+    finally:
+        con.close()
 
 def test_dated_official_season_goals_exclude_same_day_and_future():
     data={"gameLog":[
@@ -112,3 +147,4 @@ def test_official_season_with_any_sog_is_not_zero_route_evidence():
         {"gameId":2026020144,"gameDate":"2026-11-08","goals":0,"shots":0}
     ]},9999,"2026-11-16")
     assert certified_zero_on_net_route(season) is None
+

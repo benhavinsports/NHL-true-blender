@@ -1,5 +1,5 @@
 """Regression: real NHL EDGE has rink shot origins, not anatomical net impact."""
-from datetime import datetime
+from datetime import datetime,timedelta
 from zoneinfo import ZoneInfo
 import pytest
 from nhl_true_blender_engine.storage import open_db
@@ -69,3 +69,37 @@ async def test_historical_runs_do_not_leak_current_season_goals_into_backtest(tm
     assert output["status"]=="NO_HISTORICAL_EDGE_SNAPSHOT_AS_OF"
     assert con.execute("SELECT COUNT(*) FROM evidence").fetchone()[0]==0
     con.close()
+
+@pytest.mark.asyncio
+async def test_future_pregame_slate_does_not_get_misclassified_as_historical(tmp_path):
+    class Stub:
+        calls=[]
+        async def get(self,route):
+            kind='goalie' if 'goalie-' in route else 'skater'
+            pid=route.split('/')[-2]
+            self.calls.append(route)
+            return wrapped(kind,pid)
+    today=datetime.now(ZoneInfo('America/New_York')).date()
+    tomorrow=(today+timedelta(days=1)).isoformat()
+    # Keep this test within the same observed hockey season at the boundary.
+    if today.month==8 and today.day==31:
+        pytest.skip('Next season has no current-season EDGE snapshot')
+    con=open_db(str(tmp_path/'future.sqlite'))
+    try:
+        game={'id':'10','away':'ANA','home':'CGY','rosters':{
+            'ANA':{'data':{'players':[{'id':'99'}],'goalies':[{'id':'88'}]}},
+            'CGY':{'data':{'players':[],'goalies':[]}}}}
+        stub=Stub()
+        result=await collect_edge(stub,con,{'games':[game]},tomorrow,'PROJECTED')
+        assert result['skaterRinkProfiles']==1
+        assert result['goalieRinkProfiles']==1
+        assert len(stub.calls)==2
+        import json
+        row=con.execute("SELECT payload FROM evidence WHERE player_id='99'").fetchone()
+        proof=json.loads(row['payload'])
+        assert proof['futureSlateUsesOnlyCurrentlyObservedStatistics'] is True
+        assert proof['statisticsObservedDateET']==today.isoformat()
+        assert proof['slateDate']==tomorrow
+    finally:
+        con.close()
+

@@ -5,6 +5,13 @@ DATA SOURCE AND APPLICATION REPAIR PROMPT**, compared with the saved
 `NHL_Blender_Phase1_Restored_Master.md` and repository main
 `9bb229160880e517cb4a545b8278703ef96db047`.
 
+The canonical `NHL_Blender_Automated_Run_State.json` version 46 was also read
+directly. Its SHA-256 is
+`e2ba48dd46607d3be052af1ef5214c38c45433a56cd7737bee0ccc1a642d8238`.
+Its `cross_chat_calibration.scope` explicitly forbids new gates, weights,
+thresholds, formulas and name preferences. Its Nov12 overlay explicitly calls
+Step7 archetype tagging and treats absent Step8 shift detail as uncertainty.
+
 This is a comparison of actual code, not a declaration that a live Core was
 issued. The supplied complete prompt takes precedence over older repair
 summaries. Historical replay is a separate point-in-time verification path;
@@ -21,6 +28,7 @@ collector and original scorer pipeline.
 | TRANSFER classification | A change away from the player's usual origin could establish TRANSFER without a displaced competing recipient. | Lane adaptation alone does not establish recipient transfer. A verified direct recipient remains PRIMARY unless the actual separation supports TRANSFER or WHO. Defeated competing-recipient evidence is still retained and required for a transfer. This aligns the current supplied definition rather than the older Nov17 lane-change labeling rule. |
 | G1 / Step2 schedule and travel research | Only last date, rest count and home designation were retained; actual venue and the recent venue sequence were dropped. | Official venue, game time, previous start, recent completed-game sequence, back-to-back status and scheduled venue transition are preserved in G1 and Step2. A scheduled transition is not called an observed flight, distance, travel duration or fatigue. |
 | Source-failure recovery | A source-incomplete candidate could cause every unrelated game's collectors to run again. | Retry collection is scoped to still-incomplete pregame games. Valid evidence from unaffected games is retained. Actual original-gate eliminations are not reopened. The full original selection still executes against the refreshed whole slate; a shared league comparison cohort is still collected where needed. |
+| Upcoming-slate official statistics | `collect_edge` and `collect_season_goal_history` rejected every date other than today, so tomorrow's live pregame collection was incorrectly classified as historical. | Past slates still reject current statistics. An upcoming slate can use currently observed, source-timestamped statistics. EDGE additionally prevents mixing the current season with an unobserved future season. Target-day results remain excluded from dated goal history. |
 | Live validation dispatch | Ordinary code pushes intentionally run tests only; the current connector does not expose workflow dispatch. | An explicit date/phase-only `.github/nhl-live-validation.json` change triggers the existing serialized production workflow. There is no new selector, parallel Core writer, player input or gate override. Ordinary code pushes keep their existing behavior. |
 
 ## Master gate coverage
@@ -119,3 +127,23 @@ player because of these changes.
 The production verification and live run links, source receipts, exact failure
 paths and any actual saved Core are the completion evidence. A passing test
 suite alone is not that completion evidence.
+
+## First real upcoming-slate execution
+
+Repair commit: `00ceb83ce009a328f174e447862ab1da3fd3d2e6`.
+GitHub verification run `44853261360` passed 519 Python tests; frontend tests
+also passed. Deployment run `44853261398` succeeded.
+
+Production execution `44853261426` processed the Nov21 projected slate:
+14 games, 28 goalie directions, 27 complete goalie profiles, 387 official
+skaters surveyed and 7,788 recorded gate rows including branch research.
+It saved **no Core** and correctly failed final issuance certification.
+The dated main lineup feed did not establish Nov21 deployment. The actual
+source report identified the EDGE historical-date guard above, which prevented
+every skater release from being populated. That live failure directly motivated
+the follow-up guard correction; source access was not falsely blamed.
+
+The saved diagnostics are `state/site_runs/2026-11-21.json`. Their row counts
+are execution coverage, not source-backed gate passes. No candidate names in
+those diagnostics are promoted to manual picks. The follow-up uses request ID
+`master-repair-future-slate-source-guard-2` through the same canonical writer.
