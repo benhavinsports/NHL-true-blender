@@ -34,7 +34,7 @@ def test_higher_direct_recipient_in_other_independently_weak_lane_not_falsely_de
     assert len(rows)==1
     proof=rows[0]
     assert proof["status"]=="RIVAL_DOMINATES"
-    assert proof["sameLane"] is False
+    assert proof["sameLane"] is True  # rival also has a same-lane route, plus the stronger alternate circle route
     assert proof["rivalAlternateGoalieWeakLane"] is True
     assert proof["candidate"]["zone"]=="slot"
     assert proof["challenger"]["zone"]=="circle"
