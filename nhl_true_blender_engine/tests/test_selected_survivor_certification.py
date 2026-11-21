@@ -39,9 +39,9 @@ def test_three_certified_survivors_can_publish_while_other_players_fail(tmp_path
     assert funnel["surveyedEligibleSkaters"]==9
     assert funnel["lockedCoreRecipients"]==3
     assert sum(v for k,v in funnel.items() if k in
-          ("sourceEliminated","notQualifiedIncompleteEvidence",
+          ("sourceEliminated","sourceSearchRequired",
            "qualifiedButNotChosen","otherNotSelected","lockedCoreRecipients"))==9
-    assert funnel["sourceEliminated"]+funnel["notQualifiedIncompleteEvidence"]>=3
+    assert funnel["sourceEliminated"]+funnel["sourceSearchRequired"]>=3
     assert audit["nonselectedCandidateFailuresAreNotCertificationErrors"] is True
     assert any(audit["masterGateDispositions"][g].get("ELIMINATED",0)>0
         or audit["masterGateDispositions"][g].get("NOT_EXECUTED",0)>0
