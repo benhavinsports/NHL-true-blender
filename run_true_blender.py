@@ -259,6 +259,41 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             'skaterRinkProfiles','totalFailed','anatomicalClaimCertified')}
         result['lineupSourceCoverage']={k:source_research.get('parsedLineups',{}).get(k)
             for k in ('status','deploymentRecords','goalieReports','error')}
+        # Every G6 source collector must publish its actual parsing/freshness
+        # outcome. Previously the site showed only the stale primary markdown
+        # failure, hiding NHL.com, structured alternatives and Edgehalla.
+        # This is a source-coverage audit, NEVER a selection or gate override.
+        structured=source_research.get('additionalStructuredDeployment') or {}
+        result['additionalStructuredDeploymentCoverage']={
+            'deploymentRecords':structured.get('deploymentRecords',0),
+            'unmatchedCount':len(structured.get('unmatched') or []),
+            'skippedCount':len(structured.get('skipped') or []),
+            'teamReports':{
+                team:{
+                    'status':report.get('status'),
+                    'conflictCount':report.get('conflictCount'),
+                    'lineEvidenceFound':report.get('lineEvidenceFound'),
+                    'powerPlayEvidenceFound':report.get('powerPlayEvidenceFound'),
+                    'sources':[{
+                        'provider':entry.get('source') or entry.get('provider'),
+                        'url':entry.get('url'),
+                        'sourceDate':entry.get('sourceDate'),
+                        'dateVerified':entry.get('dateVerified'),
+                        'errors':(entry.get('errors') or [])[:2],
+                        'result':entry.get('result'),
+                    } for entry in (report.get('attempts') or [])[:7]],
+                    'error':report.get('error'),
+                } for team,report in (structured.get('sources') or {}).items()
+            },
+            'noUndatedRolePromoted':True,
+        }
+        edge_deployment=source_research.get('datedEdgehallaProjection') or {}
+        result['datedEdgehallaProjectionCoverage']={
+            'status':edge_deployment.get('status'),
+            'deploymentRecords':edge_deployment.get('deploymentRecords',0),
+            'teams':edge_deployment.get('teams',[]),
+            'neverConfirmed':edge_deployment.get('neverConfirmed',True),
+        }
         result['datedGoalieSourceCoverage']=source_research.get(
             'datedGoalieProjections',{})
         # Persist parser/source diagnostics so G0 cannot silently remain
