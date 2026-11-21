@@ -36,7 +36,8 @@ import httpx
 from datetime import timezone
 from nhl_true_blender_engine.engine import execute, MASTER, OVERLAY
 from nhl_true_blender_engine.storage import open_db
-from nhl_true_blender_engine.source_recovery import recovery_snapshot
+from nhl_true_blender_engine.source_recovery import (
+    recovery_snapshot, RECOVERY_REFRESHES_PER_WORKFLOW_CYCLE)
 
 async def run(date, stage, state_dir="state", output_dir="runs"):
     state = Path(state_dir)
@@ -121,12 +122,14 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # The only per-game end condition is the original puck-drop freeze.
         feedback=[]
         from nhl_true_blender_engine.gate_census import certify_gates as _census
-        recovery_round=0
-        while True:
+        # One full recovery refresh is a workflow-cycle checkpoint, not a
+        # gate/source-search limit. The completed SQLite ledger is persisted
+        # below; the next 30-minute scheduled cycle reloads it, recollects all
+        # sources and re-executes the original gates for every still-pregame game.
+        for recovery_round in range(1, RECOVERY_REFRESHES_PER_WORKFLOW_CYCLE + 1):
             retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
             if not retry_snapshot['games']:
                 break
-            recovery_round+=1
             affected_game_ids=[str(g['id']) for g in retry_snapshot['games']]
             async with _Client() as client:
                 refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
@@ -142,7 +145,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
             await collect_dfo_goalies(con,retry_snapshot,date,stage)
             async with _Client() as client:
-                await collect_official_dressed(client,con,retry_snapshot,date,stage)
+                await collect_official_dressed(client,retry_snapshot,date,stage)
             attach(con,snapshot,date,stage)
             derive_nhl_edge_attacks(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
@@ -156,16 +159,17 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             result=execute(con,snapshot,date,stage)
             contradiction_research=result.get('g17ReviewSummary')
             after=_census(con,date,stage,result.get('games'))
+            remaining=recovery_snapshot(con,snapshot,date,stage,result)
             feedback.append({
                 'pass':recovery_round,
                 'affectedGameIds':affected_game_ids,
                 'firstNonpassingGateDispositionCountsAfterRefresh':
                     after.get('firstNonpassingGateDispositionCounts',{}),
+                'remainingPregameGameIdsAfterRefresh':[
+                    str(g['id']) for g in remaining['games']],
                 'noAutomaticPasses':True
             })
-            # Poll again after a short refresh interval so providers can publish
-            # new observations. This is a pause between searches, never an exit.
-            await asyncio.sleep(60)
+
         result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))

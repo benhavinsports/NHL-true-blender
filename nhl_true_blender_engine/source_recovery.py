@@ -11,6 +11,13 @@ from .engine import MASTER
 from .storage import game_started
 
 
+# This is an operational persistence boundary, not a limit on source discovery
+# or any original gate. Each workflow cycle runs a full source refresh and one
+# complete recovery refresh, saves the SQLite evidence, and the next scheduled
+# cycle reloads that ledger and searches again until per-game puck drop.
+RECOVERY_REFRESHES_PER_WORKFLOW_CYCLE = 1
+
+
 def recovery_snapshot(con, snapshot, date, stage, result, now=None):
     now = now or datetime.now(timezone.utc)
     selected = result.get('g0TwoGoalieDirectionDecisions') or {}
