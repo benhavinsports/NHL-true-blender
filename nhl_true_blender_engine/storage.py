@@ -305,7 +305,10 @@ def _validate_replacement(con, existing, new_legs, audit, now):
         raise ValueError('G18 prior player failure gate missing')
     if not audit['priorSurvivorFailure'].get('sourceIds'):
         raise ValueError('G18 prior player failed without sourced proof')
-    if not audit['g105EveryChallenger'].get('comparisonRows'):
+    g105=audit['g105EveryChallenger']
+    if (not g105.get('comparisonRows') and not (
+            g105.get('allAlternativesScanned') is True and
+            g105.get('priorIncumbentEliminatedBeforeG10_5') is True)):
         raise ValueError('G18 missing G10.5 direct-route challenger proof')
     if not audit['g17Contradictions'].get('sourceIds'):
         raise ValueError('G18 G17 contradicting evidence not sourced')
