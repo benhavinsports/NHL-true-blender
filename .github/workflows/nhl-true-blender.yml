@@ -13,7 +13,7 @@ on:
   # changes previously kept the authoritative ledger in never-ending
   # fetch/replay/rebase loops, and queued newer pushes cancelled each other.
   # Code/test pushes still use blender-verification.yml. The scheduled run
-  # uses the latest verified main revision and publishes the saved results.
+  # uses the latest main revision and publishes the saved results.
   workflow_dispatch:
     inputs:
       date:
@@ -54,7 +54,7 @@ jobs:
       - name: Refresh authoritative state from latest main
         # A serialized workflow may be queued behind a run that commits newer
         # card/history state after this push event's checkout SHA was created.
-        # Keep the engine code pinned to the tested event SHA, but always load
+        # Keep the engine code pinned to the workflow event SHA, but always load
         # the newest authoritative state before opening SQLite.
         run: |
           set -euo pipefail
@@ -64,40 +64,17 @@ jobs:
         # On the first run, use the still-tracked raw database and migrate it.
         # Subsequent runs restore the same card/grade history from gzip.
         run: python scripts/ledger_persistence.py restore
-      - name: Install original engine and integration dependencies
+      - name: Install original engine dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+          pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt
       - name: Download current MoneyPuck season aggregates
         continue-on-error: true
         run: python scripts/download_moneypuck.py
-      - name: Complete legacy and integrated G0-G18 verification
-        id: verification
-        run: |
-          set -euo pipefail
-          python -m compileall -q run_true_blender.py nhl_true_blender_engine scripts
-          python -m unittest discover -p 'test*.py' -v
-          python -m pytest -q nhl_true_blender_engine/tests
       - name: Probe live source schemas without claiming passes
         continue-on-error: true
         run: python -m scripts.diagnose_live_pipeline
-      - name: Retract invalid historical Nov 17 G18 ranking before new selection
-        if: steps.verification.outcome == 'success'
-        run: |
-          # Explicit user-authorized, exact-fingerprint one-time retraction.
-          # Preserve original cards/versions/gate history in card_retractions.
-          # There is NO player substitution or manual Core in this operation.
-          python -m scripts.retract_invalid_core
-          # Archive the rejected card in SQLite before any candidate can
-          # advance. The original fingerprint may never become an automatic
-          # default or be silently recycled as a "new" G18 selection.
-          # The full subsequent execution uses the current master/overlay
-          # evidence rules, including newly repaired G7/G11/G17 source checks.
-          # A new original-rules selection may legitimately have identical
-          # recipients; its actual first-issued timestamp must be newer than
-          # the archived invalid issuance, with a separately saved version.
       - name: Run scheduled autonomous Blender phase
-        if: steps.verification.outcome == 'success'
         id: engine
         env:
           REQUESTED_DATE: ${{ inputs.date }}
@@ -108,7 +85,7 @@ jobs:
           python -m scripts.automatic_blender_cycle
       - name: Persist original canonical G18 state and published site JSON
         id: persist
-        if: steps.verification.outcome == 'success' && steps.engine.outcome == 'success'
+        if: steps.engine.outcome == 'success'
         env:
           MONEYPUCK_CSV_DIR: data/moneypuck
         run: |
@@ -177,7 +154,7 @@ jobs:
       # made by GITHUB_TOKEN. Explicit workflow_dispatch is the supported way
       # to publish the refreshed verified run/card JSON to GitHub Pages.
       - name: Deploy refreshed Core and gate evidence to existing GitHub Pages
-        if: steps.verification.outcome == 'success' && steps.persist.outputs.published == 'true'
+        if: steps.persist.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -188,7 +165,6 @@ jobs:
         env:
           EXECUTED_MODE: ${{ env.BLENDER_EXECUTED_MODE }}
           EXECUTED_DATE: ${{ env.BLENDER_EXECUTED_DATE }}
-          VERIFIED_TEST_OUTCOME: ${{ steps.verification.outcome }}
           ENGINE_OUTCOME: ${{ steps.engine.outcome }}
           PERSIST_OUTCOME: ${{ steps.persist.outcome }}
           GRADE_RETRY_FAILURES: ${{ env.BLENDER_GRADE_RETRY_FAILURES }}
@@ -200,14 +176,11 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          test=os.environ.get('VERIFIED_TEST_OUTCOME')
           engine=os.environ.get('ENGINE_OUTCOME')
           persist=os.environ.get('PERSIST_OUTCOME')
           date=os.environ.get('EXECUTED_DATE')
           mode=os.environ.get('EXECUTED_MODE')
           problems=[]
-          if test!='success':
-              problems.append('End-to-end verification suite did not pass: '+str(test))
           if engine!='success':
               problems.append('Blender engine step did not complete: '+str(engine))
           if persist=='failure':
@@ -292,7 +265,7 @@ jobs:
               except Exception as exc:
                   problems.append('Full 36-gate published Core verification failed: '+str(exc))
           print('Scheduled Blender phase:',date,mode)
-          print('Verification:',test,'engine:',engine,'persist:',persist)
+          print('Engine:',engine,'persist:',persist)
           if problems:
               for problem in problems:
                   print('::error::'+problem)
@@ -310,7 +283,7 @@ jobs:
         if: always()
         run: |
           echo '## Blender execution status' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Verification: ${{ steps.verification.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Regression suite: separate CI; not a live-engine prerequisite' >> "$GITHUB_STEP_SUMMARY"
           echo 'Engine: ${{ steps.engine.outcome }}' >> "$GITHUB_STEP_SUMMARY"
           echo 'Certification assertion: ${{ steps.assert_certification.outcome }}' >> "$GITHUB_STEP_SUMMARY"
           echo 'A passing workflow MUST have a certified, saved Core when projected/confirmed.' >> "$GITHUB_STEP_SUMMARY"
