@@ -303,7 +303,7 @@ def fetch_dailyfaceoff(team, team_name=None):
         return [], {'source':None,'url':url,'errors':[f'Daily Faceoff page: {type(e).__name__}: {e}']}
 
 
-def fetch_web_search(team, team_name=None):
+def fetch_web_search(team, team_name=None, slate_date=None):
     """Search multiple public web indexes, then inspect discovered pages.
 
     Search titles/snippets are discovery only. Assignments are accepted only from
@@ -313,7 +313,7 @@ def fetch_web_search(team, team_name=None):
     from html import unescape
     import json as _json
     from urllib.parse import unquote
-    team_label = team_name or team
+    team_label = (team_name or TEAM_SLUGS.get(team.upper()) or team).replace('-', ' ')
     query = quote(f'"{team_label}" NHL projected line combinations power play PP1 PP2')
     providers = [
         ('DuckDuckGo HTML', f'https://html.duckduckgo.com/html/?q={query}', r'<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>(.*?)</a>'),
@@ -353,7 +353,20 @@ def fetch_web_search(team, team_name=None):
                 try: data=_json.loads(unescape(blob.strip()))
                 except Exception: continue
                 parsed=parse_lineup_json(data,team,'Web-search discovered page: '+title)
-                for row in parsed: row['sourcePath']=url+' :: '+row.get('sourcePath','structured data')
+                # A discovered page's own explicit lineup/game date belongs
+                # to its rows. Search-index retrieval dates are NOT lineup dates.
+                dates={str(rec.get(key))[:10]
+                       for _,rec in _strings(data)
+                       for key in ('slateDate','gameDate','lineupDate')
+                       if isinstance(rec.get(key),str)
+                       and re.match(r'^20\\d\\d-\\d\\d-\\d\\d(?:$|[T ])',rec[key])}
+                lineup_day=next(iter(dates)) if len(dates)==1 else None
+                for row in parsed:
+                    row['sourcePath']=url+' :: '+row.get('sourcePath','structured data')
+                    if lineup_day:
+                        row['sourceDate']=lineup_day
+                        row['dateVerified']=(lineup_day==slate_date
+                                             if slate_date else None)
                 page_rows.extend(parsed)
             rows.extend(page_rows); page_meta['parsedRows']=len(page_rows)
             page_meta['result']='explicit structured assignments found' if page_rows else 'page checked; no explicit structured line/PP assignments'
@@ -407,7 +420,7 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
     # Web search is discovery ONLY. The normal dated official-ID matching
     # still controls which evidence can pass G6; no undated source is promoted.
     if (not by_identity or missing_players or partial_players or not dated_source):
-        rows,meta=fetch_web_search(team,team_name)
+        rows,meta=fetch_web_search(team,team_name,slate_date=slate_date)
         attempts.append(meta)
         collected.extend(rows)
 
@@ -455,6 +468,11 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
             # Retrieval time is not the source's lineup/slate date. Preserve
             # each provider's own freshness, never another provider's date.
             freshness=source_dates.get((src,row.get('sourceUrl')), {})
+            if row.get('sourceDate'):
+                # Structured source date is tied to this exact discovered
+                # document, rather than the unrelated search index URL.
+                freshness={'sourceDate':row['sourceDate'],
+                           'dateVerified':row.get('dateVerified')}
             evidence={'value':value,'source':src,'sourcePath':row.get('sourcePath'),'retrievedAt':row.get('retrievedAt'),'sourceUrl':row.get('sourceUrl'),**freshness}
             if evidence not in item[evidence_key]: item[evidence_key].append(evidence)
 
@@ -490,10 +508,16 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
     incomplete_player_names=sorted(
         item['playerName'] for item in rows
         if item.get('line') is None or item.get('powerPlayUnit') is None)
+    dated_row=any(any(
+        str(e.get('sourceDate') or '')[:10]==str(slate_date)
+        and e.get('dateVerified') is True
+        for e in item.get(field, []))
+        for item in rows for field in ('lineEvidence','powerPlayEvidence'))
     continuing=bool(remaining_unmapped or incomplete_player_names or
-                    not any(str(a.get('sourceDate') or '')[:10]==str(slate_date)
-                            and a.get('dateVerified') is not False
-                            for a in attempts))
+                    not (dated_row or any(
+                        str(a.get('sourceDate') or '')[:10]==str(slate_date)
+                        and a.get('dateVerified') is not False
+                        for a in attempts)))
     return rows, {
         'status':status,
         'remainingOfficialRosterIdentityCount':len(remaining_unmapped),
