@@ -55,7 +55,12 @@ def expected_core_ids(run):
                 known_fingerprint!=proof.get('fingerprint') or
                 set(_ids(baseline))!=set(retained) or
                 len(_ids(baseline))!=len(retained) or
-                proof.get('everyIncumbentRepassedCurrentG0ThroughG17') is not True or
+                # G16 is resolved before G17. Do not demand a future
+                # G17 verdict in the earlier G16-only saved proof. The final
+                # survivor receipt is separately validated below and by the
+                # complete gate matrix, preserving real G17 certification.
+                proof.get('everyIncumbentRepassedCurrentG0ThroughG16') is not True or
+                proof.get('G17StillRequiresIndependentLaterVerdict') is not True or
                 proof.get('everyIncumbentRetainedByFullG16Comparison') is not True or
                 proof.get('newRecipientSelected') is not False or
                 proof.get('replacementAuthorized') is not False):
