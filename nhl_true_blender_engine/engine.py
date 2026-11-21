@@ -1002,100 +1002,91 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
     own=evidence_data(player.get('finishOwnership')) or {}
     goalie_data=evidence_data(goalie_profile) or {}
     cover=evidence_data(coverage) or {}
-    zone=(release or {}).get('zone')
-    all_gates=all(dispositions.get(g,{}).get('disposition')=='PASS'
-                  for g in ('G0','G3','G4','G5','G6','G7','G9',
-                            'G10','G10.5','G12','G15','G16','G17'))
-    # G15 has already separately certified either OWN scored goals in this
-    # target lane, or a fully reconciled OWN season-goal record AND observed
-    # own on-net shots from this exact goalie/defense-matched lane. G18 only
-    # assembles a proved route; it must not silently reintroduce the old
-    # exact-lane-scored-goal demand that was repaired at G15.
-    g15=dispositions.get('G15') or {}
-    finisher=(g15.get('details') or {})
-    lane_scored=bool(release and type(release.get('ownedGoals')) is int
-                     and release['ownedGoals']>0)
-    own_lanes_shot=bool(release and type(release.get('attempts')) is int
-                        and release['attempts']>0)
-    cross_origin_finisher=bool(
-        g15.get('disposition')=='PASS' and
-        finisher.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
-        finisher.get('matchedOriginHasHistoricalGoal') is False and
-        type(finisher.get('officialOwnedGoalsInMatchedOrigin')) is int and
-        finisher['officialOwnedGoalsInMatchedOrigin']==0 and
-        type(finisher.get('officialDatedSeasonGoals')) is int and
-        finisher['officialDatedSeasonGoals']>0 and
-        type(finisher.get('totalOwnedGoalsFromEveryNhlEdgeOrigin')) is int and
-        finisher['totalOwnedGoalsFromEveryNhlEdgeOrigin']==
-            finisher['officialDatedSeasonGoals'] and
-        type(finisher.get('matchedOriginOwnOnNetShots')) is int and
-        finisher['matchedOriginOwnOnNetShots']==(release or {}).get('attempts') and
-        finisher['matchedOriginOwnOnNetShots']>0 and
-        finisher.get('sameLaneGoalsNotInferredFromScoringElsewhere') is True and
-        finisher.get('directFinisherEvidenceMethod')==
-        'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS')
-    credited_finisher=bool(lane_scored or cross_origin_finisher)
-    direct={
-        'G0ThruG17SourcePass':all_gates,
-        'independentOwnScoringSource':receipt(player.get('release')),
-        'observedOwnOnNetShotsInSelectedLane':own_lanes_shot,
-        'goalieWeakAreaDirectlyMatched':bool(zone and zone in (goalie_data.get('weakZones') or {})),
-        'independentDefenseAreaDirectlyMatched':bool(zone and zone in
-            (cover.get('greenWeakZones') or [])),
-        'historicallyCreditedIndependentGoalRecipient':bool(
-            own.get('recipient') is True and
-            own.get('creditedGoalsVerified') is True and
-            receipt(player.get('release')) and credited_finisher and
-            g15.get('disposition')=='PASS'),
-        'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
-            and dispositions.get('G16',{}).get('disposition')=='PASS'),
-        'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
-        'verifiedEVAccess':receipt(player.get('deployment')),
-    }
-    route_direct=all(direct.values())
-    original=(release or {}).get('originalPrimaryOrigin')
-    changed_lane=bool(original and original!=zone)
-    # A tie in the player's PRE-G0 usual-lane origin is not an additional
-    # gate AFTER a fully source-certified goalie-first attack. G0/G4/G5/G9,
-    # G10.5 and G17 have already tested the exact own route and rival paths.
-    # If that source-supported route did not change lane and every direct
-    # gate passed, classify the direct recipient PRIMARY rather than
-    # silently rejecting the game's survivor at G18. Incomplete or
-    # contradictory paths still have route_direct=False and cannot pass.
-    # No new ranking, player preference, historical goal or shot is inferred.
-    primary_source_lane=bool(route_direct)
-    approved_rivals=[]
-    defeated={str(x.get('challengerId')):x for x in challenger_rows
-              if x.get('status')=='DEFEATED' and x.get('sameLane')}
-    for rival in teammates:
-        rid=str(rival.get('id'))
-        proof=defeated.get(rid)
-        if not proof:
-            continue
-        rival_primary=player_releases(rival)
-        if not rival_primary or rival_primary.get('zone')!=zone:
-            continue
-        if not receipt(rival.get('release')):
-            continue
-        rival_direct=proof.get('challenger') or {}
-        base_direct=proof.get('candidate') or {}
-        if (rival_primary.get('ownedGoals',0)>0 and
-            type(rival_direct.get('ownedGoals'))==int and
-            type(base_direct.get('ownedGoals'))==int and
-            # G10.5 can use shot volume to separate competing shooters,
-            # but it cannot claim a direct PRIMARY goal recipient was
-            # displaced by a TRANSFER when their observed OWN goals tie.
-            # Historical on-net shot pressure is not credited goal ownership.
-            base_direct['ownedGoals']>rival_direct['ownedGoals']):
-            approved_rivals.append({
-                'displacedDirectPrimaryPlayerId':rid,
-                'sameLane':zone,
-                'directGoalCreditCandidate':base_direct['ownedGoals'],
-                'directGoalCreditPrior':rival_direct['ownedGoals'],
-                'rivalOriginalPrimaryOrigin':rival_primary['zone'],
-                'sourceUrls':sorted(set(filter(None,proof.get('sourceUrls',[])))),
-                'G10_5Verdict':proof['status'],
-            })
+     route_options=(release or {}).get('g9ViableRoutes') or []
+     zone=(release or {}).get('zone')
+     route_zones=sorted({x.get('zone') for x in route_options if x.get('zone')})
+     all_gates=all(dispositions.get(g,{}).get('disposition')=='PASS'
+                   for g in ('G0','G3','G4','G5','G6','G7','G9',
+                             'G10','G10.5','G12','G15','G16','G17'))
+     g15=dispositions.get('G15') or {}
+     finisher=(g15.get('details') or {})
+     lane_scored=any(type(x.get('ownedGoals')) is int and x['ownedGoals']>0
+                     for x in route_options)
+     own_lanes_shot=any(type(x.get('attempts',x.get('sog'))) is int and
+                        x.get('attempts',x.get('sog'))>0 for x in route_options)
+     matched_route_shots=sum(x.get('attempts',x.get('sog',0)) for x in route_options
+                             if type(x.get('attempts',x.get('sog'))) is int)
+     cross_origin_finisher=bool(
+         g15.get('disposition')=='PASS' and
+         finisher.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
+         finisher.get('matchedOriginHasHistoricalGoal') is False and
+         type(finisher.get('officialOwnedGoalsInMatchedOrigin')) is int and
+         finisher['officialOwnedGoalsInMatchedOrigin']==0 and
+         type(finisher.get('officialDatedSeasonGoals')) is int and
+         finisher['officialDatedSeasonGoals']>0 and
+         type(finisher.get('totalOwnedGoalsFromEveryNhlEdgeOrigin')) is int and
+         finisher['totalOwnedGoalsFromEveryNhlEdgeOrigin']==finisher['officialDatedSeasonGoals'] and
+         type(finisher.get('matchedOriginOwnOnNetShots')) is int and
+         finisher['matchedOriginOwnOnNetShots']==matched_route_shots and
+         matched_route_shots>0 and
+         finisher.get('sameLaneGoalsNotInferredFromScoringElsewhere') is True and
+         finisher.get('directFinisherEvidenceMethod')==
+         'OFFICIAL_FULL_SEASON_GOALS_MATCH_ALL_EDGE_OWN_ORIGINS_AND_SOURCED_MATCHED_LANE_SHOTS')
+     credited_finisher=bool(lane_scored or cross_origin_finisher)
+     direct={
+         'G0ThruG17SourcePass':all_gates,
+         'independentOwnScoringSource':receipt(player.get('release')),
+         'observedOwnOnNetShotsInSelectedLane':own_lanes_shot,
+         'goalieWeakAreaDirectlyMatched':bool(route_zones and all(
+             z in (goalie_data.get('weakZones') or {}) for z in route_zones)),
+         'independentDefenseAreaDirectlyMatched':bool(route_zones and all(
+             z in (cover.get('greenWeakZones') or []) for z in route_zones)),
+         'historicallyCreditedIndependentGoalRecipient':bool(
+             own.get('recipient') is True and own.get('creditedGoalsVerified') is True and
+             receipt(player.get('release')) and credited_finisher and
+             g15.get('disposition')=='PASS'),
+         'allRelevantChallengersReviewed':bool(
+             dispositions.get('G10.5',{}).get('disposition')=='PASS' and
+             dispositions.get('G16',{}).get('disposition')=='PASS'),
+         'opponentContradictionsReviewed':bool(dispositions.get('G17',{}).get('disposition')=='PASS'),
+         'verifiedEVAccess':receipt(player.get('deployment')),
+         'allG9ViableRoutesPreserved':bool(route_zones),
+     }
+     route_direct=all(direct.values())
+     original=(release or {}).get('originalPrimaryOrigin')
+     changed_lane=bool(original and original not in route_zones)
+     primary_source_lane=bool(route_direct)
+
+     approved_rivals=[]
+     defeated={str(x.get('challengerId')):x for x in challenger_rows
+               if x.get('status')=='DEFEATED' and x.get('sameLane')}
+     for rival in teammates:
+         rid=str(rival.get('id'))
+         proof=defeated.get(rid)
+         if not proof or not receipt(rival.get('release')):
+             continue
+         rival_release=player_releases(rival)
+         if not rival_release:
+             continue
+         rival_by_zone={x['zone']:x for x in (rival_release.get('allRoutes') or [])}
+         for candidate_route in proof.get('candidateWinningRoutes') or []:
+             rival_route=rival_by_zone.get(candidate_route.get('zone'))
+             if not rival_route:
+                 continue
+             rival_goals=rival_route.get('ownedGoals')
+             candidate_goals=candidate_route.get('ownedGoals')
+             if (type(rival_goals) is int and rival_goals>0 and
+                 type(candidate_goals) is int and candidate_goals>rival_goals):
+                 approved_rivals.append({
+                     'displacedDirectPrimaryPlayerId':rid,
+                     'sameLane':candidate_route['zone'],
+                     'directGoalCreditCandidate':candidate_goals,
+                     'directGoalCreditPrior':rival_goals,
+                     'rivalOriginalPrimaryOrigin':rival_release.get('zone'),
+                     'sourceUrls':sorted(set(filter(None,proof.get('sourceUrls',[])))),
+                     'G10_5Verdict':proof['status'],
+                 })
+
     # A source can separately verify the prior primary losing the same route;
     # a naked Boolean without a sourced G10.5 defeated rival is insufficient.
     transfer=player.get('transferEvidence')
@@ -1104,7 +1095,7 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
                         tdata.get('displacedPlayerId') is not None else None)
     confirmed_displacement=(receipt(transfer) and
         tdata.get('directRouteDisplaced') is True and
-        tdata.get('routeZone')==zone and
+        tdata.get('routeZone') in route_zones and
         any(x['displacedDirectPrimaryPlayerId']==supplied_displaced
             for x in approved_rivals))
     derived_displacement=bool(changed_lane and approved_rivals)
@@ -1155,12 +1146,12 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         x for rival in approved_rivals for x in rival['sourceUrls']))
     return path,{
         'path':path,'rationale':rationale,
-        'scoringLane':zone,
+        'scoringLane':zone,'scoringRouteOptions':route_zones,
         'originalScoringLane':original,
         'laneChangedAfterGoalieFirstG0':changed_lane,
         'primaryOriginIsSourceDistinct':primary_source_lane,
         'positiveDirectGateEvidence':direct,
-        'historicMatchedLaneOwnedGoals':(release or {}).get('ownedGoals'),
+        'historicMatchedLaneOwnedGoals':sum(x.get('ownedGoals',0) for x in route_options),
         'historicMatchedLaneOwnedGoalsExactlyPreserved':True,
         'G15IndependentFinisherReconciledBeyondMatchedOrigin':cross_origin_finisher,
         'neverClaimUnobservedSameLaneGoals':True,
@@ -1997,16 +1988,14 @@ _STATUS_LEVEL={'CONFIRMED':2,'EXPECTED':1,'PROJECTED':1}
 
 
 def finalist_route_evidence(item):
-    """Carry THIS game's goalie, defense and scorer-route evidence into G16.
-
-    Historical own goals and shots remain visible as source-backed finishing
-    context. When both opponent-specific matchup indicators are available,
-    they—not old scoring totals—determine cross-game separation.
-    """
-    cand=item['candidate']; release=cand.get('release') or {}
+    """Carry every G0/G9-viable route into G16 without selecting one early."""
+    cand=item['candidate']
+    release=cand.get('release') or {}
     goalie=(item.get('targetGoalie') or {}).get('data') or {}
     dep=evidence_data(cand['player'].get('deployment')) or {}
-    zone=release.get('zone')
+    route_options=release.get('g9ViableRoutes') or []
+    route_zones=sorted({x.get('zone') for x in route_options if x.get('zone')})
+    zone=route_zones[0] if len(route_zones)==1 else None
     attack=item.get('attackTeam')
     coverage=(item['game'].get('coverage') or {}).get(attack)
     coverage_data=evidence_data(coverage) or {}
@@ -2015,10 +2004,12 @@ def finalist_route_evidence(item):
         'playerId':str(cand['player']['id']),
         'player':cand['player'].get('name'),
         'routeZone':zone,
-        'ownedGoalsInMatchedLane':release.get('ownedGoals'),
-        'ownShotsOnGoalInMatchedLane':release.get('attempts'),
-        'opponentGoalieZone':(goalie.get('weakZones') or {}).get(zone),
-        'opponentDefenseZone':(coverage_data.get('zoneConcessions') or {}).get(zone),
+        'routeOptions':[{'zone':x.get('zone'),'shotsOnGoal':x.get('attempts',x.get('sog')),
+                         'ownedGoals':x.get('ownedGoals')} for x in route_options],
+        'ownedGoalsInMatchedLane':release.get('ownedGoals') if zone else None,
+        'ownShotsOnGoalInMatchedLane':release.get('attempts') if zone else None,
+        'opponentGoalieZone':(goalie.get('weakZones') or {}).get(zone) if zone else None,
+        'opponentDefenseZone':(coverage_data.get('zoneConcessions') or {}).get(zone) if zone else None,
         'goalieSamplePeerPopulationId':goalie.get('samplePeerPopulationId'),
         'goalieSamplePeerPopulationStable':goalie.get('samplePeerPopulationStable'),
         'goalieProfileSourceUrl':(item.get('targetGoalie') or {}).get('sourceUrl'),
