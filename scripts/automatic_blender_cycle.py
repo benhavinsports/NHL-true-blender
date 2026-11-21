@@ -186,14 +186,13 @@ def execute_commands(day, mode, *, root="state"):
     else:
         subprocess.run(["python", "-m", "scripts.run_cycle", "--date", day,
                         "--mode", mode], check=True)
-    if mode != "watch":
+    if mode == "grade":
         failures = []
-        # Save the current slate before reporting old grading errors.
-        # A failed historical retry must never abort publishing new G0-G18
-        # evidence, and it must not be silently marked successful either.
-        for other in pending_recent_grades(
-                root, day, include_today=(mode == "grade")):
-            if other == day and mode == "grade":
+        # Grade the current frozen slate first, then retry older frozen cards.
+        # Projected/confirmed live cycles must return to the workflow immediately
+        # so the current slate can be persisted and published before any backlog.
+        for other in pending_recent_grades(root, day, include_today=True):
+            if other == day:
                 continue
             command = ["python", "-m", "scripts.run_cycle",
                        "--date", other, "--mode", "grade"]
@@ -214,6 +213,9 @@ def execute_commands(day, mode, *, root="state"):
                 with open(github_env, "a", encoding="utf-8") as env:
                     env.write("BLENDER_GRADE_RETRY_FAILURES=" + summary + chr(10))
             print("::error::OFFICIAL_GRADE_RETRY_FAILED: " + summary, flush=True)
+    elif mode in ("projected", "confirmed"):
+        print("LIVE BLENDER COMPLETE: historical grade backlog deferred until grade phase",
+              flush=True)
 
 
 def main():
