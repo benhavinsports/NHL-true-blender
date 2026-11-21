@@ -1899,12 +1899,12 @@ def _dominates(a,b):
 def g16_cross_game_finalists(finalists, required):
     """G16 FINAL CHALLENGER COMPETITION across every per-game survivor.
 
-    Each finalist already won G0-G17 inside its own game. G16 now compares
+    Each finalist already passed G0-G16 inside its own game. G16 now compares
     all meaningful surviving candidates, prioritizing tonight's opponent
     goalie-area vulnerability and defensive concession exposure whenever
     independently comparable. Season goals stay finishing context, never
-    outrank direct matchup alignment. G17 confirmation status remains source
-    uncertainty, not a forecast of future goals.
+    outrank direct matchup alignment. Goalie and deployment source statuses
+    are available from G0/G6; they do not constitute an early G17 verdict.
 
     A finalist is excluded only when at least ``required`` finalists from
     OTHER games each strictly dominate it, i.e. a full Core can be built
@@ -1952,8 +1952,8 @@ def g16_cross_game_finalists(finalists, required):
         'excludedPlayerIds':[rows[i]['playerId'] for i in excluded],
         'comparisonDimensions':['G0 NHL EDGE league or source-proven stable PBP peer save-percentile (never mixed)',
             'G9 source-positive on-net or shot-attempt concessions vs peers (never mixed)',
-            'G17 goalieStatus (CONFIRMED > EXPECTED/PROJECTED)',
-            'G17 deploymentStatus (CONFIRMED > PROJECTED)',
+            'G0 goalie starter status (CONFIRMED > EXPECTED/PROJECTED)',
+            'G6 deployment source status (CONFIRMED > PROJECTED)',
             'Historical goals/shots: context only; NEVER a fallback selection'],
         'rule':('Exclude a finalist only if >= requiredCoreSize finalists from '
                 'other games strictly dominate it on every dimension'),
@@ -2015,7 +2015,8 @@ def revalidate_authoritative_finalists(con, date, finalists, receipt, required):
         'cardId':prior['card_id'],'fingerprint':prior['fingerprint'],
         'baselineRevision':prior['revision'],'baselineCreatedAt':version['created_at'],
         'baselineIdentities':[{'gameId':str(x['gameId']),'playerId':str(x['playerId'])} for x in legs],
-        'everyIncumbentRepassedCurrentG0ThroughG17':True,
+        'everyIncumbentRepassedCurrentG0ThroughG16':True,
+        'G17StillRequiresIndependentLaterVerdict':True,
         'everyIncumbentRetainedByFullG16Comparison':True,
         'newRecipientSelected':False,'replacementAuthorized':False,
         'reason':'Additional qualifying games do not defeat a saved recipient or authorize a second Core',
@@ -3076,9 +3077,10 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
     # Original G16 source comparison now occurs before any G17 review.
     g16_receipt=None
     g16_decisions={}
-    if (len(pre_g17_qualified)>required_core and
-        len({str(x['game']['id']) for x in pre_g17_qualified})==
-            len(pre_g17_qualified)):
+    if len(pre_g17_qualified)>required_core:
+        # Check the entire full-slate pool, even with multiple contenders
+        # from one game. Same-game recipient separation remains governed by
+        # G10.5/G17; G18 still requires one survivor from each game.
         _,g16_receipt=g16_cross_game_finalists(pre_g17_qualified,required_core)
         _,g16_receipt=revalidate_authoritative_finalists(
             con,date,pre_g17_qualified,g16_receipt,required_core)
