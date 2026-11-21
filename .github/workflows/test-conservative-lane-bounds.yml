@@ -1,0 +1,24 @@
+name: Verify bounded NHL PBP recipient separation
+on:
+  push:
+    branches: [repair/g105-conservative-pbp-lane-bounds-20261121]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original Blender dependencies
+        run: python -m pip install -r requirements.txt -r nhl_true_blender_engine/requirements.txt pytest
+      - name: Verify Python syntax and targeted source-bound regression
+        run: |
+          python -m compileall -q nhl_true_blender_engine
+          python -m pytest -q nhl_true_blender_engine/tests/test_conservative_pbp_lane_bounds.py nhl_true_blender_engine/tests/test_g105_all_direct_scoring_routes.py nhl_true_blender_engine/tests/test_tonight_matchup_recipient_priority.py nhl_true_blender_engine/tests/test_original_recurrence_execution.py
+      - name: Verify full original G0–G18 engine regression
+        run: python -m pytest -q nhl_true_blender_engine/tests

@@ -17,7 +17,7 @@ from .rival_scope import g17_resolved_without_eliminated_rivals
 from .semantic_certification import audit_gate, nonblocking_overlay_review
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 from .shooter_mechanism import shooter_mechanism
-from .recent_origin import independently_dated_origin_route
+from .recent_origin import independently_dated_origin_route, independently_bounded_origin_route
 
 # The user's 18 numbered scorer gates remain individually named and ordered.
 # G10.5 is the mandatory half-step between G10 and G11. G0 is the
@@ -632,6 +632,63 @@ def _same_lane_tonight_shot_opportunity(candidate, rival, candidate_route,
             'sourceUrls':sorted(set(sources+comparison['sourceUrls']))}
 
 
+def _same_lane_bounded_shot_opportunity(candidate, rival, candidate_route,
+                                        rival_route, goalie_areas, defense_areas):
+    """Resolve only a PROVABLE, strict recent same-lane shot-rate advantage.
+
+    Partial official PBP rink coordinates never become zeros. One shooter
+    defeats another only if their documented lower bound exceeds the other's
+    highest possible on-net shot rate under the same recorded appearances.
+    The original exact-sample comparator remains preferred and unchanged.
+    """
+    zone = candidate_route.get("zone")
+    if (not zone or zone != rival_route.get("zone")
+        or zone not in (goalie_areas or {})
+        or (defense_areas is not None and zone not in defense_areas)):
+        return None
+    rows = []
+    sources = []
+    for p in (candidate, rival):
+        deploy = p.get("deployment")
+        pressure = p.get("pressure")
+        d = evidence_data(deploy) or {}
+        review = observed_own_shot_appearances(evidence_data(pressure) or {})
+        if (not receipt(p.get("release")) or not receipt(deploy)
+            or not receipt(pressure) or not d.get("EV")
+            or d.get("status") not in ("PROJECTED", "CONFIRMED")
+            or review.get("datedAppearanceAlignmentVerified") is not True):
+            return None
+        bound = independently_bounded_origin_route(p, zone)
+        if not bound or bound.get("appearanceCount", 0) < 2:
+            return None
+        rows.append(bound)
+        sources.extend([deploy["sourceUrl"], pressure["sourceUrl"]])
+        sources.extend(bound["sourceUrls"])
+    a, b = rows
+    a_lower = a["shotsOnGoalLowerBound"] * b["appearanceCount"]
+    b_upper = b["shotsOnGoalUpperBound"] * a["appearanceCount"]
+    b_lower = b["shotsOnGoalLowerBound"] * a["appearanceCount"]
+    a_upper = a["shotsOnGoalUpperBound"] * b["appearanceCount"]
+    result = ("CANDIDATE" if a_lower > b_upper else
+              "RIVAL" if b_lower > a_upper else "UNSEPARATED")
+    return {
+        "result": result,
+        "sourceScope": "TONIGHT_G0_G9_SAME_LANE_PLUS_OFFICIAL_PBP_CONSERVATIVE_BOUNDS",
+        "comparison": "STRICT_RECENT_OWN_LANE_SHOT_RATE_BOUNDS_PER_ACTUAL_APPEARANCE",
+        "candidate": a, "rival": b,
+        "candidateLowerCrossProduct": a_lower,
+        "rivalUpperCrossProduct": b_upper,
+        "rivalLowerCrossProduct": b_lower,
+        "candidateUpperCrossProduct": a_upper,
+        "missingShotLocationsNeverTreatedAsZero": True,
+        "historicalGoalTotalsNeverUsed": True,
+        "sameOpponentWeakGoalieAndDefenseRouteRequired": True,
+        "noWeightsOddsOrPPShortcut": True,
+        "notProofOfFutureGoal": True,
+        "sourceUrls": sorted(set(sources)),
+    }
+
+
 def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zones=None,
                      opponent_coverage=None):
     """Compare *every* skater's owned same-origin finishing route, not fame/PP1.
@@ -733,8 +790,10 @@ def challenger_proof(candidate, challengers, goalie_weak_zones, defense_weak_zon
         # the candidate defeats the rival only if EVERY route is less
         # exposed. Identical lanes or conflicting evidence remain unresolved.
         route_comparisons=[
-            (x,(_same_lane_tonight_shot_opportunity(
+            (x,((_same_lane_tonight_shot_opportunity(
                 candidate,rival,base,x,goalie_weak_zones,defensive_areas)
+               or _same_lane_bounded_shot_opportunity(
+                candidate,rival,base,x,goalie_weak_zones,defensive_areas))
                 if x['zone']==base['zone'] else
                 _tonight_route_comparison(
                     base['zone'],x['zone'],goalie_weak_zones,opponent_coverage)))
@@ -1341,16 +1400,22 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     shots=player.get('pressure')
     recent_shots=evidence_data(shots,'recentAppearanceShots')
     route_pressure=independently_dated_origin_route(player,(release or {}).get('zone'))
-    current_route_reviewed=bool(route_pressure and
+    bounded_route=(independently_bounded_origin_route(
+        player,(release or {}).get('zone')) if route_pressure is None else None)
+    observed_route=route_pressure or bounded_route
+    current_route_reviewed=bool(observed_route and
         evidence_data(player.get('recentOrigin')).get('sampleAsOfSlateDate')==game.get('date'))
-    current_route_active=bool(current_route_reviewed and route_pressure['shotsOnGoal']>0)
+    current_route_active=bool(current_route_reviewed and
+        ((route_pressure and route_pressure['shotsOnGoal']>0) or
+         (bounded_route and bounded_route['shotsOnGoalLowerBound']>0)))
     # G11: observed own-shot pressure in separate actual appearances.
     # [0,0,3] is one isolated active game, not recurring pressure.
     emit('G11',bool(receipt(shots) and shot_review['valid']
                     and shot_review['repeatedOwnShotPressure'] and current_route_active),
          {'recentOwnAttempts':recent_shots,
           'shotContinuation':shot_review,
-          'selectedRouteRecentOrigin':route_pressure,
+          'selectedRouteRecentOrigin':observed_route,
+          'conservativeUnknownLocationBounds':bounded_route,
           'currentShotPressureInSelectedRoute':current_route_active,
           'noOneOffPressureCalledContinuation':True},
          # Missing appearance dates are an evidence gap, not proof that
@@ -1358,7 +1423,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          eliminate=bool(receipt(shots) and shot_review['valid']
                         and shot_review['datedAppearanceAlignmentVerified']
                         and (not shot_review['repeatedOwnShotPressure'] or
-                             (current_route_reviewed and not current_route_active))),
+                             (route_pressure is not None and current_route_reviewed and
+                              not current_route_active))),
          source_ids=sorted(set(([shots['sourceUrl']] if receipt(shots) else [])+
              ([player['recentOrigin']['sourceUrl']] if receipt(player.get('recentOrigin')) else []))))
     emit('G12',bool(own and own.get('creditedGoalsVerified') is True and rec is not None),

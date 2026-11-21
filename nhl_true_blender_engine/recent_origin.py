@@ -132,3 +132,119 @@ def independently_dated_origin_route(player,zone):
             "notProofOfFutureGoal":True}
 
 
+
+
+def independently_bounded_origin_route(player, zone):
+    """Conservative dated lane bounds when an otherwise reconciled PBP sample
+    has on-net shots without usable coordinates.
+
+    Known mapped PBP shots establish a LOWER bound in the exact rink lane.
+    ALL officially credited on-net shots establish an UPPER bound. Missing
+    coordinates can NEVER be treated as zero, and no historical goals are
+    used for recipient selection. If the exact sample is complete, both
+    bounds coincide with the already certified lane count.
+    """
+    exact = independently_dated_origin_route(player, zone)
+    if exact is not None:
+        return {**exact, "shotsOnGoalLowerBound": exact["shotsOnGoal"],
+                "shotsOnGoalUpperBound": exact["shotsOnGoal"],
+                "completeExactOriginSample": True,
+                "unknownLocationShotsMayBeInLane": False,
+                "boundsAreOfficialDatedOnNetShots": True}
+    wrapper = player.get("recentOrigin")
+    pressure = player.get("pressure")
+    if not receipt(wrapper) or not receipt(pressure) or not isinstance(zone, str) or not zone:
+        return None
+    d = wrapper["data"]
+    p = pressure["data"]
+    if (d.get("sourceType") != "OFFICIAL_NHL_DATED_PBP_SHOOTER_ORIGIN"
+        or d.get("scope") != "RECENT_PRE_SLATE_TARGET_CLUB_GAMES_ONLY"
+        or d.get("historicalOwnGoalCreditOnly") is not True
+        or d.get("rinkBinsApproximateNotNhlEdgePolygons") is not True
+        or d.get("sampleIncludesActualZeroShotAppearances") is not True
+        or d.get("pbpBoxscoreSogReconciled") is not True
+        or type(d.get("unclassifiedOnNetShots")) is not int
+        or d["unclassifiedOnNetShots"] < 0):
+        return None
+    ids = d.get("sampleGameIds")
+    as_of = d.get("sampleAsOfSlateDate")
+    appearances = p.get("appearances")
+    pressure_shots = p.get("recentAppearanceShots")
+    by_game_sog = d.get("boxscoreShotsOnGoalByGame")
+    pbp_sog = d.get("pbpOnNetShotsByGame")
+    sources = d.get("sampleSourcesByGame")
+    if (not isinstance(as_of, str) or len(as_of) < 10
+        or not isinstance(ids, list) or not ids
+        or type(d.get("sampleAppearanceCount")) is not int
+        or d["sampleAppearanceCount"] != len(ids)
+        or len({str(x) for x in ids}) != len(ids)
+        or not isinstance(appearances, list) or len(appearances) != len(ids)
+        or not isinstance(pressure_shots, list) or len(pressure_shots) != len(ids)
+        or not isinstance(by_game_sog, dict) or not isinstance(pbp_sog, dict)
+        or not isinstance(sources, dict)):
+        return None
+    ids = [str(x) for x in ids]
+    if set(by_game_sog) != set(ids) or set(pbp_sog) != set(ids):
+        return None
+    dates = {}
+    total = 0
+    for i, (gid, appearance) in enumerate(zip(ids, appearances)):
+        if not isinstance(appearance, dict):
+            return None
+        day = appearance.get("date")
+        shots = appearance.get("shotsOnGoal")
+        urls = sources.get(gid)
+        if (str(appearance.get("gameId") or "") != gid
+            or not isinstance(day, str) or len(day) < 10 or day[:10] >= as_of
+            or type(shots) is not int or shots < 0
+            or type(pressure_shots[i]) is not int or pressure_shots[i] != shots
+            or type(by_game_sog.get(gid)) is not int or by_game_sog[gid] != shots
+            or type(pbp_sog.get(gid)) is not int or pbp_sog[gid] != shots
+            or not isinstance(urls, list) or not urls
+            or any(not isinstance(u, str) or not u.startswith("https://") for u in urls)):
+            return None
+        dates[gid] = day[:10]
+        total += shots
+    counts = d.get("zoneCounts")
+    if not isinstance(counts, dict):
+        return None
+    area = counts.get(zone)
+    lower = 0
+    if area is not None:
+        if (not isinstance(area, dict) or not isinstance(area.get("byGame"), list)
+            or type(area.get("shotsOnGoal")) is not int
+            or type(area.get("ownedGoals")) is not int):
+            return None
+        seen = set()
+        goals = 0
+        for event in area["byGame"]:
+            if not isinstance(event, dict):
+                return None
+            gid = str(event.get("gameId") or "")
+            n = event.get("shotsOnGoal")
+            g = event.get("ownedGoals")
+            urls = event.get("sourceUrls")
+            if (gid not in dates or gid in seen or event.get("date") != dates[gid]
+                or type(n) is not int or type(g) is not int
+                or not 0 <= g <= n <= by_game_sog[gid]
+                or not isinstance(urls, list) or not urls
+                or any(u not in sources[gid] for u in urls)):
+                return None
+            seen.add(gid)
+            lower += n
+            goals += g
+        if lower != area["shotsOnGoal"] or goals != area["ownedGoals"]:
+            return None
+    if lower > total:
+        return None
+    return {"zone": zone, "appearanceCount": len(ids),
+            "shotsOnGoalLowerBound": lower, "shotsOnGoalUpperBound": total,
+            "completeExactOriginSample": False,
+            "unknownLocationShotsMayBeInLane": lower < total,
+            "boundsAreOfficialDatedOnNetShots": True,
+            "sampleGameIds": ids, "sampleDates": [dates[gid] for gid in ids],
+            "sourceUrls": sorted({u for gid in ids for u in sources[gid]}),
+            "sampleAsOfSlateDate": as_of,
+            "seasonGoalTotalsNeverUsed": True,
+            "notProofOfFutureGoal": True,
+            "scope": "RECONCILED_NHL_BOXSCORE_PBP_LANE_LOWER_UPPER_BOUNDS"}
