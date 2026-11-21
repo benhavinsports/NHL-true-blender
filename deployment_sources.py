@@ -359,7 +359,7 @@ def fetch_web_search(team, team_name=None, slate_date=None):
                        for _,rec in _strings(data)
                        for key in ('slateDate','gameDate','lineupDate')
                        if isinstance(rec.get(key),str)
-                       and re.match(r'^20\\d\\d-\\d\\d-\\d\\d(?:$|[T ])',rec[key])}
+                       and re.match(r'^20[0-9]{2}-[0-9]{2}-[0-9]{2}(?:$|[T ])',rec[key])}
                 lineup_day=next(iter(dates)) if len(dates)==1 else None
                 for row in parsed:
                     row['sourcePath']=url+' :: '+row.get('sourcePath','structured data')
