@@ -1574,8 +1574,10 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # Global G16 has already compared all G0-G16-qualified game candidates.
     # Apply the resulting evidence now, BEFORE G17, not after it has passed.
     global_row=cross_game_g16 or {}
+    # Cross-game exclusion denies a Core slot, not a source-verified
+    # per-game scorer G16 pass. Keep both findings separately.
     globally_excluded=str(global_row.get('g16Decision') or '').startswith('EXCLUDED_')
-    emit('G16',wins is True and len(rows)==len(rivals) and not globally_excluded,
+    emit('G16',wins is True and len(rows)==len(rivals),
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True,
           'routeOwnedByStrongerRival':route_owned_by or None,
@@ -1589,7 +1591,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'challengersStoppedBeforeG10_5':stopped or None,
           'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
           'unresolvedChallengersCannotEliminate':unresolved_dominators or None},
-         eliminate=bool(route_owned_by) or globally_excluded,
+         eliminate=bool(route_owned_by),
          # The candidate side of every comparison is its own official release
          # record, so it is cited even when no live challenger remains.
          source_ids=sorted(set([url for row in rows for url in row.get('sourceUrls',[])
@@ -3210,8 +3212,14 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 f"{match['id']} PRE_CORE_REVIEW: {len(all_per_game)} qualified same-game "
                 "recipients remain after G10.5/G17; no arbitrary final pick")
     pool_size+=unresolved_unique_pool
-    # G16 already ran before G17; never decide these gates in reverse.
-    finalists=qualified
+    # G16 already decided cross-game Core eligibility before G17.
+    # A non-selected game winner remains a G16-qualified game survivor.
+    selected_g16={(str(x['gameId']),str(x['playerId']))
+                  for x in (g16_receipt or {}).get('finalists',[])
+                  if str(x.get('g16Decision') or '').startswith('RETAINED')}
+    finalists=[x for x in qualified if not g16_receipt
+               or (str(x['game']['id']),str(x['candidate']['player']['id']))
+                  in selected_g16]
     chosen,selection_errors=cross_game_winners(finalists,len(games))
     if g16_receipt and not g16_receipt['separated'] and len(finalists)>required_core:
         selection_errors.insert(0,
@@ -3234,9 +3242,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         if finalist:
             # Inspect the pre-G17 G16 verdict; never mutate it afterward.
             g16=candidate['dispositions']['G16']
-            if (finalist['g16Decision'].startswith('EXCLUDED_') and
-                    g16['disposition']!='ELIMINATED'):
-                raise ValueError('Full-slate G16 exclusion not applied before G17')
+            actual=g16['details'].get('crossGameFinalistCompetition')
+            if not actual or actual.get('decision')!=finalist['g16Decision']:
+                raise ValueError('G16 cross-game result missing before G17')
             if g16['details'].get('globalG16AppliedBeforeG17') is not True:
                 raise ValueError('Pre-G17 G16 full-slate decision absent')
         # Only the actual G16-selected recipient may be G18 certified;
