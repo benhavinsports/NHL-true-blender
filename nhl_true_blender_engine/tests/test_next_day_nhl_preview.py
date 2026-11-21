@@ -64,3 +64,20 @@ def test_same_date_article_with_original_source_does_not_regress():
     current=HTML.replace("November 20, 2026","November 21, 2026")
     rows=parse_projected_deployment(current,GAME,DATE)
     assert len(rows)==6
+
+
+def test_season_article_evidence_is_scoped_to_exact_saturday_matchup():
+    article=HTML.replace("<h1>Oilers at Hurricanes projected lineups</h1>",
+        "<h1>Projected lineups, starting goalies for today</h1>"
+        "<h2>SATURDAY</h2>"
+        "<h2>OILERS (17-4-3) at HURRICANES (16-3-3)</h2>")
+    season_url="https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+    rows=parse_projected_deployment(article,GAME,DATE,season_url)
+    assert {r["playerId"] for r in rows}=={"1","2","3","5","6","7"}
+    assert all(r["status"]=="PROJECTED" for r in rows)
+    assert parse_projected_goalies(article,GAME,DATE,season_url)["EDM"]["goalieId"]=="10"
+    wrong_day=article.replace("<h2>SATURDAY</h2>","<h2>FRIDAY</h2>")
+    wrong_match=article.replace("at HURRICANES", "at FLAMES")
+    for changed in (wrong_day,wrong_match):
+        assert parse_projected_deployment(changed,GAME,DATE,season_url)==[]
+        assert parse_projected_goalies(changed,GAME,DATE,season_url)=={}
