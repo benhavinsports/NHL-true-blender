@@ -28,7 +28,7 @@ on:
         required: false
         options: [projected, confirmed, watch, grade]
   schedule:
-    # Automatic full-slate evidence refresh every five minutes. Each run
+    # Automatic full-slate evidence refresh every five minutes. Each run reads
     # official NHL start times rather than stopping full gate execution at 7 ET.
     # Late starts remain eligible for confirmed research until their own puck drop.
     # After all starts, grade only when the official NHL games are final.
@@ -44,7 +44,7 @@ permissions:
 # phase and reconciles the canonical ledger before any safe push.
 concurrency:
   group: nhl-true-blender-authoritative
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   evidence:
     runs-on: ubuntu-latest
