@@ -3344,7 +3344,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                        furthestFirstNonPassGate=MASTER[max(furthest)] if furthest else None,
                        reason='no candidate passed every pre-Core gate G0-G17')
         if len(all_per_game)==1:
-            qualified.append(all_per_game[0])
+            # A G0-G17 survivor remains visible even if G18 cannot classify
+            # its original scoring path. Only path-classified survivors enter
+            # the final cross-game Core assembly.
+            if all_per_game[0]['candidate'].get('route') is not None:
+                qualified.append(all_per_game[0])
         elif len(all_per_game)>1:
             # G18 is the final Core CARD, not a new game-level scorer ranker.
             # Keep all fully qualified source receipts; require the original
@@ -3394,7 +3398,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
         # per-game G0-G17 qualification is NOT conditional on a G18 label.
         # Missing final path evidence fails G18 with explicit audit gaps,
         # rather than vanishing a real pre-Core survivor at G10.5.
-        selected=key in final_keys and candidate['preCoreQualified']
+        selected=(key in final_keys and candidate['preCoreQualified']
+                  and candidate.get('route') is not None)
         proof={
             'candidateEligibleForCrossGameFinal':bool(candidate['preCoreQualified']),
             'pathClassificationEvidence':candidate['pathEvidence'],

@@ -473,9 +473,12 @@ def test_g18_uses_original_selection_after_g0_g17_and_g16(con):
     assert result["card"] is not None
     assert len(result["card"]["current_legs"])==3
     assert len({x["gameId"] for x in result["card"]["current_legs"]})==3
-    rows=con.execute("SELECT disposition FROM gates WHERE gate='G18'").fetchall()
-    assert len(rows)==3
-    assert all(x["disposition"]=="PASS" for x in rows)
+    for leg in result["card"]["current_legs"]:
+        row=con.execute("""SELECT disposition FROM gates
+            WHERE slate_date=? AND stage='CONFIRMED' AND game_id=?
+              AND player_id=? AND gate='G18'""",
+            (DATE,str(leg["gameId"]),str(leg["playerId"]))).fetchone()
+        assert row and row[0]=="PASS"
 
 
 def test_stale_trigger_cannot_replace_core_or_fake_retraction_exception(con):
