@@ -10,6 +10,7 @@ import json, re, unicodedata
 from datetime import datetime, timezone
 from urllib.parse import quote
 import requests
+from nhl_true_blender_engine.secondary_sources import TEAM_SLUGS
 
 TIMEOUT = 12
 _HTTP_CACHE = {}
@@ -67,8 +68,16 @@ def parse_lineup_json(data, team, source, retrieved_at=None):
         # Unit labels are kept only when explicit in source fields/path.
         raw=' '.join([path]+[str(d.get(k,'')) for k in ('line','lineNumber','lineType','unit','unitName','position','role','type','specialTeamsUnit')]).lower()
         pp=None
-        for key in ('powerPlayUnit','ppUnit','specialTeamsUnit','unit','unitName','lineType','type'):
+        for key in ('powerPlayUnit','ppUnit','powerPlayLine','powerplay_unit',
+                    'specialTeamsUnit','unit','unitName','lineType','type'):
             v=d.get(key)
+            # A typed PP field containing 1 or 2 is an explicit assignment,
+            # not an unlabelled generic unit or an inferred PP1 preference.
+            if key in ('powerPlayUnit','ppUnit','powerPlayLine','powerplay_unit'):
+                if type(v) is int and v in (1,2):
+                    pp=v; break
+                if isinstance(v,str) and v.strip() in ('1','2'):
+                    pp=int(v.strip()); break
             if isinstance(v,str) and re.search(r'\b(pp|power.?play)\s*[-#:]?\s*([12])\b',v.lower()):
                 pp=int(re.search(r'([12])\b',v).group(1)); break
         if pp is None:
@@ -85,8 +94,18 @@ def parse_lineup_json(data, team, source, retrieved_at=None):
             m=re.search(r'(?:forward.?line|line)\s*[-#:]?\s*([1-4])\b',raw)
             if m: line=int(m.group(1))
         if pp is None and line is None: continue
-        team_fields=' '.join(str(d.get(k,'')) for k in ('team','teamAbbrev','teamCode','abbrev','teamName')).upper().strip()
-        if team_fields and target not in team_fields and target not in path.upper(): continue
+        # Public sources may use the full NHL club name rather than the
+        # three-letter abbreviation. Match canonical identity, never a loose
+        # substring (e.g. a team code embedded in an unrelated word).
+        explicit_team=[d.get(k) for k in ('team','teamAbbrev','teamCode',
+                                          'abbrev','teamName') if d.get(k)]
+        aliases={norm_name(target),norm_name(TEAM_SLUGS.get(target,''))}
+        has_target_path=bool(re.search(r'(?<![a-z0-9])'+re.escape(target.lower())+
+                                       r'(?![a-z0-9])',path.lower()))
+        if explicit_team and not has_target_path:
+            matched=any(norm_name(value) in aliases
+                        for value in explicit_team if isinstance(value,str))
+            if not matched: continue
         rows.append({'playerName':name,'line':line,'powerPlayUnit':pp,'source':source,'sourcePath':path,'retrievedAt':retrieved_at or datetime.now(timezone.utc).isoformat(),'sourceTeam':target})
     # Avoid duplicates by player + deployment dimension; retain separate line/PP records.
     uniq={ (norm_name(x['playerName']),x['line'],x['powerPlayUnit']):x for x in rows }
@@ -408,7 +427,9 @@ def fetch_deployment(team, team_name=None, mode='projected', slate_date=None, op
         label=row.get('source')
         path=row.get('sourcePath')
         if isinstance(path,str) and path.startswith('https://'):
-            row['sourceUrl']=path
+            # The sourcePath includes an internal JSON-location suffix for
+            # provenance; it is NOT part of the actual retrievable URL.
+            row['sourceUrl']=path.split(' :: ',1)[0]
         elif len(source_urls.get(label,set()))==1:
             row['sourceUrl']=next(iter(source_urls[label]))
         else:
