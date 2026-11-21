@@ -1604,8 +1604,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         return {'player':player,'dispositions':d,'release':release,
                 'preG17Qualified':all(d[g]['disposition']=='PASS'
                                       for g in MASTER[:MASTER.index('G17')])},execution_trace
-    source_steps(['Step14'],rows)
-    # G17 independent contradictions are reviewed only at G17, after G16.
+    # G17 source retrieval must precede Step14's independent source
+    # evaluation, but neither may run until the full-slate G16 decision.
     if g17_review is not None:
         source_receipt=g17_review(game,attack_team,player,eliminated_before)
         if source_receipt is not None:
@@ -1614,6 +1614,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
             # Do not reuse a stale derived result from a previous G0 goalie
             # branch when the current G17 review found no valid source route.
             player.pop('contradictions',None)
+    source_steps(['Step14'],rows)
     contradiction=player.get('contradictions')
     cdata=evidence_data(contradiction)
     # Having a review OBJECT is not proof that its conflicts were resolved.
