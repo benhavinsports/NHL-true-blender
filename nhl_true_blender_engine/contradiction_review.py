@@ -16,7 +16,7 @@ SCOPE="DERIVED_CROSS_SOURCE_G17"
 
 def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                           only_player_ids=None,eliminated_player_ids=None,
-                          return_receipts=False,qualified_rival_ids=None):
+                          return_receipts=False):
     """Review real independent G17 inputs, including the actual G0 goalie source.
 
     This independent source review runs at the G17 turn in the engine,
@@ -29,10 +29,6 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
     returned_receipts={}
     wanted={str(x) for x in only_player_ids} if only_player_ids is not None else None
     eliminated_ids={str(x) for x in (eliminated_player_ids or ())}
-    # Earlier G0-G10 source verdicts scope the viable recipient competitors;
-    # absent earlier proof is not affirmative evidence of a rival goal path.
-    qualified_ids=({str(x) for x in qualified_rival_ids}
-                   if qualified_rival_ids is not None else None)
     for game in snapshot.get("games",[]):
         decision=(selected_directions or {}).get(str(game["id"]))
         if selected_directions is not None and not decision:
@@ -80,9 +76,7 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                 rivals=[x for x in teammates
                         if str(x["id"])!=str(p["id"]) and
                         x.get("availability") not in ("OUT","SCRATCHED","INJURED")
-                        and str(x["id"]) not in eliminated_ids
-                        and (qualified_ids is None or
-                             str(x["id"]) in qualified_ids)]
+                        and str(x["id"]) not in eliminated_ids]
                 opposing=[]
                 branch_reviews=[]
                 rows=[]
@@ -165,13 +159,6 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                     },
                     "strongestRivalReview":{
                         "everyRivalReviewed":every_rival_reviewed,
-                        "qualifiedRivalsDerivedFromEarlierGates":qualified_ids is not None,
-                        "unqualifiedRosterMembersRetainOwnGateAudit":
-                            sorted(str(x['id']) for x in teammates
-                                   if qualified_ids is not None and
-                                   str(x['id']) not in qualified_ids and
-                                   str(x['id']) not in eliminated_ids and
-                                   str(x['id']) != str(p['id'])),
                         "rivalCompared":len(rows),
                         "eachSameLaneDefeated":rival_ok,
                         "rivalResults":rows,
