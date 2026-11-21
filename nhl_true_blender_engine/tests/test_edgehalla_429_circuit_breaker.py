@@ -31,8 +31,10 @@ async def test_edgehalla_retries_a_429_after_retry_after(monkeypatch):
     async def no_sleep(_seconds): pass
     monkeypatch.setattr(edge.httpx,"AsyncClient",Client)
     monkeypatch.setattr(edge.asyncio,"sleep",no_sleep)
+    class Cursor:
+        def fetchone(self): return None
     class DB:
-        def execute(self,*args,**kwargs): return None
+        def execute(self,*args,**kwargs): return Cursor()
     snapshot={"games":[
         {"id":"1","away":"LAK","home":"CAR","rosters":{"LAK":{"data":{"players":[]}},"CAR":{"data":{"players":[]}}}}
     ]}
