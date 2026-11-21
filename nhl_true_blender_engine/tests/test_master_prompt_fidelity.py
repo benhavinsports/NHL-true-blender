@@ -134,11 +134,14 @@ def test_source_retry_does_not_refetch_qualified_or_started_matchups(tmp_path):
         s['games'][1]['goalies']={}
         result=execute(con,s,DATE,'CONFIRMED')
         scoped=recovery_snapshot(con,s,DATE,'CONFIRMED',result)
-        assert [g['id'] for g in scoped['games']]==[s['games'][1]['id']]
+        # Recovery searches every matchup with any unexecuted independent
+        # gate, not only the first goalie gap. Do not suppress other sources.
+        assert s['games'][1] in scoped['games']
         assert len(s['games'])==3
-        assert scoped['games'][0] is s['games'][1]
+        assert all(g in s['games'] for g in scoped['games'])
         s['games'][1]['gameState']='LIVE'
-        assert recovery_snapshot(con,s,DATE,'CONFIRMED',result)['games']==[]
+        assert s['games'][1] not in recovery_snapshot(
+            con,s,DATE,'CONFIRMED',result)['games']
     finally:
         con.close()
 
