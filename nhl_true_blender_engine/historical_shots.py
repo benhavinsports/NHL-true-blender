@@ -170,17 +170,15 @@ def reconcile_player_sog_by_game(appearances,events,player_id):
 
 
 async def collect_history(client, con, snapshot, slate_date, stage,
-                          max_games=8, defense_research_games=16):
-    """Collect target-team recent logs plus league-wide peer games for G9.
+                          max_games=8):
+    """Collect the full available pre-slate season PBP source pool.
 
-    The target clubs' recent games feed player logs, official boxscore
-    reconciliation and shift joins. G9's peer median requires independent
-    samples from at least six OTHER clubs; fetching only today's four teams'
-    schedules made that impossible (all other teams had one game or fewer).
-    Therefore fetch the larger, bounded pre-slate defensive comparison window
-    from every NHL club, but keep the original eight latest team games for
-    individual player goals, pressure, appearance logs and shift joins.
-    Expanding G9 source research must NOT rewrite the player's recent sample.
+    G4 shot-mechanism research and G9 defensive peer comparisons keep searching
+    the current season's dated NHL PBP for every league club; they are no longer
+    cut off at an arbitrary 16-game window. The player's own goal-credit,
+    pressure, appearance and shift inputs remain restricted to the original
+    latest eight target-team games. Expanding source discovery must NOT widen
+    those original recent-player samples or invent missing observations.
     """
     target_teams=sorted({t for g in snapshot["games"] for t in (g["away"],g["home"])})
     league_teams=sorted(TEAM_SLUGS)
@@ -196,7 +194,7 @@ async def collect_history(client, con, snapshot, slate_date, stage,
                 past=[g for g in games if str(g.get("gameDate",""))<slate_date
                       and g.get("gameState") in ("OFF","FINAL")]
                 past.sort(key=lambda g:str(g.get("gameDate","")))
-                return team,past[-max(max_games,defense_research_games):],None
+                return team,past,None
             except Exception as exc:
                 return team,[],f"{type(exc).__name__}: {exc}"
     responses=await asyncio.gather(*(team_games(t) for t in league_teams))
@@ -359,9 +357,11 @@ async def collect_history(client, con, snapshot, slate_date, stage,
             "coveragePeerGames":len(coverage_ids),
             "coveragePeerTeams":len(league_teams),
             "coveragePeerEvents":len(coverage_events),
-            "G9IndependentPeerHistoryWindow":max(max_games,defense_research_games),
+            "G9IndependentPeerHistoryWindow":"ALL_PRE_SLATE_CURRENT_SEASON_GAMES",
+            "G9IndependentPeerHistoryGames":len(coverage_ids),
             "playerRecentHistoryWindowUnchanged":max_games,
-            "G4OfficialPbpMechanismSourceWindow":max(max_games,defense_research_games),
+            "G4OfficialPbpMechanismSourceWindow":"ALL_PRE_SLATE_TARGET_TEAM_GAMES",
+            "G4OfficialPbpMechanismSourceGames":len(mechanism_target_ids),
             "G4MechanismEventsDoNotExtendRecentScoringPressure":True,
             # Ephemeral in-process handoff. The driver POPs this before
             # writing run JSON; no extra raw league-wide events are persisted.
