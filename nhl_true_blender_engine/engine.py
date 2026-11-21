@@ -1100,7 +1100,7 @@ def _finish_pool(games,game_pool,card,g16_receipt):
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
                     stopped_before_g10_5=None, defer_g18=False, stop_at_g10=False,
-                    g17_review=None):
+                    g17_review=None, stop_at_g16=False, cross_game_g16=None):
     d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
     # Teammates who passed G0-G10 (see stopped_before_g10_5). Only these are
     # meaningful G10.5/G16 challengers, for the master gate and its overlay.
@@ -1415,10 +1415,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     unresolved_dominators=sorted(str(r['challengerId']) for r in rows
                           if r.get('status')=='RIVAL_DOMINATES'
                           and str(r['challengerId']) in unresolved_before)
-    # G10.5 challenger evidence now exists. Continue the ORIGINAL overlay
-    # sequence Step10.5, Step11, Step12, Step13, Step14 before the
-    # corresponding later master-gate verdicts consume these facts.
-    source_steps(OVERLAY[OVERLAY.index('Step10.5'):],rows)
+    # Keep Step14 until after cross-game G16 has been finalized.
+    source_steps(OVERLAY[OVERLAY.index('Step10.5'):OVERLAY.index('Step14')],rows)
     emit('G10.5',wins is True,
          {'comparisonRows':rows,'allAlternativesScanned':len(rows)==len(rivals),
           'noGuessTransfer':True,
@@ -1573,20 +1571,40 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
              ownership,player.get('release'),player.get('mappedGoals'),
              season_history if verified_season_goals else None)
              if receipt(x))))
-    emit('G16',wins is True and len(rows)==len(rivals),
+    # Global G16 has already compared all G0-G16-qualified game candidates.
+    # Apply the resulting evidence now, BEFORE G17, not after it has passed.
+    global_row=cross_game_g16 or {}
+    globally_excluded=str(global_row.get('g16Decision') or '').startswith('EXCLUDED_')
+    emit('G16',wins is True and len(rows)==len(rivals) and not globally_excluded,
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True,
           'routeOwnedByStrongerRival':route_owned_by or None,
           'crossGameFinalistCompetitionRunsAfterEveryGame':True,
+          'crossGameFinalistCompetition':({
+              'decision':global_row.get('g16Decision'),
+              'dominatedBy':global_row.get('dominatedBy',[]),
+              'comparedAgainstAllGames':True}
+              if cross_game_g16 is not None else None),
+          'globalG16AppliedBeforeG17':True,
           'challengersStoppedBeforeG10_5':stopped or None,
           'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
           'unresolvedChallengersCannotEliminate':unresolved_dominators or None},
-         eliminate=bool(route_owned_by),
+         eliminate=bool(route_owned_by) or globally_excluded,
          # The candidate side of every comparison is its own official release
          # record, so it is cited even when no live challenger remains.
          source_ids=sorted(set([url for row in rows for url in row.get('sourceUrls',[])
              if isinstance(url,str) and url.startswith('https://')]+
              ([player['release']['sourceUrl']] if receipt(player.get('release')) else []))))
+    # Earlier full-slate scouting pass ends here: NO G17 or Step14 source
+    # adjudication before the actual cross-game G16 competition.
+    if stop_at_g16:
+        expected=EXECUTION_ORDER[:EXECUTION_ORDER.index('G17')]
+        if [row['gate'] for row in execution_trace]!=expected:
+            raise ValueError('Original G0-G16 scouting gate order mismatch')
+        return {'player':player,'dispositions':d,'release':release,
+                'preG17Qualified':all(d[g]['disposition']=='PASS'
+                                      for g in MASTER[:MASTER.index('G17')])},execution_trace
+    source_steps(['Step14'],rows)
     # G17 independent contradictions are reviewed only at G17, after G16.
     if g17_review is not None:
         source_receipt=g17_review(game,attack_team,player,eliminated_before)
