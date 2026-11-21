@@ -30,7 +30,7 @@ def test_authoritative_state_published_from_exact_executed_source():
     assert "git push --force" not in workflow
 
 
-def test_production_changes_verify_before_the_separate_scheduled_run():
+def test_regression_verification_is_separate_from_live_engine_run():
     verification=Path(".github/workflows/blender-verification.yml").read_text()
     for dependency in (
         "nhl_true_blender_engine/**", "run_true_blender.py", "*.py",
@@ -40,7 +40,11 @@ def test_production_changes_verify_before_the_separate_scheduled_run():
     assert "python -m compileall" in verification
     assert "python -m pytest -q --junitxml=integration-results.xml" in verification
     live=Path(".github/workflows/nhl-true-blender.yml").read_text()
-    assert "python -m unittest discover -p 'test*.py' -v" in live
-    assert "python -m pytest -q nhl_true_blender_engine/tests" in live
+    # Regression checks remain available, but cannot be a prerequisite for
+    # the authoritative scorer execution or its persistence/publication.
+    assert "python -m unittest discover" not in live
+    assert "python -m pytest" not in live
+    assert "steps.verification" not in live
+    assert "id: engine" in live
     assert "scripts/ledger_persistence.py restore" in live
     assert 'git -C "$persist_dir" push origin HEAD:main' in live

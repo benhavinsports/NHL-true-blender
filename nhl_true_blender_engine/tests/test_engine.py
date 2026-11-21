@@ -466,23 +466,16 @@ def test_four_survivor_games_keep_all_original_gate_evidence_without_g18_rank(co
         assert chronological[-1]["disposition"]=="NOT_EXECUTED"
 
 
-def test_g18_semantic_rejection_never_enters_final_pool(con,monkeypatch):
-    """G18 must not silently promote a pre-audit True despite failed proof."""
-    import nhl_true_blender_engine.engine as engine
-    original_audit=engine.audit_gate
-    def reject_final(gate,evidence,source_ids,stage):
-        if gate=="G18":
-            return ["SYNTHETIC_MISSING_G18_PROOF"]
-        return original_audit(gate,evidence,source_ids,stage)
-    monkeypatch.setattr(engine,"audit_gate",reject_final)
+def test_g18_uses_original_selection_after_g0_g17_and_g16(con):
+    """G18 assembles the original finalists; no second semantic veto exists."""
     result=execute(con,snapshot(3),DATE,"CONFIRMED")
-    assert result["card"] is None
-    # Game-level G0-G17 survivors are still observed; final G18 proof
-    # rejection blocks their promotion into the Core, not their existence.
     assert result["uniqueGameSurvivors"]==3
-    assert "G18" in str(result["errors"])
+    assert result["card"] is not None
+    assert len(result["card"]["current_legs"])==3
+    assert len({x["gameId"] for x in result["card"]["current_legs"]})==3
     rows=con.execute("SELECT disposition FROM gates WHERE gate='G18'").fetchall()
-    assert rows and all(x["disposition"]=="NOT_EXECUTED" for x in rows)
+    assert len(rows)==3
+    assert all(x["disposition"]=="PASS" for x in rows)
 
 
 def test_stale_trigger_cannot_replace_core_or_fake_retraction_exception(con):

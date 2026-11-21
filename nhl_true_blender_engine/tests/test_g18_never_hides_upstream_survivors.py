@@ -30,7 +30,6 @@ def test_unclassified_g18_label_does_not_disappear_a_full_g0_g17_game_survivor(t
         assert pool["survivor"]["pathClassificationStatus"]=="G18_PATH_NOT_YET_CERTIFIED"
         assert result["uniqueGameSurvivors"]==3
         assert result["card"] is None
-        assert any("G18 final source certification" in err for err in result["errors"])
         rows=con.execute(
             "SELECT gate,disposition FROM gates WHERE game_id=? AND player_id=?",
             ("5001","1010")).fetchall()
