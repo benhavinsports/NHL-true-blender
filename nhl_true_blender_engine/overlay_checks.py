@@ -11,7 +11,7 @@ from .semantic_certification import audit_gate
 from .rival_scope import g17_resolved_without_eliminated_rivals
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 from .shooter_mechanism import shooter_mechanism
-from .recent_origin import independently_dated_origin_route
+from .recent_origin import independently_dated_origin_route, independently_bounded_origin_route
 
 STEP_ORDER=([f'Step{i}' for i in range(11)]+['Step10.5']+
             [f'Step{i}' for i in range(11,15)])
@@ -198,23 +198,29 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     # Step9: check the actual per-appearance pressure observation, not the
     # presence of a nonnegative list or any previously recorded G11 PASS.
     route_pressure=independently_dated_origin_route(player,zone)
-    route_reviewed=bool(route_pressure and
+    bounded_route=(independently_bounded_origin_route(
+        player,zone) if route_pressure is None else None)
+    observed_route=route_pressure or bounded_route
+    route_reviewed=bool(observed_route and
         (evidence_data(player.get('recentOrigin')) or {}).get('sampleAsOfSlateDate')==game.get('date'))
-    route_current=bool(route_reviewed and route_pressure['shotsOnGoal']>0)
+    route_current=bool(route_reviewed and
+        ((route_pressure and route_pressure['shotsOnGoal']>0) or
+         (bounded_route and bounded_route['shotsOnGoalLowerBound']>0)))
     measured=bool(receipt(pressure) and observed_shots['valid'] and
                   observed_shots['repeatedOwnShotPressure'] and route_current)
     emit('Step9',measured,
          {'dateSampleShotsOnNet':recent,
           'recentRouteContinuationMeasured':measured,
           'ownShotContinuationEvidence':observed_shots,
-          'selectedRouteRecentOrigin':route_pressure,
+          'selectedRouteRecentOrigin':observed_route,
+          'conservativeUnknownLocationBounds':bounded_route,
           'currentShotPressureInSelectedRoute':route_current,
           'notWeightedOrMarketSelected':True},src(pressure,player.get('recentOrigin')),
          # An undated count list is unresolved, not a dated one-off loss.
          contradiction=bool(receipt(pressure) and observed_shots['valid']
                             and observed_shots['datedAppearanceAlignmentVerified']
                             and (not observed_shots['repeatedOwnShotPressure'] or
-                                 (route_reviewed and not route_current))))
+                                 (route_pressure is not None and route_reviewed and not route_current))))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
          {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,
           'observedOwnMechanism':mechanism,
