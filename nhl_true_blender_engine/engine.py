@@ -419,107 +419,130 @@ def complete_roster(game, team):
     return list(unique.values())
 
 
+def _source_route_rows(data, source_url=None):
+    """Return every independently measured own shot-origin route without ranking it."""
+    data=data if isinstance(data,dict) else {}
+    raw=data.get('allRoutes')
+    if not isinstance(raw,list) or not raw:
+        if data.get('zone'):
+            raw=[{'zone':data.get('zone'),'sog':data.get('attempts'),
+                  'ownedGoals':data.get('ownedGoals'),'sourceUrl':source_url}]
+        else:
+            raw=[]
+    rows=[]
+    for item in raw:
+        if not isinstance(item,dict):
+            continue
+        zone=item.get('zone')
+        shots=item.get('sog',item.get('attempts'))
+        goals=item.get('ownedGoals')
+        if (not isinstance(zone,str) or not zone or type(shots) is not int
+                or shots<0 or type(goals) is not int or not 0<=goals<=shots):
+            continue
+        rows.append({**item,'zone':zone,'sog':shots,'attempts':shots,
+                     'ownedGoals':goals,'sourceUrl':item.get('sourceUrl') or source_url})
+    return rows
+
+
 def player_releases(p):
+    """Return all own routes and independently review each route's shot mechanism."""
     b=p.get('release')
-    if not receipt(b):return None
-    data=b['data']
-    if not (data.get('archetype') and data.get('zone') and isinstance(data.get('attempts'), int)
-            and isinstance(data.get('ownedGoals'),int)):
+    if not receipt(b):
         return None
-    mechanism=shooter_mechanism(p,data)
-    return {**data,'mechanismReview':mechanism,
-            **({'archetype':mechanism['archetype']} if mechanism['supported'] else {})}
+    data=b['data']
+    routes=_source_route_rows(data,b.get('sourceUrl'))
+    if not routes:
+        return None
+    mechanism_rows=[]
+    shot_wrapper=p.get('shotMechanism') or {}
+    shot_data=shot_wrapper.get('data') or {}
+    slate_date=data.get('slateDate') or shot_data.get('slateDate')
+    for route in routes:
+        route_data={**data,**route,'zone':route['zone'],
+                    'attempts':route['attempts'],'ownedGoals':route['ownedGoals']}
+        review=shooter_mechanism(p,route_data,slate_date)
+        mechanism_rows.append({**route,'mechanismReview':review,
+                               'mechanismSupported':review.get('supported') is True})
+    supported=[x for x in mechanism_rows if x['mechanismSupported']]
+    types=sorted({kind for x in supported
+                  for kind in (x['mechanismReview'].get('observedShotTypes') or [])})
+    source_ids=sorted({url for x in supported
+                       for url in (x['mechanismReview'].get('sourceIds') or [])
+                       if isinstance(url,str) and url.startswith('https://')})
+    event_map={}
+    for x in supported:
+        for event in x['mechanismReview'].get('ownMechanismEvents') or []:
+            key=(str(event.get('gameId')),str(event.get('eventId')))
+            event_map[key]=event
+    archetype=('observed '+', '.join(types)+' release') if types else next(
+        (x['mechanismReview'].get('archetype') for x in supported
+         if x['mechanismReview'].get('archetype')),None)
+    mechanism={
+        'supported':bool(supported),'archetype':archetype,
+        'observedShotTypes':types,'ownMechanismEvents':list(event_map.values()),
+        'sourceIds':source_ids,
+        'supportedZones':sorted({x['zone'] for x in supported}),
+        'originOnlyIsNotArchetype':not bool(supported),
+        'setupDependenceNotInferred':True,
+        'reboundOrShotQualityNotInferred':True,
+        'goalMouthPlacementNotInferred':True,
+    }
+    g0_applied=isinstance(data.get('g0MatchedOwnOriginRoutes'),list)
+    if isinstance(data.get('g9ViableRoutes'),list):
+        selected=_source_route_rows({'allRoutes':data['g9ViableRoutes']},b.get('sourceUrl'))
+    elif g0_applied:
+        selected=_source_route_rows({'allRoutes':data.get('g0MatchedOwnOriginRoutes') or []},b.get('sourceUrl'))
+    else:
+        selected=[x for x in routes if x['zone']==data.get('zone')]
+    unique=selected[0] if len(selected)==1 else None
+    return {**data,'allRoutes':routes,
+            'g0MatchedOwnOriginRoutes':_source_route_rows(
+                {'allRoutes':data.get('g0MatchedOwnOriginRoutes') or []},b.get('sourceUrl')),
+            'g0RouteSelectionApplied':g0_applied,
+            'g9ViableRoutes':_source_route_rows(
+                {'allRoutes':data.get('g9ViableRoutes') or []},b.get('sourceUrl')),
+            'routeReviews':mechanism_rows,'mechanismReview':mechanism,
+            'zone':unique['zone'] if unique else None,
+            'attempts':unique['attempts'] if unique else None,
+            'ownedGoals':unique['ownedGoals'] if unique else None,
+            'sourceUrl':b['sourceUrl'],'observedAt':b['observedAt']}
 
 
+def release_matched_to_g0_target(player,goalie_profile):
+    """Apply G0 only: preserve EVERY own route matching the decided goalie weakness.
 
-
-def release_matched_to_g0_target(player,goalie_profile,defensive_coverage=None):
-    """After G0 selects an attack side, match each skater's independently
-    observed OWN shot-origin routes to that goalie's evidenced weak origins.
-
-    Neither G0 nor the original release source is edited; no famous-player
-    shortcut. A different goalie branch gets its own independent comparison.
+    G9 defensive coverage is later in the master order and is deliberately not
+    an input here. Multiple G0-matched routes remain a route set; no historical
+    primary, G9 preference or arbitrary tie-break chooses one before G5.
     """
     wrapper=player.get('release')
     if not receipt(wrapper):
         return player
     base=wrapper['data']
-    routes=base.get('allRoutes')
-    weak=goalie_profile.get('data',{}).get('weakZones') or {}
-    if not isinstance(routes,list) or not routes or not weak:
+    routes=_source_route_rows(base,wrapper.get('sourceUrl'))
+    if not routes:
         return player
-    matching=[r for r in routes if r.get('zone') in weak
-              and isinstance(r.get('sog'),int)
-              and isinstance(r.get('ownedGoals'),int)
-              and r['sog']>=r['ownedGoals']>=0]
-    if not matching:
-        return player
-    # G0 remains first. Among the player's OWN observed shots against G0's
-    # goalie weakness, find a route independently supported by G9's actual
-    # opponent-defense shot-origin concessions. Do not force a mismatch merely
-    # because the skater scored more historical goals from another goalie-weak
-    # area. Every eligible route still requires separately verified G5/G9.
-    defense=(defensive_coverage.get('data') or {}) if receipt(defensive_coverage) else {}
-    green=set(defense.get('greenWeakZones') or [])
-    jointly_sourced=[x for x in matching if x['zone'] in green]
-    considered=jointly_sourced if jointly_sourced else matching
-    # Selecting from multiple goalie-and-defense viable origins by historic
-    # goal count is not a TONIGHT decision. A sole verified route is enough;
-    # otherwise every alternative must be defeated by source-comparable
-    # opponent-specific goalie AND defensive exposure observations.
-    matchup_winners=(
-        [own for own in considered if all(
-            own is other or
-            (_tonight_route_comparison(
-                own['zone'],other['zone'],weak,defense) or {}).get('result')
-                    == 'CANDIDATE'
-            for other in considered)]
-        if len(considered)>1 and jointly_sourced else [])
-    matchup_aligned=len(considered)==1 or len(matchup_winners)==1
-    if not matchup_aligned:
-        # Preserve the original release WITHOUT manufacturing a new lane.
-        # G5 explicitly records this as unresolved and G18 cannot select it.
-        result=dict(player)
-        result['release']={**wrapper,'data':{
-            **base,
-            'tonightRouteSelectionBasis':'UNRESOLVED_MATCHUP_NO_HISTORICAL_FALLBACK',
-            'tonightRouteUnresolved':True,
-            'g0MatchedOwnOriginRoute':False,
-            'g9DefensiveLaneIndependentlyMatched':bool(jointly_sourced),
-            'g9CoverageSourceUrl':(
-                defensive_coverage.get('sourceUrl') if jointly_sourced else None),
-            'consideredOwnGoalieWeakRoutes':sorted(x['zone'] for x in matching),
-            'jointlyDefenseSupportedRoutes':sorted(x['zone'] for x in jointly_sourced),
-            'historicalTotalsCannotResolveTonightRoute':True,
-        }}
-        return result
-    top=considered[0] if len(considered)==1 else matchup_winners[0]
-    tied_origin_evidence=None
-    observed=dict(base)
-    observed.update({
-        'archetype':base.get('archetype') or 'OBSERVED_OWN_SHOT_ORIGIN',
-        'zone':top['zone'],
-        'attempts':top['sog'],
-        'ownedGoals':top['ownedGoals'],
-        'g0MatchedOwnOriginRoute':True,
-        'g9DefensiveLaneIndependentlyMatched':bool(jointly_sourced),
-        'g9CoverageSourceUrl':defensive_coverage.get('sourceUrl') if jointly_sourced else None,
-        'consideredOwnGoalieWeakRoutes':sorted(x['zone'] for x in matching),
-        'originalPrimaryOrigin':base.get('zone'),
-        'primaryWasTiedBeforeG0':not bool(base.get('canDeterminePrimary',True)),
-        'candidateRouteReconstructedFrom':wrapper['sourceUrl'],
-        'tonightRouteSelectionBasis':(
-            'ONLY_JOINTLY_VIABLE_ORIGIN' if len(considered)==1 else
-            'G0_GOALIE_G9_DEFENSE_MATCHUP_DOMINANCE'),
-        'tonightRouteUnresolved':False,
-        'historicalTotalsCannotResolveTonightRoute':True,
-        'datedPbpLaneTieResolution':tied_origin_evidence,
-        'anatomicalPlacementCertified':False,
-        'noPreG0SkaterPreference':True
-    })
-    result=dict(player)
-    result['release']={**wrapper,'data':observed}
-    return result
+    raw_routes=base.get('allRoutes')
+    source_complete=(bool(routes) and (
+        not isinstance(raw_routes,list) or len(routes)==len(raw_routes)))
+    weak=(goalie_profile.get('data') or {}).get('weakZones') or {}
+    matching=[x for x in routes if x['zone'] in weak]
+    data={**base,'allRoutes':routes,
+          'g0MatchedOwnOriginRoutes':matching,
+          'g0MatchedOwnOriginRouteZones':sorted({x['zone'] for x in matching}),
+          'g0RouteEvidenceComplete':source_complete,
+          'g0RouteSelectionApplied':True,
+          'g0RouteSelectionBasis':'G0_ONLY_GOALIE_WEAKNESS_ROUTE_SET',
+          'g9RouteSelectionDeferred':True,
+          'tonightRouteSelectionBasis':'G0_GOALIE_WEAKNESS_ROUTE_SET',
+          'tonightRouteUnresolved':False,
+          'originalPrimaryOrigin':base.get('zone')}
+    unique=matching[0] if len(matching)==1 else None
+    data.update({'zone':unique['zone'] if unique else None,
+                 'attempts':unique['attempts'] if unique else None,
+                 'ownedGoals':unique['ownedGoals'] if unique else None})
+    return {**player,'release':{**wrapper,'data':data}}
+
 
 def reconcile_logs(p):
     """Aggregate only actual appearances and official dated goal events; no missed game zeros."""
