@@ -32,8 +32,12 @@ def _page():
 
 def test_dailyfaceoff_parser_reads_dated_forward_lines_pairs_and_pp(monkeypatch):
     class Response:
+        status_code=200
+        headers={}
         text=_page()
-    monkeypatch.setattr(providers,"get",lambda url:Response())
+        def raise_for_status(self):
+            return None
+    monkeypatch.setattr(providers.requests,"get",lambda url,**kwargs:Response())
     rows,meta=providers.fetch_dailyfaceoff("SJS","San Jose Sharks",DATE)
     assert meta["sourceDate"]==DATE
     assert meta["dateVerified"] is True
