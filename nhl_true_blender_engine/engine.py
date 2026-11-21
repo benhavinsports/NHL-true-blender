@@ -1099,7 +1099,7 @@ def _finish_pool(games,game_pool,card,g16_receipt):
 
 
 def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
-                    stopped_before_g10_5=None, defer_g18=False):
+                    stopped_before_g10_5=None, defer_g18=False, stop_at_g10=False):
     d={}; proof=[]; deficient=[]; eliminated=False; first_elimination_gate=None
     # Teammates who passed G0-G10 (see stopped_before_g10_5). Only these are
     # meaningful G10.5/G16 challengers, for the master gate and its overlay.
@@ -1366,6 +1366,17 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
          source_ids=sorted(set(x['sourceUrl'] for x in
              (ownership, season_history if verified_season_goals else None)
              if receipt(x))))
+    # The first teammate-qualification pass ends at G10, precisely before
+    # recipient comparisons. Previously it ran G10.5–G17 (and their source
+    # functions) using an empty rival-stop map, then ran those same gates a
+    # second time with different rivals. That let later calculations execute
+    # before the first G10.5 decision and could contaminate source reviews.
+    if stop_at_g10:
+        expected=EXECUTION_ORDER[:EXECUTION_ORDER.index('G10.5')]
+        observed=[row['gate'] for row in proof]
+        if observed!=expected:
+            raise ValueError(f'Pre-G10.5 phase order mismatch: {observed}')
+        return {'player':player,'dispositions':d},proof
     # G10.5/G16 compare against MEANINGFUL challengers only. A teammate
     # already ELIMINATED before G10.5 cannot own a route (G18 never reopens
     # eliminated candidates). An unresolved teammate is still compared but
@@ -2941,7 +2952,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
                 scoped_players=[release_matched_to_g0_target(
                     player,branch,match.get('coverage',{}).get(attacker)) for player in players]
                 stopped=stopped_before_g10_5([
-                    evaluate_skater(match,attacker,x,players,branch,stage)[0]
+                    evaluate_skater(match,attacker,x,players,branch,stage,
+                                     stop_at_g10=True)[0]
                     for x in scoped_players])
                 for player,scoped in zip(players,scoped_players):
                     # No _g0SelectedDirection: these are NOT proposed Core
@@ -3011,9 +3023,11 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             scoped_game={**match,'_g0SelectedDirection':direction}
             scoped_players=[release_matched_to_g0_target(player,branch,match.get('coverage',{}).get(team))
                             for player in players]
-            # Pass 1 only establishes who passed G0-G10 (teammate-independent).
+            # Pass 1 actually executes only G0-G10 (teammate-independent).
+            # No G10.5/G16/G17 decisions are computed before the rivals are scoped.
             stopped=stopped_before_g10_5([
-                evaluate_skater(scoped_game,team,x,players,branch,stage,defer_g18=True)[0]
+                evaluate_skater(scoped_game,team,x,players,branch,stage,
+                                 stop_at_g10=True)[0]
                 for x in scoped_players])
             for scoped in scoped_players:
                 # Bind the G0 direction receipt to every skater checked after
