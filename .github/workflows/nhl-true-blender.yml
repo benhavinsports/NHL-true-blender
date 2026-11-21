@@ -298,4 +298,16 @@ jobs:
             state/site_runs/
             state/site_cards/
           if-no-files-found: warn
+      # A completed live cycle must hand off to another confirmed research
+      # cycle while any official game remains before its own puck drop. This
+      # runs even when the certification assertion fails for lack of a Core.
+      - name: Continue confirmed source recovery until puck drop
+        if: always() && steps.engine.outcome == 'success' && steps.persist.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          BLENDER_EXECUTED_DATE: ${{ env.BLENDER_EXECUTED_DATE }}
+        run: python scripts/dispatch_next_blender_cycle.py
 
