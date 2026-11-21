@@ -239,10 +239,14 @@ jobs:
                            status.get('survivorOnlyCertification') is True)):
                       problems.append('Original selected Core not certified: '+
                                       str(status.get('errors') or status.get('publicationDecision')))
-                  if not status.get('currentRunFullyCertified'):
-                      print('::warning::Core is published, but full-slate G0-G17 evidence remains unresolved: '+
-                            str(status.get('nonselectedGameResearchNotes') or
-                                status.get('errors') or status.get('publicationDecision')))
+                  if status.get('publishedToSite') and status.get('cardId'):
+                      if not status.get('currentRunFullyCertified'):
+                          print('::warning::An authoritative Core is published, but full-slate G0-G17 evidence remains unresolved: '+
+                                str(status.get('nonselectedGameResearchNotes') or
+                                    status.get('errors') or status.get('publicationDecision')))
+                  else:
+                      print('::warning::No authoritative Core is published; full-slate G0-G17 evidence remains unresolved: '+
+                            str(status.get('errors') or status.get('publicationDecision')))
                   if not status.get('publishedToSite') or not status.get('cardId'):
                       problems.append('No verified authoritative Core published')
                   cardpath=Path('state/site_cards')/f'{date}.json'
