@@ -24,7 +24,6 @@ from nhl_true_blender_engine.edge_derived_routes import derive_nhl_edge_attacks
 from nhl_true_blender_engine.goalie_history_fallback import collect_goalie_pbp_fallback
 from nhl_true_blender_engine.official_dressed import collect_official_dressed
 from nhl_true_blender_engine.official_context import collect_context
-from nhl_true_blender_engine.contradiction_review import review_all_candidates
 from nhl_true_blender_engine.first_gate_audit import first_gate_audit
 from nhl_true_blender_engine.gate_input_diagnostics import explain_live_blockers
 from nhl_true_blender_engine.gate_census import certify_gates
@@ -112,9 +111,10 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             attach(con, snapshot, date, stage)
         initial_watch = await collect_watch(None, con, date, snapshot)
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
-        contradiction_research = review_all_candidates(con, snapshot, date, stage)
+        # Source-backed G17 review occurs at its own gate after G0-G16.
         attach(con, snapshot, date, stage)
         result = execute(con, snapshot, date, stage)
+        contradiction_research = result.get('g17ReviewSummary')
         # Evidence feedback: re-research the actual source-incomplete gate
         # candidates, refresh the attached snapshot, and execute the entire
         # original gate order again. Never promote NOT_EXECUTED to PASS.
@@ -171,9 +171,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             # G0 source-origin review is an input to the selection engine,
             # not merely a report. Recompute it after changing goalie evidence.
             review_g0_goalie_origins(con,snapshot,date,stage)
-            review_all_candidates(con,snapshot,date,stage)
             attach(con,snapshot,date,stage)
             result=execute(con,snapshot,date,stage)
+            contradiction_research=result.get('g17ReviewSummary')
             after=_census(con,date,stage,result.get('games'))
             feedback.append({'pass':2,'unresolvedFirstGateCandidates':
                 after.get('firstFailureClassificationCounts',{}).get('EVIDENCE_INCOMPLETE',0),
