@@ -15,6 +15,7 @@ import hashlib
 import re
 import json
 from datetime import date as Date, datetime, timezone
+from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 from html import unescape
 from urllib.parse import quote
@@ -30,6 +31,24 @@ MONTHS = {
     "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
     "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
 }
+
+
+def retry_after_seconds(response):
+    """Read the provider's Retry-After header; never retry before it permits."""
+    headers=getattr(response,"headers",{}) or {}
+    raw=headers.get("Retry-After")
+    if raw is None:
+        return 2.0
+    try:
+        return max(0.0,float(raw))
+    except (TypeError,ValueError):
+        try:
+            when=parsedate_to_datetime(str(raw))
+            if when.tzinfo is None:
+                when=when.replace(tzinfo=timezone.utc)
+            return max(0.0,(when-datetime.now(timezone.utc)).total_seconds())
+        except (TypeError,ValueError,OverflowError):
+            return 2.0
 
 
 def source_asof(html, slate_date, next_game_evidence=None):
@@ -187,12 +206,11 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
         return {"status": "NOT_PREGAME_STAGE", "deploymentRecords": 0}
     teams = sorted({t for g in snapshot.get("games", [])
                     for t in (g["away"], g["home"])})
-    # Stop the entire source batch promptly if the provider says 429.
-    # The prior five-at-once collection sent 28 unsuccessful requests on
-    # every pass, and repeated them during the same G0 evidence refresh.
-    # Rate limiting is source UNAVAILABILITY, never a G6 pass or permission
-    # to borrow last game's units. Leave legitimate source dates untouched.
-    sem = asyncio.Semaphore(2)
+    # Serialize this provider and respect Retry-After. A single 429 is not
+    # permission to abandon the source without retrying; a persistent 429 is
+    # recorded for the next scheduled source-recovery cycle. Other independent
+    # lineup providers are collected separately and continue normally.
+    sem = asyncio.Semaphore(1)
     rate_limited = {"blocked": False}
     async with httpx.AsyncClient(timeout=15, follow_redirects=True,
                                  headers={"User-Agent": "Mozilla/5.0",
@@ -204,12 +222,21 @@ async def collect_edgehalla_deployment(con, snapshot, slate_date, stage):
             url = SOURCE_BASE + quote(slug)
             async with sem:
                 if rate_limited["blocked"]:
-                    return team, url, None, "SOURCE_RATE_LIMITED_429_NO_RETRY"
+                    return team, url, None, "SOURCE_RATE_LIMITED_RETRY_NEXT_CYCLE"
                 try:
                     response = await client.get(url)
                     if response.status_code == 429:
-                        rate_limited["blocked"] = True
-                        return team, url, None, "SOURCE_RATE_LIMITED_429_NO_RETRY"
+                        delay=retry_after_seconds(response)
+                        # A long provider cooldown belongs to the next five-
+                        # minute cycle; do not sleep through a puck-drop window.
+                        if delay > 30:
+                            rate_limited["blocked"] = True
+                            return team, url, None, "SOURCE_RATE_LIMITED_RETRY_NEXT_CYCLE"
+                        await asyncio.sleep(delay)
+                        response = await client.get(url)
+                        if response.status_code == 429:
+                            rate_limited["blocked"] = True
+                            return team, url, None, "SOURCE_RATE_LIMITED_RETRY_NEXT_CYCLE"
                     response.raise_for_status()
                     return team, url, response.text, None
                 except (httpx.HTTPError, ValueError) as exc:
