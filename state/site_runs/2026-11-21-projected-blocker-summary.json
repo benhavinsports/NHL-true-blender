@@ -7,23 +7,23 @@
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G6": 249,
     "G10.5": 208,
     "G11": 230,
     "G16": 208,
     "G17": 249,
-    "Step6": 249,
     "Step9": 230,
     "Step10.5": 208,
     "Step12": 208,
     "Step14": 249,
     "G4": 105,
+    "G6": 231,
     "G7": 33,
     "G10": 64,
     "G12": 64,
     "G15": 67,
     "Step4": 33,
     "Step5": 83,
+    "Step6": 231,
     "Step7": 105,
     "G5": 75,
     "Step3": 57,
@@ -53,7 +53,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 77
+      "playerCount": 64
     },
     {
       "masterGates": [
@@ -89,7 +89,23 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 17
+      "playerCount": 16
+    },
+    {
+      "masterGates": [
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 13
     },
     {
       "masterGates": [
@@ -119,6 +135,41 @@
     },
     {
       "masterGates": [
+        "G5",
+        "G6",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 9
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 9
+    },
+    {
+      "masterGates": [
         "G4",
         "G5",
         "G6",
@@ -140,42 +191,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 9
-    },
-    {
-      "masterGates": [
-        "G5",
-        "G6",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 9
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 9
+      "playerCount": 8
     },
     {
       "masterGates": [
@@ -214,7 +230,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 8
+      "playerCount": 7
     },
     {
       "masterGates": [
@@ -237,7 +253,7 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 6
+      "playerCount": 5
     },
     {
       "masterGates": [
@@ -347,33 +363,6 @@
     },
     {
       "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G10.5",
-        "G11",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 4
-    },
-    {
-      "masterGates": [
         "G6",
         "G9",
         "G10.5",
@@ -410,6 +399,33 @@
       "overlaySteps": [
         "Step3",
         "Step5",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
         "Step6",
         "Step7",
         "Step9",
@@ -648,6 +664,25 @@
         "Step14"
       ],
       "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
     },
     {
       "masterGates": [
@@ -742,6 +777,46 @@
     {
       "masterGates": [
         "G4",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
         "G5",
         "G6",
         "G10",
@@ -897,6 +972,54 @@
         "Step3",
         "Step6",
         "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
         "Step10",
         "Step10.5",
         "Step12",
@@ -1130,13 +1253,6 @@
     }
   ],
   "oneObservedEvidenceExamplePerGate": {
-    "G6": {
-      "gameId": "2026020360",
-      "playerId": "8474150",
-      "reason": {
-        "deployment": null
-      }
-    },
     "G10.5": {
       "gameId": "2026020360",
       "playerId": "8474150",
@@ -1231,10 +1347,18 @@
         },
         "lineupDisagreementReview": {
           "availability": "UNVERIFIED",
-          "hasProjectedOrConfirmedRole": false,
+          "hasProjectedOrConfirmedRole": true,
           "isTrulyConfirmed": false,
-          "lineupSourceUrl": null,
-          "projectedOrConfirmedEV": null
+          "lineupSourceUrl": "https://www.nhl.com/news/chicago-blackhawks-calgary-flames-game-preview-november-21-2026",
+          "projectedOrConfirmedEV": {
+            "EV": "F1",
+            "doesNotEstablishDressedOrPP": true,
+            "playerId": "8474150",
+            "projectedNotConfirmed": true,
+            "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+            "status": "PROJECTED",
+            "team": "CGY"
+          }
         },
         "strongestRivalReview": {
           "G9OpponentDefenseWeakZonesUsed": [
@@ -1287,8 +1411,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F4",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484154",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1336,8 +1468,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8482679",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1385,8 +1525,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8480797",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1434,8 +1582,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8480028",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1483,8 +1639,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484860",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1581,8 +1745,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8483609",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1630,8 +1802,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8481028",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1679,8 +1859,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F3",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8481068",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1728,8 +1916,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8476458",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1777,8 +1973,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F4",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484234",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1826,8 +2030,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "F4",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484958",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1929,8 +2141,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D1",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8478136",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -1978,8 +2198,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8483495",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -2027,8 +2255,16 @@
               "noFameOddsOrPPShortcut": true,
               "noSeasonTotalInvented": true,
               "rivalAlternateGoalieWeakLane": false,
-              "rivalEVRole": null,
-              "roleReviewIncomplete": true,
+              "rivalEVRole": {
+                "EV": "D3",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8484768",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CGY"
+              },
+              "roleReviewIncomplete": false,
               "rule": "only source-qualified opponent matchup and dated same-lane shot-rate evidence decides; no season cumulative fallback",
               "sameLane": true,
               "sameLaneSeasonCumulativeCountsNotUsed": true,
@@ -2075,11 +2311,6 @@
         }
       }
     },
-    "Step6": {
-      "gameId": "2026020360",
-      "playerId": "8474150",
-      "reason": null
-    },
     "Step9": {
       "gameId": "2026020360",
       "playerId": "8474150",
@@ -2104,6 +2335,13 @@
       "gameId": "2026020360",
       "playerId": "8476456",
       "reason": null
+    },
+    "G6": {
+      "gameId": "2026020360",
+      "playerId": "8476456",
+      "reason": {
+        "deployment": null
+      }
     },
     "G7": {
       "gameId": "2026020360",
@@ -2135,6 +2373,11 @@
       "reason": null
     },
     "Step5": {
+      "gameId": "2026020360",
+      "playerId": "8476456",
+      "reason": null
+    },
+    "Step6": {
       "gameId": "2026020360",
       "playerId": "8476456",
       "reason": null

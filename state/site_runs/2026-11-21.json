@@ -1,11 +1,1534 @@
 {
+  "additionalStructuredDeploymentCoverage": {
+    "deploymentRecords": 0,
+    "noUndatedRolePromoted": true,
+    "skippedCount": 303,
+    "teamReports": {
+      "ANA": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/ana.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/ana.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T03:23:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/ANA.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "anaheim-ducks not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/anaheim-ducks/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22anaheim-ducks%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "BOS": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/bos.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/bos.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-18T22:41:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/BOS.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "boston-bruins not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/boston-bruins/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22boston-bruins%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "BUF": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/buf.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/buf.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-18T18:13:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/BUF.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "buffalo-sabres not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/buffalo-sabres/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22buffalo-sabres%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "CAR": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/car.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/car.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-17T15:02:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/CAR.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/carolina-hurricanes/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "CBJ": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/cbj.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/cbj.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T17:45:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/CBJ.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "columbus-blue-jackets not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22columbus-blue-jackets%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "CGY": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/cgy.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/cgy.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T18:25:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/CGY.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/calgary-flames/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "CHI": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/chi.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/chi.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-18T17:13:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/CHI.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/chicago-blackhawks/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "DET": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/det.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/det.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T17:13:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/DET.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "detroit-red-wings not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/detroit-red-wings/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22detroit-red-wings%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "EDM": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/edm.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/edm.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T17:45:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/EDM.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "FLA": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/fla.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/fla.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-17T22:48:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/FLA.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "florida-panthers not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/florida-panthers/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22florida-panthers%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "LAK": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/lak.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/lak.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T22:44:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/LAK.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "los-angeles-kings not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/los-angeles-kings/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22los-angeles-kings%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "MIN": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/min.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/min.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T18:10:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/MIN.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "minnesota-wild not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/minnesota-wild/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22minnesota-wild%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "MTL": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/mtl.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/mtl.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T22:43:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/MTL.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "montreal-canadiens not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/montreal-canadiens/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22montreal-canadiens%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "NJD": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/njd.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/njd.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T17:41:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/NJD.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "new-jersey-devils not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/new-jersey-devils/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22new-jersey-devils%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "NSH": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/nsh.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/nsh.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T16:34:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/NSH.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/nashville-predators/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "NYI": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/nyi.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/nyi.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T18:54:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/NYI.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "new-york-islanders not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/new-york-islanders/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22new-york-islanders%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "OTT": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/ott.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/ott.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T15:50:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/OTT.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "ottawa-senators not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/ottawa-senators/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22ottawa-senators%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "PHI": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/phi.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/phi.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-17T22:48:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/PHI.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "philadelphia-flyers not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/philadelphia-flyers/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22philadelphia-flyers%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "PIT": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": true,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/pit.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/pit.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T17:15:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/PIT.json"
+          },
+          {
+            "dateVerified": false,
+            "errors": [
+              "Article publication, target weekday and exact official opponent were not jointly verified; lineup is research-only"
+            ],
+            "provider": "NHL.com projected lineup article",
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/pittsburgh-penguins/line-combinations"
+          }
+        ],
+        "status": "FOUND LINE + PP EVIDENCE"
+      },
+      "SEA": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/sea.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/sea.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T20:10:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/SEA.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "seattle-kraken not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/seattle-kraken/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22seattle-kraken%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "SJS": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/sjs.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/sjs.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T18:19:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/SJS.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "san-jose-sharks not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/san-jose-sharks/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22san-jose-sharks%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "STL": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/stl.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/stl.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T17:14:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/STL.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "st-louis-blues not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/st-louis-blues/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22st-louis-blues%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "TOR": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/tor.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/tor.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T20:08:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/TOR.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "toronto-maple-leafs not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/toronto-maple-leafs/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22toronto-maple-leafs%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "UTA": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/uta.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/uta.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T18:20:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/UTA.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "utah-mammoth not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/utah-mammoth/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22utah-mammoth%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "VAN": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/van.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/van.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-17T15:47:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/VAN.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "vancouver-canucks not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/vancouver-canucks/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22vancouver-canucks%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "VGK": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/vgk.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/vgk.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T20:06:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/VGK.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "vegas-golden-knights not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/vegas-golden-knights/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22vegas-golden-knights%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "WPG": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/wpg.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/wpg.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-19T15:54:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/WPG.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "winnipeg-jets not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/winnipeg-jets/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22winnipeg-jets%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      },
+      "WSH": {
+        "conflictCount": 0,
+        "error": null,
+        "lineEvidenceFound": false,
+        "powerPlayEvidenceFound": true,
+        "sources": [
+          {
+            "dateVerified": null,
+            "errors": [
+              "https://hockeyinsights.ca/data/lineups/index.json: no explicit line/PP assignments parsed",
+              "https://hockeyinsights.ca/data/lineups/wsh.json: HTTPError: 404 Client Error: Not Found for url: https://hockeyinsights.ca/data/lineups/wsh.json"
+            ],
+            "provider": "Hockey Insights snapshot",
+            "result": null,
+            "sourceDate": "2026-11-20T15:36:00.000Z",
+            "url": "https://hockeyinsights.ca/data/lineups/WSH.json"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "washington-capitals not found as a projected-lineup heading in NHL.com article"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": null
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "page loaded but no reliable line/PP schema parsed"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://www.dailyfaceoff.com/teams/washington-capitals/line-combinations"
+          },
+          {
+            "dateVerified": null,
+            "errors": [
+              "Multiple web indexes searched; no explicit structured line/PP assignments found"
+            ],
+            "provider": null,
+            "result": null,
+            "sourceDate": null,
+            "url": "https://html.duckduckgo.com/html/?q=%22washington-capitals%22%20NHL%20projected%20line%20combinations%20power%20play%20PP1%20PP2"
+          }
+        ],
+        "status": "PARTIAL \u2014 LINE + PP SOURCE SEARCH COMPLETED"
+      }
+    },
+    "unmatchedCount": 0
+  },
   "anatomicalEvidenceMisrepresented": false,
   "bothGoaliesRequiredBeforeG0PlayerElimination": true,
   "cardSavedByEngine": false,
   "coreEligibleSkaterMatrices": 271,
   "currentRunFullyCertified": false,
+  "datedEdgehallaProjectionCoverage": {
+    "deploymentRecords": 0,
+    "neverConfirmed": true,
+    "status": "G6_PROJECTED_RESEARCH_COMPLETE",
+    "teams": [
+      {
+        "gameId": "2026020359",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/edmonton-oilers'\nFor more information check: https://developer.mozill",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "EDM"
+      },
+      {
+        "gameId": "2026020359",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/carolina-hurricanes'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "CAR"
+      },
+      {
+        "gameId": "2026020360",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/chicago-blackhawks'\nFor more information check: https://developer.moz",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "CHI"
+      },
+      {
+        "gameId": "2026020360",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/calgary-flames'\nFor more information check: https://developer.mozilla",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "CGY"
+      },
+      {
+        "gameId": "2026020361",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/buffalo-sabres'\nFor more information check: https://developer.mozilla",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "BUF"
+      },
+      {
+        "gameId": "2026020361",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/florida-panthers'\nFor more information check: https://developer.mozil",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "FLA"
+      },
+      {
+        "gameId": "2026020362",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/pittsburgh-penguins'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "PIT"
+      },
+      {
+        "gameId": "2026020362",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/nashville-predators'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "NSH"
+      },
+      {
+        "gameId": "2026020363",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/washington-capitals'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "WSH"
+      },
+      {
+        "gameId": "2026020363",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/boston-bruins'\nFor more information check: https://developer.mozilla.",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "BOS"
+      },
+      {
+        "gameId": "2026020364",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/columbus-blue-jackets'\nFor more information check: https://developer.",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "CBJ"
+      },
+      {
+        "gameId": "2026020364",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/toronto-maple-leafs'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "TOR"
+      },
+      {
+        "gameId": "2026020365",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/philadelphia-flyers'\nFor more information check: https://developer.mo",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "PHI"
+      },
+      {
+        "gameId": "2026020365",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/montreal-canadiens'\nFor more information check: https://developer.moz",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "MTL"
+      },
+      {
+        "gameId": "2026020366",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/los-angeles-kings'\nFor more information check: https://developer.mozi",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "LAK"
+      },
+      {
+        "gameId": "2026020366",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/ottawa-senators'\nFor more information check: https://developer.mozill",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "OTT"
+      },
+      {
+        "gameId": "2026020367",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/new-york-islanders'\nFor more information check: https://developer.moz",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "NYI"
+      },
+      {
+        "gameId": "2026020367",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/detroit-red-wings'\nFor more information check: https://developer.mozi",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "DET"
+      },
+      {
+        "gameId": "2026020368",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/new-jersey-devils'\nFor more information check: https://developer.mozi",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "NJD"
+      },
+      {
+        "gameId": "2026020368",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/st-louis-blues'\nFor more information check: https://developer.mozilla",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "STL"
+      },
+      {
+        "gameId": "2026020369",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/vegas-golden-knights'\nFor more information check: https://developer.m",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "VGK"
+      },
+      {
+        "gameId": "2026020369",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/winnipeg-jets'\nFor more information check: https://developer.mozilla.",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "WPG"
+      },
+      {
+        "gameId": "2026020370",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/anaheim-ducks'\nFor more information check: https://developer.mozilla.",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "ANA"
+      },
+      {
+        "gameId": "2026020370",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/utah-mammoth'\nFor more information check: https://developer.mozilla.o",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "UTA"
+      },
+      {
+        "gameId": "2026020371",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/minnesota-wild'\nFor more information check: https://developer.mozilla",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "MIN"
+      },
+      {
+        "gameId": "2026020371",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/vancouver-canucks'\nFor more information check: https://developer.mozi",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "VAN"
+      },
+      {
+        "gameId": "2026020372",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/seattle-kraken'\nFor more information check: https://developer.mozilla",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "SEA"
+      },
+      {
+        "gameId": "2026020372",
+        "reason": "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://www.edgehalla.com/nhl/line-combinations/san-jose-sharks'\nFor more information check: https://developer.mozill",
+        "status": "SOURCE_UNAVAILABLE",
+        "team": "SJS"
+      }
+    ]
+  },
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-21T06:10:26+00:00",
+    "asOf": "2026-11-21T06:21:09+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 13,
     "gamesWithOnlyOneMatchedGoalie": 1,
@@ -486,10 +2009,12 @@
     "allGateRowsPresent": 271,
     "firstNonpassingGateCounts": {
       "G0": 22,
+      "G10": 1,
+      "G10.5": 13,
       "G2": 3,
       "G4": 102,
       "G5": 18,
-      "G6": 126
+      "G6": 112
     },
     "g0ResearchNeverCountedAsSurvivingSkater": true,
     "g0ResearchOnlyBranchMatrices": 91,
@@ -513,6 +2038,34 @@
           "firstNonpassingGate": "G0",
           "gameId": "2026020362",
           "playerId": "8475158",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10": [
+        {
+          "firstNonpassingGate": "G10",
+          "gameId": "2026020360",
+          "playerId": "8484958",
+          "reasonDisposition": "NOT_EXECUTED"
+        }
+      ],
+      "G10.5": [
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020360",
+          "playerId": "8474150",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020360",
+          "playerId": "8476458",
+          "reasonDisposition": "NOT_EXECUTED"
+        },
+        {
+          "firstNonpassingGate": "G10.5",
+          "gameId": "2026020360",
+          "playerId": "8480028",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ],
@@ -579,20 +2132,20 @@
       "G6": [
         {
           "firstNonpassingGate": "G6",
-          "gameId": "2026020360",
-          "playerId": "8474150",
+          "gameId": "2026020361",
+          "playerId": "8474189",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G6",
-          "gameId": "2026020360",
-          "playerId": "8476458",
+          "gameId": "2026020361",
+          "playerId": "8477409",
           "reasonDisposition": "NOT_EXECUTED"
         },
         {
           "firstNonpassingGate": "G6",
-          "gameId": "2026020360",
-          "playerId": "8480028",
+          "gameId": "2026020361",
+          "playerId": "8477495",
           "reasonDisposition": "NOT_EXECUTED"
         }
       ]
@@ -2274,38 +3827,39 @@
       "attackTeam": "CGY",
       "candidatesEvaluated": 22,
       "firstNonPassGateCounts": {
+        "G10.5:NOT_EXECUTED": 13,
+        "G10:NOT_EXECUTED": 1,
         "G2:ELIMINATED": 3,
-        "G4:NOT_EXECUTED": 5,
-        "G6:NOT_EXECUTED": 14
+        "G4:NOT_EXECUTED": 5
       },
       "furthestCandidatesDiagnosticOnly": [
         {
           "player": "Mikael Backlund",
           "playerId": "8474150",
-          "stoppedAt": "G6:NOT_EXECUTED"
+          "stoppedAt": "G10.5:NOT_EXECUTED"
         },
         {
           "player": "Jonathan Castagna",
           "playerId": "8484154",
-          "stoppedAt": "G6:NOT_EXECUTED"
+          "stoppedAt": "G10.5:NOT_EXECUTED"
         },
         {
           "player": "Matt Coronato",
           "playerId": "8482679",
-          "stoppedAt": "G6:NOT_EXECUTED"
+          "stoppedAt": "G10.5:NOT_EXECUTED"
         },
         {
           "player": "Joel Farabee",
           "playerId": "8480797",
-          "stoppedAt": "G6:NOT_EXECUTED"
+          "stoppedAt": "G10.5:NOT_EXECUTED"
         },
         {
           "player": "Morgan Frost",
           "playerId": "8480028",
-          "stoppedAt": "G6:NOT_EXECUTED"
+          "stoppedAt": "G10.5:NOT_EXECUTED"
         }
       ],
-      "furthestFirstNonPassGate": "G6",
+      "furthestFirstNonPassGate": "G10.5",
       "gameId": "2026020360",
       "gameStartUTC": "2026-11-21T20:30:00Z",
       "inCore": false,
@@ -2860,7 +4414,7 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8474150"
       },
@@ -2874,7 +4428,7 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8476458"
       },
@@ -2895,7 +4449,7 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8480028"
       },
@@ -2909,7 +4463,7 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8480797"
       },
@@ -2923,14 +4477,14 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8481028"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8481068"
       },
@@ -2951,7 +4505,7 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8482679"
       },
@@ -2965,49 +4519,49 @@
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8483495"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8483609"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8484154"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8484234"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8484768"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10.5",
         "gameId": "2026020360",
         "playerId": "8484860"
       },
       {
         "classification": "EVIDENCE_INCOMPLETE",
         "disposition": "NOT_EXECUTED",
-        "firstGate": "G6",
+        "firstGate": "G10",
         "gameId": "2026020360",
         "playerId": "8484958"
       },
@@ -3251,7 +4805,8 @@
         "PASS": 174
       },
       "G6": {
-        "NOT_EXECUTED": 271
+        "NOT_EXECUTED": 238,
+        "PASS": 33
       },
       "G7": {
         "ELIMINATED": 14,
@@ -3317,7 +4872,8 @@
         "PASS": 177
       },
       "Step6": {
-        "NOT_EXECUTED": 271
+        "NOT_EXECUTED": 238,
+        "PASS": 33
       },
       "Step7": {
         "NOT_EXECUTED": 127,
@@ -3715,7 +5271,7 @@
         {
           "gameId": "2026020360",
           "playerId": "8474150",
-          "sourceCount": 5
+          "sourceCount": 6
         },
         {
           "gameId": "2026020360",
@@ -3725,32 +5281,32 @@
         {
           "gameId": "2026020360",
           "playerId": "8476458",
-          "sourceCount": 5
+          "sourceCount": 6
         },
         {
           "gameId": "2026020360",
           "playerId": "8477810",
-          "sourceCount": 5
+          "sourceCount": 6
         },
         {
           "gameId": "2026020360",
           "playerId": "8478136",
-          "sourceCount": 4
+          "sourceCount": 5
         },
         {
           "gameId": "2026020360",
           "playerId": "8480028",
-          "sourceCount": 5
+          "sourceCount": 6
         },
         {
           "gameId": "2026020360",
           "playerId": "8480727",
-          "sourceCount": 5
+          "sourceCount": 6
         },
         {
           "gameId": "2026020360",
           "playerId": "8480797",
-          "sourceCount": 5
+          "sourceCount": 6
         }
       ],
       "G3": [
@@ -3882,42 +5438,42 @@
       "G6": [
         {
           "gameId": "2026020360",
-          "playerId": "8474150",
-          "sourceCount": 1
-        },
-        {
-          "gameId": "2026020360",
           "playerId": "8476456",
           "sourceCount": 1
         },
         {
           "gameId": "2026020360",
-          "playerId": "8476458",
+          "playerId": "8480860",
           "sourceCount": 1
         },
         {
           "gameId": "2026020360",
-          "playerId": "8477810",
+          "playerId": "8481167",
           "sourceCount": 1
         },
         {
           "gameId": "2026020360",
-          "playerId": "8478136",
+          "playerId": "8482747",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020360",
-          "playerId": "8480028",
+          "gameId": "2026020361",
+          "playerId": "8473419",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020360",
-          "playerId": "8480727",
+          "gameId": "2026020361",
+          "playerId": "8474189",
           "sourceCount": 1
         },
         {
-          "gameId": "2026020360",
-          "playerId": "8480797",
+          "gameId": "2026020361",
+          "playerId": "8475179",
+          "sourceCount": 1
+        },
+        {
+          "gameId": "2026020361",
+          "playerId": "8475462",
           "sourceCount": 1
         }
       ],
@@ -4053,7 +5609,8 @@
         "PASS": 177
       },
       "Step6": {
-        "NOT_EXECUTED": 271
+        "NOT_EXECUTED": 238,
+        "PASS": 33
       },
       "Step7": {
         "NOT_EXECUTED": 127,
@@ -4132,7 +5689,7 @@
       "G3": 249,
       "G4": 144,
       "G5": 174,
-      "G6": 0,
+      "G6": 33,
       "G7": 234,
       "G8": 271,
       "G9": 175
@@ -4233,7 +5790,7 @@
     "G3": 113,
     "G4": 203,
     "G5": 126,
-    "G6": 362,
+    "G6": 279,
     "G7": 29,
     "G9": 160
   },
@@ -4297,7 +5854,7 @@
     {
       "candidateId": "8474150",
       "candidateName": "Mikael Backlund",
-      "candidateStoppedAt": "G6:NOT_EXECUTED",
+      "candidateStoppedAt": "G10.5:NOT_EXECUTED",
       "gameId": "2026020360",
       "matchup": "CHI@CGY",
       "nonSelectionDiagnosticOnly": true,
@@ -8591,5 +10148,5 @@
   ],
   "stage": "PROJECTED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-21T06:12:26+00:00"
+  "updatedUTC": "2026-11-21T06:23:40+00:00"
 }
