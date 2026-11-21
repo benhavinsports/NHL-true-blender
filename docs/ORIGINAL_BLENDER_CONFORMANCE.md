@@ -53,8 +53,9 @@ Projected scan → complete original evaluation → G18 save → confirmed evide
 4. Step 7 remains archetype tagging, consistent with the latest Nov 12 recovered mapping. The older Nov 11 “rhythm recurrence” description remains a documented historical conflict; recurrence is Step 4/G7.
 5. Step 8 uses official shift-chart and play-by-play joined defensive shift events; do not invent shift data.
 6. G16 must be applied before G17. Verify both the within-game challenger comparison and full-slate cross-game comparison; neither may be skipped or performed after G17.
-7. The source-recovery loop is collection work, not an extra scorer gate. Continue source research for missing required evidence while pregame; never fabricate passes or silently treat missing data as elimination.
-8. The recovered Phase 1 file states that exact verbatim original source code was not recovered. Do not claim the current implementation is the historical original merely because its labels match.
+7. The source-recovery loop is collection work, not an extra scorer gate. The fixed three-pass ceiling was removed. It repeats the full targeted source refresh while the gate-evidence signature is changing; a no-progress cycle finishes so the result can be saved and the next scheduled pregame cycle can repeat source discovery. It never fabricates passes or silently treats missing data as elimination.
+8. G17 now receives the same-game rival IDs already resolved by this candidate's G10.5 comparison (directly defeated or independently shown to have no jointly viable G0/G9 route). Those rivals are excluded from the independent G17 review and Step14. A live dominator or unresolved challenger remains in scope. This prevents G17 from reopening an already completed recipient decision while retaining goalie, lineup, and source-contradiction checks.
+9. The recovered Phase 1 file states that exact verbatim original source code was not recovered. Do not claim the current implementation is the historical original merely because its labels match.
 
 ## Acceptance
 
