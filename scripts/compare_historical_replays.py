@@ -39,32 +39,58 @@ def compare(baseline_path, baseline_grades_path, patched_path, patched_grades_pa
         be=b.get("engineResult") or {};pe=p.get("engineResult") or {}
         b_g0=be.get("g0TwoGoalieDirectionDecisions") or {}
         p_g0=pe.get("g0TwoGoalieDirectionDecisions") or {}
+        # A causal baseline-vs-patched comparison is only meaningful when
+        # BOTH versions used the exact same pre-puck clock, stage, snapshot
+        # AND isolated evidence DB. Nov 17 in the saved 50-slate report used
+        # a different cutoff and both inputs differed; counting its Core
+        # removal as a scorer repair was not a valid backtest result.
+        same_snapshot = bool(
+            b.get("snapshotSha256") and
+            b["snapshotSha256"] == p.get("snapshotSha256"))
+        same_evidence = bool(
+            b.get("evidenceDbSha256") and
+            b["evidenceDbSha256"] == p.get("evidenceDbSha256"))
+        same_cutoff = bool(
+            b.get("cutoff") and b["cutoff"] == p.get("cutoff") and
+            b.get("stage") and b["stage"] == p.get("stage"))
+        comparable = bool(b and p and same_snapshot and
+                          same_evidence and same_cutoff)
         rows.append({
             "date":day,
-            "sameSnapshotHash":b.get("snapshotSha256")==p.get("snapshotSha256"),
-            "sameEvidenceDbHash":b.get("evidenceDbSha256")==p.get("evidenceDbSha256"),
+            "sameSnapshotHash":same_snapshot,
+            "sameEvidenceDbHash":same_evidence,
+            "sameCutoffAndStage":same_cutoff,
+            "baselineCutoff":b.get("cutoff"),"patchedCutoff":p.get("cutoff"),
             "baselineStatus":b.get("status"),"patchedStatus":p.get("status"),
             "baselineCore":bcore,"patchedCore":pcore,
-            "addedToCore":[x for x in pcore if (x["gameId"],x["playerId"]) not in bids],
-            "removedFromCore":[x for x in bcore if (x["gameId"],x["playerId"]) not in pids],
+            "addedToCore":[x for x in pcore if (x["gameId"],x["playerId"]) not in bids] if comparable else [],
+            "removedFromCore":[x for x in bcore if (x["gameId"],x["playerId"]) not in pids] if comparable else [],
+            "uncomparableRawCoreDifference":bcore != pcore if not comparable else False,
             "baselineSurvivors":be.get("uniqueGameSurvivors"),
             "patchedSurvivors":pe.get("uniqueGameSurvivors"),
             "baselineG0Directions":b_g0,"patchedG0Directions":p_g0,
-            "G0DirectionChanged":b_g0!=p_g0,
+            "G0DirectionChanged":comparable and b_g0!=p_g0,
+            "uncomparableRawG0Difference":b_g0!=p_g0 if not comparable else False,
             "baselineGrade":bg.get(day),"patchedGrade":pg.get(day),
-            "selectionInputsIdentical":(
-                b.get("snapshotSha256") is not None and
-                b.get("snapshotSha256")==p.get("snapshotSha256") and
-                b.get("evidenceDbSha256")==p.get("evidenceDbSha256")),
+            "selectionInputsIdentical":comparable,
+            "excludedFromCausalComparison":not comparable,
+            "comparisonExclusionReason":(
+                [name for name, condition in (
+                    ("SNAPSHOT_HASH_DIFFERS", same_snapshot),
+                    ("EVIDENCE_DB_HASH_DIFFERS", same_evidence),
+                    ("CUTOFF_OR_STAGE_DIFFERS", same_cutoff))
+                 if not condition] if not comparable else []),
         })
     report={
         "baselineEngineRef":"dd3bf67 (immediately before G0 vulnerability-comparison patch 555f0b0)",
         "patchedEngineRef":"audit/historical-season-replay",
-        "comparisonMethod":"same frozen snapshot and isolated evidence DB; only engine.py replaced in baseline package",
+        "comparisonMethod":"Only rows with identical pre-puck cutoff, stage, snapshot SHA and isolated evidence DB SHA can attribute a selection difference to engine logic",
         "rows":rows,
         "sameInputRows":sum(x["selectionInputsIdentical"] for x in rows),
-        "changedCoreDates":sum(x["baselineCore"]!=x["patchedCore"] for x in rows),
+        "changedCoreDates":sum(x["selectionInputsIdentical"] and x["baselineCore"]!=x["patchedCore"] for x in rows),
         "changedG0Dates":sum(x["G0DirectionChanged"] for x in rows),
+        "excludedComparisonDates":[x["date"] for x in rows if not x["selectionInputsIdentical"]],
+        "excludedComparisonsNeverCountAsEngineRegression":True,
         "notEvidenceOfGeneralization":True,
     }
     Path(output).write_text(json.dumps(report,indent=2),encoding="utf-8")
@@ -73,6 +99,7 @@ def compare(baseline_path, baseline_grades_path, patched_path, patched_grades_pa
         "sameInputRows":report["sameInputRows"],
         "changedCoreDates":report["changedCoreDates"],
         "changedG0Dates":report["changedG0Dates"],
+        "excludedComparisonDates":report["excludedComparisonDates"],
     },sort_keys=True))
     return report
 
