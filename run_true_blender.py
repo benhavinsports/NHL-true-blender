@@ -353,7 +353,17 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             "gateRows": result["gateRows"],
             "g0Complete": result["g0Complete"],
             "g0Directions": result["g0Directions"],
+            # The missing-evidence counts are displayed in canonical gate
+            # sequence, not in the order missing records happened to arrive.
+            "gateExecutionOrder": result.get("gateExecutionOrder", MASTER),
             "missingByGate": result["missingByGate"],
+            "firstNonpassingGateCounts": {
+                gate: result.get("firstNonpassingGateAudit", {})
+                    .get("firstNonpassingGateCounts", {}).get(gate, 0)
+                for gate in MASTER
+                if result.get("firstNonpassingGateAudit", {})
+                    .get("firstNonpassingGateCounts", {}).get(gate, 0)
+            },
             "corePublished": bool(result.get("card")),
             "edgeCollectedSkaters":edge_research.get("skaterRinkProfiles",0),
             "edgeCollectedGoalies":edge_research.get("goalieRinkProfiles",0),
