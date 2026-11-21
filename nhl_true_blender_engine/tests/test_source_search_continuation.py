@@ -37,9 +37,16 @@ def recover(rows, games=None, selected=None):
 
 
 def test_eliminated_player_does_not_cancel_other_unresolved_gate_research():
+    # Player 42 was genuinely eliminated at G2. Their later G6 NOT_EXECUTED
+    # is expected and must not trigger collection. Player 43 passed G0-G5
+    # and has a real unresolved G6, so the matchup still needs source search.
     rows = [gate("7", "42", name, "ELIMINATED" if name == "G2"
-                 else "NOT_EXECUTED" if name == "G6" else "PASS")
+                 else "NOT_EXECUTED" if MASTER.index(name) > MASTER.index("G2")
+                 else "PASS")
             for name in MASTER[:-1]]
+    rows += [gate("7", "43", name,
+                  "NOT_EXECUTED" if name == "G6" else "PASS")
+             for name in MASTER[:-1]]
     assert [x["id"] for x in recover(rows)["games"]] == ["7"]
 
 

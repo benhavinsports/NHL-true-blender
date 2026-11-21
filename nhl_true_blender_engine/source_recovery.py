@@ -27,12 +27,14 @@ def recovery_snapshot(con, snapshot, date, stage, result, now=None):
         if pid.startswith(('GOALIE_DIRECTION:', 'G0_RESEARCH:')):
             continue
         researched_games.add(gid)
-        # A real gate elimination does NOT cancel the other independent
-        # source searches. Investigate every G0-G17 gap, not just the first
-        # failed gate or a favored skater. G18 is Core assembly, not a
-        # missing-source reason to rerun the entire slate.
-        if any(rows.get(gate) in (None, 'NOT_EXECUTED')
-               for gate in MASTER[:-1]):
+        # Follow the ORIGINAL gate order and recover only the FIRST
+        # nonpassing decision for this player. A gate after an ELIMINATED
+        # earlier gate is correctly NOT_EXECUTED; it is not a missing source
+        # and must never send the whole matchup back through collection.
+        # Other players in this same game are still checked independently.
+        first = next((gate for gate in MASTER[:-1]
+                      if rows.get(gate) != 'PASS'), None)
+        if first is not None and rows.get(first) in (None, 'NOT_EXECUTED'):
             still_need_sources.add(gid)
 
     for game in snapshot.get('games', []):
