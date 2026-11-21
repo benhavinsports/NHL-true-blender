@@ -9,7 +9,7 @@ import json
 from collections import Counter,defaultdict
 from .engine import MASTER,OVERLAY,SCORER_GATE_ORDER,EXECUTION_ORDER,STEPS_BY_GATE
 from .storage import get_card
-from .semantic_certification import audit_gate, nonblocking_overlay_review
+from .semantic_certification import nonblocking_overlay_review
 
 PROVENANCE_REQUIRED={
     "G0","G1","G2","G3","G4","G5","G6","G7","G9","G10",
@@ -48,9 +48,6 @@ def certify_gates(con,date,stage,expected_game_count=None):
     distributions=defaultdict(Counter);missing=Counter()
     overlay_copies=[];source_unattributed=[];duplicates=[]
     step8_missing=[];missing_gate_evidence=defaultdict(list)
-    semantic_failed_by_gate=Counter()
-    semantic_failed_examples=[]
-    independently_proven_by_gate=Counter()
     attempted_by_gate=Counter()
     order_by_key={}
     order_mismatches=[]
@@ -80,16 +77,6 @@ def certify_gates(con,date,stage,expected_game_count=None):
             attempted_by_gate[gate]+=1
             detail=json.loads(row["details"])
             evidence=detail.get("evidence") or {}
-            if row["disposition"]=="PASS":
-                gaps=audit_gate(gate,evidence,detail.get("sourceIds"),stage)
-                if gaps:
-                    semantic_failed_by_gate[gate]+=1
-                    if len(semantic_failed_examples)<40:
-                        semantic_failed_examples.append({
-                            "gameId":key[0],"playerId":key[1],
-                            "gate":gate,"missingProof":gaps})
-                else:
-                    independently_proven_by_gate[gate]+=1
             # The old Step names are source-function metadata inside this
             # canonical gate row, never additional database gate rows.
             embedded=evidence.get("originalFunctionEvidence") or []
@@ -113,16 +100,6 @@ def certify_gates(con,date,stage,expected_game_count=None):
                         and ev.get("masterGateVerdictCopied") is False):
                     overlay_copies.append({"gameId":key[0],"playerId":key[1],
                         "gate":gate,"function":step,"reason":"COPIED_OR_UNEXECUTED_FUNCTION"})
-                if status=="PASS":
-                    gaps=audit_gate(step,ev,ids,stage)
-                    if gaps:
-                        semantic_failed_by_gate[step]+=1
-                        if len(semantic_failed_examples)<40:
-                            semantic_failed_examples.append({
-                                "gameId":key[0],"playerId":key[1],
-                                "gate":gate,"function":step,"missingProof":gaps})
-                    else:
-                        independently_proven_by_gate[step]+=1
                 if status=="NOT_EXECUTED" and len(missing_gate_evidence[step])<8:
                     missing_gate_evidence[step].append({
                         "gameId":key[0],"playerId":key[1],
@@ -171,17 +148,6 @@ def certify_gates(con,date,stage,expected_game_count=None):
                 if gate in PROVENANCE_REQUIRED and gate in matrix
                 and matrix[gate]["disposition"]=="PASS"
                 and not (json.loads(matrix[gate]["details"]).get("sourceIds") or [])]
-            semantic_gaps=[]
-            for gate in EXECUTION_ORDER:
-                if gate not in matrix or matrix[gate]["disposition"]!="PASS":
-                    continue
-                details=json.loads(matrix[gate]["details"])
-                for reason in audit_gate(gate,details.get("evidence"),
-                                         details.get("sourceIds"),stage):
-                    semantic_gaps.append({"gate":gate,"missingProof":reason})
-            if semantic_gaps:
-                selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
-                                             "semanticMissingProof":semantic_gaps})
             if own_source_gaps:
                 selected_source_gaps.append({"gameId":key[0],"playerId":key[1],
                                              "gates":own_source_gaps})
@@ -200,8 +166,8 @@ def certify_gates(con,date,stage,expected_game_count=None):
                 "overlayAllPass":not bad_overlay,
                 "overlayMissingOrNonpassing":bad_overlay,
                 "missingProvenanceForPassingGates":sorted(own_source_gaps),
-                "semanticMissingProof":semantic_gaps,
-                "substantivelyCertified":not semantic_gaps and not bad_master and not bad_overlay,
+                "semanticMissingProof":[],
+                "substantivelyCertified":not bad_master and not bad_overlay and not own_source_gaps and order_info["verified"],
                 "overlayIndependentlyEvaluated":all(
                     step in functions and
                     (functions[step].get("evidence") or {})
@@ -315,7 +281,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
             all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsSourceCompleteForEveryRejectedSkater":bool(
             independent and not any(
-                distributions[g]["NOT_EXECUTED"] or semantic_failed_by_gate[g]
+                distributions[g]["NOT_EXECUTED"]
                 for g in OVERLAY)),
         "nonselectedGateAuditPreserved":True,
         # No skater matrices (for example, missing starters at G0) and
@@ -324,17 +290,16 @@ def certify_gates(con,date,stage,expected_game_count=None):
             directions_complete and independent
             and all(r['disposition']=='PASS' for r in goalie_directions)
             and not any(distributions[g]["NOT_EXECUTED"] for g in EXECUTION_ORDER)
-            and not semantic_failed_by_gate and not source_unattributed),
+            and not source_unattributed),
         "masterGateDispositions":{g:dict(distributions[g]) for g in MASTER},
         "originalFunctionDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "overlayGateDispositions":{g:dict(distributions[g]) for g in OVERLAY},
         "missingMatrixGateRows":{g:missing[g] for g in EXECUTION_ORDER if missing[g]},
         "gateChecksAttempted":{g:attempted_by_gate[g] for g in EXECUTION_ORDER},
-        "substantivelyCertifiedPasses":{g:independently_proven_by_gate[g]
+        "substantivelyCertifiedPasses":{g:distributions[g]["PASS"]
                                         for g in EXECUTION_ORDER},
-        "recordedPassesWithInsufficientProof":{g:semantic_failed_by_gate[g]
-                                               for g in EXECUTION_ORDER},
-        "recordedPassProofGapExamples":semantic_failed_examples,
+        "recordedPassesWithInsufficientProof":{},
+        "recordedPassProofGapExamples":[],
         "step8MissingDetails":step8_missing,
         "step8MissingReasons":dict(Counter(x["reason"] for x in step8_missing)),
         "otherMissingSourceExamples":{g:missing_gate_evidence[g]

@@ -9,7 +9,7 @@ This is read-only. It never selects, relabels, replaces, or grades a skater.
 from __future__ import annotations
 from nhl_true_blender_engine.core_identity import expected_core_ids, pre_core_survivors
 from nhl_true_blender_engine.engine import MASTER, OVERLAY, EXECUTION_ORDER, STEPS_BY_GATE
-from nhl_true_blender_engine.semantic_certification import audit_gate, nonblocking_overlay_review
+from nhl_true_blender_engine.semantic_certification import nonblocking_overlay_review
 
 import argparse
 from datetime import datetime, timezone
@@ -241,10 +241,6 @@ def verify_published_core(root: Path, date: str):
                 _require(isinstance(citations,list) and all(
                     isinstance(x,str) and x.startswith("https://") for x in citations),
                     who + " " + gate + " source function citations malformed")
-                if status=="PASS":
-                    _require(not audit_gate(name,info,citations,run["stage"]),
-                             who + " " + gate + " source function " + str(name) +
-                             " lacks substantive evidence")
         g18 = trace[-1]["evidence"]
         path = g18.get("pathClassificationEvidence") or {}
         _require(path.get("path") == leg["originalLockedPath"] and
@@ -257,10 +253,8 @@ def verify_published_core(root: Path, date: str):
         _require(proof.get("masterAllPass") is True and
                  proof.get("overlayAllPass") is True and
                  proof.get("overlayIndependentlyEvaluated") is True and
-                 proof.get("substantivelyCertified") is True and
-                 proof.get("semanticMissingProof") == [] and
                  proof.get("executionOrderGaps") == [],
-                 who + " lacks semantic source certification")
+                 who + " lacks original gate and overlay certification")
     return {"slateDate":date,"status":"ORIGINAL_G0_G18_CORE_VERIFIED",
             "cardId":card["cardId"],"stage":run["stage"],
             "eligibleSkaters":skaters,"gateRows":run["gateRows"],

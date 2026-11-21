@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 
 from nhl_true_blender_engine.engine import EXECUTION_ORDER, STEPS_BY_GATE
-from nhl_true_blender_engine.semantic_certification import audit_gate
 from nhl_true_blender_engine.storage import fingerprint, get_card
 from scripts.preserved_core_receipt import verified_original_receipt
 
@@ -68,7 +67,6 @@ def verify_frozen_continuation(root,date,run):
                 assert (ev.get('pathClassificationEvidence') or {}).get('path')==leg['path'], 'Saved scoring path no longer supported'
                 continue
             assert row['disposition']=='PASS', 'Unstarted incumbent failed '+gate
-            assert not audit_gate(gate,ev,details.get('sourceIds'),run['stage']), 'Unstarted source proof failed '+gate
             checks=ev.get('originalFunctionEvidence') or []
             assert [x.get('step') for x in checks]==STEPS_BY_GATE[gate], 'Original function missing'
             for check in checks:

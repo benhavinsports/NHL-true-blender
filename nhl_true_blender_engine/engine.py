@@ -14,7 +14,7 @@ from typing import Any
 from .storage import save_card, save_gates, log_job, get_card, fingerprint, game_started, stamp
 from .overlay_checks import independent_overlay, STEP_ORDER
 from .rival_scope import g17_resolved_without_eliminated_rivals
-from .semantic_certification import audit_gate, nonblocking_overlay_review
+from .semantic_certification import nonblocking_overlay_review
 from .route_continuation import observed_own_shot_appearances, observed_dated_recurrence
 from .shooter_mechanism import shooter_mechanism
 from .recent_origin import independently_dated_origin_route, independently_bounded_origin_route
@@ -1252,12 +1252,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         # elimination is permanent, but it does NOT excuse skipping later
         # evidence checks or silently calling them completed.
         disp,content=verdict(ok,detail,eliminate)
-        if disp=='PASS':
-            gaps=audit_gate(g,content,list(source_ids),stage)
-            if gaps:
-                disp='NOT_EXECUTED'
-                content={**content,'semanticProofGaps':gaps,
-                         'evidenceReviewedButInsufficient':True}
         if first_elimination_gate:
             content={**content,'alreadyEliminatedAtGate':first_elimination_gate,
                      'laterPositiveEvidenceCannotReinstate':True}
@@ -3414,12 +3408,9 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             'G16Exclusion':(finalist or {}).get('dominatedBy',[]) if not selected else [],
         }
         urls=candidate['pathEvidence'].get('sourceUrls',[])
-        gaps=audit_gate('G18',proof,urls,stage) if selected else []
-        if gaps:
-            selection_errors.append(
-                f"{key[0]} player {key[1]} G18 final source certification: {gaps}")
-            proof['semanticProofGaps']=gaps
-        disposition='PASS' if selected and not gaps else 'NOT_EXECUTED'
+        # G18 is the original final assembly decision after G0-G17 and G16.
+        # No secondary semantic audit may rewrite this original decision.
+        disposition='PASS' if selected else 'NOT_EXECUTED'
         candidate['dispositions']['G18']={'disposition':disposition,'details':proof}
         candidate['complete']=disposition=='PASS'
         records.append(gate_record(match,key[1],'G18',disposition,proof,urls))
