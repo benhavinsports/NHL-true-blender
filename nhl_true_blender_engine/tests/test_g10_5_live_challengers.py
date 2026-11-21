@@ -60,6 +60,13 @@ def test_later_pre_g10_5_elimination_overrides_earlier_unresolved_for_challenger
         'still-unresolved':'G4:NOT_EXECUTED',
     }
 
+    # An absent earlier gate row is the same unresolved state as an
+    # explicit NOT_EXECUTED receipt; it must not crash or become an elimination.
+    assert stopped_before_g10_5([
+        {'player':{'id':'missing-g2'},'dispositions':{
+            'G0':{'disposition':'PASS'},'G1':{'disposition':'PASS'}}}
+    ]) == {'missing-g2':'G2:NOT_EXECUTED'}
+
 
 def test_unresolved_rival_cannot_eliminate(tmp_path, monkeypatch):
     from nhl_true_blender_engine import engine

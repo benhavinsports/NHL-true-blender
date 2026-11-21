@@ -8,7 +8,6 @@ import argparse
 import asyncio
 import json
 import os
-import time
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo

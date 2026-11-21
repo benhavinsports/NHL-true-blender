@@ -1168,8 +1168,11 @@ def stopped_before_g10_5(results):
         unresolved=next((g for g in before
                          if (d.get(g) or {}).get('disposition')!='PASS'),None)
         if unresolved is not None:
-            out[str(result['player']['id'])]=(
-                f"{unresolved}:{d[unresolved]['disposition']}")
+            # A missing gate row is an unexecuted decision, not an exception
+            # and never an elimination. Keep the challenger unresolved so
+            # pregame source recovery can research that gate.
+            status=(d.get(unresolved) or {}).get('disposition') or 'NOT_EXECUTED'
+            out[str(result['player']['id'])]=f"{unresolved}:{status}"
     return out
 
 

@@ -272,7 +272,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
     # "Independently checked" means the gate was actually evaluated,
     # sequenced, and proved independent of copied master verdicts. It does
     # NOT mean every rejected player must have source evidence for a PASS.
-    # A roster elimination or source-incomplete rival is a valid negative
+    # A roster elimination or a rival that has not passed its first gate is a valid negative
     # outcome, and must never veto a fully proved selected survivor.
     # Keep NOT_EXECUTED counts separately as honest source diagnostics.
     independent=(all_matrix_present and all_matrix_in_order and not overlay_copies)
@@ -313,7 +313,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
             all_matrix_present and all_matrix_in_order and not overlay_copies),
         "allOverlayStepsWereIndependentlyChecked":bool(
             all_matrix_present and all_matrix_in_order and not overlay_copies),
-        "allRejectedSkaterOverlayReceiptsIndependentlyAudited":bool(
+        "allOverlayStepsSourceCompleteForEveryRejectedSkater":bool(
             independent and not any(
                 distributions[g]["NOT_EXECUTED"] or semantic_failed_by_gate[g]
                 for g in OVERLAY)),
@@ -345,7 +345,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         "sourceUnattributedPassingGateExamples":source_unattributed[:15],
         "selectedLegs":selected,
         "selectionFunnel":funnel,
-        "firstNonpassingGateDispositionCounts":dict(first_failure_counts),
+        "firstFailureClassificationCounts":dict(first_failure_counts),
         "firstFailureExamples":first_failure_examples,
         "selectedMasterGatesAllPass":all_selected_master,
         "selectedOverlayGatesAllPass":all_selected_overlay,
