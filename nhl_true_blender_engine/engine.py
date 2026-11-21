@@ -2568,8 +2568,18 @@ def build_verified_replacement(con, existing, legs, selected, date, stage,
         return None
     candidate = item['candidate']
     rows = candidate['challengers']
-    if not rows or any(r['status'] not in ('DEFEATED', 'DIFFERENT_TARGET_LANE',
-                                               'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows):
+    g105_details=(candidate['dispositions'].get('G10.5') or {}).get('details') or {}
+    eliminated_before_g105=set(str(x) for x in
+        (g105_details.get('eliminatedChallengersExcluded') or []))
+    prior_player_eliminated_before_g105=str(old['playerId']) in eliminated_before_g105
+    # The prior incumbent may correctly be absent from G10.5 rows when an
+    # earlier gate (e.g. G5) already eliminated him. An empty row list is
+    # valid only when every alternative was scanned and that prior elimination
+    # is explicitly recorded in the G10.5 receipt.
+    if (not g105_details.get('allAlternativesScanned') or
+            (not rows and not prior_player_eliminated_before_g105) or
+            any(r['status'] not in ('DEFEATED', 'DIFFERENT_TARGET_LANE',
+                                    'SOURCE_VERIFIED_ZERO_SHOTS_NO_DIRECT_LANE') for r in rows)):
         return None
     if candidate['dispositions']['G10.5']['disposition'] != 'PASS':
         return None
@@ -2591,7 +2601,12 @@ def build_verified_replacement(con, existing, legs, selected, date, stage,
             'sourceIds': [trigger],
             'detail': 'Prior survivor route no longer fits independently sourced new opposing goalie weakness'
         },
-        'g105EveryChallenger': {'comparisonRows': rows, 'candidate': new['playerId']},
+        'g105EveryChallenger': {
+            'comparisonRows': rows, 'candidate': new['playerId'],
+            'allAlternativesScanned':g105_details.get('allAlternativesScanned') is True,
+            'priorIncumbentEliminatedBeforeG10_5':prior_player_eliminated_before_g105,
+            'eliminatedChallengersExcluded':sorted(eliminated_before_g105),
+        },
         'g17Contradictions': {'sourceIds': [g17id],
                               'review': candidate['dispositions']['G17']['details']},
         'newFingerprint': fingerprint(legs)
