@@ -273,6 +273,16 @@ def attach(con, snapshot, date, stage):
                 prior['data'].setdefault('projectedPreferenceSources',[])
                 if wrapper['sourceUrl'] not in prior['data']['projectedPreferenceSources']:
                     prior['data']['projectedPreferenceSources'].append(wrapper['sourceUrl'])
+                source_type=data.get('starterSourceStatus') or data.get('sourceType')
+                prior['data'].setdefault('projectedPreferredSourceTypes',[])
+                if source_type and source_type not in prior['data']['projectedPreferredSourceTypes']:
+                    prior['data']['projectedPreferredSourceTypes'].append(source_type)
+                if source_type=='NHL_OFFICIAL_PROJECTED_LINEUP':
+                    prior['data'].setdefault('officialProjectedLineupSourceUrls',[])
+                    if wrapper['sourceUrl'] not in prior['data']['officialProjectedLineupSourceUrls']:
+                        prior['data']['officialProjectedLineupSourceUrls'].append(wrapper['sourceUrl'])
+                    if data.get('publishedAsOfSlateDate'):
+                        prior['data']['publishedAsOfSlateDate']=data['publishedAsOfSlateDate']
                 # Merge separately observed, dated, first-off eyewitness
                 # evidence into this SAME official goalie ID only. The
                 # starter remains EXPECTED, never auto-confirmed. A stale
