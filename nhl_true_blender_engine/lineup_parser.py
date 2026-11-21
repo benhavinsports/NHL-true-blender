@@ -195,9 +195,15 @@ async def fetch_and_ingest_lineups(con,snapshot,date,stage):
             response.raise_for_status()
             if not response.text:
                 raise ValueError("Empty lineup source")
-            first=response.text.splitlines()[0]
-            if f"games dated {date}" not in first:
-                raise ValueError("Lineup snapshot slate date mismatch: "+first[:120])
+            # Search the provider's header for the dated slate, not just line one.
+            # Fetch time alone is never proof of the lineup's slate date.
+            from datetime import date as calendar_date
+            day=calendar_date.fromisoformat(date)
+            header="\n".join(response.text.splitlines()[:35])
+            markers=(date, f"{day.strftime('%B')} {day.day}, {day.year}",
+                     f"{day.strftime('%b')} {day.day}, {day.year}")
+            if not any(marker.casefold() in header.casefold() for marker in markers):
+                raise ValueError("Lineup snapshot has no matching slate date: "+header[:120])
             observed=datetime.now(timezone.utc).isoformat(timespec="seconds")
             parsed=ingest_lineups(con,snapshot,date,stage,response.text,observed)
             return {"status":"DATED_SOURCE_PARSED","asOf":observed,**parsed}
