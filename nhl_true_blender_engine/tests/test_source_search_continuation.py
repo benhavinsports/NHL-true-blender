@@ -80,9 +80,9 @@ def _no_source(*args, **kwargs):
 def test_partial_different_player_line_and_pp_cannot_end_web_discovery():
     rows = [{"playerName": "Skater One", "line": 1},
             {"playerName": "Skater Two", "powerPlayUnit": 2}]
-    with patch("deployment_sources.fetch_hockeyinsights", return_value=_source(rows)), \\
-         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \\
-         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \\
+    with patch("deployment_sources.fetch_hockeyinsights", return_value=_source(rows)), \
+         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \
+         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \
          patch("deployment_sources.fetch_web_search", side_effect=_no_source) as search:
         _, audit = fetch_deployment(
             "ANA", "anaheim-ducks", slate_date=DATE,
@@ -96,9 +96,9 @@ def test_partial_different_player_line_and_pp_cannot_end_web_discovery():
 def test_stale_full_lineup_does_not_stop_search_for_dated_source():
     rows = [{"playerName": "Skater One", "line": 1, "powerPlayUnit": 1}]
     with patch("deployment_sources.fetch_hockeyinsights",
-               return_value=_source(rows, dated=False)), \\
-         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \\
-         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \\
+               return_value=_source(rows, dated=False)), \
+         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \
+         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \
          patch("deployment_sources.fetch_web_search", side_effect=_no_source) as search:
         _, audit = fetch_deployment(
             "ANA", "anaheim-ducks", slate_date=DATE,
@@ -109,9 +109,9 @@ def test_stale_full_lineup_does_not_stop_search_for_dated_source():
 
 def test_complete_dated_known_player_evidence_needs_no_duplicate_search():
     rows = [{"playerName": "Skater One", "line": 1, "powerPlayUnit": 1}]
-    with patch("deployment_sources.fetch_hockeyinsights", return_value=_source(rows)), \\
-         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \\
-         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \\
+    with patch("deployment_sources.fetch_hockeyinsights", return_value=_source(rows)), \
+         patch("deployment_sources.fetch_nhl_article", side_effect=_no_source), \
+         patch("deployment_sources.fetch_dailyfaceoff", side_effect=_no_source), \
          patch("deployment_sources.fetch_web_search", side_effect=_no_source) as search:
         _, audit = fetch_deployment(
             "ANA", "anaheim-ducks", slate_date=DATE,
