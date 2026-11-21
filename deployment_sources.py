@@ -200,6 +200,13 @@ def _nhl_article_game_day_verified(text, slate_date, team_slug, opponent_slug):
                   match.group(2).split()[-1].lower()}
             matchup_headings+=1
             if pair==wanted:
+                # Some NHL.com game-day lineup articles have no separate
+                # weekday heading. Their official publication date is the
+                # target day and their exact matchup heading is already
+                # verified against the official NHL slate. Do not discard
+                # those real dated lines for a missing optional header.
+                if most_recent_day is None:
+                    return publication == target
                 return most_recent_day==target_weekday
     if matchup_headings:
         # Other games exist on the site, but not this verified day/fixture.
