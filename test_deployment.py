@@ -36,7 +36,9 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(rows[0]['playerName'],'Test Player')
         self.assertEqual(meta['selectedSource'],'NHL.com projected lineup article')
         self.assertGreaterEqual(len(meta['attempts']),3)
-        self.assertTrue(meta['sourceSearchComplete'])
+        self.assertFalse(meta['sourceSearchComplete'])
+        self.assertTrue(meta['researchContinuationRequired'])
+        self.assertTrue(meta['allConfiguredSourcesAttempted'])
 
     def test_enrichment_requires_exact_roster_name_join_and_keeps_projected_status(self):
         bundle={'game':{'homeAbbrev':'NYR','awayAbbrev':'BOS','homeName':'New York Rangers','awayName':'Boston Bruins'},'boxscore':{},'landing':{}}
@@ -85,6 +87,8 @@ class DeploymentTests(unittest.TestCase):
             rows,meta=fetch_deployment('NYR','New York Rangers')
         web_search.assert_called_once()
         self.assertEqual(len(meta['attempts']),4)
-        self.assertTrue(meta['sourceSearchComplete'])
+        self.assertFalse(meta['sourceSearchComplete'])
+        self.assertTrue(meta['researchContinuationRequired'])
+        self.assertTrue(meta['allConfiguredSourcesAttempted'])
 
 if __name__=='__main__': unittest.main()
