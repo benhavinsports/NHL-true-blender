@@ -1068,7 +1068,7 @@
     ]
   },
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-21T23:39:05+00:00",
+    "asOf": "2026-11-21T23:43:43+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 9,
     "gamesWithOnlyOneMatchedGoalie": 1,
@@ -1287,7 +1287,7 @@
       {
         "gameId": "2026020366",
         "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
-        "status": "EXPECTED",
+        "status": "CONFIRMED",
         "team": "LAK"
       },
       {
@@ -1346,7 +1346,8 @@
       },
       {
         "gameId": "2026020369",
-        "reason": "SOURCE_STARTER_UNCONFIRMED_NO_PREFERRED_ID",
+        "reason": "EXACT_DATED_NHL_ROSTER_STARTER_MATCH",
+        "status": "CONFIRMED",
         "team": "VGK"
       },
       {
@@ -1402,7 +1403,7 @@
         "team": "VAN"
       }
     ],
-    "matchedStarterIds": 16,
+    "matchedStarterIds": 17,
     "matchesByGame": {
       "2026020363": 2,
       "2026020364": 2,
@@ -1410,7 +1411,7 @@
       "2026020366": 2,
       "2026020367": 2,
       "2026020368": 2,
-      "2026020369": 1,
+      "2026020369": 2,
       "2026020370": 2,
       "2026020371": 0,
       "2026020372": 1
@@ -1933,7 +1934,7 @@
                 }
               ],
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476341/now",
-              "starterStatus": "EXPECTED",
+              "starterStatus": "CONFIRMED",
               "zoneProfileFound": true
             }
           ]
@@ -2160,7 +2161,7 @@
                 }
               ],
               "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now",
-              "starterStatus": "EXPECTED",
+              "starterStatus": "CONFIRMED",
               "zoneProfileFound": true
             }
           ]
@@ -6077,7 +6078,7 @@
       "recordedOriginalGateEvidence": {
         "G0": {
           "evidence": {
-            "branchStatus": "EXPECTED",
+            "branchStatus": "CONFIRMED",
             "directionSelectedBeforeSkaters": true,
             "targetGoalie": "8476341",
             "weakZones": {
@@ -6093,7 +6094,7 @@
             }
           },
           "sourceUrls": [
-            "https://daily.hockey/starting-goalies/2026-11-21",
+            "https://www.dailyfaceoff.com/starting-goalies/2026-11-21",
             "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8476341/now"
           ],
           "status": "PASS"
@@ -6992,7 +6993,7 @@
       "recordedOriginalGateEvidence": {
         "G0": {
           "evidence": {
-            "branchStatus": "EXPECTED",
+            "branchStatus": "CONFIRMED",
             "directionSelectedBeforeSkaters": true,
             "targetGoalie": "8479394",
             "weakZones": {
@@ -7017,7 +7018,7 @@
             }
           },
           "sourceUrls": [
-            "https://daily.hockey/starting-goalies/2026-11-21",
+            "https://www.dailyfaceoff.com/starting-goalies/2026-11-21",
             "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now"
           ],
           "status": "PASS"
@@ -8648,5 +8649,5 @@
   ],
   "stage": "CONFIRMED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-21T23:40:02+00:00"
+  "updatedUTC": "2026-11-21T23:45:07+00:00"
 }
