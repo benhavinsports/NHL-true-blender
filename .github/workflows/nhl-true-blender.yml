@@ -44,7 +44,7 @@ permissions:
 # phase and reconciles the canonical ledger before any safe push.
 concurrency:
   group: nhl-true-blender-authoritative
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   evidence:
     runs-on: ubuntu-latest
