@@ -43,4 +43,4 @@ def test_production_changes_verify_before_the_separate_scheduled_run():
     assert "python -m unittest discover -p 'test*.py' -v" in live
     assert "python -m pytest -q nhl_true_blender_engine/tests" in live
     assert "scripts/ledger_persistence.py restore" in live
-    assert "git push origin HEAD:main" in live
+    assert 'git -C "$persist_dir" push origin HEAD:main' in live
