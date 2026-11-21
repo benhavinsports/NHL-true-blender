@@ -237,15 +237,52 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         diag_root.mkdir(parents=True,exist_ok=True)
         (diag_root/f'{date}-{stage.lower()}-blocker-summary.json').write_text(
             json.dumps(blocker_summary,indent=2,default=str),encoding='utf-8')
-        # A confirmed-phase audit must not erase the projected-phase
-        # candidate matrix. Publish stage-qualified immutable snapshots and
-        # maintain the legacy latest-diagnostic alias for old dashboard links.
-        diag_path = state / 'site_runs' / f'{date}-{stage.lower()}-gate-diagnostics.json'
+        # Preserve EVERY candidate/step fact, including deep G17 rival rows.
+        # The live 2026-11-21 JSON grew beyond GitHub's 100 MB blob ceiling:
+        # saving a completed run repeatedly failed in the remote pre-receive
+        # hook. Keep an exact, checksummed gzip of the full diagnostic and a
+        # small JSON index. No evidence or candidate is truncated/removed.
+        import gzip
+        import hashlib
+        diag_path=state/'site_runs'/f'{date}-{stage.lower()}-gate-diagnostics.json'
+        latest_diag=state/'site_runs'/f'{date}-gate-diagnostics.json'
         diag_path.parent.mkdir(parents=True, exist_ok=True)
-        diag_text=json.dumps(diagnostic, indent=2, default=str)
-        diag_path.write_text(diag_text, encoding='utf-8')
-        (state / 'site_runs' / f'{date}-gate-diagnostics.json').write_text(
-            diag_text, encoding='utf-8')
+        original=json.dumps(diagnostic,indent=2,default=str).encode('utf-8')
+        if len(original)>20_000_000:
+            archive=diag_path.with_suffix('.json.gz')
+            archived=gzip.compress(original,compresslevel=9,mtime=0)
+            if len(archived)>=90_000_000:
+                raise ValueError('Lossless diagnostic gzip still exceeds GitHub-safe archive size')
+            archive.write_bytes(archived)
+            if gzip.decompress(archive.read_bytes())!=original:
+                raise ValueError('Full gate diagnostic gzip round-trip mismatch')
+            index={
+                'slateDate':date,'stage':stage,
+                'format':'LOSSLESS_GZIP_FULL_GATE_DIAGNOSTIC_V1',
+                'fullArchiveFile':archive.name,
+                'fullArchiveSha256':hashlib.sha256(archived).hexdigest(),
+                'uncompressedSha256':hashlib.sha256(original).hexdigest(),
+                'archiveBytes':len(archived),
+                'originalBytes':len(original),
+                'playersEvaluated':diagnostic.get('playersEvaluated'),
+                'candidateGateMatrixCount':len(diagnostic.get('candidateGateMatrix',[])),
+                'candidateGateMatrixCompleteInArchive':True,
+                'noGateOrOverlayEvidenceDiscarded':True,
+                'firstNonpassingByOriginalGate':diagnostic.get('firstNonpassingByOriginalGate',{}),
+                'gateDispositionAndCauseCounts':diagnostic.get('gateDispositionAndCauseCounts',{}),
+                'allCandidatesHaveEveryMasterAndOverlayRecord':diagnostic.get(
+                    'allCandidatesHaveEveryMasterAndOverlayRecord'),
+                'candidatesPassingAllMasterAndOverlayGates':diagnostic.get(
+                    'candidatesPassingAllMasterAndOverlayGates'),
+            }
+            summary=json.dumps(index,indent=2)
+            diag_path.write_text(summary,encoding='utf-8')
+            latest_diag.write_text(summary,encoding='utf-8')
+        else:
+            # Keep the existing JSON reader contract on compact slates.
+            diag_path.write_bytes(original)
+            latest_diag.write_bytes(original)
+            diag_path.with_suffix('.json.gz').unlink(missing_ok=True)
         result['officialBoxscoreCoverage']=historical.get('boxscoreGoalLogReconciliation',{})
         result['officialSeasonGoalHistoryCoverage']=season_goal_research
         result['g17CrossSourceReviews']=contradiction_research
