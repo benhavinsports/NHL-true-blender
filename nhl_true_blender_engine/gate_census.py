@@ -238,7 +238,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         if first:
             gate,disposition=first
             kind=("CROSS_GAME_NOT_SELECTED" if legitimate_cross_game_nonselection else
-                  "EVIDENCE_INCOMPLETE" if disposition in ("NOT_EXECUTED", "MISSING", None)
+                  "SOURCE_SEARCH_REQUIRED" if disposition in ("NOT_EXECUTED", "MISSING", None)
                   else "SOURCE_ELIMINATED")
             first_failure_counts[kind]+=1
             if len(first_failure_examples)<30:
@@ -252,7 +252,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
         elif any(r["disposition"]=="ELIMINATED" for r in matrix.values()):
             outcome_counts["GATE_ELIMINATED"]+=1
         elif any(r["disposition"]=="NOT_EXECUTED" for r in matrix.values()):
-            outcome_counts["NOT_QUALIFIED_SOURCE_INCOMPLETE"]+=1
+            outcome_counts["NOT_QUALIFIED_SOURCE_SEARCH_REQUIRED"]+=1
         elif all(g in matrix and matrix[g]["disposition"]=="PASS" for g in required):
             outcome_counts["QUALIFIED_NOT_CHOSEN_G18"]+=1
         else:
@@ -260,7 +260,7 @@ def certify_gates(con,date,stage,expected_game_count=None):
     funnel={
         "surveyedEligibleSkaters":len(skaters),
         "sourceEliminated":outcome_counts["GATE_ELIMINATED"],
-        "notQualifiedIncompleteEvidence":outcome_counts["NOT_QUALIFIED_SOURCE_INCOMPLETE"],
+        "sourceSearchRequired":outcome_counts["NOT_QUALIFIED_SOURCE_SEARCH_REQUIRED"],
         "qualifiedButNotChosen":outcome_counts["QUALIFIED_NOT_CHOSEN_G18"],
         "otherNotSelected":outcome_counts["OTHER_NOT_SELECTED"],
         "lockedCoreRecipients":outcome_counts["SELECTED"],

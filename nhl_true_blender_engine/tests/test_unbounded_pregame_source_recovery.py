@@ -7,7 +7,10 @@ def test_recovery_repeats_while_original_gate_evidence_changes():
     assert "while True:" in source
     assert "for recovery_round in range(1, 4)" not in source
     assert "same_as_prior_signature = recovery_signature == previous_recovery_signature" in source
-    assert "if not retry_snapshot['games'] or same_as_prior_signature:" in source
+    assert "if not retry_snapshot['games'] or same_as_prior_signature:" not in source
+    assert "repeatedSignatureDoesNotEndSearch" in source
+    assert "recovery_deadline = time.monotonic() + 12 * 60" in source
+    assert "researchContinuesNextScheduledCycle" in source
     assert "next_unresolved=after.get(" in source
     assert "unresolved=next_unresolved" in source
 

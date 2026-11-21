@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import json
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -122,7 +123,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         from nhl_true_blender_engine.gate_census import certify_gates as _census
         initial_census=_census(con,date,stage,result.get('games'))
         unresolved=initial_census.get('firstFailureClassificationCounts',{}).get(
-            'EVIDENCE_INCOMPLETE',0)
+            'SOURCE_SEARCH_REQUIRED',0)
         # In the exact live failure observed Nov 17, all 11 scheduled games
         # lacked a dated STARTER identity.  That generated ZERO skater rows,
         # hence "unresolved == 0" incorrectly disabled this entire second
@@ -139,9 +140,23 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # pregame cycle repeats source discovery. Started games are excluded.
         previous_recovery_signature = None
         recovery_round = 0
+        # This is a per-workflow execution window, not a gate retry count.
+        # If NHL sources have not updated yet, the next scheduled pregame
+        # cycle resumes the same search. A repeated evidence signature
+        # never ends discovery by itself.
+        recovery_deadline = time.monotonic() + 12 * 60
         while True:
-            recovery_round += 1
             retry_snapshot = recovery_snapshot(con,snapshot,date,stage,result)
+            if not retry_snapshot['games']:
+                break
+            if time.monotonic() >= recovery_deadline:
+                feedback.append({
+                    'pass':recovery_round,
+                    'researchContinuesNextScheduledCycle':True,
+                    'remainingGameIds':[str(g['id']) for g in retry_snapshot['games']],
+                    'noAutomaticPasses':True})
+                break
+            recovery_round += 1
             recovery_signature = (
                 tuple(sorted(str(g['id']) for g in retry_snapshot['games'])),
                 result.get('g0Complete'),
@@ -151,11 +166,10 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             )
             same_as_prior_signature = recovery_signature == previous_recovery_signature
             previous_recovery_signature = recovery_signature
-            if not retry_snapshot['games'] or same_as_prior_signature:
-                break
             feedback.append({
                     'pass':recovery_round,'unresolvedFirstGateCandidates':unresolved,
                     'sameEvidenceSignatureAsPriorPass':same_as_prior_signature,
+                    'repeatedSignatureDoesNotEndSearch':True,
                     'g0SourceGapTriggeredRefresh':g0_missing,
                     'affectedGameIds':[str(g['id']) for g in retry_snapshot['games']],
                     'unaffectedMatchupsNotRefetched':True,
@@ -211,6 +225,9 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 2*len(snapshot.get('games',[])) or
                 result.get('g0Complete',0) < result.get('g0Directions',0))
         result['evidenceFeedbackLoop']=feedback
+        result['sourceResearchStatus']=('CONTINUING_NEXT_SCHEDULED_CYCLE'
+            if feedback and feedback[-1].get('researchContinuesNextScheduledCycle')
+            else 'NO_PREPUCK_SOURCE_SEARCH_REMAINS')
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
         result['dashboardExport']=export_dashboard(con,date,stage,snapshot,state)
