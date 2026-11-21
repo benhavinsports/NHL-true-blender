@@ -66,12 +66,14 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                 defending=(defense_wrapper or {}).get("data") or {}
                 g9_green=defending.get("greenWeakZones")
                 variants=[
-                    release_matched_to_g0_target(p,b,defense_wrapper)
+                    release_matched_to_g0_target(p,b)
                     for b in branches]
                 scoped=variants[0] if variants else p
                 own=player_releases(scoped)
                 if not own or not receipt(scoped.get("release")):
                     continue
+                own_zones=sorted({x.get("zone') for x in (own.get("g0MatchedOwnOriginRoutes") or [])
+                                  if x.get("zone")})
                 dep=evidence_data(p.get("deployment"))
                 rivals=[x for x in teammates
                         if str(x["id"])!=str(p["id"]) and
@@ -85,8 +87,10 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                     weak=data.get("weakZones") or {}
                     strong=data.get("strengthZones") or {}
                     route=player_releases(variant)
-                    zone=route.get("zone") if route and receipt(variant.get("release")) else None
-                    if zone:
+                    route_zones=sorted({x.get("zone") for x in
+                        ((route or {}).get("g0MatchedOwnOriginRoutes") or [])
+                        if x.get("zone")})
+                    if route_zones:
                         branch_ok,branch_rows=challenger_proof(
                             variant,rivals,weak,g9_green,
                             opponent_coverage=defending)
@@ -94,13 +98,11 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                         branch_ok,branch_rows=False,[]
                     branch_reviews.append({
                         "goalieId":data.get("goalieId"),
-                        "shooterZone":zone,
+                        "shooterZone":route_zones[0] if len(route_zones)==1 else None,
+                        "shooterZones":route_zones,
                         "everyRivalReviewed":len(branch_rows)==len(rivals),
                         "everyDirectRivalDefeated":branch_ok is True,
                         "rivalResults":branch_rows})
-                    # Preserve the complete branch-specific challenger evidence.
-                    # A different goalie can contradict a rival defeat; never
-                    # hide those rows behind the first goalie's comparison.
                     rows.extend([{**item,"opposingGoalieId":data.get("goalieId")}
                                  for item in branch_rows])
                     opposing.append({
@@ -109,20 +111,19 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                         "starterSourceUrl":b["sourceUrl"],
                         "goalieWeakProfileUrl":data.get("goalieProfileSourceUrl"),
                         "sourceKind":data.get("sourceType"),
-                        "ownScoringOrigin":zone,
-                        "physicalOriginMatch":bool(zone and zone in weak),
-                        "observedStrongerArea":bool(zone and zone in strong),
+                        "ownScoringOrigin":route_zones[0] if len(route_zones)==1 else None,
+                        "ownScoringOrigins":route_zones,
+                        "physicalOriginMatch":bool(route_zones),
+                        "observedStrongerArea":bool(set(route_zones)&set(strong)),
                         "anatomicalPlacementVerified":bool(
                             data.get("anatomicalWeaknessCertified",False)),
                         "observedWeakAreaNames":sorted(weak),
                         "observedStrengthAreaNames":sorted(strong),
                     })
                 usable=[b for b in opposing if b["physicalOriginMatch"]]
-                # An unresolved or missing goalie branch is still a genuine
-                # source gap. Agreement requires matching own origins in ALL
-                # branches as well as successful teammate separation in ALL.
                 same_origin=bool(branch_reviews and all(
-                    item["shooterZone"]==own["zone"] for item in branch_reviews))
+                    set(item.get("shooterZones") or [])==set(own_zones)
+                    for item in branch_reviews))
                 every_branch_matches=bool(
                     branches and len(usable)==len(branches) and same_origin)
                 every_rival_reviewed=bool(
@@ -166,7 +167,7 @@ def review_all_candidates(con,snapshot,date,stage,selected_directions=None,
                         "G9OpponentDefenseWeakZonesUsed":list(g9_green) if isinstance(g9_green,list) else None,
                         "matchesG10_5GoalieAndDefenseRouteScope":g9_green is not None,
                     },
-                    "currentRinkOrigin":own["zone"],
+                    "currentRinkOrigin":own_zones,
                     "ownReleaseSource":scoped["release"]["sourceUrl"],
                     "outcome":status,
                     "unresolved":source_unresolved,
