@@ -23,6 +23,11 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
     g=goalie.get('data') or {}
     weak=g.get('weakZones') or {}
     zone=(release or {}).get('zone')
+    route_reviews=(release or {}).get('routeReviews') or []
+    g0_routes=(release or {}).get('g0MatchedOwnOriginRoutes') or []
+    g9_routes=(release or {}).get('g9ViableRoutes') or []
+    g0_zones=sorted({x.get('zone') for x in g0_routes if x.get('zone')})
+    g9_zones=sorted({x.get('zone') for x in g9_routes if x.get('zone')})
     dep=player.get('deployment')
     deploy=evidence_data(dep) or {}
     context=game.get('context')
@@ -97,13 +102,14 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'restSourceReviewed':has_rest,
           'contextSourcePresent':receipt(context)},src(context))
     red=cov.get('redStrongZones') or []
-    zone_match=bool(zone and zone in weak)
-    emit('Step3',bool(zone_match and zone not in red),
-         {'playerOwnShotArea':zone,'goalieWeakOriginMatch':zone_match,
-          'opponentDefenderAvoidZone':zone in red if zone else None,
+    zone_match=bool(g0_zones and any(z in weak for z in g0_zones))
+    emit('Step3',zone_match,
+         {'playerOwnShotAreas':g0_zones,
+          'goalieWeakOriginMatches':sorted(z for z in g0_zones if z in weak),
+          'opponentDefenderReviewDeferredToG9':True,
+          'opponentDefenderAvoidZoneNotUsedForG5':True,
           'goalMouthAnatomyNotInferred':True},
-         src(raw_release,goalie,coverage),
-         contradiction=bool(zone and zone in red and receipt(coverage)))
+         src(raw_release,goalie))
     # Step4 separately reviews the SAME dated pregame observations but
     # does not copy master G7's disposition or mark a single attempt recurring.
     emit('Step4',dated_recurrence['datedScoringOrShotRecurrence'],
@@ -116,19 +122,22 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
          contradiction=bool(recurrence and observed_shots['valid']
                             and observed_shots['datedAppearanceAlignmentVerified']
                             and not dated_recurrence['datedScoringOrShotRecurrence']))
-    mechanism=shooter_mechanism(player,release,game.get('date'))
-    own_mechanism=bool(receipt(raw_release) and release and mechanism['supported']
-                      and isinstance(release.get('ownedGoals'),int)
-                      and isinstance(release.get('attempts'),int)
-                      and release['attempts']>=release['ownedGoals']>=0)
+    mechanism=(release or {}).get('mechanismReview') or {
+        'supported':False,'archetype':None,'observedShotTypes':[],'sourceIds':[]}
+    own_mechanism=bool(receipt(raw_release) and release and any(
+        x.get('mechanismSupported') is True for x in route_reviews))
     emit('Step5',own_mechanism,
          {'ownedArchetype':mechanism.get('archetype'),
           'individualMechanismReview':mechanism,
-          'sourcedOwnShotsOnNet':release.get('attempts') if release else None,
-          'creditedGoalsByOrigin':release.get('ownedGoals') if release else None,
+          'ownReleaseRoutes':[
+              {'zone':x.get('zone'),'mechanismSupported':x.get('mechanismSupported'),
+               'observedShotTypes':(x.get('mechanismReview') or {}).get('observedShotTypes')}
+              for x in route_reviews],
+          'sourcedOwnShotsOnNet':sum(x.get('attempts',0) for x in route_reviews),
+          'creditedGoalsByOrigin':sum(x.get('ownedGoals',0) for x in route_reviews),
           'exactShotVelocityNotAvailable':True,
           'attemptsAreNotAllShotAttempts':True},
-         sorted(set(src(raw_release)+mechanism['sourceIds'])))
+         sorted(set(src(raw_release)+mechanism.get('sourceIds',[]))))
     valid_role=bool(receipt(dep) and deploy.get('EV') and
                     deploy.get('status') in ('PROJECTED','CONFIRMED'))
     emit('Step6',valid_role,
@@ -137,13 +146,20 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           'confirmationSeparatelyLabeled':True,
           'unverifiedSpecialTeamsNotPromoted':deploy.get('PP') is None or deploy.get('PK') is None},
          src(dep))
-    # Mandatory archetype tagging occurs before G18's path decision.
-    tag={'playerId':str(player.get('id')),'archetype':mechanism.get('archetype'),
+    # Archetype tagging is completed from the G0-matched own-route set;
+    # no G9 defensive colour is allowed to choose or veto an earlier G4 route.
+    g0_route_mechanisms=[x for x in route_reviews
+                         if x.get('zone') in set(g0_zones)
+                         and x.get('mechanismSupported') is True]
+    tag={'playerId':str(player.get('id')),
+         'archetype':mechanism.get('archetype'),
          'individualMechanismReview':mechanism,
-         'directOwnShotOrigin':zone,'goalieVulnerableAreas':sorted(weak),
-         'sourceTaggedBeforeFinalPick':True}
-    emit('Step7',bool(own_mechanism and zone_match),tag,
-         sorted(set(src(raw_release,goalie)+mechanism['sourceIds'])))
+         'directOwnShotOrigins':g0_zones,
+         'goalieVulnerableAreas':sorted(weak),
+         'sourceTaggedBeforeFinalPick':True,
+         'G9RouteSelectionNotAppliedToG4':True}
+    emit('Step7',bool(g0_route_mechanisms),tag,
+         sorted(set(src(raw_release,goalie)+mechanism.get('sourceIds',[]))))
     shifts=cov.get('shiftByShift') or cov.get('defensiveShiftEvents')
     # Step 8's original scope is independent TEAM defensive shift coverage.
     # G5 and G9, not Step 8, adjudicate exact scorer-to-goalie zone matches.
@@ -164,7 +180,8 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
           and e.get('zone') and e.get('gameId')
           and e.get('period') is not None and e.get('eventClock')
           ] if isinstance(shifts,list) else []
-    area_shifts=[e for e in actual_shifts if zone and e.get('zone')==zone]
+    reviewed_zones=g9_zones or g0_zones
+    area_shifts=[e for e in actual_shifts if e.get('zone') in set(reviewed_zones)]
     shift_urls=[url for url in (cov.get('shiftSourceUrls') or [])
                 if isinstance(url,str)
                 and url.startswith('https://api.nhle.com/stats/rest/en/shiftcharts')]
@@ -195,37 +212,49 @@ def independent_overlay(game,attacker,player,teammates,goalie,release,
          # evidenced shooter-to-goalie route.
          neutral=not sourced_team_shift_review)
     recent=pres.get('recentAppearanceShots')
-    # Step9: check the actual per-appearance pressure observation, not the
-    # presence of a nonnegative list or any previously recorded G11 PASS.
-    route_pressure=independently_dated_origin_route(player,zone)
-    bounded_route=(independently_bounded_origin_route(
-        player,zone) if route_pressure is None else None)
-    observed_route=route_pressure or bounded_route
-    route_reviewed=bool(observed_route and
-        (evidence_data(player.get('recentOrigin')) or {}).get('sampleAsOfSlateDate')==game.get('date'))
-    route_current=bool(route_reviewed and
-        ((route_pressure and route_pressure['shotsOnGoal']>0) or
-         (bounded_route and bounded_route['shotsOnGoalLowerBound']>0)))
+    route_pressure_rows=[]
+    for route in g9_routes:
+        route_zone=route.get('zone')
+        exact=independently_dated_origin_route(player,route_zone)
+        bounded=(independently_bounded_origin_route(player,route_zone)
+                 if exact is None else None)
+        observed=exact or bounded
+        reviewed=bool(observed and
+            (evidence_data(player.get('recentOrigin')) or {}).get('sampleAsOfSlateDate')==game.get('date'))
+        active=bool(reviewed and (
+            (exact and exact['shotsOnGoal']>0) or
+            (bounded and bounded['shotsOnGoalLowerBound']>0)))
+        route_pressure_rows.append({'zone':route_zone,'exact':exact,'bounded':bounded,
+                                    'reviewed':reviewed,'active':active})
+    route_current=any(x['active'] for x in route_pressure_rows)
+    route_reviewed=bool(route_pressure_rows) and all(x['reviewed'] for x in route_pressure_rows)
+    observed_routes=[{'zone':x['zone'],'evidence':x['exact'] or x['bounded'],
+                      'active':x['active']} for x in route_pressure_rows]
+    bounded_routes=[x['bounded'] for x in route_pressure_rows if x['bounded']]
     measured=bool(receipt(pressure) and observed_shots['valid'] and
                   observed_shots['repeatedOwnShotPressure'] and route_current)
     emit('Step9',measured,
          {'dateSampleShotsOnNet':recent,
           'recentRouteContinuationMeasured':measured,
           'ownShotContinuationEvidence':observed_shots,
-          'selectedRouteRecentOrigin':observed_route,
-          'conservativeUnknownLocationBounds':bounded_route,
+          'selectedRouteRecentOrigin':observed_routes,
+          'conservativeUnknownLocationBounds':bounded_routes,
           'currentShotPressureInSelectedRoute':route_current,
-          'notWeightedOrMarketSelected':True},src(pressure,player.get('recentOrigin')),
-         # An undated count list is unresolved, not a dated one-off loss.
+          'notWeightedOrMarketSelected':True},
+         src(pressure,player.get('recentOrigin')),
          contradiction=bool(receipt(pressure) and observed_shots['valid']
                             and observed_shots['datedAppearanceAlignmentVerified']
                             and (not observed_shots['repeatedOwnShotPressure'] or
-                                 (route_pressure is not None and route_reviewed and not route_current))))
+                                 (route_reviewed and not route_current))))
     emit('Step10',bool(receipt(goalie) and receipt(raw_release) and zone_match),
-         {'targetGoalieId':g.get('goalieId'),'ownRouteArea':zone,
+         {'targetGoalieId':g.get('goalieId'),
+          'ownRouteAreas':g0_zones,
+          'goalieWeaknessAreaMatches':sorted(z for z in g0_zones if z in weak),
           'observedOwnMechanism':mechanism,
-          'weaknessAreaSummary':weak.get(zone) if zone else None,
-          'shotOriginVsGoalMouthKeptSeparate':True},
+          'weaknessAreaSummary':{
+              z:weak.get(z) for z in g0_zones if z in weak},
+          'shotOriginVsGoalMouthKeptSeparate':True,
+          'G9DefenseNotUsedToChooseG5Route':True},
          src(raw_release,goalie))
     rivals=[x for x in teammates if str(x.get('id'))!=str(player.get('id')) and
             x.get('availability') not in ('OUT','SCRATCHED','INJURED')]
