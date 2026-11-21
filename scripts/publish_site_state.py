@@ -255,6 +255,7 @@ def export_run(con, slate_date, stage, result, root='state'):
         'lineupSourceCoverage':result.get('lineupSourceCoverage',{}),
         'additionalStructuredDeploymentCoverage':result.get('additionalStructuredDeploymentCoverage',{}),
         'datedEdgehallaProjectionCoverage':result.get('datedEdgehallaProjectionCoverage',{}),
+        'officialNhlProjectedLineupCoverage':result.get('officialNhlProjectedLineupCoverage',{}),
         'datedGoalieSourceCoverage':result.get('datedGoalieSourceCoverage',{}),
         'datedIndependentGoalieSourceCoverage':result.get('datedIndependentGoalieSourceCoverage',{}),
         'g0RinkOriginResearch':result.get('g0RinkOriginResearch',[]),
