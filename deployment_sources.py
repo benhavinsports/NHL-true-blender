@@ -170,54 +170,58 @@ def _nhl_article_game_day_verified(text, slate_date, team_slug, opponent_slug):
 
 
 def fetch_nhl_article(team, team_name=None, slate_date=None, opponent_slug=None):
-    """Read only NHL.com explicitly published forward-line units.
+    """Read only explicitly published NHL.com forward-line units.
 
-    The season article changes daily. Certify its DATE only when the actual
-    NHL matchup and weekday are checked against the official slate passed by
-    the caller. No line, goalie, or PP role is inferred from a bare mention.
+    Preserve HTML block boundaries: flattening the entire article before
+    splitting on dashes can turn adjacent players on different lines into
+    imaginary teammates. A projected unit never becomes confirmed.
     """
     try:
+        from html import unescape
         html = get(NHL_LINEUP_URL).text
-        txt = re.sub(r'<(script|style)\b[^>]*>.*?</\1>', ' ', html, flags=re.I|re.S)
-        txt = re.sub(r'<[^>]+>', '\n', txt)
-        for old,new in (('&nbsp;', ' '), ('&#x27;', "'"), ('&amp;', '&'),
-                        ('&ndash;', '--'), ('&mdash;', '--')):
-            txt = txt.replace(old,new)
-        txt = re.sub(r'\s+', ' ', txt).strip()
+        body = re.sub(r'<(script|style)\b[^>]*>.*?</\1>', ' ', html, flags=re.I|re.S)
+        body = re.sub(r'<br\s*/?>|</(?:p|div|h[1-6]|li)>', '\n', body, flags=re.I)
+        body = re.sub(r'<[^>]+>', ' ', body)
+        body = unescape(body)
+        lines = [re.sub(r'\s+', ' ', row).strip()
+                 for row in body.splitlines()]
+        lines = [line for line in lines if line]
+        flat = ' '.join(lines)
         aliases=[]
         if team_name:
             display = team_name.replace('-', ' ').strip()
             aliases.extend([display, display.split()[-1]])
         aliases.append(team)
-        lower=txt.lower(); start=-1; matched=None
-        for alias in dict.fromkeys(aliases):
-            if not alias: continue
-            pattern=re.compile(r'\b'+re.escape(alias.lower())+r'\s+projected lineup\b', re.I)
-            m=pattern.search(lower)
-            if m: start=m.start(); matched=alias; break
-        if start < 0:
+        heading_pattern = re.compile(
+            r'\b(?:'+'|'.join(re.escape(x) for x in dict.fromkeys(aliases) if x)+
+            r')\s+projected lineup\b', re.I)
+        found = next((i for i,line in enumerate(lines)
+                      if heading_pattern.fullmatch(line)), None)
+        if found is None:
             return [], {'source':None,'errors':[f'{team_name or team} not found as a projected-lineup heading in NHL.com article']}
-        tail=txt[start:]
-        next_heading=re.search(r'\b[A-Z][A-Za-z .-]+\s+projected lineup\b',tail[len(matched)+18:],re.I)
-        if next_heading: tail=tail[:len(matched)+18+next_heading.start()]
-        # HTML occasionally uses en/em dashes between published line members.
-        normalized = re.sub(r'\s+[–—]\s+', ' -- ', tail)
         rows=[]; line_no=0
-        pattern = r"([A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?\s+--\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+?)(?=\s+[A-ZÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]+\s+--|\s+Scratched:|\s+Injured:|\s+Status report|\s*$)"
-        for raw in re.findall(pattern, normalized):
-            parts=[x.strip() for x in raw.split('--')]
-            if len(parts)==3 and all(len(x)>2 for x in parts):
-                line_no+=1
-                if line_no>4: break
-                for name in parts:
-                    rows.append({'playerName':name,'line':line_no,'powerPlayUnit':None,
-                                 'source':'NHL.com projected lineup article',
-                                 'sourcePath':f'forward line {line_no}',
-                                 'retrievedAt':datetime.now(timezone.utc).isoformat(),
-                                 'sourceTeam':team.upper()})
+        for line in lines[found+1:]:
+            if re.search(r'\bprojected lineup\b|^Scratched:|^Injured:|^Status report',line,re.I):
+                break
+            # Explicit three-name forward units only. Defense pairs (two)
+            # and goalie names (one) are not forward-line assignments.
+            parts = [x.strip() for x in re.split(r'\s+(?:--|[–—])\s+', line)]
+            if len(parts)!=3:
+                continue
+            if not all(re.fullmatch(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'\u2019-]*", x)
+                       and len(x)>2 for x in parts):
+                continue
+            line_no+=1
+            if line_no>4: break
+            for name in parts:
+                rows.append({'playerName':name,'line':line_no,'powerPlayUnit':None,
+                             'source':'NHL.com projected lineup article',
+                             'sourcePath':f'forward line {line_no}',
+                             'retrievedAt':datetime.now(timezone.utc).isoformat(),
+                             'sourceTeam':team.upper()})
         if not rows:
             return [], {'source':None,'errors':['NHL.com team section found but no reliable forward-line rows parsed']}
-        date_ok=_nhl_article_game_day_verified(txt,slate_date,team_name,opponent_slug)
+        date_ok=_nhl_article_game_day_verified(flat,slate_date,team_name,opponent_slug)
         return rows, {
             'source':'NHL.com projected lineup article',
             'url':NHL_LINEUP_URL,
