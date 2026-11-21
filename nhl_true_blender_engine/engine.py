@@ -1574,10 +1574,11 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
     # Global G16 has already compared all G0-G16-qualified game candidates.
     # Apply the resulting evidence now, BEFORE G17, not after it has passed.
     global_row=cross_game_g16 or {}
-    # Cross-game exclusion denies a Core slot, not a source-verified
-    # per-game scorer G16 pass. Keep both findings separately.
+    # The global G16 source verdict is applied at G16, not after G17.
+    # A source-proven game scorer remains a game survivor even if G16
+    # excludes that route from the final cross-game Core competition.
     globally_excluded=str(global_row.get('g16Decision') or '').startswith('EXCLUDED_')
-    emit('G16',wins is True and len(rows)==len(rivals),
+    emit('G16',wins is True and len(rows)==len(rivals) and not globally_excluded,
          {'everyOtherActiveTeammate':len(rows),'challengerRows':rows,
           'includesDepthAndDefense':True,
           'routeOwnedByStrongerRival':route_owned_by or None,
@@ -1591,7 +1592,7 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'challengersStoppedBeforeG10_5':stopped or None,
           'eliminatedChallengersExcluded':sorted(eliminated_before-{str(player['id'])}) or None,
           'unresolvedChallengersCannotEliminate':unresolved_dominators or None},
-         eliminate=bool(route_owned_by),
+         eliminate=bool(route_owned_by) or globally_excluded,
          # The candidate side of every comparison is its own official release
          # record, so it is cited even when no live challenger remains.
          source_ids=sorted(set([url for row in rows for url in row.get('sourceUrls',[])
@@ -1658,7 +1659,15 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         nonblocking_overlay_review(row['gate'],
             row.get('details',{}).get('evidence',{}),row['disposition'])
         for row in overlay)
-    previous_gates_passed=master_passed and overlay_passed
+    # Cross-game G16 exclusion is recorded in the authoritative G16 row,
+    # but must not erase the already qualified game-level scorer. This is
+    # the same source-backed opponent route that G18 may choose NOT to use.
+    otherwise_passed=all(d[g]['disposition']=='PASS'
+                         for g in MASTER[:-1] if g!='G16')
+    cross_game_only_exclusion=bool(
+        globally_excluded and wins is True and not route_owned_by and
+        d['G16']['disposition']=='ELIMINATED' and otherwise_passed)
+    previous_gates_passed=(master_passed or cross_game_only_exclusion) and overlay_passed
     route,path_proof=adjudicate_scoring_path(player,teammates,release,
         goalie_profile,coverage,d,rows,who_ok)
     # A game survivor has passed the ENTIRE original G0-G17 source process.
@@ -3245,6 +3254,8 @@ def execute(con, snapshot, date, stage='PROJECTED', now=None):
             actual=g16['details'].get('crossGameFinalistCompetition')
             if not actual or actual.get('decision')!=finalist['g16Decision']:
                 raise ValueError('G16 cross-game result missing before G17')
+            if finalist['g16Decision'].startswith('EXCLUDED_') and g16['disposition']!='ELIMINATED':
+                raise ValueError('Excluded G16 contender was not rejected before G17')
             if g16['details'].get('globalG16AppliedBeforeG17') is not True:
                 raise ValueError('Pre-G17 G16 full-slate decision absent')
         # Only the actual G16-selected recipient may be G18 certified;
