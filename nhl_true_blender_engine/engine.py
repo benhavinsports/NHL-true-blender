@@ -268,7 +268,9 @@ def g0_source_coherent_scorer_goalie(game, direction, starter):
     receipts=(direction.get('g0DecisionProof') or {}).get('pairwiseReceipts') or []
     if not receipts or not all(
         rec.get('attacker')==direction['attacker'] and
-        rec.get('sourceDecisionMethod')=='SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL' and
+        rec.get('sourceDecisionMethod') in (
+            'SAME_HISTORICAL_OFFICIAL_PBP_GOALIE_PEER_POOL',
+            'SAME_HISTORICAL_OFFICIAL_PBP_ONE_SIDED_WEAKNESS') and
         gid in (str(rec.get('goalieA')),str(rec.get('goalieB'))) and
         (rec.get('proof') or {}).get('sourceCoherentIndependentHistoricalSample') is True
         for rec in receipts):
