@@ -47,6 +47,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
     try:
         async with _Client() as client:
             snapshot = await official_slate(client, date, con)
+            print(f\"BLENDER official slate loaded: {date}; games={len(snapshot.get('games', []))}\", flush=True)
+            print(\"BLENDER collecting official history and goalie peer evidence\", flush=True)
             historical = await collect_history(client, con, snapshot, date, stage)
             # This event payload is an in-memory input to the later goalie
             # fallback, not a JSON report or persistent duplicate database.
@@ -57,6 +59,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
             goal_tracking = {'status': 'DISABLED_BY_DEFAULT', 'reason': 'Historical sprite archive is supplemental, not G0 anatomical evidence'}
             if os.environ.get('ENABLE_GOAL_SPRITES') == '1':
                 goal_tracking = await collect_goal_sprites(client, snapshot, date, max_goals=12)
+        print(\"BLENDER collecting secondary sources, lineups, deployment and projected starters\", flush=True)
         source_research = await collect_secondary(con, snapshot, date, stage)
         source_research['parsedLineups']=await fetch_and_ingest_lineups(
             con,snapshot,date,stage)
@@ -89,6 +92,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 os.environ.get('MONEYPUCK_EXPORT_ASOF'))
         # Starters and projected lines are attached before independently
         # measured EDGE comparisons; a skater is never picked before full G0.
+        print(\"BLENDER attaching collected evidence and deriving source-supported attack routes\", flush=True)
         attach(con, snapshot, date, stage)
         derived_routes = derive_nhl_edge_attacks(con, snapshot, date, stage)
         attach(con, snapshot, date, stage)
@@ -113,69 +117,37 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         edge_g0_review = review_g0_goalie_origins(con, snapshot, date, stage)
         # Independent contradiction evidence is reviewed at G17, not after G0.
         attach(con, snapshot, date, stage)
+        print(\"BLENDER executing original G0-G18 and overlay\", flush=True)
         result = execute(con, snapshot, date, stage)
+        print(f\"BLENDER first gate execution complete; Core present={bool(result.get('card'))}\", flush=True)
         contradiction_research = result.get('g17ReviewSummary')
         # Keep searching every still-pre-puck game at its first
         # nonpassing original gate. A source returning no usable observation
         # is not a terminal result: the next complete refresh searches again.
         # The only per-game end condition is the original puck-drop freeze.
+        # One authoritative workflow cycle performs the full source collection,
+        # executes the original G0-G18 engine, records its current evidence state,
+        # and returns so the canonical ledger can be saved and Pages refreshed.
+        # The serialized five-minute schedule starts the next full source cycle.
+        # There is no total retry limit: every scheduled cycle continues researching
+        # unresolved games until recovery_snapshot applies each game's puck-drop freeze.
         feedback=[]
-        from nhl_true_blender_engine.gate_census import certify_gates as _census
-        # Continuous pregame source recovery: keep collecting and re-running
-        # the original gates while any matchup remains before its own puck drop.
-        # A short pause prevents hammering providers when a source has not yet
-        # published a new observation. There is deliberately no retry-count cap.
-        recovery_round=0
-        while True:
-            retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
-            if not retry_snapshot['games']:
-                break
-            recovery_round += 1
-            if recovery_round > 1:
-                await asyncio.sleep(60)
-                retry_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
-                if not retry_snapshot['games']:
-                    break
-            affected_game_ids=[str(g['id']) for g in retry_snapshot['games']]
-            async with _Client() as client:
-                refreshed_history=await collect_history(client,con,retry_snapshot,date,stage)
-                refreshed_peer_events=refreshed_history.pop('_goaliePeerPbpEvents',[])
-                await collect_context(client,con,retry_snapshot,date,stage)
-                await collect_edge(client,con,retry_snapshot,date,stage)
-                await collect_season_goal_history(client,con,retry_snapshot,date,stage)
-            await collect_secondary(con,retry_snapshot,date,stage)
-            await fetch_and_ingest_lineups(con,retry_snapshot,date,stage)
-            await fetch_and_ingest_additional_deployment(con,retry_snapshot,date,stage)
-            await collect_edgehalla_deployment(con,retry_snapshot,date,stage)
-            await collect_nhl_projected_goalies(con,retry_snapshot,date,stage)
-            await collect_dated_goalie_projections(con,retry_snapshot,date,stage)
-            await collect_dfo_goalies(con,retry_snapshot,date,stage)
-            async with _Client() as client:
-                await collect_official_dressed(client,con,retry_snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            derive_nhl_edge_attacks(con,snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            async with _Client() as client:
-                await collect_goalie_pbp_fallback(
-                    client,con,retry_snapshot,date,stage,
-                    league_peer_events=refreshed_peer_events)
-            attach(con,snapshot,date,stage)
-            review_g0_goalie_origins(con,snapshot,date,stage)
-            attach(con,snapshot,date,stage)
-            result=execute(con,snapshot,date,stage)
-            contradiction_research=result.get('g17ReviewSummary')
-            after=_census(con,date,stage,result.get('games'))
-            remaining=recovery_snapshot(con,snapshot,date,stage,result)
+        remaining_snapshot=recovery_snapshot(con,snapshot,date,stage,result)
+        remaining_ids=[str(g['id']) for g in remaining_snapshot['games']]
+        if remaining_ids:
             feedback.append({
-                'pass':recovery_round,
-                'affectedGameIds':affected_game_ids,
-                'firstNonpassingGateDispositionCountsAfterRefresh':
-                    after.get('firstNonpassingGateDispositionCounts',{}),
-                'remainingPregameGameIdsAfterRefresh':[
-                    str(g['id']) for g in remaining['games']],
+                'cycleCheckpoint':True,
+                'researchedGameIds':[str(g['id']) for g in snapshot.get('games',[])],
+                'remainingPregameGameIdsAfterRefresh':remaining_ids,
+                'nextScheduledCycleContinuesSourceRecovery':True,
                 'noAutomaticPasses':True
             })
-
+        print(
+            f"BLENDER cycle complete: {len(remaining_ids)} unresolved pregame games "
+            "will receive another full source refresh on the next scheduled cycle; "
+            f"Core present={bool(result.get('card'))}",
+            flush=True
+        )
         result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
         result['gateCertification']=certify_gates(con,date,stage,result.get('games'))
@@ -322,6 +294,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # Source-verified Core JSON is produced independently by the engine.
         # GitHub Actions commits it under state/; GitHub Pages publishes
         # the authoritative card and run receipt via site/data/latest.json.
+        print(\"BLENDER writing this cycle's evidence, card receipt and dashboard checkpoint\", flush=True)
         from scripts.publish_site_state import export_run
         site_export = export_run(con, date, stage, result, state_dir)
         summary = {k: v for k, v in result.items() if k != "scan"}

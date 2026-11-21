@@ -11,9 +11,10 @@ from .engine import MASTER
 from .storage import game_started
 
 
-# Source recovery has no fixed pass count. The runner repeatedly rebuilds the
-# pregame research set from the persisted gate ledger and continues collecting
-# until every game has reached its original puck-drop freeze.
+# Source recovery has no fixed total pass count. Each serialized workflow cycle
+# rebuilds the pregame research set from the persisted gate ledger and performs
+# another full collection; scheduled cycles continue until each game's original
+# puck-drop freeze. Every cycle can persist and publish its checkpoint.
 def recovery_snapshot(con, snapshot, date, stage, result, now=None):
     now = now or datetime.now(timezone.utc)
     selected = result.get('g0TwoGoalieDirectionDecisions') or {}

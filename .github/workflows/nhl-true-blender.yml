@@ -8,7 +8,9 @@ on:
   push:
     branches: [main]
     paths: ['.github/nhl-live-validation.json']
-  # Production G0-G18 engine runs on a stable half-hour schedule.
+  # Each serialized cycle runs the full original source collection and G0-G18,
+  # saves/publishes its checkpoint, then the next cycle continues unresolved
+  # source research until each game's original puck-drop freeze.
   # Do NOT start a competing live engine on every code push: rapid source
   # changes previously kept the authoritative ledger in never-ending
   # fetch/replay/rebase loops, and queued newer pushes cancelled each other.
@@ -26,11 +28,11 @@ on:
         required: false
         options: [projected, confirmed, watch, grade]
   schedule:
-    # Automatic evidence refresh every 30 minutes. The runner reads actual
+    # Automatic full-slate evidence refresh every five minutes. Each run
     # official NHL start times rather than stopping full gate execution at 7 ET.
     # Late starts remain eligible for confirmed research until their own puck drop.
     # After all starts, grade only when the official NHL games are final.
-    - cron: '8,38 * * * *'
+    - cron: '*/5 * * * *'
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
