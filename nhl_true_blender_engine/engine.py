@@ -526,6 +526,8 @@ def release_matched_to_g0_target(player,goalie_profile):
     source_complete=(bool(routes) and (
         not isinstance(raw_routes,list) or len(routes)==len(raw_routes)))
     weak=(goalie_profile.get('data') or {}).get('weakZones') or {}
+    if not weak:
+        return player
     matching=[x for x in routes if x['zone'] in weak]
     data={**base,'allRoutes':routes,
           'g0MatchedOwnOriginRoutes':matching,
@@ -536,7 +538,8 @@ def release_matched_to_g0_target(player,goalie_profile):
           'g9RouteSelectionDeferred':True,
           'tonightRouteSelectionBasis':'G0_GOALIE_WEAKNESS_ROUTE_SET',
           'tonightRouteUnresolved':False,
-          'originalPrimaryOrigin':base.get('zone')}
+          'originalPrimaryOrigin':base.get('zone'),
+          'anatomicalPlacementCertified':base.get('anatomicalPlacementCertified',False)}
     unique=matching[0] if len(matching)==1 else None
     data.update({'zone':unique['zone'] if unique else None,
                  'attempts':unique['attempts'] if unique else None,
