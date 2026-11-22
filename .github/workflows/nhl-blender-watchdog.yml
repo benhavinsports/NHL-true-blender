@@ -1,36 +1,10 @@
-name: NHL Blender automatic engine watchdog
+name: NHL Blender automatic engine watchdog (paused)
+# Automatic NHL watchdog intentionally disabled at the user's request.
+# No schedule, push, workflow_run, or workflow_dispatch trigger is configured.
 on:
-  schedule:
-    - cron: '17,47 * * * *'
-  workflow_run:
-    workflows: ['Blender end-to-end verification', 'NHL True Blender - independent scheduled engine']
-    types: [completed]
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/nhl-blender-watchdog.yml'
-permissions:
-  contents: read
-  actions: write
-concurrency:
-  group: nhl-blender-watchdog
-  cancel-in-progress: false
+  workflow_call:
 jobs:
-  guard:
-    if: >-
-      github.event_name == 'schedule' ||
-      github.event_name == 'push' ||
-      (github.event.workflow_run.head_branch == 'main' &&
-       ((github.event.workflow_run.name == 'Blender end-to-end verification' &&
-         github.event.workflow_run.conclusion == 'success') ||
-        github.event.workflow_run.name == 'NHL True Blender - independent scheduled engine'))
+  disabled:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - name: Launch original engine only when idle
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERIFIED_SHA: ${{ github.event.workflow_run.name == 'Blender end-to-end verification' && github.event.workflow_run.head_sha || '' }}
-          COMPLETED_WORKFLOW: ${{ github.event.workflow_run.name || '' }}
-        run: python scripts/nhl_blender_watchdog.py
+      - run: echo "NHL Blender watchdog is paused; no live cycle will be launched."
