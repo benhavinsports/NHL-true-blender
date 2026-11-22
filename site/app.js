@@ -90,7 +90,7 @@ function mergePublicGoalsCore(latest,archive,exported){
  const card=exported?.card;
  const legs=card?.current_legs;
  if(!exported||exported.verified!==true||
-    exported.cardStatus!=="G18_SOURCE_VERIFIED"||
+    !["G18_SOURCE_VERIFIED","FROZEN_GRADED"].includes(exported.cardStatus)||
     exported.sourceRepo!=="benhavinsports/Goals"||
     exported.selectedCoreFullyCertified!==true||
     exported.selectedMasterGatesAllPass!==true||
@@ -100,7 +100,7 @@ function mergePublicGoalsCore(latest,archive,exported){
     !exported.date||!card||!card.cardId||
     typeof card.fingerprint!=="string"||card.fingerprint.length!==64||
     card.fingerprint!==exported.statusFingerprint||
-    !Array.isArray(legs)||legs.length!==3||
+    !Array.isArray(legs)||![2,3].includes(legs.length)||
     legs.some(leg=>!leg.gameId||!leg.playerId||
        !["PRIMARY","TRANSFER","WHO"].includes(leg.path))||
     new Set(legs.map(leg=>String(leg.gameId))).size!==3||
@@ -109,6 +109,7 @@ function mergePublicGoalsCore(latest,archive,exported){
     date:exported.date,cardId:card.cardId,stage:exported.stage,
     verified:true,fingerprint:card.fingerprint,revision:card.revision,
     current_legs:legs,cardStatus:exported.cardStatus,
+    grade:exported.postgameGrade||null,
     hasGateEvidence:false,
     gateEvidenceError:"The source-certified selected-player gate audit is retained in the engine's GitHub Actions archive; the public gate export is not yet mirrored."
  };
@@ -116,7 +117,8 @@ function mergePublicGoalsCore(latest,archive,exported){
     .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  const published={
     date:exported.date,stage:exported.stage,
-    verified:true,card,gameSurvivorPool:exported.gameSurvivorPool||[],
+    verified:true,card,postgameGrade:exported.postgameGrade||null,
+    gameSurvivorPool:exported.gameSurvivorPool||[],
     publicationDecision:"G18_SOURCE_VERIFIED_PUBLIC_MIRROR",
     survivorOnlyCertification:true,currentRunFullyCertified:false,
     gateCertification:{
