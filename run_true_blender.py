@@ -123,8 +123,13 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         edge_g0_review = review_g0_goalie_origins(con, pregame_snapshot, date, stage)
         # Independent contradiction evidence is reviewed at G17, not after G0.
         attach(con, snapshot, date, stage)
+        # Source collection can span a game's scheduled puck drop. Freeze
+        # selection at the actual time the full G0-G18 engine begins, not at
+        # the earlier collection-start timestamp. Each game's own start time
+        # remains authoritative; later recovery cycles skip games already live.
+        execution_now=datetime.now(timezone.utc)
         print("BLENDER executing original G0-G18 and overlay", flush=True)
-        result = execute(con, snapshot, date, stage, now=cycle_now)
+        result = execute(con, snapshot, date, stage, now=execution_now)
         print(f"BLENDER first gate execution complete; Core present={bool(result.get('card'))}", flush=True)
         contradiction_research = result.get('g17ReviewSummary')
         # Keep searching every still-pre-puck game at its first
@@ -138,7 +143,7 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         # There is no total retry limit: every scheduled cycle continues researching
         # unresolved games until recovery_snapshot applies each game's puck-drop freeze.
         feedback=[]
-        remaining_snapshot=recovery_snapshot(con,snapshot,date,stage,result,now=cycle_now)
+        remaining_snapshot=recovery_snapshot(con,snapshot,date,stage,result,now=datetime.now(timezone.utc))
         remaining_ids=[str(g['id']) for g in remaining_snapshot['games']]
         if remaining_ids:
             feedback.append({
