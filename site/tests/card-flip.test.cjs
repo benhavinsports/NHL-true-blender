@@ -329,7 +329,7 @@ test("both Core and survivor backs use the same real 20-gate expandable scouting
  assert.ok(descendants(back).some(n=>n.classList.contains("scout-shot-ring")));
  const reportText=descendants(back).map(n=>n.textContent||"").join(" ");
  assert.ok(reportText.includes("OPPOSING GOALIE"));
- assert.ok(reportText.includes("OPPONENT DEFENSIVE COVERAGE"));
+ assert.ok(reportText.includes("OPPONENT DEFENSIVE GOALS CONCEDED"));
  assert.ok(reportText.includes("RECIPIENT REVIEW"));
  assert.ok(reportText.includes("CONTRADICTIONS"));
  assert.ok(reportText.includes("Original G0–G18"));
@@ -364,7 +364,7 @@ test("cards share real NHL photo IDs but no shared renderer changes the selected
 });
 
 
-test("visual scouting back plots only sourced historical shot origin and defense metrics",()=>{
+test("visual scouting back reports historical goals without using attempts as goal evidence",()=>{
  const {sandbox,elements}=appContext();
  vm.runInContext("renderCards()",sandbox);
  const first=elements["core-cards"].childNodes[0];
@@ -379,15 +379,17 @@ test("visual scouting back plots only sourced historical shot origin and defense
  assert.equal(active[0].textContent.replace(/\s+/g," ").toLowerCase(),
    String(g4.zone).toLowerCase());
  const labels=descendants(back).map(n=>n.textContent||"").join(" ");
- assert.ok(labels.includes("OPPONENT DEFENSIVE COVERAGE"));
- assert.ok(labels.includes(g9.attemptsAgainst+" attempts"));
- assert.ok(labels.includes(g9.attemptsPerGame.toFixed(2)+" / game"));
- assert.ok(labels.includes(g9.peerMedianAttemptsPerGame.toFixed(2)+" / game"));
+ assert.ok(labels.includes("OPPONENT DEFENSIVE GOALS CONCEDED"));
+ assert.ok(labels.includes(g9.goalsAgainst+" goals against"));
+ // The older saved 2026-11-17 source has attempt-based peer metrics but
+ // no actual GOALS-per-game peer comparison. Do not backfill a fake rate.
+ assert.ok(labels.includes("were not included in this saved excerpt"));
+ assert.ok(!labels.includes(g9.attemptsAgainst+" attempts"));
+ assert.ok(!labels.includes(g9.attemptsPerGame.toFixed(2)+" / game"));
  assert.ok(labels.includes("Category diagram"));
  assert.ok(labels.includes("Never a prediction"));
  assert.ok(descendants(back).some(n=>n.classList.contains("scout-shot-ring")));
- assert.ok(descendants(back).some(n=>n.classList.contains("scout-compare-fill")&&n.classList.contains("concession")));
- assert.ok(descendants(back).some(n=>n.classList.contains("scout-compare-fill")&&n.classList.contains("peer")));
+ assert.equal(descendants(back).filter(n=>n.classList.contains("scout-compare-fill")).length,0);
 });
 
 test("20 visual gate chips jump to actual recorded evidence without changing pass status",()=>{
