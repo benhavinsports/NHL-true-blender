@@ -92,7 +92,10 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts,date){
  }else{
    player.appendChild(create("strong","pool-player-name pool-unresolved","No qualified scorer"));
    player.appendChild(create("span","pool-team",
+     g.stoppedAt==="G0_GOALIE_IDENTITY_UNRESOLVED"?
+       "GOALIE IDENTITY UNRESOLVED":
      g.stoppedAt==="G0"?"G0 ATTACK DIRECTION UNRESOLVED":
+     g.stoppedAt==="G10.5"?"G10.5 RECIPIENT SEPARATION":
      g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?
      "GAME FROZEN":"NO G0–G17 SURVIVOR"));
    if(g.reason)player.appendChild(create("span","pool-short-proof",g.reason));
