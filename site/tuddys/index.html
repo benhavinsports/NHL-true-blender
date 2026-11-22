@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080f18">
+  <meta name="description" content="Tuddys NFL — the authoritative anytime-touchdown Core and all saved matchup survivors.">
+  <title>TUDDYS | NFL Touchdown Deck</title>
+  <link rel="stylesheet" href="./styles.css?v=nfl-original-deck">
+  <link rel="stylesheet" href="./public-deck.css?v=nfl-original-deck">
+  <link rel="stylesheet" href="./nfl-overrides.css?v=1">
+  
+  <script defer src="./app.js?v=nfl-original-deck"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-content">
+      <a class="brand" href="#top" aria-label="Tuddys home">
+        <span class="brand-mark" aria-hidden="true">TD</span>
+        <span class="brand-copy">
+          <strong>TUDDYS</strong>
+          <span>NFL TOUCHDOWN INTELLIGENCE</span>
+        </span>
+      </a>
+      <div class="header-utilities">
+        <span class="header-broadcast"><span class="broadcast-dot" aria-hidden="true"></span> SOURCE-DRIVEN SCOUTING</span>
+        <button id="refresh" class="header-action" type="button" aria-label="Refresh published NFL slate">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
+          </svg>
+          <span>REFRESH</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap game-main app-workspace public-deck" id="top">
+    <div class="app-shell">
+      <aside class="app-sidebar" aria-label="The scouting deck navigation">
+        <div class="sidebar-label">THE SCOUTING DECK</div>
+        <nav class="main-nav" aria-label="Dashboard sections">
+          <a data-nav="core" href="#core" aria-current="page">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="5" y="3.5" width="14" height="17" rx="2"></rect>
+              <path d="M9 8h6m-6 4h6m-6 4h4"></path>
+            </svg>
+            <span>Core 3</span>
+          </a>
+          <a data-nav="pool" href="#pool">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2.8" y="4" width="8.1" height="7.7" rx="1.5"></rect>
+              <rect x="13.1" y="4" width="8.1" height="7.7" rx="1.5"></rect>
+              <rect x="2.8" y="13.5" width="8.1" height="7.2" rx="1.5"></rect>
+              <rect x="13.1" y="13.5" width="8.1" height="7.2" rx="1.5"></rect>
+            </svg>
+            <span>Survivors</span>
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <span class="sidebar-divider"></span>
+          <span>PRIVATE ENGINE · PUBLIC DECK</span>
+          <strong>G0–G18</strong>
+          <small>Scouting receipts live on the reverse of each card.</small>
+        </div>
+      </aside>
+
+      <div class="app-content">
+        <section class="slate-overview" aria-label="Saved NFL slate" id="slate-overview">
+          <div class="desk-headline">
+            <span class="desk-overline"><span class="desk-overline-mark"></span> TRUE BLENDER / NFL</span>
+            <span class="desk-edition">THE OFFICIAL DECK</span>
+          </div>
+          <div class="desk-main">
+            <div class="desk-primary">
+              <span class="desk-label">SAVED SLATE · ET</span>
+              <h1 id="hero-date">Loading slate…</h1>
+              <div id="slate-notice" class="phase-bar" role="status" aria-live="polite">
+                <span class="pill neutral">Checking source records</span>
+              </div>
+            </div>
+            <div class="desk-controls">
+              <label for="slate-select" class="desk-label">BROWSE SLATES</label>
+              <select id="slate-select" class="slate-picker" aria-label="Select a saved NFL slate">
+                <option>Loading NFL slates…</option>
+              </select>
+              <span id="hero-phase" class="desk-source-stage" aria-live="polite">Checking source</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="core" class="section app-section core-section" aria-labelledby="core-title">
+          <div class="deck-section-intro">
+            <div>
+              <span class="deck-kicker"><span>01</span> THE LOCKED SELECTION</span>
+              <h2 id="core-title">The Core <em>3</em></h2>
+            </div>
+            <span class="deck-aside">DIFFERENT GAMES · ONE CARD</span>
+          </div>
+          <div id="core-cards" class="core-grid" aria-label="Flip the locked touchdown collector cards">
+            <div class="loading"></div><div class="loading"></div><div class="loading"></div>
+          </div>
+        </section>
+
+        <section id="pool" class="section app-section pool-section" aria-labelledby="pool-title">
+          <div class="deck-section-intro">
+            <div>
+              <span class="deck-kicker"><span>02</span> EACH GAME, ONE SURVIVOR</span>
+              <h2 id="pool-title">Game survivors</h2>
+            </div>
+            <span class="deck-aside">TAP CARD · SCOUTING REPORT</span>
+          </div>
+          <div id="pool-list" class="pool-deck" aria-label="Source-backed NFL game survivors with original gate evidence">
+            <div class="loading"></div>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>TUDDYS · NFL TRUE BLENDER · READ ONLY</span>
+          <span id="hero-sync">Checking published feed…</span>
+        </footer>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
