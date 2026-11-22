@@ -1,0 +1,664 @@
+{
+  "engine": "TUDDYS",
+  "date": "2026-11-22",
+  "stage": "PROJECTED",
+  "runUTC": "2026-11-22T13:06:18+00:00",
+  "cardState": "PRESERVED_EXISTING",
+  "slateGames": 11,
+  "playerPoolCount": 2301,
+  "scoringAlignmentCount": 17,
+  "engineVersion": "nfl17-identity-kickoff-v2",
+  "authoritativeCore": [
+    {
+      "playerId": "00-0036555",
+      "name": "Chuba Hubbard",
+      "team": "CAR",
+      "opponent": "BAL",
+      "gameId": "2026_11_BAL_CAR",
+      "pathClass": "OWNED_MATCHED_FINISHER",
+      "matchedSituations": [
+        "RUSH_INSIDE_2",
+        "RUSH_FROM_3_TO_5",
+        "RUSH_FROM_6_TO_10",
+        "RECEIVE_FROM_3_TO_5",
+        "RECEIVE_FROM_11_TO_20",
+        "RUSH_GOAL_TO_GO",
+        "RECEIVE_GOAL_TO_GO",
+        "RUSH_OUTSIDE_REDZONE_EXPLOSIVE",
+        "RECEIVE_OUTSIDE_REDZONE_SHORT",
+        "BACKFIELD_RECEIVE"
+      ],
+      "scoringSituations": {
+        "RUSH_INSIDE_2": {
+          "ownedActions": 9,
+          "ownedTouchdowns": 6,
+          "defenseActions": 15,
+          "defenseTouchdownsAllowed": 9,
+          "directAlignment": true
+        },
+        "RUSH_FROM_3_TO_5": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 0,
+          "defenseActions": 10,
+          "defenseTouchdownsAllowed": 3,
+          "directAlignment": true
+        },
+        "RUSH_FROM_6_TO_10": {
+          "ownedActions": 7,
+          "ownedTouchdowns": 0,
+          "defenseActions": 18,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RUSH_FROM_11_TO_20": {
+          "ownedActions": 10,
+          "ownedTouchdowns": 1,
+          "defenseActions": 23,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RECEIVE_INSIDE_2": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 9,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": false
+        },
+        "RECEIVE_FROM_3_TO_5": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 2,
+          "defenseActions": 6,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_6_TO_10": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 8,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": false
+        },
+        "RECEIVE_FROM_11_TO_20": {
+          "ownedActions": 3,
+          "ownedTouchdowns": 0,
+          "defenseActions": 19,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RUSH_GOAL_TO_GO": {
+          "ownedActions": 12,
+          "ownedTouchdowns": 5,
+          "defenseActions": 37,
+          "defenseTouchdownsAllowed": 13,
+          "directAlignment": true
+        },
+        "RECEIVE_GOAL_TO_GO": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 2,
+          "defenseActions": 20,
+          "defenseTouchdownsAllowed": 5,
+          "directAlignment": true
+        },
+        "QB_SCRAMBLE_RUN": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 29,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 131,
+          "ownedTouchdowns": 0,
+          "defenseActions": 212,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 3,
+          "ownedTouchdowns": 0,
+          "defenseActions": 6,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RECEIVE_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 31,
+          "ownedTouchdowns": 0,
+          "defenseActions": 238,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RECEIVE_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 30,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": false
+        },
+        "BACKFIELD_RECEIVE": {
+          "ownedActions": 23,
+          "ownedTouchdowns": 0,
+          "defenseActions": 71,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RETURN_OR_RECOVERY": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 0,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        }
+      },
+      "directTDs": 9,
+      "redZoneActions": 33,
+      "ownedActions": 198,
+      "routes": {
+        "RUSH": {
+          "actions": 162,
+          "touchdowns": 7,
+          "redZoneActions": 28,
+          "goalToGoActions": 12,
+          "appearanceDates": [
+            "2026-09-13",
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-04",
+            "2026-10-18",
+            "2026-10-25",
+            "2026-10-29",
+            "2026-11-08",
+            "2026-11-15"
+          ],
+          "defense": {
+            "observedActions": 284,
+            "touchdownsAllowed": 14,
+            "redZoneActions": 66,
+            "redZoneTDsAllowed": 13,
+            "goalToGoActions": 37
+          }
+        },
+        "RECEIVE": {
+          "actions": 36,
+          "touchdowns": 2,
+          "redZoneActions": 5,
+          "goalToGoActions": 2,
+          "appearanceDates": [
+            "2026-09-13",
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-04",
+            "2026-10-18",
+            "2026-10-25",
+            "2026-10-29",
+            "2026-11-08",
+            "2026-11-15"
+          ],
+          "defense": {
+            "observedActions": 327,
+            "touchdownsAllowed": 12,
+            "redZoneActions": 42,
+            "redZoneTDsAllowed": 9,
+            "goalToGoActions": 20
+          }
+        }
+      }
+    },
+    {
+      "playerId": "00-0040719",
+      "name": "Bhayshul Tuten",
+      "team": "JAX",
+      "opponent": "NYG",
+      "gameId": "2026_11_JAX_NYG",
+      "pathClass": "OWNED_MATCHED_FINISHER",
+      "matchedSituations": [
+        "RUSH_INSIDE_2",
+        "RUSH_FROM_3_TO_5",
+        "RECEIVE_INSIDE_2",
+        "RECEIVE_FROM_3_TO_5",
+        "RECEIVE_FROM_11_TO_20",
+        "RUSH_GOAL_TO_GO",
+        "RECEIVE_GOAL_TO_GO",
+        "RUSH_OUTSIDE_REDZONE_EXPLOSIVE",
+        "RECEIVE_OUTSIDE_REDZONE_SHORT",
+        "BACKFIELD_RECEIVE"
+      ],
+      "scoringSituations": {
+        "RUSH_INSIDE_2": {
+          "ownedActions": 6,
+          "ownedTouchdowns": 3,
+          "defenseActions": 9,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": true
+        },
+        "RUSH_FROM_3_TO_5": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 0,
+          "defenseActions": 8,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RUSH_FROM_6_TO_10": {
+          "ownedActions": 6,
+          "ownedTouchdowns": 1,
+          "defenseActions": 5,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RUSH_FROM_11_TO_20": {
+          "ownedActions": 16,
+          "ownedTouchdowns": 0,
+          "defenseActions": 13,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RECEIVE_INSIDE_2": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 8,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_3_TO_5": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 0,
+          "defenseActions": 9,
+          "defenseTouchdownsAllowed": 3,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_6_TO_10": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 9,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": false
+        },
+        "RECEIVE_FROM_11_TO_20": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 0,
+          "defenseActions": 11,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RUSH_GOAL_TO_GO": {
+          "ownedActions": 12,
+          "ownedTouchdowns": 4,
+          "defenseActions": 20,
+          "defenseTouchdownsAllowed": 3,
+          "directAlignment": true
+        },
+        "RECEIVE_GOAL_TO_GO": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 1,
+          "defenseActions": 20,
+          "defenseTouchdownsAllowed": 8,
+          "directAlignment": true
+        },
+        "QB_SCRAMBLE_RUN": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 26,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 116,
+          "ownedTouchdowns": 0,
+          "defenseActions": 202,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 1,
+          "defenseActions": 8,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RECEIVE_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 17,
+          "ownedTouchdowns": 2,
+          "defenseActions": 219,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RECEIVE_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 32,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "BACKFIELD_RECEIVE": {
+          "ownedActions": 15,
+          "ownedTouchdowns": 2,
+          "defenseActions": 52,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RETURN_OR_RECOVERY": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 0,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        }
+      },
+      "directTDs": 8,
+      "redZoneActions": 33,
+      "ownedActions": 168,
+      "routes": {
+        "RUSH": {
+          "actions": 148,
+          "touchdowns": 5,
+          "redZoneActions": 30,
+          "goalToGoActions": 12,
+          "appearanceDates": [
+            "2026-09-13",
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-04",
+            "2026-10-11",
+            "2026-10-18",
+            "2026-11-01",
+            "2026-11-05",
+            "2026-11-15"
+          ],
+          "defense": {
+            "observedActions": 245,
+            "touchdownsAllowed": 7,
+            "redZoneActions": 35,
+            "redZoneTDsAllowed": 3,
+            "goalToGoActions": 20
+          }
+        },
+        "RECEIVE": {
+          "actions": 20,
+          "touchdowns": 3,
+          "redZoneActions": 3,
+          "goalToGoActions": 2,
+          "appearanceDates": [
+            "2026-09-13",
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-04",
+            "2026-10-11",
+            "2026-10-18",
+            "2026-11-01",
+            "2026-11-15"
+          ],
+          "defense": {
+            "observedActions": 305,
+            "touchdownsAllowed": 17,
+            "redZoneActions": 37,
+            "redZoneTDsAllowed": 13,
+            "goalToGoActions": 20
+          }
+        }
+      }
+    },
+    {
+      "playerId": "00-0036894",
+      "name": "Pat Freiermuth",
+      "team": "PIT",
+      "opponent": "PHI",
+      "gameId": "2026_11_PIT_PHI",
+      "pathClass": "OWNED_MATCHED_FINISHER",
+      "matchedSituations": [
+        "RUSH_INSIDE_2",
+        "RECEIVE_INSIDE_2",
+        "RECEIVE_FROM_3_TO_5",
+        "RECEIVE_FROM_6_TO_10",
+        "RECEIVE_FROM_11_TO_20",
+        "RUSH_GOAL_TO_GO",
+        "RECEIVE_GOAL_TO_GO",
+        "RECEIVE_OUTSIDE_REDZONE_SHORT",
+        "RECEIVE_OUTSIDE_REDZONE_EXPLOSIVE",
+        "BACKFIELD_RECEIVE"
+      ],
+      "scoringSituations": {
+        "RUSH_INSIDE_2": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 17,
+          "defenseTouchdownsAllowed": 9,
+          "directAlignment": true
+        },
+        "RUSH_FROM_3_TO_5": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 7,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RUSH_FROM_6_TO_10": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 13,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": false
+        },
+        "RUSH_FROM_11_TO_20": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 32,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RECEIVE_INSIDE_2": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 7,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_3_TO_5": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 5,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_6_TO_10": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 17,
+          "defenseTouchdownsAllowed": 4,
+          "directAlignment": true
+        },
+        "RECEIVE_FROM_11_TO_20": {
+          "ownedActions": 3,
+          "ownedTouchdowns": 1,
+          "defenseActions": 22,
+          "defenseTouchdownsAllowed": 3,
+          "directAlignment": true
+        },
+        "RUSH_GOAL_TO_GO": {
+          "ownedActions": 1,
+          "ownedTouchdowns": 1,
+          "defenseActions": 33,
+          "defenseTouchdownsAllowed": 10,
+          "directAlignment": true
+        },
+        "RECEIVE_GOAL_TO_GO": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 2,
+          "defenseActions": 20,
+          "defenseTouchdownsAllowed": 3,
+          "directAlignment": true
+        },
+        "QB_SCRAMBLE_RUN": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 18,
+          "defenseTouchdownsAllowed": 1,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 3,
+          "ownedTouchdowns": 0,
+          "defenseActions": 205,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RUSH_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 4,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        },
+        "RECEIVE_OUTSIDE_REDZONE_SHORT": {
+          "ownedActions": 26,
+          "ownedTouchdowns": 1,
+          "defenseActions": 217,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": true
+        },
+        "RECEIVE_OUTSIDE_REDZONE_EXPLOSIVE": {
+          "ownedActions": 6,
+          "ownedTouchdowns": 0,
+          "defenseActions": 36,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": true
+        },
+        "BACKFIELD_RECEIVE": {
+          "ownedActions": 2,
+          "ownedTouchdowns": 0,
+          "defenseActions": 41,
+          "defenseTouchdownsAllowed": 2,
+          "directAlignment": true
+        },
+        "RETURN_OR_RECOVERY": {
+          "ownedActions": 0,
+          "ownedTouchdowns": 0,
+          "defenseActions": 0,
+          "defenseTouchdownsAllowed": 0,
+          "directAlignment": false
+        }
+      },
+      "directTDs": 6,
+      "redZoneActions": 7,
+      "ownedActions": 42,
+      "routes": {
+        "RUSH": {
+          "actions": 4,
+          "touchdowns": 1,
+          "redZoneActions": 1,
+          "goalToGoActions": 1,
+          "appearanceDates": [
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-11",
+            "2026-11-01"
+          ],
+          "defense": {
+            "observedActions": 278,
+            "touchdownsAllowed": 10,
+            "redZoneActions": 69,
+            "redZoneTDsAllowed": 10,
+            "goalToGoActions": 33
+          }
+        },
+        "RECEIVE": {
+          "actions": 38,
+          "touchdowns": 5,
+          "redZoneActions": 6,
+          "goalToGoActions": 2,
+          "appearanceDates": [
+            "2026-09-13",
+            "2026-09-20",
+            "2026-09-27",
+            "2026-10-01",
+            "2026-10-11",
+            "2026-10-18",
+            "2026-10-25",
+            "2026-11-01",
+            "2026-11-15"
+          ],
+          "defense": {
+            "observedActions": 318,
+            "touchdownsAllowed": 13,
+            "redZoneActions": 51,
+            "redZoneTDsAllowed": 9,
+            "goalToGoActions": 20
+          }
+        }
+      }
+    }
+  ],
+  "gameSurvivors": [
+    {
+      "gameId": "2026_11_MIA_BUF",
+      "game": "MIA @ BUF",
+      "survivor": "DJ Moore",
+      "playerPoolEvidenceCandidates": 34
+    },
+    {
+      "gameId": "2026_11_BAL_CAR",
+      "game": "BAL @ CAR",
+      "survivor": "Chuba Hubbard",
+      "playerPoolEvidenceCandidates": 36
+    },
+    {
+      "gameId": "2026_11_NO_CHI",
+      "game": "NO @ CHI",
+      "survivor": "D'Andre Swift",
+      "playerPoolEvidenceCandidates": 32
+    },
+    {
+      "gameId": "2026_11_TEN_DAL",
+      "game": "TEN @ DAL",
+      "survivor": "Tony Pollard",
+      "playerPoolEvidenceCandidates": 28
+    },
+    {
+      "gameId": "2026_11_TB_DET",
+      "game": "TB @ DET",
+      "survivor": "Bucky Irving",
+      "playerPoolEvidenceCandidates": 28
+    },
+    {
+      "gameId": "2026_11_ARI_KC",
+      "game": "ARI @ KC",
+      "survivor": "Xavier Worthy",
+      "playerPoolEvidenceCandidates": 40
+    },
+    {
+      "gameId": "2026_11_JAX_NYG",
+      "game": "JAX @ NYG",
+      "survivor": "Bhayshul Tuten",
+      "playerPoolEvidenceCandidates": 35
+    },
+    {
+      "gameId": "2026_11_NYJ_LAC",
+      "game": "NYJ @ LAC",
+      "survivor": "Keaton Mitchell",
+      "playerPoolEvidenceCandidates": 32
+    },
+    {
+      "gameId": "2026_11_LV_DEN",
+      "game": "LV @ DEN",
+      "survivor": "Ashton Jeanty",
+      "playerPoolEvidenceCandidates": 31
+    },
+    {
+      "gameId": "2026_11_PIT_PHI",
+      "game": "PIT @ PHI",
+      "survivor": "Pat Freiermuth",
+      "playerPoolEvidenceCandidates": 37
+    },
+    {
+      "gameId": "2026_11_MIN_SF",
+      "game": "MIN @ SF",
+      "survivor": "Justin Jefferson",
+      "playerPoolEvidenceCandidates": 33
+    }
+  ],
+  "sourceErrors": [
+    {
+      "source": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+      "error": "HTTP Error 403: Forbidden"
+    }
+  ],
+  "fullCertification": false
+}
