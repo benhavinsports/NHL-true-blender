@@ -1,16 +1,7 @@
 name: Blender end-to-end verification
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'nhl_true_blender_engine/**'
-      - 'run_true_blender.py'
-      - '*.py'
-      - 'pytest.ini'
-      - 'requirements.txt'
-      - 'scripts/**'
-      - 'site/**'
-      - '.github/workflows/blender-verification.yml'
+  # Manual-only: live Blender runs must not wait on test suites or synthetic
+  # card/backtest checks. Real postgame grading remains a separate operation.
   workflow_dispatch:
 permissions:
   contents: read
