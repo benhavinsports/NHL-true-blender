@@ -83,6 +83,52 @@ async function json(path){
  if(!res.ok)throw Error("Source file unavailable ("+res.status+")");
  return await res.json();
 }
+// Read-only public mirror of the Goals engine's saved G18 Core.
+// A public dashboard may display verified evidence but never chooses skaters.
+function mergePublicGoalsCore(latest,archive,exported){
+ const cards=Array.isArray(archive)?archive:[];
+ const card=exported?.card;
+ const legs=card?.current_legs;
+ if(!exported||exported.verified!==true||
+    exported.cardStatus!=="G18_SOURCE_VERIFIED"||
+    exported.sourceRepo!=="benhavinsports/Goals"||
+    exported.selectedCoreFullyCertified!==true||
+    exported.selectedMasterGatesAllPass!==true||
+    exported.selectedOverlayGatesAllPass!==true||
+    (exported.selectedSourceAttributionGaps||[]).length!==0||
+    (exported.selectedExecutionOrderGaps||[]).length!==0||
+    !exported.date||!card||!card.cardId||
+    typeof card.fingerprint!=="string"||card.fingerprint.length!==64||
+    card.fingerprint!==exported.statusFingerprint||
+    !Array.isArray(legs)||legs.length!==3||
+    legs.some(leg=>!leg.gameId||!leg.playerId||
+       !["PRIMARY","TRANSFER","WHO"].includes(leg.path))||
+    new Set(legs.map(leg=>String(leg.gameId))).size!==3||
+    (latest?.date&&latest.date>exported.date))return {latest,archive:cards};
+ const entry={
+    date:exported.date,cardId:card.cardId,stage:exported.stage,
+    verified:true,fingerprint:card.fingerprint,revision:card.revision,
+    current_legs:legs,cardStatus:exported.cardStatus,
+    hasGateEvidence:false,
+    gateEvidenceError:"The source-certified selected-player gate audit is retained in the engine's GitHub Actions archive; the public gate export is not yet mirrored."
+ };
+ const rebuilt=[entry,...cards.filter(x=>x.date!==entry.date)]
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ const published={
+    date:exported.date,stage:exported.stage,
+    verified:true,card,gameSurvivorPool:exported.gameSurvivorPool||[],
+    publicationDecision:"G18_SOURCE_VERIFIED_PUBLIC_MIRROR",
+    survivorOnlyCertification:true,currentRunFullyCertified:false,
+    gateCertification:{
+      selectedMasterGatesAllPass:true,selectedOverlayGatesAllPass:true,
+      selectedSourceAttributionGaps:[],selectedExecutionOrderGaps:[]
+    },
+    sourceActionUrl:exported.sourceActionUrl,
+    publicProjectionOnly:true
+ };
+ return {latest:published,archive:rebuilt};
+}
+
 function pill(text,cls="neutral"){
  const span=el("span","pill "+cls,text);
  return span;
@@ -500,11 +546,15 @@ async function boot(){
  initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
-   json("./data/latest.json"),json("./data/cards-archive.json")
+   json("./data/latest.json"),json("./data/cards-archive.json"),
+   json("./data/verified-goals-core.json")
  ]);
- state.latest=values[0].status==="fulfilled"?values[0].value:null;
- state.archive=values[1].status==="fulfilled"?
+ const latest=values[0].status==="fulfilled"?values[0].value:null;
+ const archive=values[1].status==="fulfilled"?
     (values[1].value.cards||[]).filter(x=>x.verified===true&&Array.isArray(x.current_legs)):[];
+ const merged=mergePublicGoalsCore(latest,archive,
+    values[2].status==="fulfilled"?values[2].value:null);
+ state.latest=merged.latest;state.archive=merged.archive;
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
@@ -545,12 +595,17 @@ async function pollPublishedResults(){
  if(document.hidden)return;
  const fresh=await Promise.allSettled([
    json("./data/latest.json"),
-   json("./data/cards-archive.json")
+   json("./data/cards-archive.json"),
+   json("./data/verified-goals-core.json")
  ]);
  if(fresh[0].status!=="fulfilled"||fresh[1].status!=="fulfilled")return;
- const next=fresh[0].value;
- const archived=(fresh[1].value.cards||[]).filter(x=>
-   x.verified===true&&Array.isArray(x.current_legs));
+ const merged=mergePublicGoalsCore(
+   fresh[0].value,
+   (fresh[1].value.cards||[]).filter(x=>
+     x.verified===true&&Array.isArray(x.current_legs)),
+   fresh[2].status==="fulfilled"?fresh[2].value:null);
+ const next=merged.latest;
+ const archived=merged.archive;
  const fingerprint=publishedSignature(next,archived);
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
