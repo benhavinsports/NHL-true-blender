@@ -90,10 +90,12 @@ function card(holder,g,coreKeys,latest,gates,gateNames,facts,date){
      num(survivor.ownedGoals)+" credited goals · "+
      num(survivor.ownShotsOnGoal)+" on-net shots"));
  }else{
-   player.appendChild(create("strong","pool-player-name pool-unresolved","No survivor"));
+   player.appendChild(create("strong","pool-player-name pool-unresolved","No qualified scorer"));
    player.appendChild(create("span","pool-team",
+     g.stoppedAt==="G0"?"G0 ATTACK DIRECTION UNRESOLVED":
      g.status==="STARTED_NOT_ELIGIBLE_FOR_NEW_SELECTION"?
-     "GAME FROZEN":"SOURCE REVIEW OPEN"));
+     "GAME FROZEN":"NO G0–G17 SURVIVOR"));
+   if(g.reason)player.appendChild(create("span","pool-short-proof",g.reason));
  }
  turn.appendChild(player);
  turn.appendChild(create("span","pool-turn-tip",
@@ -144,6 +146,8 @@ function render({holder,games,coreLegs,latest,gates,gateNames,facts,date}){
    holder.appendChild(create("p","pool-empty","No saved game-survivor data for this slate."));
    return;
  }
+ // Show every distinct slate game, not only the three that made G18.
+ games=games.filter((g,i,all)=>all.findIndex(x=>String(x.gameId)===String(g.gameId))===i);
  const count=games.filter(g=>g.status==="SURVIVOR"&&g.survivor).length;
  const coreKeys=new Set((coreLegs||[]).map(x=>
    String(x.gameId)+":"+String(x.playerId)));
