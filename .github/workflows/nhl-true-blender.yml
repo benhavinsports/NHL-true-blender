@@ -1,7 +1,11 @@
-name: NHL True Blender - manual engine paused
-# Automatic and chained live cycles are disabled at the user's request.
-# workflow_call is intentionally not invoked by any other repository workflow.
+name: NHL True Blender - autonomous hourly engine
+# One full, serialized source-to-gate execution each hour at minute :45.
+# The engine chooses PROJECTED, CONFIRMED, or GRADE from the official NHL schedule.
+# There is no immediate self-dispatch loop; the next hourly run continues recovery.
 on:
+  schedule:
+    - cron: '45 * * * *'
+  workflow_dispatch:
   workflow_call:
 permissions:
   contents: write
