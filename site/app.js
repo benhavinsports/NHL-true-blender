@@ -85,6 +85,36 @@ async function json(path){
 }
 // Read-only public mirror of the Goals engine's saved G18 Core.
 // A public dashboard may display verified evidence but never chooses skaters.
+// Exact selected-player receipt subset from the saved private G18 run.
+function verifiedMirroredGateExcerpt(exported){
+ const legs=exported?.card?.current_legs||[];
+ const pages=exported?.selectedGateEvidence;
+ if(!Array.isArray(pages)||pages.length!==legs.length||!legs.length)return null;
+ const originals=new Set();
+ for(const leg of legs){
+  const page=pages.find(x=>String(x.gameId)===String(leg.gameId)&&
+    String(x.playerId)===String(leg.playerId));
+  if(!page||!Array.isArray(page.gateDetails)||
+     page.gateDetails.length!==MASTER.length||page.selectedOriginalGateReceiptsComplete!==true)return null;
+  const key=String(page.gameId)+":"+String(page.playerId);
+  if(originals.has(key))return null;
+  originals.add(key);
+  let overlays=0;
+  for(let i=0;i<MASTER.length;i++){
+   const row=page.gateDetails[i];
+   if(row?.gate!==MASTER[i]||row.status!=="PASS"||
+      row.prePuckRecord!==true||!Array.isArray(row.sourceIds)||
+      !row.evidence||typeof row.evidence!=="object"||
+      !Array.isArray(row.originalFunctions))return null;
+   if(!["G8","G13"].includes(row.gate)&&
+      !row.sourceIds.some(s=>typeof s==="string"&&s.startsWith("https://")))return null;
+   overlays+=row.originalFunctions.filter(f=>f.status==="PASS").length;
+  }
+  if(overlays!==16)return null;
+ }
+ return pages;
+}
+
 function mergePublicGoalsCore(latest,archive,exported){
  const cards=Array.isArray(archive)?archive:[];
  const card=exported?.card;
@@ -103,15 +133,16 @@ function mergePublicGoalsCore(latest,archive,exported){
     !Array.isArray(legs)||![2,3].includes(legs.length)||
     legs.some(leg=>!leg.gameId||!leg.playerId||
        !["PRIMARY","TRANSFER","WHO"].includes(leg.path))||
-    new Set(legs.map(leg=>String(leg.gameId))).size!==3||
+    new Set(legs.map(leg=>String(leg.gameId))).size!==legs.length||
     (latest?.date&&latest.date>exported.date))return {latest,archive:cards};
+ const proof=verifiedMirroredGateExcerpt(exported);
  const entry={
     date:exported.date,cardId:card.cardId,stage:exported.stage,
     verified:true,fingerprint:card.fingerprint,revision:card.revision,
     current_legs:legs,cardStatus:exported.cardStatus,
     grade:exported.postgameGrade||null,
-    hasGateEvidence:false,
-    gateEvidenceError:"The source-certified selected-player gate audit is retained in the engine's GitHub Actions archive; the public gate export is not yet mirrored."
+    hasGateEvidence:!!proof,
+    gateEvidenceError:"The selected-player source receipts are not fully mirrored. Missing evidence is not presented as verified."
  };
  const rebuilt=[entry,...cards.filter(x=>x.date!==entry.date)]
     .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
@@ -119,6 +150,13 @@ function mergePublicGoalsCore(latest,archive,exported){
     date:exported.date,stage:exported.stage,
     verified:true,card,postgameGrade:exported.postgameGrade||null,
     gameSurvivorPool:exported.gameSurvivorPool||[],
+    gameSurvivorGateReceipts:proof?Object.fromEntries(proof.map(x=>[
+      String(x.gameId)+":"+String(x.playerId),x.gateDetails
+    ])):{},
+    selectedGateEvidence:proof,
+    savedOriginalGateEvidenceVerified:!!proof,
+    originalSourceExcerptCondensed:exported.selectedGateEvidenceRepresentation||
+      "ORIGINAL_SOURCE_EXCERPT",
     publicationDecision:"G18_SOURCE_VERIFIED_PUBLIC_MIRROR",
     survivorOnlyCertification:true,currentRunFullyCertified:false,
     gateCertification:{
@@ -459,6 +497,24 @@ function renderAll(){
 }
 async function loadEvidence(date){
  const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;
+ const published=state.latest;
+ if(date===published?.date && published.selectedGateEvidence){
+  const entry=selectedEntry();
+  state.gateData={
+    cardId:published.card.cardId,
+    fingerprint:published.card.fingerprint,
+    readOnly:true,doesNotSelectOrReplaceScorers:true,
+    originalSourceExcerptCondensed:true,
+    legs:published.selectedGateEvidence,
+    games:[]
+  };
+  if(entry && (entry.cardId!==state.gateData.cardId||
+       entry.fingerprint!==state.gateData.fingerprint)){
+    state.gateData=null;
+    state.gateLoadError="Selected-player evidence does not match the saved G18 card";
+  }
+  renderAll();return;
+ }
  const entry=state.archive.find(x=>x.date===date);
  if(entry?.hasGateEvidence===false){
     state.gateLoadError=entry.gateEvidenceError||
