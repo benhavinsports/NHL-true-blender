@@ -1,0 +1,44 @@
+/* NFL collector imagery and evidence backs. The NHL dashboard CSS and navigation
+   remain the design source; this stylesheet only replaces hockey-specific visuals. */
+:root{--nfl-gold:#d5b883;--nfl-soft:#9eb4c3}
+.header-broadcast{color:#9eb9bf}
+.nfl-review-note{font:750 9px/1.45 Inter,Arial,sans-serif;letter-spacing:.04em;color:#bfcad1}
+#slate-notice{flex-wrap:wrap}
+.card-illustration.nfl-collector-art{position:relative;isolation:isolate;overflow:hidden;
+  background:radial-gradient(circle at 68% 34%,#5b4c38 0%,#22354b 33%,#0a1627 78%)!important}
+.nfl-collector-art::before{content:"";position:absolute;inset:13px;border:1px solid #f9dba330;z-index:1;pointer-events:none;transform:skew(-4deg)}
+.nfl-collector-art .nfl-football-symbol{position:absolute;top:-3%;right:-9%;width:96%;height:105%;opacity:.83;z-index:0;filter:drop-shadow(4px 10px 14px #01060bcc)}
+.nfl-collector-art .nfl-football-symbol svg{width:100%;height:100%}
+.nfl-collector-art .nfl-art-team{position:absolute;left:15px;top:18px;z-index:3;font:900 11px/1 Inter,Arial,sans-serif;letter-spacing:.19em;color:#f1d4a2;padding:8px 10px;border:1px solid #f2d0a65e;background:#0d1725a8}
+.nfl-collector-art .collector-fallback{position:absolute!important;bottom:20px!important;right:15px!important;left:auto!important;top:auto!important;z-index:3!important;opacity:.52!important;
+  display:block!important;visibility:visible!important;font:900 58px/.8 Inter,Arial,sans-serif!important;color:#f8e7c8!important;transform:none!important;text-shadow:0 3px 20px #111}
+.nfl-collector-art .collector-photo-shade{z-index:2!important;background:linear-gradient(0deg,#09111e8a,transparent 45%)!important}
+.nfl-core-card .collector-nameplate .player-name{overflow-wrap:anywhere}
+.nfl-core-card .collector-origin{font-size:9px}
+.nfl-scout-report.scout-report{display:flex;flex-direction:column;gap:10px;align-self:stretch;background:linear-gradient(145deg,#152335,#0b1625);min-height:100%;height:100%;padding:20px;overflow-y:auto;overscroll-behavior:contain;color:#eaf1f5;position:relative}
+.nfl-report-head{display:flex;justify-content:space-between;align-items:center;gap:15px;padding-bottom:12px;border-bottom:1px solid #3b4c5a}
+.nfl-report-kicker{font-size:9px;font-weight:900;letter-spacing:.16em;color:#d6bd8c}
+.nfl-report-close{border:1px solid #587080;border-radius:5px;background:#26394a;color:#f1f5f5;font-size:10px;font-weight:850;letter-spacing:.08em;padding:9px 12px}
+.nfl-report-close:hover{background:#365166}
+.nfl-report-name{font-size:clamp(23px,3vw,30px);line-height:1.08;margin:9px 0 0;font-weight:900;letter-spacing:-.04em}
+.nfl-report-match{color:#d5c49f;font-size:11px;font-weight:800;letter-spacing:.1em}
+.nfl-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0}
+.nfl-report-stat{background:#17283a;border:1px solid #385164;border-radius:5px;padding:12px 10px;display:flex;flex-direction:column;gap:7px}
+.nfl-report-stat strong{font-size:24px;font-weight:900;color:#f0e0bd}
+.nfl-report-stat span{font-size:8px;font-weight:800;color:#96adbc;letter-spacing:.07em;line-height:1.4}
+.nfl-report-section{font-size:10px;letter-spacing:.14em;color:#d8bf8d;margin:11px 0 0;font-weight:850}
+.nfl-lane-list{display:grid;gap:6px}
+.nfl-lane{display:flex;justify-content:space-between;flex-direction:column;gap:4px;padding:9px 12px;background:#1b2b3d;border:1px solid #334a5b;border-radius:5px}
+.nfl-lane strong{font-size:11px;color:#f1eee7;text-transform:uppercase;line-height:1.3}
+.nfl-lane span{font-size:10px;color:#9eb4c3;line-height:1.45}
+.nfl-report-disclaimer{font-size:10px;color:#afbdc5;line-height:1.6;margin:10px 0 0}
+.nfl-report-empty{font-size:11px;line-height:1.7;color:#b8c5cf}
+.nfl-report-source{align-self:start;font:800 10px/1.6 Inter,Arial,sans-serif;color:#dfc999;text-decoration:underline;padding-bottom:14px}
+.nfl-report-source:hover{color:#fff}
+.nfl-core-card.is-flipped .card-back,.pool-collector-card.is-flipped .pool-back{overflow:hidden}
+.nfl-core-card.is-flipped .nfl-scout-report,.pool-collector-card.is-flipped .nfl-scout-report{height:100%;overflow-y:auto}
+.pool-card-player .pool-player-name,.pool-collector-card .pool-player-name{overflow-wrap:anywhere}
+.pool-collector-card .nfl-collector-art .collector-fallback{font-size:45px!important}
+.pool-collector-card .nfl-collector-art .nfl-art-team{font-size:9px;top:12px;left:12px}
+@media(max-width:900px){.nfl-review-note{font-size:8px}}
+@media(max-width:600px){.nfl-scout-report.scout-report{padding:14px}.nfl-report-stat strong{font-size:21px}.nfl-report-name{font-size:25px}.nfl-core-card.is-flipped .card-back,.pool-collector-card.is-flipped .pool-back{overflow-y:hidden}}
