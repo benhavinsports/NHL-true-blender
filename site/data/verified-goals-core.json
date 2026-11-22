@@ -79,7 +79,30 @@
         "player": "Will Cuylle",
         "playerId": "8482157",
         "routeLabel": "PRIMARY",
-        "ownRouteZone": "R_CIRCLE"
+        "ownRouteZone": "R_CIRCLE",
+        "goalieId": "8481611",
+        "goalieStatus": "CONFIRMED",
+        "deployment": {
+          "EV": "F2",
+          "PP": 2,
+          "powerPlayUnit": 2,
+          "status": "PROJECTED"
+        },
+        "ownedGoals": 1,
+        "ownShotsOnGoal": 4,
+        "attackTeam": "NYR",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now",
+        "independentOpponentDefense": {
+          "goalsAgainst": 2,
+          "gameCount": 27,
+          "goalsAgainstPerGame": 0.07407407407407407,
+          "peerMedianGoalsAgainstPerGame": 0.20689655172413793,
+          "independentGoalConcessionReview": true,
+          "attemptsAndShotsAreContextOnly": true,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+        }
       }
     },
     {
@@ -89,13 +112,16 @@
       "status": "NO_SURVIVOR",
       "attackTeam": "TBL",
       "opponentTeam": "BUF",
-      "candidatesEvaluated": 23
+      "candidatesEvaluated": 23,
+      "reason": "No player passed every original pre-Core gate G0–G17"
     },
     {
       "gameId": "2026020375",
       "matchup": "EDM@STL",
       "gameStartUTC": "2026-11-23T00:00:00Z",
-      "status": "NO_SURVIVOR"
+      "status": "NO_SURVIVOR",
+      "stoppedAt": "G0",
+      "reason": "G0 did not independently establish which opposing goalie should be attacked"
     },
     {
       "gameId": "2026020376",
@@ -109,7 +135,30 @@
         "player": "Mikko Rantanen",
         "playerId": "8478420",
         "routeLabel": "PRIMARY",
-        "ownRouteZone": "L_CIRCLE"
+        "ownRouteZone": "L_CIRCLE",
+        "goalieId": "8483703",
+        "goalieStatus": "CONFIRMED",
+        "deployment": {
+          "EV": "F1",
+          "PP": 1,
+          "powerPlayUnit": 1,
+          "status": "PROJECTED"
+        },
+        "ownedGoals": 2,
+        "ownShotsOnGoal": 4,
+        "attackTeam": "DAL",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now",
+        "independentOpponentDefense": {
+          "goalsAgainst": 11,
+          "gameCount": 26,
+          "goalsAgainstPerGame": 0.4230769230769231,
+          "peerMedianGoalsAgainstPerGame": 0.2413793103448276,
+          "independentGoalConcessionReview": true,
+          "attemptsAndShotsAreContextOnly": true,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+        }
       }
     },
     {
@@ -124,7 +173,30 @@
         "player": "Roman Kantserov",
         "playerId": "8484390",
         "routeLabel": "TRANSFER",
-        "ownRouteZone": "HIGH_SLOT"
+        "ownRouteZone": "HIGH_SLOT",
+        "goalieId": "8482447",
+        "goalieStatus": "CONFIRMED",
+        "deployment": {
+          "EV": "F1",
+          "PP": 1,
+          "powerPlayUnit": 1,
+          "status": "PROJECTED"
+        },
+        "ownedGoals": 2,
+        "ownShotsOnGoal": 5,
+        "attackTeam": "CHI",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+        "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now",
+        "independentOpponentDefense": {
+          "goalsAgainst": 16,
+          "gameCount": 29,
+          "goalsAgainstPerGame": 0.5517241379310345,
+          "peerMedianGoalsAgainstPerGame": 0.6071428571428571,
+          "independentGoalConcessionReview": true,
+          "attemptsAndShotsAreContextOnly": true,
+          "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+        }
       }
     }
   ],
@@ -132,5 +204,1370 @@
   "noNewScorerDecisionMadeByPublisher": true,
   "sourceSnapshotDate": "2026-11-22",
   "sourceActionUrl": "https://github.com/benhavinsports/Goals/actions/runs/45028020465",
-  "exportVersion": 1
+  "exportVersion": 1,
+  "selectedGateEvidence": [
+    {
+      "gameId": "2026020373",
+      "playerId": "8482157",
+      "player": "Will Cuylle",
+      "stageOfGateRecords": "PROJECTED",
+      "selectedOriginalGateReceiptsComplete": true,
+      "gateDetails": [
+        {
+          "gate": "G0",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now"
+          ],
+          "evidence": {
+            "attacker": "NYR",
+            "selectedAttacker": "NYR",
+            "selectedDefender": "CAR",
+            "targetGoalie": "8481611",
+            "branchStatus": "CONFIRMED",
+            "directionSelectedBeforeSkaters": true,
+            "weakZones": {
+              "R_CIRCLE": {
+                "goalsAgainst": 5,
+                "shotsAgainst": 28,
+                "leagueSavePctgPercentile": 0.1186,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step0",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G1",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "venueRestTravel": {
+              "slateDate": "2026-11-22",
+              "sources": [
+                "https://api-web.nhle.com/v1/score/2026-11-22"
+              ]
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step2",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G2",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/roster/NYR/current"
+          ],
+          "evidence": {
+            "availability": "PROJECTED_ACTIVE",
+            "fullPoolSize": 26,
+            "position": "L"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step1",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G3",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now"
+          ],
+          "evidence": {
+            "goalieSample": {
+              "allZoneObservations": 302,
+              "qualifiedWeakZoneShots": 28
+            },
+            "goalieWeakZones": {
+              "R_CIRCLE": {
+                "goalsAgainst": 5,
+                "shotsAgainst": 28,
+                "leagueSavePctgPercentile": 0.1186,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G4",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now"
+          ],
+          "evidence": {
+            "archetype": "observed backhand, between-legs, deflected, slap, snap, tip-in, wrap-around, wrist release",
+            "ownRelease": {
+              "zone": "R_CIRCLE",
+              "attempts": 4,
+              "ownedGoals": 1,
+              "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step5",
+              "status": "PASS"
+            },
+            {
+              "step": "Step7",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now"
+          ],
+          "evidence": {
+            "shooterZone": "R_CIRCLE",
+            "weakZones": {
+              "R_CIRCLE": {
+                "goalsAgainst": 5,
+                "shotsAgainst": 28,
+                "leagueSavePctgPercentile": 0.1186,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step3",
+              "status": "PASS"
+            },
+            {
+              "step": "Step10",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G6",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "evidence": {
+            "deployment": {
+              "EV": "F2",
+              "PP": 2,
+              "powerPlayUnit": 2,
+              "line": 2,
+              "status": "PROJECTED",
+              "sourceType": "SECONDARY_PROJECTED_LINEUP"
+            },
+            "projectedNotPromoted": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step6",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G7",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020230/boxscore"
+          ],
+          "evidence": {
+            "distinctGoalDates": 1,
+            "positiveDatedShotAppearances": 6
+          },
+          "originalFunctions": [
+            {
+              "step": "Step4",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G8",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "neutralWhenAbsent": true,
+            "neverRankingShortcut": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G9",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "shooterZone": "R_CIRCLE",
+            "redAvoid": [],
+            "zoneConcessionEvidence": {
+              "goalsAgainst": 2,
+              "gameCount": 27,
+              "goalsAgainstPerGame": 0.07407407407407407,
+              "peerMedianGoalsAgainstPerGame": 0.20689655172413793,
+              "independentGoalConcessionReview": true,
+              "attemptsAndShotsAreContextOnly": true,
+              "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step8",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G10",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020230/boxscore"
+          ],
+          "evidence": {
+            "historicalDirectGoalRecipientVerified": true,
+            "historicalDirectGoalRecipientVerificationMethod": "RECENT_DATED_PBP_BOXSCORE"
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G10.5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478446/now"
+          ],
+          "evidence": {
+            "allAlternativesScanned": true,
+            "comparisonRows": [
+              {
+                "challengerId": "8478446",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8482073",
+                "status": "DIFFERENT_TARGET_LANE"
+              }
+            ]
+          },
+          "originalFunctions": [
+            {
+              "step": "Step10.5",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G11",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020230/boxscore"
+          ],
+          "evidence": {
+            "shotContinuation": {
+              "appearanceCount": 8,
+              "positiveDatedShotAppearances": 6,
+              "repeatedOwnShotPressure": true,
+              "datedAppearanceAlignmentVerified": true
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step9",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G12",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020230/boxscore"
+          ],
+          "evidence": {
+            "officialGoalsReconciled": true,
+            "ownership": {
+              "creditedGoalsVerified": true,
+              "recipient": true,
+              "ownedGoalsInActualAppearances": 2,
+              "notClaimOfTonightGoalCredit": true
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G13",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "date": "2026-11-22",
+            "jersey": 50,
+            "name": "Will Cuylle"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step13",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G14",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now"
+          ],
+          "evidence": {
+            "whoAnomalyPhysicallySupported": false
+          },
+          "originalFunctions": [
+            {
+              "step": "Step11",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G15",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020230/boxscore"
+          ],
+          "evidence": {
+            "directFinisherEvidenceMethod": "POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE",
+            "matchedOriginHasHistoricalGoal": true,
+            "officialOwnedGoalsInMatchedOrigin": 1,
+            "matchedOriginOwnOnNetShots": 4,
+            "officialDatedSeasonGoals": 6,
+            "fullSeasonGoalCreditsReconciledAgainstEdgeOrigins": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G16",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478446/now"
+          ],
+          "evidence": {
+            "crossGameFinalistCompetitionRunsAfterEveryGame": true,
+            "everyOtherActiveTeammate": 2,
+            "includesDepthAndDefense": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step12",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G17",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now"
+          ],
+          "evidence": {
+            "goalieBranch": "8481611",
+            "sourceDerivedReviewResolved": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step14",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G18",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now"
+          ],
+          "evidence": {
+            "G16FinalistDecision": null,
+            "G18CoreSlotGrantedOnlyAfterG16": true,
+            "pathClassificationEvidence": {
+              "path": "PRIMARY",
+              "scoringLane": "R_CIRCLE",
+              "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger"
+            }
+          },
+          "originalFunctions": []
+        }
+      ]
+    },
+    {
+      "gameId": "2026020376",
+      "playerId": "8478420",
+      "player": "Mikko Rantanen",
+      "stageOfGateRecords": "PROJECTED",
+      "selectedOriginalGateReceiptsComplete": true,
+      "gateDetails": [
+        {
+          "gate": "G0",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now"
+          ],
+          "evidence": {
+            "attacker": "DAL",
+            "selectedAttacker": "DAL",
+            "selectedDefender": "PIT",
+            "targetGoalie": "8483703",
+            "branchStatus": "CONFIRMED",
+            "directionSelectedBeforeSkaters": true,
+            "weakZones": {
+              "L_CIRCLE": {
+                "goalsAgainst": 4,
+                "shotsAgainst": 25,
+                "leagueSavePctgPercentile": 0.1864,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step0",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G1",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "venueRestTravel": {
+              "slateDate": "2026-11-22",
+              "sources": [
+                "https://api-web.nhle.com/v1/score/2026-11-22"
+              ]
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step2",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G2",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/roster/DAL/current"
+          ],
+          "evidence": {
+            "availability": "PROJECTED_ACTIVE",
+            "fullPoolSize": 24,
+            "position": "R"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step1",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G3",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now"
+          ],
+          "evidence": {
+            "goalieSample": {
+              "allZoneObservations": 274,
+              "qualifiedWeakZoneShots": 25
+            },
+            "goalieWeakZones": {
+              "L_CIRCLE": {
+                "goalsAgainst": 4,
+                "shotsAgainst": 25,
+                "leagueSavePctgPercentile": 0.1864,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G4",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now"
+          ],
+          "evidence": {
+            "archetype": "observed backhand, deflected, slap, snap, tip-in, wrist release",
+            "ownRelease": {
+              "zone": "L_CIRCLE",
+              "attempts": 4,
+              "ownedGoals": 2,
+              "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step5",
+              "status": "PASS"
+            },
+            {
+              "step": "Step7",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now"
+          ],
+          "evidence": {
+            "shooterZone": "L_CIRCLE",
+            "weakZones": {
+              "L_CIRCLE": {
+                "goalsAgainst": 4,
+                "shotsAgainst": 25,
+                "leagueSavePctgPercentile": 0.1864,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step3",
+              "status": "PASS"
+            },
+            {
+              "step": "Step10",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G6",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "evidence": {
+            "deployment": {
+              "EV": "F1",
+              "PP": 1,
+              "powerPlayUnit": 1,
+              "line": 1,
+              "status": "PROJECTED",
+              "sourceType": "SECONDARY_PROJECTED_LINEUP"
+            },
+            "projectedNotPromoted": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step6",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G7",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020243/boxscore"
+          ],
+          "evidence": {
+            "distinctGoalDates": 3,
+            "positiveDatedShotAppearances": 6
+          },
+          "originalFunctions": [
+            {
+              "step": "Step4",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G8",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "neutralWhenAbsent": true,
+            "neverRankingShortcut": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G9",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "shooterZone": "L_CIRCLE",
+            "redAvoid": [],
+            "zoneConcessionEvidence": {
+              "goalsAgainst": 11,
+              "gameCount": 26,
+              "goalsAgainstPerGame": 0.4230769230769231,
+              "peerMedianGoalsAgainstPerGame": 0.2413793103448276,
+              "independentGoalConcessionReview": true,
+              "attemptsAndShotsAreContextOnly": true,
+              "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step8",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G10",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020243/boxscore"
+          ],
+          "evidence": {
+            "historicalDirectGoalRecipientVerified": true,
+            "historicalDirectGoalRecipientVerificationMethod": "RECENT_DATED_PBP_BOXSCORE"
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G10.5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now"
+          ],
+          "evidence": {
+            "allAlternativesScanned": true,
+            "comparisonRows": [
+              {
+                "challengerId": "8473994",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8476278",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8480840",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8478449",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8484938",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8478476",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8480036",
+                "status": "DEFEATED"
+              }
+            ]
+          },
+          "originalFunctions": [
+            {
+              "step": "Step10.5",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G11",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020243/boxscore"
+          ],
+          "evidence": {
+            "shotContinuation": {
+              "appearanceCount": 8,
+              "positiveDatedShotAppearances": 6,
+              "repeatedOwnShotPressure": true,
+              "datedAppearanceAlignmentVerified": true
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step9",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G12",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020243/boxscore"
+          ],
+          "evidence": {
+            "officialGoalsReconciled": true,
+            "ownership": {
+              "creditedGoalsVerified": true,
+              "recipient": true,
+              "ownedGoalsInActualAppearances": 3,
+              "notClaimOfTonightGoalCredit": true
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G13",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "date": "2026-11-22",
+            "jersey": 96,
+            "name": "Mikko Rantanen"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step13",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G14",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now"
+          ],
+          "evidence": {
+            "whoAnomalyPhysicallySupported": false
+          },
+          "originalFunctions": [
+            {
+              "step": "Step11",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G15",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020243/boxscore"
+          ],
+          "evidence": {
+            "directFinisherEvidenceMethod": "POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE",
+            "matchedOriginHasHistoricalGoal": true,
+            "officialOwnedGoalsInMatchedOrigin": 2,
+            "matchedOriginOwnOnNetShots": 4,
+            "officialDatedSeasonGoals": 10,
+            "fullSeasonGoalCreditsReconciledAgainstEdgeOrigins": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G16",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8473994/now"
+          ],
+          "evidence": {
+            "crossGameFinalistCompetitionRunsAfterEveryGame": true,
+            "everyOtherActiveTeammate": 7,
+            "includesDepthAndDefense": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step12",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G17",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now"
+          ],
+          "evidence": {
+            "goalieBranch": "8483703",
+            "sourceDerivedReviewResolved": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step14",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G18",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now"
+          ],
+          "evidence": {
+            "G16FinalistDecision": null,
+            "G18CoreSlotGrantedOnlyAfterG16": true,
+            "pathClassificationEvidence": {
+              "path": "PRIMARY",
+              "scoringLane": "L_CIRCLE",
+              "rationale": "Independently sourced direct own-goal recipient and primary lane survived goalie, defense and every challenger"
+            }
+          },
+          "originalFunctions": []
+        }
+      ]
+    },
+    {
+      "gameId": "2026020377",
+      "playerId": "8484390",
+      "player": "Roman Kantserov",
+      "stageOfGateRecords": "PROJECTED",
+      "selectedOriginalGateReceiptsComplete": true,
+      "gateDetails": [
+        {
+          "gate": "G0",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now"
+          ],
+          "evidence": {
+            "attacker": "CHI",
+            "selectedAttacker": "CHI",
+            "selectedDefender": "VAN",
+            "targetGoalie": "8482447",
+            "branchStatus": "CONFIRMED",
+            "directionSelectedBeforeSkaters": true,
+            "weakZones": {
+              "HIGH_SLOT": {
+                "goalsAgainst": 9,
+                "shotsAgainst": 50,
+                "leagueSavePctgPercentile": 0.339,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step0",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G1",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "venueRestTravel": {
+              "slateDate": "2026-11-22",
+              "sources": [
+                "https://api-web.nhle.com/v1/score/2026-11-22"
+              ]
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step2",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G2",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/roster/CHI/current"
+          ],
+          "evidence": {
+            "availability": "PROJECTED_ACTIVE",
+            "fullPoolSize": 22,
+            "position": "R"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step1",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G3",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now"
+          ],
+          "evidence": {
+            "goalieSample": {
+              "allZoneObservations": 521,
+              "qualifiedWeakZoneShots": 50
+            },
+            "goalieWeakZones": {
+              "HIGH_SLOT": {
+                "goalsAgainst": 9,
+                "shotsAgainst": 50,
+                "leagueSavePctgPercentile": 0.339,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G4",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now"
+          ],
+          "evidence": {
+            "archetype": "observed backhand, deflected, slap, snap, tip-in, wrap-around, wrist release",
+            "ownRelease": {
+              "zone": "HIGH_SLOT",
+              "attempts": 5,
+              "ownedGoals": 2,
+              "sourceType": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step5",
+              "status": "PASS"
+            },
+            {
+              "step": "Step7",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now",
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now"
+          ],
+          "evidence": {
+            "shooterZone": "HIGH_SLOT",
+            "weakZones": {
+              "HIGH_SLOT": {
+                "goalsAgainst": 9,
+                "shotsAgainst": 50,
+                "leagueSavePctgPercentile": 0.339,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH"
+              }
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step3",
+              "status": "PASS"
+            },
+            {
+              "step": "Step10",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G6",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://www.betweenthelineshockey.com/tonight.md"
+          ],
+          "evidence": {
+            "deployment": {
+              "EV": "F1",
+              "PP": 1,
+              "powerPlayUnit": 1,
+              "line": 1,
+              "status": "PROJECTED",
+              "sourceType": "SECONDARY_PROJECTED_LINEUP"
+            },
+            "projectedNotPromoted": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step6",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G7",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020248/boxscore"
+          ],
+          "evidence": {
+            "distinctGoalDates": 4,
+            "positiveDatedShotAppearances": 6
+          },
+          "originalFunctions": [
+            {
+              "step": "Step4",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G8",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "neutralWhenAbsent": true,
+            "neverRankingShortcut": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G9",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/score/2026-11-22"
+          ],
+          "evidence": {
+            "shooterZone": "HIGH_SLOT",
+            "redAvoid": [],
+            "zoneConcessionEvidence": {
+              "goalsAgainst": 16,
+              "gameCount": 29,
+              "goalsAgainstPerGame": 0.5517241379310345,
+              "peerMedianGoalsAgainstPerGame": 0.6071428571428571,
+              "independentGoalConcessionReview": true,
+              "attemptsAndShotsAreContextOnly": true,
+              "classification": "NHL_RINK_COORDINATE_APPROXIMATION_V1"
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step8",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G10",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020248/boxscore"
+          ],
+          "evidence": {
+            "historicalDirectGoalRecipientVerified": true,
+            "historicalDirectGoalRecipientVerificationMethod": "RECENT_DATED_PBP_BOXSCORE"
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G10.5",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now"
+          ],
+          "evidence": {
+            "allAlternativesScanned": true,
+            "comparisonRows": [
+              {
+                "challengerId": "8484144",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8477479",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8477987",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8474141",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8483493",
+                "status": "DEFEATED"
+              },
+              {
+                "challengerId": "8482062",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8476882",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8474013",
+                "status": "DIFFERENT_TARGET_LANE"
+              },
+              {
+                "challengerId": "8484783",
+                "status": "DEFEATED"
+              }
+            ]
+          },
+          "originalFunctions": [
+            {
+              "step": "Step10.5",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G11",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020248/boxscore"
+          ],
+          "evidence": {
+            "shotContinuation": {
+              "appearanceCount": 8,
+              "positiveDatedShotAppearances": 6,
+              "repeatedOwnShotPressure": true,
+              "datedAppearanceAlignmentVerified": true
+            }
+          },
+          "originalFunctions": [
+            {
+              "step": "Step9",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G12",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/gamecenter/2026020248/boxscore"
+          ],
+          "evidence": {
+            "officialGoalsReconciled": true,
+            "ownership": {
+              "creditedGoalsVerified": true,
+              "recipient": true,
+              "ownedGoalsInActualAppearances": 4,
+              "notClaimOfTonightGoalCredit": true
+            }
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G13",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [],
+          "evidence": {
+            "date": "2026-11-22",
+            "jersey": 80,
+            "name": "Roman Kantserov"
+          },
+          "originalFunctions": [
+            {
+              "step": "Step13",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G14",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now"
+          ],
+          "evidence": {
+            "whoAnomalyPhysicallySupported": false
+          },
+          "originalFunctions": [
+            {
+              "step": "Step11",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G15",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now",
+            "https://api-web.nhle.com/v1/gamecenter/2026020248/boxscore"
+          ],
+          "evidence": {
+            "directFinisherEvidenceMethod": "POSITIVE_OWN_GOALS_FROM_MATCHED_ROUTE",
+            "matchedOriginHasHistoricalGoal": true,
+            "officialOwnedGoalsInMatchedOrigin": 2,
+            "matchedOriginOwnOnNetShots": 5,
+            "officialDatedSeasonGoals": 10,
+            "fullSeasonGoalCreditsReconciledAgainstEdgeOrigins": true
+          },
+          "originalFunctions": []
+        },
+        {
+          "gate": "G16",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484144/now"
+          ],
+          "evidence": {
+            "crossGameFinalistCompetitionRunsAfterEveryGame": true,
+            "everyOtherActiveTeammate": 9,
+            "includesDepthAndDefense": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step12",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G17",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now"
+          ],
+          "evidence": {
+            "goalieBranch": "8482447",
+            "sourceDerivedReviewResolved": true
+          },
+          "originalFunctions": [
+            {
+              "step": "Step14",
+              "status": "PASS"
+            }
+          ]
+        },
+        {
+          "gate": "G18",
+          "status": "PASS",
+          "prePuckRecord": true,
+          "sourceIds": [
+            "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now"
+          ],
+          "evidence": {
+            "G16FinalistDecision": null,
+            "G18CoreSlotGrantedOnlyAfterG16": true,
+            "pathClassificationEvidence": {
+              "path": "TRANSFER",
+              "scoringLane": "HIGH_SLOT",
+              "rationale": "Own secondary scoring route defeated independently sourced same-lane original PRIMARY recipient under G10.5"
+            }
+          },
+          "originalFunctions": []
+        }
+      ]
+    }
+  ],
+  "gameCount": 5,
+  "slateGameIds": [
+    "2026020373",
+    "2026020374",
+    "2026020375",
+    "2026020376",
+    "2026020377"
+  ],
+  "selectedSourceEvidenceBasedOnSavedRun": "nhl-blender-run-45028020465/state/site_runs/2026-11-22.json",
+  "scoutingProofVersion": 1
 }
