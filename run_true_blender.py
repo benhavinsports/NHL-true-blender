@@ -161,9 +161,11 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
         )
         result['evidenceFeedbackLoop']=feedback
         result['firstNonpassingGateAudit']=first_gate_audit(con,date,stage)
+        execution_pregame_snapshot=pregame_only_snapshot(
+            snapshot,datetime.now(timezone.utc))
         started_game_ids=sorted(
             {str(g['id']) for g in snapshot.get('games',[])}-
-            {str(g['id']) for g in pregame_snapshot.get('games',[])})
+            {str(g['id']) for g in execution_pregame_snapshot.get('games',[])})
         frozen_direction_game_ids=[]
         if started_game_ids:
             placeholders=",".join("?" for _ in started_game_ids)
@@ -177,7 +179,8 @@ async def run(date, stage, state_dir="state", output_dir="runs"):
                 str(row['game_id']) for row in direction_rows
                 if int(row['direction_count'])==2)
         expected_direction_games=(
-            len(pregame_snapshot.get('games',[]))+len(frozen_direction_game_ids))
+            len(execution_pregame_snapshot.get('games',[]))+
+            len(frozen_direction_game_ids))
         result['frozenG0DirectionGameIds']=frozen_direction_game_ids
         result['expectedDirectionGameCountForCensus']=expected_direction_games
         result['gateCertification']=certify_gates(
