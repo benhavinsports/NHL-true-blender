@@ -332,7 +332,7 @@
     ]
   },
   "datedGoalieSourceCoverage": {
-    "asOf": "2026-11-22T00:13:57+00:00",
+    "asOf": "2026-11-22T00:18:53+00:00",
     "boundedRetryCount": 0,
     "gamesWithBothGoalieProjections": 2,
     "gamesWithOnlyOneMatchedGoalie": 1,
@@ -2591,6 +2591,7 @@
             "historicalDirectGoalRecipientVerified": true
           },
           "sourceUrls": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484153/now",
             "https://api-web.nhle.com/v1/gamecenter/2026020231/boxscore",
             "https://api-web.nhle.com/v1/player/8484153/game-log/20262027/2"
           ],
@@ -2963,6 +2964,7 @@
             "historicalDirectGoalRecipientVerified": true
           },
           "sourceUrls": [
+            "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8481557/now",
             "https://api-web.nhle.com/v1/gamecenter/2026020179/boxscore",
             "https://api-web.nhle.com/v1/player/8481557/game-log/20262027/2"
           ],
@@ -3705,7 +3707,7 @@
         },
         "G10": {
           "evidence": {
-            "historicalDirectGoalRecipientVerificationMethod": "FULL_SEASON_GAME_LOG",
+            "historicalDirectGoalRecipientVerificationMethod": "FULL_SEASON_GAME_LOG_PLUS_ALL_EDGE_ORIGIN_GOAL_RECONCILIATION",
             "historicalDirectGoalRecipientVerified": false
           },
           "sourceUrls": [
@@ -3928,5 +3930,5 @@
   ],
   "stage": "CONFIRMED",
   "survivorOnlyCertification": false,
-  "updatedUTC": "2026-11-22T00:14:37+00:00"
+  "updatedUTC": "2026-11-22T00:19:38+00:00"
 }
