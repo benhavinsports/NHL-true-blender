@@ -1023,8 +1023,10 @@ def adjudicate_scoring_path(player, teammates, release, goalie_profile, coverage
         'independentDefenseAreaDirectlyMatched':bool(zone and zone in
             (cover.get('greenWeakZones') or [])),
         'historicallyCreditedIndependentGoalRecipient':bool(
-            own.get('recipient') is True and
             own.get('creditedGoalsVerified') is True and
+            (own.get('recipient') is True or (
+                finisher.get('fullSeasonGoalCreditsReconciledAgainstEdgeOrigins') is True and
+                finisher.get('seasonAndReleaseGoalCreditsConsistent') is True)) and
             receipt(player.get('release')) and credited_finisher and
             g15.get('disposition')=='PASS'),
         'allRelevantChallengersReviewed':bool(dispositions.get('G10.5',{}).get('disposition')=='PASS'
@@ -1473,12 +1475,34 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
                 and x.get('gameId') for x in season_goal_games)
         and sum(x['goals'] for x in season_goal_games)==
             season_data['officialPastSeasonGoals'])
+    edge_routes=(release.get('allRoutes') or []) if release else []
+    edge_full_own_goal_reconciliation=bool(
+        verified_season_goals and receipt(player.get('release')) and
+        isinstance(release,dict) and
+        release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
+        isinstance(edge_routes,list) and len(edge_routes)>0 and
+        all(isinstance(row,dict) and bool(row.get('zone')) and
+            type(row.get('sog')) is int and row['sog']>=0 and
+            type(row.get('ownedGoals')) is int and
+            0<=row['ownedGoals']<=row['sog'] for row in edge_routes) and
+        len({row.get('zone') for row in edge_routes})==len(edge_routes) and
+        sum(row['ownedGoals'] for row in edge_routes)==
+            season_data['officialPastSeasonGoals'] and
+        release.get('attempts',0)>0 and
+        (season_history or {}).get('sourceUrl') !=
+            player['release']['sourceUrl'] and
+        season_data['officialPastSeasonGoals']>0)
     sample_goals=bool(rec and type(rec.get('officialGoals')) is int
                       and rec['officialGoals']>0)
+    # A zero in the recent-eight sample cannot erase an independently
+    # reconciled full-season goal record. Accept the season path only when
+    # every NHL EDGE own-origin goal total reconciles exactly to the separate
+    # official dated NHL game log; otherwise the recent recipient proof remains
+    # required. No goal, lane, or scorer is inferred.
     historic_direct=bool(
         receipt(ownership) and own.get('creditedGoalsVerified') is True
-        and own.get('recipient') is True and rec and
-        (sample_goals or verified_season_goals)
+        and (own.get('recipient') is True or edge_full_own_goal_reconciliation)
+        and rec and (sample_goals or verified_season_goals)
         and (own_goals is None or
              (type(own_goals) is int and own_goals>=0))
         and (not season_supplement or
@@ -1488,15 +1512,19 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
           'historicalDirectGoalRecipientVerified':historic_direct,
           'historicalDirectGoalRecipientVerificationMethod':
               'RECENT_DATED_PBP_BOXSCORE' if sample_goals else
+              'FULL_SEASON_GAME_LOG_PLUS_ALL_EDGE_ORIGIN_GOAL_RECONCILIATION'
+              if edge_full_own_goal_reconciliation else
               'FULL_SEASON_GAME_LOG' if verified_season_goals else None,
           'independentOfficialSeasonGoalHistory':season_data if verified_season_goals else None,
+          'fullSeasonGoalCreditsReconciledAgainstEdgeOrigins':edge_full_own_goal_reconciliation,
           'directGoalProofIsHistoricalNotTonight':True,
           'futureAssistsVsGoalRecipientUnresolved':True,
           'futureNotAssistOrFeederProven':False,
           'G10_5AndG17MustSeparatelyReviewRecipientCompetition':True},
          eliminate=bool(own and own.get('recipient') is False),
          source_ids=sorted(set(x['sourceUrl'] for x in
-             (ownership, season_history if verified_season_goals else None)
+             (ownership, season_history if verified_season_goals else None,
+              player.get('release') if edge_full_own_goal_reconciliation else None)
              if receipt(x))))
     # The first teammate-qualification pass ends at G10, precisely before
     # recipient comparisons. Previously it ran G10.5–G17 (and their source
@@ -1631,23 +1659,6 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         verified_season_goals and release and
         type(release.get('ownedGoals')) is int and
         release['ownedGoals']<=season_data['officialPastSeasonGoals'])
-    edge_routes=(release.get('allRoutes') or []) if release else []
-    edge_full_own_goal_reconciliation=bool(
-        verified_season_goals and receipt(player.get('release')) and
-        isinstance(release,dict) and
-        release.get('sourceType')=='NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE' and
-        isinstance(edge_routes,list) and len(edge_routes)>0 and
-        all(isinstance(row,dict) and bool(row.get('zone')) and
-            type(row.get('sog')) is int and row['sog']>=0 and
-            type(row.get('ownedGoals')) is int and
-            0<=row['ownedGoals']<=row['sog'] for row in edge_routes) and
-        len({row.get('zone') for row in edge_routes})==len(edge_routes) and
-        sum(row['ownedGoals'] for row in edge_routes)==
-            season_data['officialPastSeasonGoals'] and
-        release.get('attempts',0)>0 and
-        (season_history or {}).get('sourceUrl') !=
-            player['release']['sourceUrl'] and
-        season_data['officialPastSeasonGoals']>0)
     # One direct finishing proof already in THIS chosen lane remains the
     # strongest form of historical route attribution. The independent
     # full-season cross-origin option is NOT a claim he scored from this
@@ -1656,7 +1667,8 @@ def evaluate_skater(game, attack_team, player, teammates, goalie_profile, stage,
         type(release.get('ownedGoals')) is int and
         release['ownedGoals']>0)
     finish_corrob=bool(
-        own and own.get('recipient') is True and
+        own and own.get('creditedGoalsVerified') is True and
+        (own.get('recipient') is True or edge_full_own_goal_reconciliation) and
         receipt(ownership) and rec and
         (sample_goals or season_release_consistent) and
         receipt(player.get('release')) and release and
