@@ -113,15 +113,25 @@
       "attackTeam": "TBL",
       "opponentTeam": "BUF",
       "candidatesEvaluated": 23,
-      "reason": "No player passed every original pre-Core gate G0–G17"
+      "reason": "G0 source comparisons agree TBL attacks BUF, but Buffalo has two current projected goalies (Ukko-Pekka Luukkonen and Colten Ellis). No unique opposing goalie is source-confirmed yet.",
+      "stoppedAt": "G0_GOALIE_IDENTITY_UNRESOLVED",
+      "latestResearchRunId": "45034211245",
+      "lastResearchG0AttackSide": "TBL",
+      "lastResearchDidNotIssueNewSurvivor": true
     },
     {
       "gameId": "2026020375",
       "matchup": "EDM@STL",
       "gameStartUTC": "2026-11-23T00:00:00Z",
       "status": "NO_SURVIVOR",
-      "stoppedAt": "G0",
-      "reason": "G0 did not independently establish which opposing goalie should be attacked"
+      "stoppedAt": "G10.5",
+      "reason": "G0 now source-verifies STL attacking EDM. Twenty-one skaters were checked; none passed every pre-Core gate. Seven reached G10.5, with two eliminated by rivals and five without a decisive recipient separation.",
+      "attackTeam": "STL",
+      "opponentTeam": "EDM",
+      "candidatesEvaluated": 21,
+      "latestResearchRunId": "45034211245",
+      "lastResearchG0AttackSide": "STL",
+      "lastResearchDidNotIssueNewSurvivor": true
     },
     {
       "gameId": "2026020376",
@@ -1570,5 +1580,12 @@
   ],
   "selectedSourceEvidenceBasedOnSavedRun": "nhl-blender-run-45028020465/state/site_runs/2026-11-22.json",
   "scoutingProofVersion": 1,
-  "selectedGateEvidenceRepresentation": "CONDENSED_EXCERPTS_OF_ACTUAL_SAVED_SELECTED_GATE_RECEIPTS"
+  "selectedGateEvidenceRepresentation": "CONDENSED_EXCERPTS_OF_ACTUAL_SAVED_SELECTED_GATE_RECEIPTS",
+  "lastNonselectedGameReview": {
+    "runId": "45034211245",
+    "sourceActionUrl": "https://github.com/benhavinsports/Goals/actions/runs/45034211245",
+    "doesNotReplaceOriginalCard": true,
+    "onlyUpdatesNonselectedGameResearch": true,
+    "selectedPlayersAndFingerprintUnchanged": true
+  }
 }
