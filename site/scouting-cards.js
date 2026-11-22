@@ -122,37 +122,42 @@ function rinkGraphic(origin){
    "Category diagram · not shot coordinates or goalie anatomy"));
  return field;
 }
-function barPanel({attPer,peerPer,attempts,onNet,games,origin}){
+function barPanel({goalRate,peerGoalRate,goals,games,origin}){
  const area=create("section","scout-pressure-card");
  const header=create("div","scout-module-title");
- header.appendChild(create("span","","OPPONENT DEFENSIVE COVERAGE"));
+ header.appendChild(create("span","","OPPONENT DEFENSIVE GOALS CONCEDED"));
  header.appendChild(create("span","scout-visual-index","G9"));
  area.appendChild(header);
  area.appendChild(create("p","scout-module-sub",
-   "Observed "+show(origin)+" shot-origin concessions · historical game sample"));
- if(numbers(attPer)&&attPer>=0&&numbers(peerPer)&&peerPer>=0){
-  const max=Math.max(attPer,peerPer,1);
+   "Observed goals allowed by the defending team from "+show(origin)+
+   " · historical rink scoring origin, not the goalmouth"));
+ if(numbers(goalRate)&&goalRate>=0&&numbers(peerGoalRate)&&peerGoalRate>=0){
+  const max=Math.max(goalRate,peerGoalRate,0.01);
   const makeRow=(label,value,kind)=>{
    const row=create("div","scout-compare-row");
    const rowTitle=create("div","scout-compare-head");
    rowTitle.appendChild(create("span","",label));
-   rowTitle.appendChild(create("strong","",value.toFixed(2)+" / game"));
+   rowTitle.appendChild(create("strong","",value.toFixed(3)+" goals / game"));
    row.appendChild(rowTitle);
    const track=create("div","scout-compare-track");
    const fill=create("span","scout-compare-fill "+kind);
    fill.style.width=(100*value/max).toFixed(1)+"%";
    track.appendChild(fill);row.appendChild(track);area.appendChild(row);
   };
-  makeRow("OPPONENT ATTEMPTS CONCEDED",attPer,"concession");
-  makeRow("OTHER-TEAM PEER MEDIAN",peerPer,"peer");
- }else area.appendChild(create("div","scout-unreported","Comparable defense rates not available in the saved source"));
+  makeRow("OPPONENT GOALS CONCEDED",goalRate,"concession");
+  makeRow("OTHER-TEAM GOAL MEDIAN",peerGoalRate,"peer");
+  area.appendChild(create("p","scout-chart-disclaimer",
+   goalRate>peerGoalRate?
+   "Elevated goals conceded from this area compared with peers.":
+   "This area is NOT elevated above the peer goal-concession median. G9 records an independent defensive review, not an additional goal scorer pick."));
+ }else area.appendChild(create("div","scout-unreported",
+   "Opponent defensive GOALS conceded by origin were not included in this saved excerpt"));
  const footer=create("div","scout-pressure-footer");
- footer.appendChild(create("strong","",numbers(attempts)?attempts+" attempts":"— attempts"));
- footer.appendChild(create("strong","",numbers(onNet)?onNet+" on-net":"— on-net"));
- footer.appendChild(create("span","",numbers(games)?games+" games reviewed":"Sample unreported"));
+ footer.appendChild(create("strong","",numbers(goals)?goals+" goals against":"Goals unreported"));
+ footer.appendChild(create("span","",numbers(games)?games+" games reviewed":"Game sample unreported"));
  area.appendChild(footer);
  area.appendChild(create("p","scout-chart-disclaimer",
-   "Observed defense concessions, not a prediction or a Blender ranking weight."));
+   "No shot-attempt ranking. Shooter's actual goal area versus the goalie's conceded-goal area is established separately at G5."));
  return area;
 }
 function sideIntel(title,value,sub,ref){
@@ -373,12 +378,12 @@ function report({
    deploymentSummary||"Not reported",String(ev.status||"Source unreported"),"G6"));
  matchupDashboard.appendChild(compare);
  body.appendChild(matchupDashboard);
- const attPer=numbers(concede.attemptsPerGame)?concede.attemptsPerGame:null;
- const peerPer=numbers(concede.peerMedianAttemptsPerGame)?concede.peerMedianAttemptsPerGame:null;
+ const goalRate=numbers(concede.goalsAgainstPerGame)?concede.goalsAgainstPerGame:null;
+ const peerGoalRate=numbers(concede.peerMedianGoalsAgainstPerGame)?
+   concede.peerMedianGoalsAgainstPerGame:null;
  body.appendChild(barPanel({
-   attPer,peerPer,attempts:concede.attemptsAgainst,
-   onNet:concede.onNetShotsAgainst,games:concede.gameCount,
-   origin:useOrigin
+   goalRate,peerGoalRate,goals:concede.goalsAgainst,
+   games:concede.gameCount,origin:useOrigin
  }));
  const review=create("section","scout-review-section");
  const revHeader=create("div","scout-module-title");
@@ -398,9 +403,13 @@ function report({
    contradiction?"Reviewed":"Unresolved",
    contradiction?"Recorded counterevidence examined":"Saved verification unavailable","G17"));
  const decision=String(g16Decision||fromGate("G18").G16FinalistDecision||"").replace(/_/g," ");
+ const g16Review=byGate.get("G16");
  reviews.appendChild(sideIntel("CROSS-GAME",
-   decision?decision.charAt(0).toUpperCase()+decision.slice(1).toLowerCase():"Not reported",
-   "Original G16 competition result","G16"));
+   decision?decision.charAt(0).toUpperCase()+decision.slice(1).toLowerCase():
+     status(g16Review).ok?"PASS · reviewed":"Review not in source",
+   status(g16Review).ok?
+    "Original G16 recipient competition passed; no distinct cross-game ranking recorded":
+    "Original G16 competition receipt unavailable","G16"));
  review.appendChild(reviews);
  body.appendChild(review);
  gateRows(body,receipts,null,gateNames,facts);
