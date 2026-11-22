@@ -91,7 +91,7 @@
         "ownedGoals": 1,
         "ownShotsOnGoal": 4,
         "attackTeam": "NYR",
-        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026010010/play-by-play",
         "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8481611/now",
         "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8482157/now",
         "independentOpponentDefense": {
@@ -147,7 +147,7 @@
         "ownedGoals": 2,
         "ownShotsOnGoal": 4,
         "attackTeam": "DAL",
-        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026010016/play-by-play",
         "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8483703/now",
         "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8478420/now",
         "independentOpponentDefense": {
@@ -185,7 +185,7 @@
         "ownedGoals": 2,
         "ownShotsOnGoal": 5,
         "attackTeam": "CHI",
-        "defenseSourceUrl": "https://api-web.nhle.com/v1/score/2026-11-22",
+        "defenseSourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026010005/play-by-play",
         "goalieSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8482447/now",
         "routeSource": "https://api-web.nhle.com/v1/edge/skater-shot-location-detail/8484390/now",
         "independentOpponentDefense": {
@@ -428,7 +428,7 @@
           "status": "PASS",
           "prePuckRecord": true,
           "sourceIds": [
-            "https://api-web.nhle.com/v1/score/2026-11-22"
+            "https://api-web.nhle.com/v1/gamecenter/2026010010/play-by-play"
           ],
           "evidence": {
             "shooterZone": "R_CIRCLE",
@@ -863,7 +863,7 @@
           "status": "PASS",
           "prePuckRecord": true,
           "sourceIds": [
-            "https://api-web.nhle.com/v1/score/2026-11-22"
+            "https://api-web.nhle.com/v1/gamecenter/2026010016/play-by-play"
           ],
           "evidence": {
             "shooterZone": "L_CIRCLE",
@@ -1318,7 +1318,7 @@
           "status": "PASS",
           "prePuckRecord": true,
           "sourceIds": [
-            "https://api-web.nhle.com/v1/score/2026-11-22"
+            "https://api-web.nhle.com/v1/gamecenter/2026010005/play-by-play"
           ],
           "evidence": {
             "shooterZone": "HIGH_SLOT",
@@ -1569,5 +1569,6 @@
     "2026020377"
   ],
   "selectedSourceEvidenceBasedOnSavedRun": "nhl-blender-run-45028020465/state/site_runs/2026-11-22.json",
-  "scoutingProofVersion": 1
+  "scoutingProofVersion": 1,
+  "selectedGateEvidenceRepresentation": "CONDENSED_EXCERPTS_OF_ACTUAL_SAVED_SELECTED_GATE_RECEIPTS"
 }
