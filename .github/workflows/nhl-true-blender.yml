@@ -1,38 +1,8 @@
-name: NHL True Blender - independent scheduled engine
-# Engine dispatch: run the full evidence pipeline after the Pages feed connection.
-# Nov 17 live validation: rerun current original G7/G11/Step4/Step9 eliminations
-# and G0 nonselected research classification with G18 as final assembly only.
+name: NHL True Blender - manual engine paused
+# Automatic and chained live cycles are disabled at the user's request.
+# workflow_call is intentionally not invoked by any other repository workflow.
 on:
-  # A deliberately committed date/phase request uses THIS same serialized
-  # authority. Ordinary code pushes still run verification only.
-  push:
-    branches: [main]
-    paths: ['.github/nhl-live-validation.json']
-  # Each serialized cycle runs the full original source collection and G0-G18,
-  # saves/publishes its checkpoint, then the next cycle continues unresolved
-  # source research until each game's original puck-drop freeze.
-  # Do NOT start a competing live engine on every code push: rapid source
-  # changes previously kept the authoritative ledger in never-ending
-  # fetch/replay/rebase loops, and queued newer pushes cancelled each other.
-  # Code/test pushes still use blender-verification.yml. The scheduled run
-  # uses the latest main revision and publishes the saved results.
-  workflow_dispatch:
-    inputs:
-      date:
-        description: 'Optional slate YYYY-MM-DD; blank uses current Eastern date'
-        required: false
-        type: string
-      mode:
-        description: 'Engine phase'
-        type: choice
-        required: false
-        options: [projected, confirmed, watch, grade]
-  schedule:
-    # Automatic full-slate evidence refresh every five minutes. Each run reads
-    # official NHL start times rather than stopping full gate execution at 7 ET.
-    # Late starts remain eligible for confirmed research until their own puck drop.
-    # After all starts, grade only when the official NHL games are final.
-    - cron: '*/5 * * * *'
+  workflow_call:
 permissions:
   contents: write
   actions: write # workflow_dispatch for the existing GitHub Pages site
@@ -298,16 +268,3 @@ jobs:
             state/site_runs/
             state/site_cards/
           if-no-files-found: warn
-      # A completed live cycle must hand off to another confirmed research
-      # cycle while any official game remains before its own puck drop. This
-      # runs even when the certification assertion fails for lack of a Core.
-      - name: Continue confirmed source recovery until puck drop
-        if: always() && steps.engine.outcome == 'success' && steps.persist.outcome == 'success'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          BLENDER_EXECUTED_DATE: ${{ env.BLENDER_EXECUTED_DATE }}
-        run: python scripts/dispatch_next_blender_cycle.py
-
