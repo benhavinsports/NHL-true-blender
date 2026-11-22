@@ -62,12 +62,14 @@ function explanation(record){
    return "Game and market context reviewed neutrally. Missing odds or markets do not rank, select, or disqualify a scorer.";
  case "G9": {
    const z=e.zoneConcessionEvidence||{};
-   return "Opponent defensive coverage at "+text(e.shooterZone)+": "+
-     text(z.attemptsAgainst)+" historical shot attempts over "+text(z.gameCount)+
-     " games ("+text(z.attemptsPerGame)+"/game, peer median "+
-     text(z.peerMedianAttemptsPerGame)+"). Green attacking origins: "+
-     (Array.isArray(e.greenTarget)&&e.greenTarget.length?e.greenTarget.join(", "):"not reported")+
-     ". Based on historical rink shot origins, not anatomical goalie holes.";
+   const rate=small(z.goalsAgainstPerGame);
+   const median=small(z.peerMedianGoalsAgainstPerGame);
+   return "Opponent defense conceded "+text(z.goalsAgainst)+
+     " ACTUAL goals from "+text(e.shooterZone)+" over "+
+     text(z.gameCount)+" games ("+(rate===null?"not reported":rate.toFixed(3))+
+     " goals/game; peer median "+(median===null?"not reported":median.toFixed(3))+
+     "). This is an independent defensive review. Shot attempts and "+
+     "on-net volume cannot substitute for the scored-goal match at G5.";
  }
  case "G10":
    return "Official prior-game goal credit verified via "+
