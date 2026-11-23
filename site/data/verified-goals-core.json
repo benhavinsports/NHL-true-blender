@@ -2,12 +2,12 @@
   "date": "2026-11-22",
   "stage": "PROJECTED",
   "verified": true,
-  "cardStatus": "G18_SOURCE_VERIFIED",
+  "cardStatus": "FROZEN_GRADED",
   "source": "PRIVATE_GOALS_GITHUB_ACTIONS_VERIFIED_PUBLIC_CARD_EXPORT",
   "sourceRepo": "benhavinsports/Goals",
-  "sourceWorkflowRunId": 45028020465,
-  "sourceArtifactId": 14756153928,
-  "sourceArtifact": "nhl-blender-run-45028020465",
+  "sourceWorkflowRunId": 45160632696,
+  "sourceArtifactId": 14811285696,
+  "sourceArtifact": "nhl-blender-run-45160632696",
   "statusFingerprint": "36048d666c4ac630f38f3bc5e5c072b36c35feafb3aa1ccf1a4e03c0d086fc68",
   "selectedCoreFullyCertified": true,
   "selectedMasterGatesAllPass": true,
@@ -213,8 +213,8 @@
   "publicProjectionOnly": true,
   "noNewScorerDecisionMadeByPublisher": true,
   "sourceSnapshotDate": "2026-11-22",
-  "sourceActionUrl": "https://github.com/benhavinsports/Goals/actions/runs/45028020465",
-  "exportVersion": 1,
+  "sourceActionUrl": "https://github.com/benhavinsports/Goals/actions/runs/45160632696",
+  "exportVersion": 2,
   "selectedGateEvidence": [
     {
       "gameId": "2026020373",
@@ -1587,5 +1587,47 @@
     "doesNotReplaceOriginalCard": true,
     "onlyUpdatesNonselectedGameResearch": true,
     "selectedPlayersAndFingerprintUnchanged": true
+  },
+  "postgameGrade": {
+    "cardId": "NHL-2026-11-22-CANONICAL",
+    "status": "GRADED_OFFICIAL_GOAL_EVENTS",
+    "gradedAt": "2026-11-23T05:58:55.387754-05:00",
+    "result": "LOSS",
+    "hits": 1,
+    "legs": 3,
+    "playerResults": [
+      {
+        "gameId": "2026020373",
+        "playerId": "8482157",
+        "player": "Will Cuylle",
+        "goals": 0,
+        "result": "MISS"
+      },
+      {
+        "gameId": "2026020376",
+        "playerId": "8478420",
+        "player": "Mikko Rantanen",
+        "goals": 0,
+        "result": "MISS"
+      },
+      {
+        "gameId": "2026020377",
+        "playerId": "8484390",
+        "player": "Roman Kantserov",
+        "goals": 3,
+        "result": "HIT"
+      }
+    ],
+    "officialSources": [
+      "https://api-web.nhle.com/v1/score/2026-11-22",
+      "https://api-web.nhle.com/v1/gamecenter/2026020373/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020373/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020376/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020376/boxscore",
+      "https://api-web.nhle.com/v1/gamecenter/2026020377/play-by-play",
+      "https://api-web.nhle.com/v1/gamecenter/2026020377/boxscore"
+    ],
+    "patchStatus": "NO_CAUSALLY_PROVEN_PATCH_TRIGGER",
+    "patchesApplied": []
   }
 }
