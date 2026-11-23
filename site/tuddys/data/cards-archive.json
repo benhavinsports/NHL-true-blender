@@ -586,6 +586,227 @@
       ],
       "revisionPath": "runs/revisions/2026-11-22-nfl17.json",
       "engineVersion": "nfl17-identity-kickoff-v2"
+    },
+    {
+      "date": "2026-11-23",
+      "stage": "PROJECTED",
+      "lockedAt": "2026-11-23T16:16:08+00:00",
+      "players": [
+        {
+          "playerId": "00-0038597",
+          "name": "Chase Brown",
+          "team": "CIN",
+          "opponent": "WAS",
+          "gameId": "2026_11_CIN_WAS",
+          "pathClass": "OWNED_MATCHED_FINISHER",
+          "matchedSituations": [
+            "RUSH_INSIDE_2",
+            "RUSH_FROM_3_TO_5",
+            "RUSH_FROM_11_TO_20",
+            "RECEIVE_INSIDE_2",
+            "RECEIVE_FROM_3_TO_5",
+            "RECEIVE_FROM_6_TO_10",
+            "RECEIVE_FROM_11_TO_20",
+            "RUSH_GOAL_TO_GO",
+            "RECEIVE_GOAL_TO_GO",
+            "RECEIVE_OUTSIDE_REDZONE_SHORT"
+          ],
+          "scoringSituations": {
+            "RUSH_INSIDE_2": {
+              "ownedActions": 1,
+              "ownedTouchdowns": 0,
+              "defenseActions": 8,
+              "defenseTouchdownsAllowed": 4,
+              "directAlignment": true
+            },
+            "RUSH_FROM_3_TO_5": {
+              "ownedActions": 5,
+              "ownedTouchdowns": 1,
+              "defenseActions": 8,
+              "defenseTouchdownsAllowed": 4,
+              "directAlignment": true
+            },
+            "RUSH_FROM_6_TO_10": {
+              "ownedActions": 3,
+              "ownedTouchdowns": 0,
+              "defenseActions": 5,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            },
+            "RUSH_FROM_11_TO_20": {
+              "ownedActions": 6,
+              "ownedTouchdowns": 0,
+              "defenseActions": 23,
+              "defenseTouchdownsAllowed": 1,
+              "directAlignment": true
+            },
+            "RECEIVE_INSIDE_2": {
+              "ownedActions": 1,
+              "ownedTouchdowns": 1,
+              "defenseActions": 7,
+              "defenseTouchdownsAllowed": 1,
+              "directAlignment": true
+            },
+            "RECEIVE_FROM_3_TO_5": {
+              "ownedActions": 1,
+              "ownedTouchdowns": 1,
+              "defenseActions": 3,
+              "defenseTouchdownsAllowed": 2,
+              "directAlignment": true
+            },
+            "RECEIVE_FROM_6_TO_10": {
+              "ownedActions": 2,
+              "ownedTouchdowns": 0,
+              "defenseActions": 9,
+              "defenseTouchdownsAllowed": 4,
+              "directAlignment": true
+            },
+            "RECEIVE_FROM_11_TO_20": {
+              "ownedActions": 1,
+              "ownedTouchdowns": 0,
+              "defenseActions": 27,
+              "defenseTouchdownsAllowed": 7,
+              "directAlignment": true
+            },
+            "RUSH_GOAL_TO_GO": {
+              "ownedActions": 7,
+              "ownedTouchdowns": 1,
+              "defenseActions": 16,
+              "defenseTouchdownsAllowed": 6,
+              "directAlignment": true
+            },
+            "RECEIVE_GOAL_TO_GO": {
+              "ownedActions": 3,
+              "ownedTouchdowns": 2,
+              "defenseActions": 15,
+              "defenseTouchdownsAllowed": 7,
+              "directAlignment": true
+            },
+            "QB_SCRAMBLE_RUN": {
+              "ownedActions": 0,
+              "ownedTouchdowns": 0,
+              "defenseActions": 24,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            },
+            "RUSH_OUTSIDE_REDZONE_SHORT": {
+              "ownedActions": 98,
+              "ownedTouchdowns": 0,
+              "defenseActions": 190,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            },
+            "RUSH_OUTSIDE_REDZONE_EXPLOSIVE": {
+              "ownedActions": 0,
+              "ownedTouchdowns": 0,
+              "defenseActions": 2,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            },
+            "RECEIVE_OUTSIDE_REDZONE_SHORT": {
+              "ownedActions": 49,
+              "ownedTouchdowns": 0,
+              "defenseActions": 248,
+              "defenseTouchdownsAllowed": 2,
+              "directAlignment": true
+            },
+            "RECEIVE_OUTSIDE_REDZONE_EXPLOSIVE": {
+              "ownedActions": 0,
+              "ownedTouchdowns": 0,
+              "defenseActions": 38,
+              "defenseTouchdownsAllowed": 1,
+              "directAlignment": false
+            },
+            "BACKFIELD_RECEIVE": {
+              "ownedActions": 32,
+              "ownedTouchdowns": 0,
+              "defenseActions": 72,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            },
+            "RETURN_OR_RECOVERY": {
+              "ownedActions": 0,
+              "ownedTouchdowns": 0,
+              "defenseActions": 0,
+              "defenseTouchdownsAllowed": 0,
+              "directAlignment": false
+            }
+          },
+          "directTDs": 3,
+          "redZoneActions": 20,
+          "ownedActions": 167,
+          "routes": {
+            "RUSH": {
+              "actions": 113,
+              "touchdowns": 1,
+              "redZoneActions": 15,
+              "goalToGoActions": 7,
+              "appearanceDates": [
+                "2026-09-13",
+                "2026-09-20",
+                "2026-09-27",
+                "2026-10-04",
+                "2026-10-11",
+                "2026-10-25",
+                "2026-11-01",
+                "2026-11-08",
+                "2026-11-15"
+              ],
+              "creators": [],
+              "defense": {
+                "observedActions": 236,
+                "touchdownsAllowed": 9,
+                "redZoneActions": 44,
+                "redZoneTDsAllowed": 9,
+                "goalToGoActions": 16
+              }
+            },
+            "RECEIVE": {
+              "actions": 54,
+              "touchdowns": 2,
+              "redZoneActions": 5,
+              "goalToGoActions": 3,
+              "appearanceDates": [
+                "2026-09-13",
+                "2026-09-20",
+                "2026-09-27",
+                "2026-10-04",
+                "2026-10-11",
+                "2026-10-25",
+                "2026-11-01",
+                "2026-11-08",
+                "2026-11-15"
+              ],
+              "creators": [
+                "J.Burrow"
+              ],
+              "defense": {
+                "observedActions": 350,
+                "touchdownsAllowed": 17,
+                "redZoneActions": 46,
+                "redZoneTDsAllowed": 14,
+                "goalToGoActions": 15
+              }
+            },
+            "RETURN": {
+              "actions": 0,
+              "touchdowns": 0,
+              "redZoneActions": 0,
+              "goalToGoActions": 0,
+              "appearanceDates": [],
+              "creators": [],
+              "defense": {
+                "observedActions": 0,
+                "touchdownsAllowed": 0,
+                "redZoneActions": 0,
+                "redZoneTDsAllowed": 0,
+                "goalToGoActions": 0
+              }
+            }
+          }
+        }
+      ],
+      "engineVersion": "nfl17-identity-kickoff-v2"
     }
   ]
 }
