@@ -1,60 +1,58 @@
 {
   "slateDate": "2026-11-23",
   "stage": "PROJECTED",
-  "g0AcceptedSkaterMatrices": 160,
+  "g0AcceptedSkaterMatrices": 161,
   "g0RejectedResearchNeverCountsAsCandidate": true,
   "allGatesExecutedButNotAllPassed": true,
   "notScorerSelectionOrRanking": true,
   "fullActualCandidateGateMatrixStoredSeparately": true,
   "nonpassingGateCounts": {
-    "G4": 40,
-    "G5": 62,
-    "G6": 160,
-    "G9": 39,
-    "G11": 54,
-    "G17": 160,
-    "Step3": 37,
-    "Step5": 18,
-    "Step6": 160,
-    "Step7": 40,
-    "Step9": 54,
-    "Step10": 37,
-    "Step14": 160,
-    "G7": 20,
-    "G10": 41,
-    "G12": 41,
-    "G15": 42,
-    "Step4": 20,
-    "G10.5": 140,
-    "G14": 9,
-    "G16": 140,
-    "Step10.5": 140,
+    "G4": 44,
+    "G5": 60,
+    "G6": 62,
+    "G9": 41,
+    "G11": 60,
+    "G17": 155,
+    "Step3": 41,
+    "Step5": 21,
+    "Step7": 44,
+    "Step9": 60,
+    "Step10": 41,
+    "Step14": 155,
+    "G2": 34,
+    "G7": 21,
+    "G10": 42,
+    "G12": 42,
+    "G15": 44,
+    "Step4": 21,
+    "Step6": 34,
+    "G10.5": 143,
+    "G14": 12,
+    "G16": 143,
+    "Step10.5": 143,
     "Step11": 3,
-    "Step12": 140
+    "Step12": 143
   },
-  "g18NonselectedNotMissingSource": 160,
+  "g18NonselectedNotMissingSource": 161,
   "g18ActualMissingSourceCount": 0,
   "g18FinalCoreAssemblyNotSourceCollection": true,
   "exactFailedGateIntersections": [
     {
       "masterGates": [
-        "G6",
         "G10.5",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 46
+      "playerCount": 35
     },
     {
       "masterGates": [
-        "G6",
         "G10.5",
         "G11",
         "G16",
@@ -62,17 +60,15 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step9",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 20
+      "playerCount": 16
     },
     {
       "masterGates": [
-        "G6",
         "G10",
         "G10.5",
         "G12",
@@ -82,35 +78,16 @@
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 14
-    },
-    {
-      "masterGates": [
-        "G5",
-        "G6",
-        "G10.5",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 13
+      "playerCount": 9
     },
     {
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G10.5",
         "G16",
         "G17",
@@ -118,20 +95,18 @@
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
         "Step7",
         "Step10",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 8
+      "playerCount": 6
     },
     {
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G9",
         "G10.5",
         "G16",
@@ -140,25 +115,25 @@
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
         "Step7",
         "Step10",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 7
+      "playerCount": 6
     },
     {
       "masterGates": [
         "G5",
-        "G6",
-        "G9",
+        "G10.5",
+        "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
+        "Step10.5",
+        "Step12",
         "Step14"
       ],
       "playerCount": 6
@@ -166,25 +141,21 @@
     {
       "masterGates": [
         "G6",
-        "G7",
         "G10.5",
-        "G11",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step4",
-        "Step6",
-        "Step9",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 5
+      "playerCount": 6
     },
     {
       "masterGates": [
+        "G2",
         "G4",
         "G5",
         "G6",
@@ -216,6 +187,358 @@
     },
     {
       "masterGates": [
+        "G2",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 4
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 3
+    },
+    {
+      "masterGates": [
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G5",
+        "G6",
+        "G7",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step4",
+        "Step6",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G6",
+        "G9",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step9",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 2
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
         "G4",
         "G5",
         "G6",
@@ -244,10 +567,92 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 3
+      "playerCount": 1
     },
     {
       "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10.5",
+        "G11",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G2",
+        "G4",
         "G6",
         "G7",
         "G10",
@@ -261,111 +666,6 @@
       ],
       "overlaySteps": [
         "Step4",
-        "Step6",
-        "Step9",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G9",
-        "G10",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step14"
-      ],
-      "playerCount": 3
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G10",
-        "G10.5",
-        "G12",
-        "G15",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step10.5",
-        "Step12",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G9",
-        "G11",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G6",
-        "G10.5",
-        "G11",
-        "G16",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
         "Step5",
         "Step6",
         "Step7",
@@ -374,39 +674,35 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
+        "G2",
         "G5",
-        "G6",
-        "G10",
         "G10.5",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
-        "Step6",
         "Step10.5",
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
+        "G2",
         "G5",
         "G6",
         "G7",
+        "G9",
         "G10",
-        "G10.5",
         "G11",
         "G12",
         "G15",
-        "G16",
         "G17",
         "G18"
       ],
@@ -414,36 +710,16 @@
         "Step4",
         "Step6",
         "Step9",
-        "Step10.5",
-        "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
-        "G5",
+        "G2",
         "G6",
-        "G9",
-        "G11",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step6",
-        "Step9",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G6",
-        "G10",
         "G10.5",
         "G11",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
@@ -455,34 +731,23 @@
         "Step12",
         "Step14"
       ],
-      "playerCount": 2
+      "playerCount": 1
     },
     {
       "masterGates": [
+        "G2",
         "G6",
         "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step6",
-        "Step14"
-      ],
-      "playerCount": 2
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step6",
-        "Step7",
-        "Step10",
+        "Step9",
         "Step14"
       ],
       "playerCount": 1
@@ -492,19 +757,37 @@
         "G4",
         "G5",
         "G6",
-        "G7",
-        "G9",
         "G10",
-        "G11",
+        "G10.5",
         "G12",
         "G15",
+        "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step3",
-        "Step4",
-        "Step6",
+        "Step7",
+        "Step10",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G6",
+        "G9",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step5",
         "Step7",
         "Step9",
         "Step10",
@@ -517,6 +800,76 @@
         "G4",
         "G5",
         "G6",
+        "G9",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G9",
+        "G10",
+        "G10.5",
+        "G11",
+        "G12",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step10.5",
+        "Step11",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
+        "G7",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G15",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step4",
+        "Step5",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G4",
+        "G5",
         "G7",
         "G9",
         "G10.5",
@@ -531,7 +884,6 @@
         "Step3",
         "Step4",
         "Step5",
-        "Step6",
         "Step7",
         "Step9",
         "Step10",
@@ -545,7 +897,6 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G9",
         "G10",
         "G10.5",
@@ -560,7 +911,6 @@
       "overlaySteps": [
         "Step3",
         "Step5",
-        "Step6",
         "Step7",
         "Step9",
         "Step10",
@@ -574,7 +924,6 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G9",
         "G10",
         "G10.5",
@@ -588,7 +937,6 @@
       "overlaySteps": [
         "Step3",
         "Step5",
-        "Step6",
         "Step7",
         "Step9",
         "Step10",
@@ -602,31 +950,6 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
-        "G9",
-        "G10",
-        "G11",
-        "G12",
-        "G15",
-        "G17",
-        "G18"
-      ],
-      "overlaySteps": [
-        "Step3",
-        "Step5",
-        "Step6",
-        "Step7",
-        "Step9",
-        "Step10",
-        "Step14"
-      ],
-      "playerCount": 1
-    },
-    {
-      "masterGates": [
-        "G4",
-        "G5",
-        "G6",
         "G9",
         "G10",
         "G12",
@@ -636,7 +959,6 @@
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
         "Step7",
         "Step10",
         "Step14"
@@ -647,17 +969,18 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G9",
         "G10.5",
         "G11",
+        "G14",
+        "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
+        "Step5",
         "Step7",
         "Step9",
         "Step10",
@@ -671,15 +994,16 @@
       "masterGates": [
         "G4",
         "G5",
-        "G6",
         "G9",
+        "G11",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step3",
-        "Step6",
+        "Step5",
         "Step7",
+        "Step9",
         "Step10",
         "Step14"
       ],
@@ -688,27 +1012,133 @@
     {
       "masterGates": [
         "G4",
+        "G5",
+        "G9",
+        "G11",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step3",
+        "Step7",
+        "Step9",
+        "Step10",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G5",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G5",
         "G6",
+        "G10",
+        "G10.5",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G5",
+        "G6",
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G10.5",
+        "G16",
+        "G17",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step6",
+        "Step10.5",
+        "Step12",
+        "Step14"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G9",
+        "G10",
+        "G12",
+        "G15",
+        "G18"
+      ],
+      "overlaySteps": [],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G6",
+        "G9",
+        "G11",
+        "G18"
+      ],
+      "overlaySteps": [
+        "Step9"
+      ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
         "G7",
-        "G10",
         "G10.5",
         "G11",
-        "G12",
-        "G15",
         "G16",
         "G17",
         "G18"
       ],
       "overlaySteps": [
         "Step4",
-        "Step5",
-        "Step6",
-        "Step7",
         "Step9",
         "Step10.5",
         "Step12",
         "Step14"
       ],
+      "playerCount": 1
+    },
+    {
+      "masterGates": [
+        "G9",
+        "G18"
+      ],
+      "overlaySteps": [],
       "playerCount": 1
     }
   ],
@@ -724,8 +1154,8 @@
       "reason": {
         "zone": "Crease",
         "goalieWeakZones": [
-          "L Circle",
-          "Low Slot"
+          "R Circle",
+          "R Point"
         ]
       }
     },
@@ -733,7 +1163,81 @@
       "gameId": "2026020378",
       "playerId": "8475745",
       "reason": {
-        "deployment": null
+        "deployment": {
+          "EV": "F1",
+          "PP": 1,
+          "conflictingProjectedAssignments": [
+            {
+              "data": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8475745",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CBJ"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-23-PROJECTED-2026020378-3307ae2523046785-2026-11-23T20:38:27+00:00",
+              "observedAt": "2026-11-23T20:38:27+00:00",
+              "sourceUrl": "https://www.nhl.com/news/columbus-blue-jackets-new-jersey-devils-game-preview-november-23-2026"
+            },
+            {
+              "data": {
+                "EV": "F2",
+                "doesNotEstablishDressedOrPP": true,
+                "playerId": "8475745",
+                "projectedNotConfirmed": true,
+                "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                "status": "PROJECTED",
+                "team": "CBJ"
+              },
+              "evidenceId": "nhl-official-projected-line-2026-11-23-PROJECTED-2026020378-85aefbfd324fef31-2026-11-23T20:38:27+00:00",
+              "observedAt": "2026-11-23T20:38:27+00:00",
+              "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+            }
+          ],
+          "defensePairEvidence": [],
+          "lineEvidence": [
+            {
+              "dateVerified": true,
+              "retrievedAt": "2026-11-23T20:37:56+00:00",
+              "source": "Daily Faceoff page",
+              "sourceAsOf": "2026-11-23T19:43:29.247000+00:00",
+              "sourceDate": "2026-11-23",
+              "sourcePath": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+              "value": 1
+            }
+          ],
+          "powerPlayEvidence": [
+            {
+              "dateVerified": null,
+              "retrievedAt": "2026-11-23T20:37:55.756372+00:00",
+              "source": "Hockey Insights snapshot",
+              "sourceAsOf": null,
+              "sourceDate": "2026-11-23T16:09:00.000Z",
+              "sourcePath": "pp.pp1[2]",
+              "sourceUrl": "https://hockeyinsights.ca/data/lineups/CBJ.json",
+              "value": 1
+            },
+            {
+              "dateVerified": true,
+              "retrievedAt": "2026-11-23T20:37:56+00:00",
+              "source": "Daily Faceoff page",
+              "sourceAsOf": "2026-11-23T19:43:29.247000+00:00",
+              "sourceDate": "2026-11-23",
+              "sourcePath": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+              "value": 1
+            }
+          ],
+          "sourceType": "MULTISOURCE_PROJECTED_LINEUP",
+          "sourceUrls": [
+            "https://hockeyinsights.ca/data/lineups/CBJ.json",
+            "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations"
+          ],
+          "status": "PROJECTED"
+        }
       }
     },
     "G9": {
@@ -770,32 +1274,106 @@
           "source": [
             {
               "anatomicalPlacementVerified": false,
-              "goalieId": "8474596",
-              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8474596/now",
+              "goalieId": "8476945",
+              "goalieWeakProfileUrl": "https://api-web.nhle.com/v1/gamecenter/2025021022/play-by-play",
               "observedStrengthAreaNames": [
-                "R Point"
+                "L Point"
               ],
               "observedStrongerArea": false,
               "observedWeakAreaNames": [
-                "L Circle",
-                "Low Slot"
+                "R Circle",
+                "R Point"
               ],
               "ownScoringOrigin": "Crease",
               "physicalOriginMatch": false,
-              "sourceKind": "NHL_EDGE_SHOT_ORIGIN_PEER_PERCENTILE",
-              "starterSourceUrl": "https://daily.hockey/starting-goalies/2026-11-23",
-              "starterStatus": "EXPECTED"
+              "sourceKind": "OFFICIAL_NHL_GOALIE_HISTORICAL_PBP_COORDINATE_PROXY_V1",
+              "starterSourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "starterStatus": "CONFIRMED"
             }
           ],
           "sourceScope": "GOALIE_SHOT_ORIGIN_VS_SHOOTER_OWN_AREA",
           "strongerAreaContradiction": false
         },
         "lineupDisagreementReview": {
-          "availability": "UNVERIFIED",
-          "hasProjectedOrConfirmedRole": false,
+          "availability": "PROJECTED_ACTIVE",
+          "hasProjectedOrConfirmedRole": true,
           "isTrulyConfirmed": false,
-          "lineupSourceUrl": null,
-          "projectedOrConfirmedEV": null
+          "lineupSourceUrl": "https://hockeyinsights.ca/data/lineups/CBJ.json",
+          "projectedOrConfirmedEV": {
+            "EV": "F1",
+            "PP": 1,
+            "conflictingProjectedAssignments": [
+              {
+                "data": {
+                  "EV": "F2",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8475745",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "CBJ"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-23-PROJECTED-2026020378-3307ae2523046785-2026-11-23T20:38:27+00:00",
+                "observedAt": "2026-11-23T20:38:27+00:00",
+                "sourceUrl": "https://www.nhl.com/news/columbus-blue-jackets-new-jersey-devils-game-preview-november-23-2026"
+              },
+              {
+                "data": {
+                  "EV": "F2",
+                  "doesNotEstablishDressedOrPP": true,
+                  "playerId": "8475745",
+                  "projectedNotConfirmed": true,
+                  "sourceType": "NHL_OFFICIAL_PUBLISHED_PROJECTED_LINE_COMBINATION",
+                  "status": "PROJECTED",
+                  "team": "CBJ"
+                },
+                "evidenceId": "nhl-official-projected-line-2026-11-23-PROJECTED-2026020378-85aefbfd324fef31-2026-11-23T20:38:27+00:00",
+                "observedAt": "2026-11-23T20:38:27+00:00",
+                "sourceUrl": "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
+              }
+            ],
+            "defensePairEvidence": [],
+            "lineEvidence": [
+              {
+                "dateVerified": true,
+                "retrievedAt": "2026-11-23T20:37:56+00:00",
+                "source": "Daily Faceoff page",
+                "sourceAsOf": "2026-11-23T19:43:29.247000+00:00",
+                "sourceDate": "2026-11-23",
+                "sourcePath": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+                "sourceUrl": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+                "value": 1
+              }
+            ],
+            "powerPlayEvidence": [
+              {
+                "dateVerified": null,
+                "retrievedAt": "2026-11-23T20:37:55.756372+00:00",
+                "source": "Hockey Insights snapshot",
+                "sourceAsOf": null,
+                "sourceDate": "2026-11-23T16:09:00.000Z",
+                "sourcePath": "pp.pp1[2]",
+                "sourceUrl": "https://hockeyinsights.ca/data/lineups/CBJ.json",
+                "value": 1
+              },
+              {
+                "dateVerified": true,
+                "retrievedAt": "2026-11-23T20:37:56+00:00",
+                "source": "Daily Faceoff page",
+                "sourceAsOf": "2026-11-23T19:43:29.247000+00:00",
+                "sourceDate": "2026-11-23",
+                "sourcePath": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+                "sourceUrl": "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations",
+                "value": 1
+              }
+            ],
+            "sourceType": "MULTISOURCE_PROJECTED_LINEUP",
+            "sourceUrls": [
+              "https://hockeyinsights.ca/data/lineups/CBJ.json",
+              "https://www.dailyfaceoff.com/teams/columbus-blue-jackets/line-combinations"
+            ],
+            "status": "PROJECTED"
+          }
         },
         "strongestRivalReview": {
           "G9OpponentDefenseWeakZonesUsed": [
@@ -810,7 +1388,7 @@
             {
               "everyDirectRivalDefeated": true,
               "everyRivalReviewed": true,
-              "goalieId": "8474596",
+              "goalieId": "8476945",
               "rivalResults": [],
               "shooterZone": "Crease"
             }
@@ -826,11 +1404,6 @@
       "reason": null
     },
     "Step5": {
-      "gameId": "2026020378",
-      "playerId": "8475745",
-      "reason": null
-    },
-    "Step6": {
       "gameId": "2026020378",
       "playerId": "8475745",
       "reason": null
@@ -853,6 +1426,11 @@
     "Step14": {
       "gameId": "2026020378",
       "playerId": "8475745",
+      "reason": null
+    },
+    "G2": {
+      "gameId": "2026020378",
+      "playerId": "8475790",
       "reason": null
     },
     "G7": {
@@ -880,6 +1458,11 @@
       "reason": null
     },
     "Step4": {
+      "gameId": "2026020378",
+      "playerId": "8475790",
+      "reason": null
+    },
+    "Step6": {
       "gameId": "2026020378",
       "playerId": "8475790",
       "reason": null
