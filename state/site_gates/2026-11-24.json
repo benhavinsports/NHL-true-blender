@@ -35,7 +35,7 @@
             "R Point"
           ],
           "historicalShiftIsNotTonightLineup": true,
-          "observedAt": "2026-11-24T05:00:52+00:00",
+          "observedAt": "2026-11-24T16:32:35+00:00",
           "redStrongZones": [],
           "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026010002/play-by-play"
         },
@@ -44,11 +44,10 @@
           "greenWeakZones": [
             "Low Slot",
             "L Circle",
-            "L Point",
             "Center Point"
           ],
           "historicalShiftIsNotTonightLineup": true,
-          "observedAt": "2026-11-24T05:00:52+00:00",
+          "observedAt": "2026-11-24T16:32:35+00:00",
           "redStrongZones": [],
           "sourceUrl": "https://api-web.nhle.com/v1/gamecenter/2026010003/play-by-play"
         }
@@ -67,7 +66,7 @@
               "Low Slot": {
                 "goalsAgainst": 18,
                 "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.1695,
+                "leagueSavePctgPercentile": 0.1667,
                 "savePctg": 0.7692307692307693,
                 "saves": 60,
                 "shotsAgainst": 78,
@@ -76,7 +75,7 @@
               "R Point": {
                 "goalsAgainst": 1,
                 "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
-                "leagueSavePctgPercentile": 0.322,
+                "leagueSavePctgPercentile": 0.3148,
                 "savePctg": 0.9642857142857143,
                 "saves": 27,
                 "shotsAgainst": 28,
@@ -93,6 +92,24 @@
             "sourceUrl": "https://daily.hockey/starting-goalies/2026-11-24",
             "status": "EXPECTED",
             "weakZones": {}
+          },
+          {
+            "goalieId": "8479394",
+            "observedAt": "2026-11-24T16:32:42+00:00",
+            "profileSourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now",
+            "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+            "status": "EXPECTED",
+            "weakZones": {
+              "Low Slot": {
+                "goalsAgainst": 20,
+                "laneInterpretation": "RINK_SHOT_ORIGIN_NOT_GOAL_MOUTH",
+                "leagueSavePctgPercentile": 0.0556,
+                "savePctg": 0.7222222222222222,
+                "saves": 52,
+                "shotsAgainst": 72,
+                "sourceUrl": "https://api-web.nhle.com/v1/edge/goalie-shot-location-detail/8479394/now"
+              }
+            }
           }
         ]
       },
@@ -101,10 +118,202 @@
       "rostersByTeam": {
         "EDM": {
           "availabilityReports": {
-            "UNVERIFIED": 24
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 6
           },
-          "deploymentEvidence": [],
-          "observedAt": "2026-11-24T05:00:44+00:00",
+          "deploymentEvidence": [
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": 2,
+              "name": "Colton Dach",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8482703",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Jason Dickinson",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8477450",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 1,
+              "name": "Leon Draisaitl",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8477934",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Alex Formenton",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8480029",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": 2,
+              "name": "Trent Frederic",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8479365",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": 2,
+              "name": "Filip Hallander",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8480842",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Max Jones",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8479368",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": null,
+              "name": "Mathieu Joseph",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478472",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": 1,
+              "name": "Kasperi Kapanen",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8477953",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": 1,
+              "name": "Connor McDavid",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8478402",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Owen Michaels",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8486161",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 1,
+              "name": "Ryan Nugent-Hopkins",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8476454",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 1,
+              "name": "Vasily Podkolzin",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8481617",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": 1,
+              "name": "Evan Bouchard",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8480803",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": 2,
+              "name": "Mattias Ekholm",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8475218",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Shakir Mukhamadullin",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8482166",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Connor Murphy",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8476473",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": 2,
+              "name": "Ryan Shea",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8478854",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Jake Walman",
+              "observedAt": "2026-11-24T16:32:45+00:00",
+              "playerId": "8478013",
+              "sourceUrl": "https://www.dailyfaceoff.com/teams/edmonton-oilers/line-combinations",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-24T16:32:24+00:00",
           "recentFormEvidenceCount": 21,
           "rosterPlayers": 24,
           "sourceUrl": "https://api-web.nhle.com/v1/roster/EDM/current",
@@ -112,10 +321,192 @@
         },
         "VGK": {
           "availabilityReports": {
-            "UNVERIFIED": 21
+            "PROJECTED_ACTIVE": 18,
+            "UNVERIFIED": 3
           },
-          "deploymentEvidence": [],
-          "observedAt": "2026-11-24T05:00:44+00:00",
+          "deploymentEvidence": [
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": null,
+              "name": "Ivan Barbashev",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8477964",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": 2,
+              "name": "Braeden Bowman",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8483890",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 2,
+              "name": "Trevor Connelly",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8484803",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Nic Dowd",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8475343",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": 1,
+              "name": "Jack Eichel",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478403",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F4",
+              "PK": null,
+              "PP": null,
+              "name": "Marc Gatcomb",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8483553",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": 1,
+              "name": "Tomas Hertl",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8476881",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": null,
+              "name": "Brett Howden",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8479353",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 2,
+              "name": "William Karlsson",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8476448",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F2",
+              "PK": null,
+              "PP": 1,
+              "name": "Mitch Marner",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478483",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F3",
+              "PK": null,
+              "PP": 1,
+              "name": "Victor Olofsson",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478109",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "F1",
+              "PK": null,
+              "PP": 1,
+              "name": "Mark Stone",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8475913",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": 2,
+              "name": "Rasmus Andersson",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478397",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Dylan Coghlan",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8479639",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D2",
+              "PK": null,
+              "PP": null,
+              "name": "Jeremy Lauzon",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478468",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": null,
+              "name": "Brayden McNabb",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8475188",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D1",
+              "PK": null,
+              "PP": 2,
+              "name": "Shea Theodore",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8477447",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            },
+            {
+              "EV": "D3",
+              "PK": null,
+              "PP": null,
+              "name": "Parker Wotherspoon",
+              "observedAt": "2026-11-24T16:32:42+00:00",
+              "playerId": "8478450",
+              "sourceUrl": "https://www.betweenthelineshockey.com/tonight.md",
+              "status": "PROJECTED"
+            }
+          ],
+          "observedAt": "2026-11-24T16:32:24+00:00",
           "recentFormEvidenceCount": 20,
           "rosterPlayers": 21,
           "sourceUrl": "https://api-web.nhle.com/v1/roster/VGK/current",
