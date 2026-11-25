@@ -270,7 +270,7 @@ function renderHeader(){
       recent?.eligibleSkaterRows):"—");
  const notice=$("slate-notice");
  notice.replaceChildren();
- if(!s.today&&saved){
+ if(saved?.unrestricted){notice.appendChild(pill("UNRESTRICTED · LOCK UNVERIFIED","warning"));}else if(!s.today&&saved){
    notice.appendChild(pill("ARCHIVED · "+date,"warning"));
    notice.appendChild(el("p","","This is a previously locked slate, not a new pick for today. Select a different date to inspect another card."));
  }else if(saved){
@@ -296,7 +296,7 @@ function renderPicker(){
  select.disabled=false;
  for(const date of days){
    const archived=state.archive.find(x=>x.date===date);
-   const suffix=archived?" · locked Core":" · awaiting selection";
+   const suffix=archived?.unrestricted?" · unrestricted":archived?" · locked Core":" · awaiting selection";
    const o=el("option","",date+suffix);o.value=date;
    select.appendChild(o);
  }
@@ -365,7 +365,7 @@ function corePhoto(leg){
  }else art.classList.add("photo-unavailable");
  const shade=el("span","collector-photo-shade");
  shade.setAttribute("aria-hidden","true");art.appendChild(shade);
- const team=corePhotoTeams(leg)[0];
+ const team=leg.team||corePhotoTeams(leg)[0];
  if(team){
    const mark=el("img","collector-team-crest");
    mark.alt="";mark.loading="lazy";
@@ -379,6 +379,7 @@ function corePhoto(leg){
  return art;
 }
 function coreScoringStats(leg){
+ if(leg.unrestricted)return leg.aligned_goals+" aligned historical goals";
  const ownRelease=detailsData(leg)?.gateDetails?.find(x=>x.gate==="G4")
    ?.evidence?.ownRelease||{};
  const survivor=(state.latest?.gameSurvivorPool||[]).find(x=>
@@ -402,7 +403,7 @@ function coreCard(leg,i){
  if(key===state.flippedLeg)button.classList.add("is-flipped");
  const inner=el("div","card-flip-inner");
  const front=el("div","card-face card-front");
- const teams=corePhotoTeams(leg),team=teams[0]||"NHL";
+ const teams=corePhotoTeams(leg),team=leg.team||teams[0]||"NHL";
  const top=el("div","card-head collector-masthead");
  top.appendChild(el("span","card-index","TRUE BLENDER"));
  top.appendChild(el("span","collector-series","PREMIER · "+String(i+1).padStart(2,"0")+"/03"));
@@ -434,7 +435,7 @@ function coreCard(leg,i){
  const data=detailsData(leg);
  const gateRows=data?.gateDetails;
  const g18=gateRows?.find(x=>x.gate==="G18")?.evidence||{};
- back.appendChild(NHLScouting.report({
+ if(leg.unrestricted){const report=el("div","scout-report");const head=el("div","scout-header");head.appendChild(el("strong","",leg.player));const close=el("button","scout-dismiss","CLOSE ✕");close.addEventListener("click",()=>toggleCardFlip(key));head.appendChild(close);report.appendChild(head);const body=el("div","scout-body");body.appendChild(el("h3","","Unrestricted scoring alignment"));body.appendChild(el("p","",leg.aligned_goals+" aligned historical goals"));body.appendChild(el("p","","Same-game selections permitted. Pregame lock not verified. Individual reconstructed gate receipts not included in saved card."));report.appendChild(body);back.appendChild(report);}else back.appendChild(NHLScouting.report({
    player:leg.player,team,matchup:leg.matchup,
    stage:data?.stageOfGateRecords||selectedEntry()?.stage,
    path:path.display,goalieId:leg.opposingGoalieId,
@@ -605,7 +606,7 @@ async function boot(){
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
  const values=await Promise.allSettled([
    json("./data/latest.json"),json("./data/cards-archive.json"),
-   json("./data/verified-goals-core.json")
+   json("./data/verified-goals-core.json"),json("./data/unrestricted-core.json")
  ]);
  const latest=values[0].status==="fulfilled"?values[0].value:null;
  const archive=values[1].status==="fulfilled"?
@@ -613,6 +614,8 @@ async function boot(){
  const merged=mergePublicGoalsCore(latest,archive,
     values[2].status==="fulfilled"?values[2].value:null);
  state.latest=merged.latest;state.archive=merged.archive;
+ const u=values[3]?.status==="fulfilled"?values[3].value:null;
+ if(u?.date&&Array.isArray(u.core)&&u.core.length===3){const legs=u.core.map(p=>({...p,playerId:p.playerId||p.player,gameId:u.date+"-VGK-EDM",matchup:"VGK@EDM",path:"UNRESTRICTED",directRoute:p.aligned_goals+" aligned goals",unrestricted:true}));state.archive=[{date:u.date,cardId:"unrestricted-"+u.date,stage:"UNRESTRICTED · PREGAME LOCK UNVERIFIED",current_legs:legs,verified:false,unrestricted:true,hasGateEvidence:false},...state.archive.filter(x=>x.date!==u.date)];}
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
@@ -622,7 +625,7 @@ async function boot(){
   const currentIssued=state.latest?.date===today && state.latest?.verified===true &&
     Array.isArray(state.latest?.card?.current_legs) && state.latest.card.current_legs.length>0;
   state.selectedDate=request&&days.includes(request)?request:
-    currentIssued?today:newestVerified||days[0]||null;
+    state.archive.some(x=>x.date===today&&x.unrestricted)?today:currentIssued?today:newestVerified||days[0]||null;
  if(!state.selectedDate){
    renderAll();
    $("core-cards").replaceChildren(el("div","empty-state",
