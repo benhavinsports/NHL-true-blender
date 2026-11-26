@@ -259,7 +259,7 @@ function renderHeader(){
  setText("hero-sync",state.latest?.publishedAt?"Published "+etTime(state.latest.publishedAt):
     "Publication not available");
  const count=countSelected();
- setText("stat-legs",count?count+" / "+(count===2?"2":"3"):"—");
+ setText("stat-legs",count?String(count):"—");
  setText("stat-phase",saved?s.phase:"AWAITING");
  const valid=state.gateData?.legs?.every(x=>x.masterPassed===x.totalMaster
      &&x.overlayPassed===x.totalOverlay);
@@ -270,7 +270,7 @@ function renderHeader(){
       recent?.eligibleSkaterRows):"—");
  const notice=$("slate-notice");
  notice.replaceChildren();
- if(saved?.unrestricted){notice.appendChild(pill("UNRESTRICTED · LOCK UNVERIFIED","warning"));}else if(!s.today&&saved){
+ if(saved?.unrestricted){notice.appendChild(pill(saved.verified?"UNRESTRICTED · VERIFIED":"UNRESTRICTED · LOCK UNVERIFIED",saved.verified?"":"warning"));}else if(!s.today&&saved){
    notice.appendChild(pill("ARCHIVED · "+date,"warning"));
    notice.appendChild(el("p","","This is a previously locked slate, not a new pick for today. Select a different date to inspect another card."));
  }else if(saved){
@@ -332,7 +332,7 @@ function corePhotoTeams(leg){
  const gate=detailsData(leg)?.gateDetails?.find(x=>x.gate==="G0");
  const attacker=gate?.evidence?.selectedAttacker||gate?.evidence?.attacker;
  const match=String(leg.matchup||"").split("@");
- const teams=[attacker,...match].filter(x=>typeof x==="string"&&/^[A-Z]{3}$/.test(x));
+ const teams=[leg.team,attacker,...match].filter(x=>typeof x==="string"&&/^[A-Z]{3}$/.test(x));
  return [...new Set(teams)];
 }
 function corePhoto(leg){
@@ -379,7 +379,7 @@ function corePhoto(leg){
  return art;
 }
 function coreScoringStats(leg){
- if(leg.unrestricted)return leg.aligned_goals+" aligned historical goals";
+ if(leg.unrestricted)return "Saved unrestricted selection";
  const ownRelease=detailsData(leg)?.gateDetails?.find(x=>x.gate==="G4")
    ?.evidence?.ownRelease||{};
  const survivor=(state.latest?.gameSurvivorPool||[]).find(x=>
@@ -435,7 +435,7 @@ function coreCard(leg,i){
  const data=detailsData(leg);
  const gateRows=data?.gateDetails;
  const g18=gateRows?.find(x=>x.gate==="G18")?.evidence||{};
- if(leg.unrestricted){const report=el("div","scout-report");const head=el("div","scout-header");head.appendChild(el("strong","",leg.player));const close=el("button","scout-dismiss","CLOSE ✕");close.addEventListener("click",()=>toggleCardFlip(key));head.appendChild(close);report.appendChild(head);const body=el("div","scout-body");body.appendChild(el("h3","","Unrestricted scoring alignment"));body.appendChild(el("p","",leg.aligned_goals+" aligned historical goals"));body.appendChild(el("p","","Same-game selections permitted. Pregame lock not verified. Individual reconstructed gate receipts not included in saved card."));report.appendChild(body);back.appendChild(report);}else back.appendChild(NHLScouting.report({
+ if(leg.unrestricted){const report=el("div","scout-report");const head=el("div","scout-header");head.appendChild(el("strong","",leg.player));const close=el("button","scout-dismiss","CLOSE ✕");close.addEventListener("click",()=>toggleCardFlip(key));head.appendChild(close);report.appendChild(head);const body=el("div","scout-body");body.appendChild(el("h3","","Unrestricted scoring alignment"));body.appendChild(el("p","",leg.directRoute||"Scoring route not included in saved result"));body.appendChild(el("p","","Only evidence supplied by the unrestricted engine is displayed."));report.appendChild(body);back.appendChild(report);}else back.appendChild(NHLScouting.report({
    player:leg.player,team,matchup:leg.matchup,
    stage:data?.stageOfGateRecords||selectedEntry()?.stage,
    path:path.display,goalieId:leg.opposingGoalieId,
@@ -479,64 +479,18 @@ function detailsData(leg){
 }
 function renderPool(){
  const holder=$("pool-list");if(!holder)return;
- const pool=isLatest()?(state.latest?.gameSurvivorPool||[]):[];
- const byId=new Map(pool.map(g=>[String(g.gameId),g]));
- const allGames=state.gateData?.games||[];
- const games=allGames.length?allGames.map(g=>byId.get(String(g.gameId))||{
-    gameId:g.gameId,matchup:g.away+"@"+g.home,gameStartUTC:g.startUTC,
-    status:"SOURCE_RECEIPT_MISSING"}):pool;
- ElitePool.render({
-   holder,games,coreLegs:selectedEntry()?.current_legs||[],
-   latest:isLatest()?state.latest:null,
-   gates:MASTER,gateNames:EXPLAIN,facts:BlenderGateFacts,
-   date:state.selectedDate
- });
+ holder.replaceChildren();
+ const rows=state.latest?.survivors||[];
+ if(!rows.length){holder.appendChild(el("p","empty-state","No unrestricted survivor evidence published."));return;}
+ for(const r of rows){const p=el("div","notice");p.appendChild(el("strong","",r.player||r.name||"Unnamed player"));p.appendChild(el("p","",r.matchup||r.team||"Matchup not supplied"));holder.appendChild(p);}
 }
 function renderAll(){
  renderPicker();renderHeader();renderCards();
  renderPool();
 }
 async function loadEvidence(date){
- const seq=++state.requestId;state.gateLoadError=null;state.gateData=null;
- const published=state.latest;
- if(date===published?.date && published.selectedGateEvidence){
-  const entry=selectedEntry();
-  state.gateData={
-    cardId:published.card.cardId,
-    fingerprint:published.card.fingerprint,
-    readOnly:true,doesNotSelectOrReplaceScorers:true,
-    originalSourceExcerptCondensed:true,
-    legs:published.selectedGateEvidence,
-    games:[]
-  };
-  if(entry && (entry.cardId!==state.gateData.cardId||
-       entry.fingerprint!==state.gateData.fingerprint)){
-    state.gateData=null;
-    state.gateLoadError="Selected-player evidence does not match the saved G18 card";
-  }
-  renderAll();return;
- }
- const entry=state.archive.find(x=>x.date===date);
- if(entry?.hasGateEvidence===false){
-    state.gateLoadError=entry.gateEvidenceError||
-      "This archived card has no verified selected-player gate export yet.";
-    renderAll();return;
- }
- try{
-   const data=await json("./data/slates/"+encodeURIComponent(date)+".json");
-   if(seq!==state.requestId)return;
-   const saved=selectedEntry();
-   if(!data||!data.readOnly||!data.doesNotSelectOrReplaceScorers||
-      (saved&&data.cardId!==saved.cardId)||
-      (saved&&data.fingerprint!==saved.fingerprint)){
-     throw Error("Gate evidence does not match the single authoritative card.");
-   }
-   state.gateData=data;
- }catch(e){
-   if(seq!==state.requestId)return;
-   state.gateLoadError=e.message;
- }
- if(seq===state.requestId)renderAll();
+ ++state.requestId;state.gateData=null;state.gateLoadError=null;
+ renderAll();
 }
 function chooseDate(date){
  state.selectedDate=date;
@@ -599,23 +553,21 @@ function initWorkspaceNavigation(){
  window.addEventListener?.("hashchange",updateFromScroll);
  updateFromScroll();
 }
+function unrestrictedFeed(u){
+ const date=u?.date;
+ if(!date||!Array.isArray(u.core)||!String(u.engine||"").startsWith("unrestricted"))return {latest:null,archive:[]};
+ const legs=u.core.map(p=>({...p,playerId:p.playerId??p.player_id??p.player,gameId:p.gameId??p.game_id??null,matchup:p.matchup??null,path:"UNRESTRICTED",directRoute:p.directRoute??"Scoring route not included",unrestricted:true}));
+ const entry={date,cardId:u.cardId||"unrestricted-"+date,stage:u.stage||"UNRESTRICTED",current_legs:legs,verified:u.verified===true,unrestricted:true,hasGateEvidence:false,grade:u.grade||null,revision:u.revision};
+ return {latest:{date,stage:entry.stage,verified:entry.verified,card:{cardId:entry.cardId,current_legs:legs},publishedAt:u.publishedAt,selectionFunnel:{surveyedEligibleSkaters:u.evaluated_players},unrestricted:true,survivors:u.survivors||[]},archive:[entry]};
+}
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
  $("slate-select").addEventListener("change",e=>chooseDate(e.target.value));
  initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
- const values=await Promise.allSettled([
-   json("./data/latest.json"),json("./data/cards-archive.json"),
-   json("./data/verified-goals-core.json"),json("./data/unrestricted-core.json")
- ]);
- const latest=values[0].status==="fulfilled"?values[0].value:null;
- const archive=values[1].status==="fulfilled"?
-    (values[1].value.cards||[]).filter(x=>x.verified===true&&Array.isArray(x.current_legs)):[];
- const merged=mergePublicGoalsCore(latest,archive,
-    values[2].status==="fulfilled"?values[2].value:null);
- state.latest=merged.latest;state.archive=merged.archive;
- const u=values[3]?.status==="fulfilled"?values[3].value:null;
- if(u?.date&&Array.isArray(u.core)&&u.core.length===3){const legs=u.core.map(p=>({...p,playerId:p.playerId||p.player,gameId:u.date+"-VGK-EDM",matchup:"VGK@EDM",path:"UNRESTRICTED",directRoute:p.aligned_goals+" aligned goals",unrestricted:true}));state.archive=[{date:u.date,cardId:"unrestricted-"+u.date,stage:"UNRESTRICTED · PREGAME LOCK UNVERIFIED",current_legs:legs,verified:false,unrestricted:true,hasGateEvidence:false},...state.archive.filter(x=>x.date!==u.date)];}
+ const u=await json("./data/unrestricted-core.json");
+ const feed=unrestrictedFeed(u);
+ state.latest=feed.latest;state.archive=feed.archive;
  const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
  const today=etToday();
@@ -654,19 +606,9 @@ boot().catch(e=>{
 let latestPublishedSignature=null;
 async function pollPublishedResults(){
  if(document.hidden)return;
- const fresh=await Promise.allSettled([
-   json("./data/latest.json"),
-   json("./data/cards-archive.json"),
-   json("./data/verified-goals-core.json")
- ]);
- if(fresh[0].status!=="fulfilled"||fresh[1].status!=="fulfilled")return;
- const merged=mergePublicGoalsCore(
-   fresh[0].value,
-   (fresh[1].value.cards||[]).filter(x=>
-     x.verified===true&&Array.isArray(x.current_legs)),
-   fresh[2].status==="fulfilled"?fresh[2].value:null);
- const next=merged.latest;
- const archived=merged.archive;
+ const feed=unrestrictedFeed(await json("./data/unrestricted-core.json"));
+ const next=feed.latest, archived=feed.archive;
+ if(!next)return;
  const fingerprint=publishedSignature(next,archived);
  if(fingerprint===latestPublishedSignature)return;
  latestPublishedSignature=fingerprint;
