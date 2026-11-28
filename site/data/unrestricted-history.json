@@ -1,167 +1,9 @@
 [
   {
-    "date": "2026-11-24",
-    "engine": "unrestricted-no-exclusivity-reconstruction",
-    "status": "experimental_unverified_pregame_lock",
-    "evaluated_players": 36,
-    "aligned_players": 24,
-    "core": [
-      {
-        "player": "Leon Draisaitl",
-        "team": "EDM",
-        "aligned_goals": 10
-      },
-      {
-        "player": "Vasily Podkolzin",
-        "team": "EDM",
-        "aligned_goals": 5
-      },
-      {
-        "player": "Jack Eichel",
-        "team": "VGK",
-        "aligned_goals": 5
-      }
-    ],
-    "grade": {
-      "result": "LOSS",
-      "hits": 2,
-      "legs": 3,
-      "goals": {
-        "Leon Draisaitl": 0,
-        "Vasily Podkolzin": 1,
-        "Jack Eichel": 2
-      },
-      "officialSources": [
-        "https://frontend.d3.nhle.com/news/vegas-golden-knights-edmonton-oilers-game-recap-november-24-2026",
-        "https://www.nhl.com/oilers/news/topic/game-recaps/live-updates-oilers-vs-golden-knights-11-24-26"
-      ],
-      "prospective_validation": false
-    },
-    "prospective_validation": false,
-    "cardId": "unrestricted-2026-11-24",
-    "recordType": "original"
-  },
-  {
-    "date": "2026-11-25",
-    "cardId": "recovered-2026-11-25-A-original",
-    "engine": "unrestricted-recovered",
-    "stage": "RECOVERED ORIGINAL A",
-    "status": "reported_from_chat_lock_unverified",
-    "verified": false,
-    "prospective_validation": false,
-    "core": [
-      {
-        "player": "Morgan Geekie"
-      },
-      {
-        "player": "Tage Thompson"
-      },
-      {
-        "player": "Matt Coronato"
-      }
-    ],
-    "grade": {
-      "result": "LOSS",
-      "hits": 1,
-      "legs": 3,
-      "status": "reported_not_independently_verified"
-    },
-    "recordType": "original",
-    "version": "A",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
-  },
-  {
-    "date": "2026-11-25",
-    "cardId": "recovered-2026-11-25-B-original",
-    "engine": "unrestricted-recovered",
-    "stage": "RECOVERED ORIGINAL B",
-    "status": "reported_from_chat_lock_unverified",
-    "verified": false,
-    "prospective_validation": false,
-    "core": [
-      {
-        "player": "Wyatt Johnston"
-      },
-      {
-        "player": "Matt Boldy"
-      },
-      {
-        "player": "Joel Eriksson Ek"
-      }
-    ],
-    "grade": {
-      "result": "LOSS",
-      "hits": 1,
-      "legs": 3,
-      "status": "reported_not_independently_verified"
-    },
-    "recordType": "original",
-    "version": "B",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
-  },
-  {
-    "date": "2026-11-27",
-    "cardId": "recovered-2026-11-27-original-original",
-    "engine": "unrestricted-recovered",
-    "stage": "RECOVERED ORIGINAL original",
-    "status": "reported_from_chat_lock_unverified",
-    "verified": false,
-    "prospective_validation": false,
-    "core": [
-      {
-        "player": "Gabriel Vilardi"
-      },
-      {
-        "player": "Vasily Podkolzin"
-      },
-      {
-        "player": "Josh Doan"
-      }
-    ],
-    "grade": {
-      "result": "LOSS",
-      "hits": 1,
-      "legs": 3,
-      "status": "reported_not_independently_verified"
-    },
-    "recordType": "original",
-    "version": "original",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
-  },
-  {
-    "date": "2026-11-25",
-    "cardId": "recovered-2026-11-25-A-retest",
-    "engine": "unrestricted-recovered",
-    "stage": "HISTORICAL RETEST A",
-    "status": "reported_from_chat_lock_unverified",
-    "verified": false,
-    "prospective_validation": false,
-    "core": [
-      {
-        "player": "Josh Norris"
-      },
-      {
-        "player": "Joel Farabee"
-      },
-      {
-        "player": "Morgan Geekie"
-      }
-    ],
-    "grade": {
-      "result": "WIN",
-      "hits": 3,
-      "legs": 3,
-      "status": "reported_not_independently_verified"
-    },
-    "recordType": "retest",
-    "version": "A",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
-  },
-  {
     "date": "2026-11-25",
     "cardId": "recovered-2026-11-25-B-retest",
     "engine": "unrestricted-recovered",
-    "stage": "HISTORICAL RETEST B",
+    "stage": "UNRESTRICTED V3 · HISTORICAL",
     "status": "reported_from_chat_lock_unverified",
     "verified": false,
     "prospective_validation": false,
@@ -184,13 +26,13 @@
     },
     "recordType": "retest",
     "version": "B",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
+    "provenance": "Historical reconstructed card; reported grade, not an independently verified pregame prediction."
   },
   {
     "date": "2026-11-27",
     "cardId": "recovered-2026-11-27-retest-retest",
     "engine": "unrestricted-recovered",
-    "stage": "HISTORICAL RETEST retest",
+    "stage": "UNRESTRICTED V3 · HISTORICAL",
     "status": "reported_from_chat_lock_unverified",
     "verified": false,
     "prospective_validation": false,
@@ -213,6 +55,33 @@
     },
     "recordType": "retest",
     "version": "retest",
-    "provenance": "Recovered from reported conversation record; original pregame timestamp and individual source receipts unavailable."
+    "provenance": "Historical reconstructed card; reported grade, not an independently verified pregame prediction."
+  },
+  {
+    "date": "2026-11-24",
+    "cardId": "reconstructed-2026-11-24",
+    "engine": "unrestricted-v3",
+    "stage": "UNRESTRICTED V3 · HISTORICAL",
+    "recordType": "retest",
+    "verified": false,
+    "prospective_validation": false,
+    "core": [
+      {
+        "player": "Jack Eichel"
+      },
+      {
+        "player": "Vasily Podkolzin"
+      },
+      {
+        "player": "Connor McDavid"
+      }
+    ],
+    "grade": {
+      "result": "WIN",
+      "hits": 3,
+      "legs": 3,
+      "status": "reported_not_independently_verified"
+    },
+    "provenance": "Historical reconstructed single-game diagnostic, reported in frozen V3 specification; not an independently verified pregame prediction."
   }
 ]
