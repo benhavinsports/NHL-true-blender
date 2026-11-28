@@ -295,7 +295,7 @@ function renderPicker(){
  }
  select.disabled=false;
  for(const entry of entries){
-   const label=entry.date+" · "+(entry.stage||"Unrestricted");
+   const label=entry.date;
    const o=el("option","",label);o.value=entry.selectionKey;select.appendChild(o);
  }
  select.value=selectedEntry()?.selectionKey||entries[0].selectionKey;
@@ -552,11 +552,12 @@ function initWorkspaceNavigation(){
  updateFromScroll();
 }
 function unrestrictedFeed(u,history=[]){
- const records=[u,...(Array.isArray(history)?history:[])].filter(x=>x?.date&&Array.isArray(x.core)&&String(x.engine||"").startsWith("unrestricted"));
+ const historical=Array.isArray(history)?history:[];
+ const records=[...(u&&historical.some(h=>h.date===u.date)&&u.engine!=="unrestricted-v3"?[]:[u]),...historical].filter(x=>x?.date&&Array.isArray(x.core)&&String(x.engine||"").startsWith("unrestricted"));
  const archive=[];const seen=new Set();
  for(const r of records){
   const cardId=r.cardId||"unrestricted-"+r.date;
-  if(seen.has(cardId))continue;seen.add(cardId);
+  if(seen.has(r.date))continue;seen.add(r.date);
   const legs=r.core.map(p=>({...p,playerId:p.playerId??p.player_id??p.player,gameId:p.gameId??p.game_id??null,matchup:p.matchup??null,path:"UNRESTRICTED",directRoute:p.directRoute??"Scoring route not included",unrestricted:true}));
   archive.push({date:r.date,cardId,selectionKey:cardId,stage:r.stage||"UNRESTRICTED",current_legs:legs,verified:r.verified===true,unrestricted:true,hasGateEvidence:false,grade:r.grade||null,revision:r.revision,provenance:r.provenance,recordType:r.recordType||"original",survivors:r.survivors||[],publishedAt:r.publishedAt,evaluated_players:r.evaluated_players});
  }
