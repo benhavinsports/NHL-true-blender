@@ -201,7 +201,7 @@ function countSelected(){
 function selectedEntry(){
  const date=state.selectedDate;
  if(!date)return null;
- const saved=state.archive.find(x=>x.date===date);
+ const saved=state.archive.find(x=>x.selectionKey===date)||state.archive.find(x=>x.date===date);
  if(saved)return saved;
  const x=state.latest;
  if(x&&x.date===date&&x.card&&x.verified===true)return{
@@ -213,16 +213,16 @@ function selectedEntry(){
  return null;
 }
 function isLatest(){
- return state.latest&&state.latest.date===state.selectedDate;
+ return state.latest&&state.latest.card?.cardId===selectedEntry()?.cardId;
 }
 function currentStatus(){
  const saved=selectedEntry();
  const recent=isLatest()?state.latest:{};
  return {
-  date:state.selectedDate,
+  date:saved?.date||state.selectedDate,
   phase:saved?.stage||recent?.stage||"UNVERIFIED",
   current:isLatest(),
-  today:state.selectedDate===etToday(),
+  today:(saved?.date||state.selectedDate)===etToday(),
   audit:isLatest()?recent?.gateCertification||{}:{},
   verified:saved?.verified===true,
   certified:isLatest()?recent?.survivorOnlyCertification===true:
@@ -270,7 +270,7 @@ function renderHeader(){
       recent?.eligibleSkaterRows):"—");
  const notice=$("slate-notice");
  notice.replaceChildren();
- if(saved?.unrestricted){notice.appendChild(pill(saved.verified?"UNRESTRICTED · VERIFIED":"UNRESTRICTED · LOCK UNVERIFIED",saved.verified?"":"warning"));}else if(!s.today&&saved){
+ if(saved?.unrestricted){notice.appendChild(pill(saved.verified?"UNRESTRICTED · VERIFIED":"UNRESTRICTED · LOCK UNVERIFIED",saved.verified?"":"warning"));if(saved.provenance)notice.appendChild(el("p","",saved.provenance));if(saved.grade)notice.appendChild(el("p","",(saved.grade.status==="reported_not_independently_verified"?"Reported grade: ":"Grade: ")+saved.grade.hits+"/"+saved.grade.legs+" "+saved.grade.result));if(!s.today)notice.appendChild(el("p","","Archived slate · "+saved.date));}else if(!s.today&&saved){
    notice.appendChild(pill("ARCHIVED · "+date,"warning"));
    notice.appendChild(el("p","","This is a previously locked slate, not a new pick for today. Select a different date to inspect another card."));
  }else if(saved){
@@ -288,19 +288,17 @@ function renderHeader(){
 }
 function renderPicker(){
  const select=$("slate-select");select.replaceChildren();
- const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
- if(!days.length){
+ const entries=state.archive;
+ if(!entries.length){
   const o=el("option","","No saved slates");o.value="";select.appendChild(o);
   select.disabled=true;return;
  }
  select.disabled=false;
- for(const date of days){
-   const archived=state.archive.find(x=>x.date===date);
-   const suffix=archived?.unrestricted?" · unrestricted":archived?" · locked Core":" · awaiting selection";
-   const o=el("option","",date+suffix);o.value=date;
-   select.appendChild(o);
+ for(const entry of entries){
+   const label=entry.date+" · "+(entry.stage||"Unrestricted");
+   const o=el("option","",label);o.value=entry.selectionKey;select.appendChild(o);
  }
- select.value=state.selectedDate||days[0];
+ select.value=selectedEntry()?.selectionKey||entries[0].selectionKey;
 }
 function toggleCardFlip(key){
  if(!key)return;
@@ -338,7 +336,7 @@ function corePhotoTeams(leg){
 function corePhoto(leg){
  const art=el("div","card-illustration collector-art");
  const id=String(leg.playerId||"");
- const seasonYear=Number(String(state.selectedDate||"").slice(0,4));
+ const seasonYear=Number(String(selectedEntry()?.date||"").slice(0,4));
  const season=Number.isInteger(seasonYear)&&seasonYear>=2020&&seasonYear<=2040?
    String(seasonYear)+String(seasonYear+1):"20262027";
  const options=/^\d{7,8}$/.test(id)?[
@@ -480,7 +478,7 @@ function detailsData(leg){
 function renderPool(){
  const holder=$("pool-list");if(!holder)return;
  holder.replaceChildren();
- const rows=state.latest?.survivors||[];
+ const rows=selectedEntry()?.survivors||[];
  if(!rows.length){holder.appendChild(el("p","empty-state","No unrestricted survivor evidence published."));return;}
  for(const r of rows){const p=el("div","notice");p.appendChild(el("strong","",r.player||r.name||"Unnamed player"));p.appendChild(el("p","",r.matchup||r.team||"Matchup not supplied"));holder.appendChild(p);}
 }
@@ -508,7 +506,7 @@ function publishedSignature(latest,archived){
  return JSON.stringify({
    publishedAt:latest?.publishedAt,cardId:latest?.card?.cardId,
    stage:latest?.stage,
-   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision]),
+   archive:(archived||[]).map(x=>[x.date,x.cardId,x.revision,x.stage,x.current_legs,x.grade]),
     perGame:(latest?.gameSurvivorPool||[]).map(g=>[g.gameId,g.status,g.survivor?.playerId]),
     savedOriginalGateEvidenceVerified:latest?.savedOriginalGateEvidenceVerified,
  });
@@ -553,31 +551,34 @@ function initWorkspaceNavigation(){
  window.addEventListener?.("hashchange",updateFromScroll);
  updateFromScroll();
 }
-function unrestrictedFeed(u){
- const date=u?.date;
- if(!date||!Array.isArray(u.core)||!String(u.engine||"").startsWith("unrestricted"))return {latest:null,archive:[]};
- const legs=u.core.map(p=>({...p,playerId:p.playerId??p.player_id??p.player,gameId:p.gameId??p.game_id??null,matchup:p.matchup??null,path:"UNRESTRICTED",directRoute:p.directRoute??"Scoring route not included",unrestricted:true}));
- const entry={date,cardId:u.cardId||"unrestricted-"+date,stage:u.stage||"UNRESTRICTED",current_legs:legs,verified:u.verified===true,unrestricted:true,hasGateEvidence:false,grade:u.grade||null,revision:u.revision};
- return {latest:{date,stage:entry.stage,verified:entry.verified,card:{cardId:entry.cardId,current_legs:legs},publishedAt:u.publishedAt,selectionFunnel:{surveyedEligibleSkaters:u.evaluated_players},unrestricted:true,survivors:u.survivors||[]},archive:[entry]};
+function unrestrictedFeed(u,history=[]){
+ const records=[u,...(Array.isArray(history)?history:[])].filter(x=>x?.date&&Array.isArray(x.core)&&String(x.engine||"").startsWith("unrestricted"));
+ const archive=[];const seen=new Set();
+ for(const r of records){
+  const cardId=r.cardId||"unrestricted-"+r.date;
+  if(seen.has(cardId))continue;seen.add(cardId);
+  const legs=r.core.map(p=>({...p,playerId:p.playerId??p.player_id??p.player,gameId:p.gameId??p.game_id??null,matchup:p.matchup??null,path:"UNRESTRICTED",directRoute:p.directRoute??"Scoring route not included",unrestricted:true}));
+  archive.push({date:r.date,cardId,selectionKey:cardId,stage:r.stage||"UNRESTRICTED",current_legs:legs,verified:r.verified===true,unrestricted:true,hasGateEvidence:false,grade:r.grade||null,revision:r.revision,provenance:r.provenance,recordType:r.recordType||"original",survivors:r.survivors||[],publishedAt:r.publishedAt,evaluated_players:r.evaluated_players});
+ }
+ archive.sort((a,b)=>b.date.localeCompare(a.date)||Number(a.recordType==="retest")-Number(b.recordType==="retest"));
+ const e=archive[0];if(!e)return {latest:null,archive:[]};
+ return {latest:{date:e.date,stage:e.stage,verified:e.verified,card:{cardId:e.cardId,current_legs:e.current_legs},publishedAt:e.publishedAt,selectionFunnel:{surveyedEligibleSkaters:e.evaluated_players},unrestricted:true,survivors:e.survivors},archive};
+}
+async function loadUnrestrictedFeed(){
+ const u=await json("./data/unrestricted-core.json");
+ const history=await json("./data/unrestricted-history.json");
+ return unrestrictedFeed(u,history);
 }
 async function boot(){
  $("refresh").addEventListener("click",()=>window.location.reload());
  $("slate-select").addEventListener("change",e=>chooseDate(e.target.value));
  initWorkspaceNavigation();
  for(const id of ["flip-selected-card","flip-from-tray"]){const control=$(id);if(control)control.addEventListener("click",flipSelectedFromNavigation);}
- const u=await json("./data/unrestricted-core.json");
- const feed=unrestrictedFeed(u);
+ const feed=await loadUnrestrictedFeed();
  state.latest=feed.latest;state.archive=feed.archive;
- const days=unique([state.latest?.date,...state.archive.map(x=>x.date)]).sort().reverse();
  const request=new URL(window.location.href).searchParams.get("slate");
- const today=etToday();
- // Show the latest verified original Core, not a blank unissued current slate.
-  // The existing header explicitly identifies archived cards.
-  const newestVerified=state.archive.map(x=>x.date).sort().reverse()[0];
-  const currentIssued=state.latest?.date===today && state.latest?.verified===true &&
-    Array.isArray(state.latest?.card?.current_legs) && state.latest.card.current_legs.length>0;
-  state.selectedDate=request&&days.includes(request)?request:
-    state.archive.some(x=>x.date===today&&x.unrestricted)?today:currentIssued?today:newestVerified||days[0]||null;
+ state.selectedDate=state.archive.find(x=>x.selectionKey===request)?.selectionKey||
+ state.archive.find(x=>x.date===request)?.selectionKey||state.archive[0]?.selectionKey||null;
  if(!state.selectedDate){
    renderAll();
    $("core-cards").replaceChildren(el("div","empty-state",
@@ -606,7 +607,7 @@ boot().catch(e=>{
 let latestPublishedSignature=null;
 async function pollPublishedResults(){
  if(document.hidden)return;
- const feed=unrestrictedFeed(await json("./data/unrestricted-core.json"));
+ const feed=await loadUnrestrictedFeed();
  const next=feed.latest, archived=feed.archive;
  if(!next)return;
  const fingerprint=publishedSignature(next,archived);
@@ -616,13 +617,9 @@ async function pollPublishedResults(){
  state.latest=next;state.archive=archived;
  // Automatically show the newly issued current Core when it first arrives.
  // Do not replace a deliberate archived selection after today was already issued.
- const days=unique([next.date,...archived.map(x=>x.date)]);
- const newlyIssuedToday=next.date===etToday() && next.verified===true &&
-   Array.isArray(next.card?.current_legs) && next.card.current_legs.length>0 &&
-   !(previous?.verified===true && previous?.date===next.date &&
-     Array.isArray(previous?.card?.current_legs) && previous.card.current_legs.length>0);
- if(newlyIssuedToday || !days.includes(state.selectedDate)){
-   state.selectedDate=newlyIssuedToday?next.date:days[0]||null;
+ const newlyIssuedToday=next.date===etToday() && next.card?.cardId!==previous?.card?.cardId;
+ if(newlyIssuedToday || !archived.some(x=>x.selectionKey===state.selectedDate)){
+   state.selectedDate=archived[0]?.selectionKey||null;
    const first=selectedEntry()?.current_legs?.[0];
    state.selectedLeg=first?String(first.gameId)+":"+String(first.playerId):null;
    state.flippedLeg=null;state.gateFilter="all";
